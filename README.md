@@ -9,16 +9,20 @@ Dự án gồm 2 phần: **frontend** (Vite + React + TypeScript) và **backend*
 ├── frontend/       # Giao diện người dùng
 ├── backend/        # API và xử lý server
 
+Tải node modules
+npm install ở GreenMart
+cd frontend
+npm install 
+cd backend 
+npm install 
+
 Chạy riêng Frontend
 cd frontend
-npm install
 npm run dev
 
 Chạy riêng Backend
 cd backend
-npm install
 npm run dev
 
 Chạy cả 2
-npm install
-npm run dev
+npm run dev ở GreenMart
