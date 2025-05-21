@@ -9,7 +9,7 @@ Dự án gồm hai phần:
 
 ## 🔧 Cài đặt
 
-1. Tại thư mục gốc GreenMart, chạy `npm install` để cài đặt dependencies dùng chung (nếu có).
+1. Tại thư mục gốc GreenMart, chạy `npm install` để cài đặt dependencies dùng chung .
 
 2. Truy cập vào thư mục `frontend`, chạy:
 
