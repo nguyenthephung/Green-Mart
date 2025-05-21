@@ -1,28 +1,50 @@
-# 🧑‍💻 Dự án Web Fullstack
+# 🛒 GreenMart - Web Bán Hàng Fullstack
 
-Dự án gồm 2 phần: **frontend** (Vite + React + TypeScript) và **backend** (Node.js + Express).
+Dự án gồm hai phần:
 
-## 📂 Cấu trúc thư mục
+- **Frontend**: Giao diện người dùng (React + Vite + TypeScript)
+- **Backend**: Xử lý API (Node.js + Express)
 
-```bash
-.
-├── frontend/       # Giao diện người dùng
-├── backend/        # API và xử lý server
+---
 
-Tải node modules
-npm install ở GreenMart
-cd frontend
-npm install 
-cd backend 
-npm install 
+## 🔧 Cài đặt
 
-Chạy riêng Frontend
-cd frontend
-npm run dev
+1. Tại thư mục gốc GreenMart, chạy `npm install` để cài đặt dependencies dùng chung (nếu có).
 
-Chạy riêng Backend
-cd backend
-npm run dev
+2. Truy cập vào thư mục `frontend`, chạy:
 
-Chạy cả 2
-npm run dev ở GreenMart
+   - `npm install`
+
+3. Truy cập vào thư mục `backend`, chạy:
+
+   - `npm install`
+
+---
+
+## ▶️ Chạy dự án
+
+### Chạy riêng **Frontend**
+
+1. Truy cập vào thư mục `frontend`
+
+2. Chạy lệnh:
+
+   - `npm run dev`
+
+---
+
+### Chạy riêng **Backend**
+
+1. Truy cập vào thư mục `backend`
+
+2. Chạy lệnh:
+
+   - `npm run dev`
+
+---
+
+### Chạy cả **Frontend và Backend** từ thư mục gốc GreenMart
+
+Chạy lệnh:
+
+- `npm run dev`
