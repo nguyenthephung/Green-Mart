@@ -1,16 +1,19 @@
-import { useState } from 'react'
-import reactLogo from '@/assets/react.svg'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import MainLayout from './layouts/MainLayout'
+import Category from './pages/Category'
+// import các page khác...
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-     <div className="min-h-screen bg-gradient-to-br from-green-200 to-green-500 flex items-center justify-center">
-      <h1 className="text-4xl font-bold text-white">GreenMart Frontend ✅</h1>
-
-    </div>
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<MainLayout />}>
+          <Route index element={<Category  />} />
+          {/* <Route path="product/:id" element={<ProductDetail />} /> */}
+          {/* ...other routes */}
+        </Route>
+      </Routes>
+    </BrowserRouter>
   )
 }
 
