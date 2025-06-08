@@ -18,8 +18,8 @@ export default function OrderTrackingPage() {
 
   return (
     <div className="p-4 max-w-6xl mx-auto">
-      <Link to="/myorder">
-        <button className="mb-4 text-pink-600 hover:underline">← Back</button>
+      <Link to="/myorder"  className="text-sm text-blue-600 hover:underline" >
+        ← Back
       </Link>
       
       <OrderProgress status={status} date={date} />

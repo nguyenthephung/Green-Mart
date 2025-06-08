@@ -12,8 +12,7 @@ function App() {
         <Route path="/" element={<MainLayout />}>
           <Route path="category" element={<Category />} />
          <Route path="/ordertracking/:orderId" element={<OrderTrackingPage />} />
-          {/* <Route path="product/:id" element={<ProductDetail />} /> */}
-          {/* ...other routes */}
+       
         </Route>
             <Route path="myorder" element={<OrdersPage/>} />
       </Routes>
