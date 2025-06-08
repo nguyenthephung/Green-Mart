@@ -1,0 +1,91 @@
+export const mockOrders = [
+  {
+    id: "ORD-001",
+    status: "Completed",
+    date: "Apr 5, 2022, 10:07 AM",
+    items: [
+      {
+        name: "Sweet Green Seedless",
+        price: 99.99,
+        oldPrice: 99.99,
+        quantity: 6,
+        image: "/images/orange.png",
+      },
+      {
+        name: "Red Apples Pack",
+        price: 49.99,
+        oldPrice: 59.99,
+        quantity: 2,
+        image: "/images/apple.png",
+      },
+    ],
+    deliveryFee: 1.5,
+    payWith: "Cash",
+    deliveryAddress: "123 Main Street, NY",
+  },
+  {
+    id: "ORD-002",
+    status: "Cancelled",
+    date: "Apr 6, 2022, 12:15 PM",
+    items: [
+      {
+        name: "Fresh Bananas",
+        price: 29.99,
+        oldPrice: 39.99,
+        quantity: 4,
+        image: "/images/banana.png",
+      },
+      {
+        name: "Strawberry Box",
+        price: 19.99,
+        oldPrice: 24.99,
+        quantity: 3,
+        image: "/images/strawberry.png",
+      },
+    ],
+    deliveryFee: 2.2,
+    payWith: "Visa 9912",
+    deliveryAddress: "456 Ocean Avenue, CA",
+  },
+  {
+    id: "ORD-003",
+    status: "In Progress",
+    date: "Apr 7, 2022, 9:30 AM",
+    items: [
+      {
+        name: "Watermelon Slice",
+        price: 9.99,
+        oldPrice: 12.99,
+        quantity: 1,
+        image: "/images/watermelon.png",
+      },
+      {
+        name: "Lemon Bag",
+        price: 14.99,
+        oldPrice: 19.99,
+        quantity: 5,
+        image: "/images/lemon.png",
+      },
+    ],
+    deliveryFee: 1.75,
+    payWith: "MasterCard 02132",
+    deliveryAddress: "789 Park Blvd, TX",
+  },
+  {
+    id: "ORD-004",
+    status: "Completed",
+    date: "Apr 8, 2022, 4:45 PM",
+    items: [
+      {
+        name: "Blueberry Cup",
+        price: 5.99,
+        oldPrice: 7.99,
+        quantity: 10,
+        image: "/images/blueberry.png",
+      },
+    ],
+    deliveryFee: 1.2,
+    payWith: "Cash",
+    deliveryAddress: "135 High St, FL",
+  },
+];

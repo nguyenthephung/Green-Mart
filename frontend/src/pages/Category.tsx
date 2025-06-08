@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
-import { products } from "@/data/products";
-import { categories } from "@/data/categories";
-import { priceRanges } from "@/data/filters";
+import { products } from "../data/products";
+import { categories } from "../data/categories";
+import { priceRanges } from "../data/filters";
 import { useLocation } from "react-router-dom";
-import ProductCard from "@/components/ProductCard";
-import CategoryTag from "@/components/CategoryTag";
-
+import ProductCard from "../components/category/ProductCard";
+import CategoryTag from "../components/category/CategoryTag";
 function useQuery() {
   return new URLSearchParams(useLocation().search);
 }
