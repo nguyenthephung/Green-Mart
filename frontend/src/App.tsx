@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import MainLayout from './layouts/MainLayout'
 import Category from './pages/Category'
+import OrdersPage from "./pages/OrdersPage";
+import OrderTrackingPage from './pages/OrderTrackingPage';
 // import các page khác...
 
 function App() {
@@ -8,10 +10,11 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<MainLayout />}>
-          <Route index element={<Category  />} />
-          {/* <Route path="product/:id" element={<ProductDetail />} /> */}
-          {/* ...other routes */}
+          <Route path="category" element={<Category />} />
+         <Route path="/ordertracking/:orderId" element={<OrderTrackingPage />} />
+       
         </Route>
+            <Route path="myorder" element={<OrdersPage/>} />
       </Routes>
     </BrowserRouter>
   )

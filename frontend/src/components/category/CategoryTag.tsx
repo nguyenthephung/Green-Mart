@@ -1,5 +1,5 @@
 import { Tag } from "lucide-react";
-import { FC } from "react";
+import type  { FC } from "react";
 
 const CategoryTag: FC<{ name: string; active: boolean; onClick: () => void }> = ({ name, active, onClick }) => {
   return (
