@@ -1,4 +1,6 @@
 import { useState } from "react";
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 import CartSummary from "../components/CartSummary";
 import MarketInfo from "../components/MarketInfo";
 import Recommendations from "../components/Recommendations";
@@ -28,6 +30,8 @@ export default function CartPage() {
   );
 
   return (
+    <>
+    <Header />
     <div className="bg-gray-50 min-h-screen">
       <main className="w-full px-8 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
@@ -44,5 +48,8 @@ export default function CartPage() {
         </div>
       </main>
     </div>
+    <Footer />
+    </>
+
   );
 }
