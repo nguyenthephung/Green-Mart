@@ -1,15 +1,18 @@
-import { FaUser, FaMapMarkerAlt, FaCreditCard, FaBell, FaGift, FaBook, FaCog, FaQuestionCircle, FaSignOutAlt } from "react-icons/fa";
+import { Link } from 'react-router-dom';
+import { FaUser, FaMapMarkerAlt, FaCreditCard, FaBell, FaGift, FaBook, FaCog, FaQuestionCircle, FaSignOutAlt, FaShoppingCart, FaBox } from 'react-icons/fa';
 
-const Sidebar = () => {
+const Sidebar: React.FC = () => {
   const menuItems = [
-    { icon: <FaUser />, label: "Account Details" },
-    { icon: <FaMapMarkerAlt />, label: "My Addresses" },
-    { icon: <FaCreditCard />, label: "My Payments" },
-    { icon: <FaBell />, label: "Notification Setting" },
-    { icon: <FaGift />, label: "Coupons" },
-    { icon: <FaBook />, label: "My Recipes" },
-    { icon: <FaCog />, label: "Account Settings" },
-    { icon: <FaQuestionCircle />, label: "Help Center" }
+    { icon: <FaUser />, label: 'Account Details', path: '/accountdetail' },
+    { icon: <FaBox />, label: 'My Orders', path: '/myorder' },
+    { icon: <FaMapMarkerAlt />, label: 'My Addresses', path: '/myaddress' },
+    { icon: <FaCreditCard />, label: 'My Payments', path: '/mypayment' },
+    { icon: <FaBell />, label: 'Notification Settings', path: '/notification-settings' },
+    { icon: <FaGift />, label: 'Refer Friends', path: '/refer-friends' },
+    { icon: <FaBook />, label: 'Coupons', path: '/coupons' },
+    { icon: <FaBook />, label: 'My Recipes', path: '/my-recipes' },
+    { icon: <FaCog />, label: 'Account Settings', path: '/account-settings' },
+    { icon: <FaQuestionCircle />, label: 'Help Center', path: '/help-center' },
   ];
 
   return (
@@ -24,13 +27,17 @@ const Sidebar = () => {
         {menuItems.map((item, index) => (
           <li key={index} className="flex items-center gap-3 text-gray-700 hover:text-purple-600 cursor-pointer">
             {item.icon}
-            <span>{item.label}</span>
+            <Link to={item.path} className="w-full">
+              {item.label}
+            </Link>
           </li>
         ))}
       </ul>
       <div className="absolute bottom-6 left-6 flex items-center gap-3 text-gray-700 hover:text-red-500 cursor-pointer">
         <FaSignOutAlt />
-        <span>Logout</span>
+        <Link to="/login" className="w-full">
+          Logout
+        </Link>
       </div>
     </aside>
   );
