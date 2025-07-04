@@ -1,12 +1,46 @@
 import { CreditCard } from "lucide-react";
+import haversine from "haversine-distance";
+import { districts } from "../../../data/Guest/hcm_districts_sample";
+
+const STORE_LOCATION = {
+  latitude: 10.754027, // Quận 5, TP.HCM
+  longitude: 106.663874,
+};
+
+function getLatLngFromAddress(address: { district: string; ward: string }) {
+  if (!address) return null;
+  const district = districts.find((d) => d.name === address.district);
+  const ward = district?.wards.find((w) => w.name === address.ward);
+  if (ward) {
+    return { latitude: ward.latitude, longitude: ward.longitude };
+  }
+  return null;
+}
+
+function calculateShippingFee(userCoords: { latitude: number; longitude: number } | null) {
+  if (!userCoords) return 0;
+  const distance = haversine(userCoords, STORE_LOCATION) / 1000; // km
+  if (distance <= 3) return 15000;
+  if (distance <= 7) return 25000;
+  return 35000;
+}
 
 interface CartSummaryProps {
   itemsTotal: number;
   deliveryFee: number;
+  address?: {
+    district: string;
+    ward: string;
+  };
 }
 
-export default function CartSummary({ itemsTotal, deliveryFee }: CartSummaryProps) {
-  const finalTotal = itemsTotal + deliveryFee;
+export default function CartSummary({ itemsTotal, deliveryFee, address }: CartSummaryProps) {
+  let dynamicFee = deliveryFee;
+  if (address) {
+    const coords = getLatLngFromAddress(address);
+    if (coords) dynamicFee = calculateShippingFee(coords);
+  }
+  const finalTotal = itemsTotal + dynamicFee;
 
   return (
     <div className="bg-white shadow-md rounded-xl p-6 w-full">
@@ -18,7 +52,7 @@ export default function CartSummary({ itemsTotal, deliveryFee }: CartSummaryProp
       </div>
       <div className="flex justify-between mb-2 text-sm">
         <span>Phí giao hàng</span>
-        <span>{deliveryFee.toLocaleString()} ₫</span>
+        <span>{dynamicFee.toLocaleString()} ₫</span>
       </div>
 
       <div className="flex justify-between font-bold text-base mt-2 border-t pt-2">

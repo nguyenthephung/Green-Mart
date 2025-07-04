@@ -6,8 +6,11 @@ export interface Product {
   id: string | number;
   name: string;
   price: string;
+  salePrice?: string;
+  isSale?: boolean;
   image: string;
   category: string;
+  isFeatured?: boolean;
 }
 
 interface ProductCardProps {
@@ -37,24 +40,27 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
         clone.style.transform = 'scale(1) rotateY(0deg)';
         document.body.appendChild(clone);
         setTimeout(() => {
-          clone.style.left = cartRect.left + cartRect.width / 2 - imgRect.width / 4 + 'px';
-          clone.style.top = cartRect.top + cartRect.height / 2 - imgRect.height / 4 + 'px';
+          // Tính toán vị trí trung tâm của icon giỏ hàng
+          const targetLeft = cartRect.left + cartRect.width / 2 - imgRect.width / 4;
+          const targetTop = cartRect.top + cartRect.height / 2 - imgRect.height / 4;
+          clone.style.left = targetLeft + 'px';
+          clone.style.top = targetTop + 'px';
           clone.style.width = imgRect.width / 2 + 'px';
           clone.style.height = imgRect.height / 2 + 'px';
           clone.style.opacity = '0.7';
-          clone.style.transform = 'scale(0.5) rotateY(360deg)';
+          clone.style.transform = 'scale(0.5)';
           clone.style.boxShadow = '0 8px 32px 0 rgba(34,197,94,0.4)';
         }, 10);
         setTimeout(() => {
           document.body.removeChild(clone);
-        }, 3100);
+        }, 2500);
       }
     }
     onAddToCart(product);
   };
 
   return (
-    <div className="bg-white p-4 rounded-xl shadow-xl transform transition-all duration-400 hover:shadow-2xl hover:-translate-y-2 perspective-1000">
+    <div className="bg-white p-4 rounded-xl shadow-xl transform transition-all duration-400 hover:shadow-2xl hover:-translate-y-2 perspective-1000 relative">
       <Link to={`/productdetail/${product.id}`}>
         <img
           ref={imgRef}
@@ -64,7 +70,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
         />
       </Link>
       <h4 className="text-lg font-medium mt-2">{product.name}</h4>
-      <p className="text-gray-600">{product.price}</p>
+      {product.isSale ? (
+        <div className="flex items-center gap-2 mt-1">
+          <span className="text-gray-400 line-through text-sm">{product.price}</span>
+          <span className="text-red-600 font-bold text-lg">{product.salePrice}</span>
+          <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">SALE</span>
+        </div>
+      ) : (
+        <p className="text-gray-600">{product.price}</p>
+      )}
       <button
         onClick={handleAddToCart}
         className="mt-2 w-full bg-green-600 text-white px-4 py-2 rounded-md shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex items-center justify-center"

@@ -13,7 +13,6 @@ interface CategorySectionProps {
 
 const CategorySection: React.FC<CategorySectionProps> = ({
   title,
-  category,
   products,
   onAddToCart,
   viewMoreLink,

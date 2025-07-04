@@ -3,16 +3,16 @@ import { FaUser, FaMapMarkerAlt, FaCreditCard, FaBell, FaGift, FaBook, FaCog, Fa
 
 const Sidebar: React.FC = () => {
   const menuItems = [
-    { icon: <FaUser />, label: 'Account Details', path: '/accountdetail' },
-    { icon: <FaBox />, label: 'My Orders', path: '/myorder' },
-    { icon: <FaMapMarkerAlt />, label: 'My Addresses', path: '/myaddress' },
-    { icon: <FaCreditCard />, label: 'My Payments', path: '/mypayment' },
-    { icon: <FaBell />, label: 'Notification Settings', path: '/notification-settings' },
-    { icon: <FaGift />, label: 'Refer Friends', path: '/refer-friends' },
-    { icon: <FaBook />, label: 'Coupons', path: '/coupons' },
-    { icon: <FaBook />, label: 'My Recipes', path: '/my-recipes' },
-    { icon: <FaCog />, label: 'Account Settings', path: '/account-settings' },
-    { icon: <FaQuestionCircle />, label: 'Help Center', path: '/help-center' },
+    { icon: <FaUser />, label: 'Thông tin tài khoản', path: '/accountdetail' },
+    { icon: <FaBox />, label: 'Đơn hàng của tôi', path: '/myorder' },
+    { icon: <FaMapMarkerAlt />, label: 'Địa chỉ của tôi', path: '/myaddress' },
+    { icon: <FaCreditCard />, label: 'Phương thức thanh toán', path: '/mypayment' },
+    { icon: <FaBell />, label: 'Cài đặt thông báo', path: '/notification-settings' },
+    { icon: <FaGift />, label: 'Giới thiệu bạn bè', path: '/refer-friends' },
+    { icon: <FaBook />, label: 'Mã giảm giá', path: '/coupons' },
+    { icon: <FaBook />, label: 'Công thức của tôi', path: '/my-recipes' },
+    { icon: <FaCog />, label: 'Cài đặt tài khoản', path: '/account-settings' },
+    { icon: <FaQuestionCircle />, label: 'Trung tâm trợ giúp', path: '/help-center' },
   ];
 
   return (
@@ -36,7 +36,7 @@ const Sidebar: React.FC = () => {
       <div className="absolute bottom-6 left-6 flex items-center gap-3 text-gray-700 hover:text-red-500 cursor-pointer">
         <FaSignOutAlt />
         <Link to="/login" className="w-full">
-          Logout
+          Đăng xuất
         </Link>
       </div>
     </aside>

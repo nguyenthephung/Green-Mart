@@ -1,19 +1,38 @@
 import type { FC } from 'react';
 import { MapPin, CreditCard, ChevronRight, CalendarDays } from 'lucide-react';
+import type { UserInfo, AddressInfo, PaymentInfo } from '../../../reduxSlice/UserContext';
+import { useState } from 'react';
 
 interface Item {
   id: number;
   name: string;
   image: string;
+  quantity: number;
 }
 
 interface CheckoutMainProps {
   items: Item[];
+  userInfo: UserInfo;
+  address?: AddressInfo;
+  payment?: PaymentInfo;
+  onPaymentChange?: (method: string) => void;
 }
 
-const CheckoutMain: FC<CheckoutMainProps> = ({ items }) => {
+const paymentOptions = [
+  { label: 'Thanh toán khi nhận hàng (COD)', value: 'cod' },
+  { label: 'Thanh toán online (VNPay)', value: 'vnpay' },
+];
+
+const CheckoutMain: FC<CheckoutMainProps> = ({ items, userInfo, address, payment, onPaymentChange }) => {
+  const [selectedPayment, setSelectedPayment] = useState(payment?.method || 'cod');
   const visibleItems = items.slice(0, 10);
   const remainingCount = items.length - visibleItems.length;
+
+  // Khi chọn payment method, gọi callback nếu có
+  const handleSelectPayment = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedPayment(e.target.value);
+    if (onPaymentChange) onPaymentChange(e.target.value);
+  };
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-md space-y-6 w-full">
@@ -27,7 +46,7 @@ const CheckoutMain: FC<CheckoutMainProps> = ({ items }) => {
         </div>
         <div className="text-sm text-gray-700 flex items-center gap-1">
           <MapPin className="w-4 h-4 text-green-700" />
-          <span>Deliver Tomorrow, Sep 17, 8am–10am</span>
+          <span>{address ? address.address : 'Chưa chọn địa chỉ'}</span>
         </div>
       </div>
 
@@ -38,8 +57,9 @@ const CheckoutMain: FC<CheckoutMainProps> = ({ items }) => {
             <p className="text-sm font-bold text-gray-700">Delivery info</p>
             <div className="mt-1 text-sm text-green-700 flex items-center gap-1">
               <MapPin className="w-4 h-4" />
-              <span>2118 Thornridge Cir, Syracuse, Connecticut 35624</span>
+              <span>{userInfo.fullName} - {userInfo.phone}</span>
             </div>
+            <div className="text-xs text-gray-500 ml-5">{address ? address.address : 'Chưa chọn địa chỉ'}</div>
           </div>
           <ChevronRight className="w-5 h-5 text-gray-500 hover:text-green-700" />
         </div>
@@ -49,13 +69,20 @@ const CheckoutMain: FC<CheckoutMainProps> = ({ items }) => {
       <div className="bg-white rounded-xl p-4 border hover:border-green-700 transition cursor-pointer">
         <div className="flex justify-between items-center">
           <div>
-            <p className="text-sm font-bold text-gray-700">Payment Method</p>
+            <p className="text-sm font-bold text-gray-700">Phương thức thanh toán</p>
             <div className="mt-1 text-sm text-green-700 flex items-center gap-1">
               <CreditCard className="w-4 h-4" />
-              <span>Mastercard **** 3434</span>
+              <select
+                className="border rounded px-2 py-1 ml-2"
+                value={selectedPayment}
+                onChange={handleSelectPayment}
+              >
+                {paymentOptions.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
             </div>
           </div>
-          <ChevronRight className="w-5 h-5 text-gray-500 hover:text-green-700" />
         </div>
       </div>
 

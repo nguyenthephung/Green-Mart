@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import Header from '../components/Guest/Header';
 import Footer from '../components/Guest/Footer';
 
+
 export default function MainLayout() {
   const location = useLocation();
 
@@ -14,12 +15,14 @@ export default function MainLayout() {
   const isFullWidthPage = location.pathname === '/home' || location.pathname.startsWith('/ordertracking');
 
   return (
-    <div className="font-sans flex flex-col min-h-screen">
-      <Header />
-      <main className={`flex-1 pt-20 ${isFullWidthPage ? 'px-4 py-6' : 'px-4 py-6 max-w-6xl mx-auto'}`}>
-        <Outlet />
-      </main>
-      <Footer />
-    </div>
+   
+        <div className="font-sans flex flex-col min-h-screen">
+          <Header />
+          <main className={`flex-1 pt-[104px] md:pt-[88px] lg:pt-[80px] ${isFullWidthPage ? 'px-4 py-6' : 'px-4 py-6 max-w-6xl mx-auto'}`}>
+            <Outlet />
+          </main>
+          <Footer />
+        </div>
+   
   );
 }

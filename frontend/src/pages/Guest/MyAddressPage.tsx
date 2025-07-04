@@ -1,29 +1,57 @@
 import React, { useState } from 'react';
+import { useUser } from '../../reduxSlice/UserContext';
 import DashboardLayout from '../../layouts/DashboardLayout';
-
-interface Address {
-  id: number;
-  label: string;
-  address: string;
-  isSelected: boolean;
-}
+import AddressSelector, { type UserAddress } from '../../components/Guest/Account/AddressSelector';
 
 const MyAddresses: React.FC = () => {
-  const [addresses, setAddresses] = useState<Address[]>([
-    { id: 1, label: 'Home', address: '2972 Westheimer Rd, Santa Ana, Illinois 85448', isSelected: false },
-    { id: 2, label: "My Grandparents' House", address: '2972 Westheimer Rd, Santa Ana, Illinois 85403', isSelected: false },
-    { id: 3, label: 'Office', address: '2972 Westheimer Rd, Santa Ana, Illinois 85448', isSelected: false },
-  ]);
-
+  const { addresses, setAddresses } = useUser();
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
-  const [newAddress, setNewAddress] = useState<{ label: string; address: string }>({ label: '', address: '' });
+  const [showEditModal, setShowEditModal] = useState<number | null>(null); // id của address đang sửa
+  const [newAddress, setNewAddress] = useState<UserAddress | null>(null);
+  const [editAddress, setEditAddress] = useState<UserAddress | null>(null);
 
+  // Thêm địa chỉ mới
   const handleAddAddress = () => {
-    setAddresses([...addresses, { ...newAddress, id: addresses.length + 1, isSelected: false }]);
-    setNewAddress({ label: '', address: '' });
-    setShowAddModal(false);
+    if (newAddress) {
+      setAddresses([
+        ...addresses.map((a) => ({ ...a, isSelected: false })),
+        {
+          ...newAddress,
+          id: addresses.length > 0 ? Math.max(...addresses.map(a => a.id)) + 1 : 1,
+          isSelected: true,
+          label: `${newAddress.street}, ${newAddress.ward}, ${newAddress.district}`,
+          address: `${newAddress.street}, ${newAddress.ward}, ${newAddress.district}`,
+          wardName: newAddress.ward || '',
+        },
+      ]);
+      setNewAddress(null);
+      setShowAddModal(false);
+    }
   };
 
+  // Sửa địa chỉ
+  const handleEditAddress = () => {
+    if (editAddress && showEditModal !== null) {
+      setAddresses(
+        addresses.map((a) =>
+          a.id === showEditModal
+            ? {
+                ...a,
+                ...editAddress,
+                label: `${editAddress.street}, ${editAddress.ward}, ${editAddress.district}`,
+                address: `${editAddress.street}, ${editAddress.ward}, ${editAddress.district}`,
+                wardName: editAddress.ward || '',
+                districtName: editAddress.district || '',
+              }
+            : a
+        )
+      );
+      setEditAddress(null);
+      setShowEditModal(null);
+    }
+  };
+
+  // Chọn địa chỉ giao hàng
   const handleSelectAddress = (id: number) => {
     setAddresses(
       addresses.map((address) =>
@@ -32,94 +60,95 @@ const MyAddresses: React.FC = () => {
     );
   };
 
+  // Xóa địa chỉ
   const handleDeleteAddress = (id: number) => {
-    setAddresses(addresses.filter((address) => address.id !== id));
+    let newAddresses = addresses.filter((address) => address.id !== id);
+    // Nếu xóa địa chỉ đang chọn thì chọn lại địa chỉ đầu tiên nếu còn
+    if (!newAddresses.some(a => a.isSelected) && newAddresses.length > 0) {
+      newAddresses[0].isSelected = true;
+    }
+    setAddresses(newAddresses);
   };
 
   return (
     <DashboardLayout>
       <div className="bg-white p-6 rounded-lg shadow-lg">
-      
-        <h2 className="text-xl font-semibold text-pink-500 mb-4">My Addresses</h2>
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">Địa chỉ của tôi</h2>
         <div className="space-y-4">
           {addresses.map((address) => (
-            <div key={address.id} className="flex justify-between items-center py-4 border-b">
+            <div key={address.id} className={`flex justify-between items-center py-4 border-b ${address.isSelected ? 'bg-green-50' : ''}`}>
               <input
                 type="radio"
                 checked={address.isSelected}
                 onChange={() => handleSelectAddress(address.id)}
-                className="h-4 w-4 text-pink-500 border-gray-300 rounded-full focus:ring-2 focus:ring-pink-500"
+                className="h-4 w-4 text-green-600 border-gray-300 rounded-full focus:ring-2 focus:ring-green-600"
               />
               <div className="flex-1 ml-4">
                 <p className="text-lg font-semibold text-gray-900">{address.label}</p>
-                <input
-                  type="text"
-                  value={address.address}
-                  onChange={(e) =>
-                    setAddresses(
-                      addresses.map((a) => (a.id === address.id ? { ...a, address: e.target.value } : a))
-                    )
-                  }
-                  className="text-gray-500 w-full border-b border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500 py-2"
-                />
+                <div className="text-gray-500 w-full border-b border-gray-300 py-2">
+                  {address.address}
+                </div>
               </div>
               <div className="flex items-center ml-4 space-x-4">
-                <button className="text-pink-500">Edit</button>
-                <button onClick={() => handleDeleteAddress(address.id)} className="text-red-500">
-                  Delete
+                <button
+                  className="text-green-700 hover:underline"
+                  onClick={() => {
+                    setShowEditModal(address.id);
+                    setEditAddress(address as UserAddress);
+                  }}
+                >
+                  Chỉnh sửa
+                </button>
+                <button onClick={() => handleDeleteAddress(address.id)} className="text-red-500 hover:underline">
+                  Xóa
                 </button>
               </div>
             </div>
           ))}
           <div className="flex justify-between items-center py-4">
-            <button className="text-pink-500 font-semibold" onClick={() => setShowAddModal(true)}>
-              + Add New Address
+            <button className="text-green-700 font-semibold hover:underline" onClick={() => setShowAddModal(true)}>
+              + Thêm địa chỉ mới
             </button>
           </div>
         </div>
+        {/* Modal thêm địa chỉ */}
         {showAddModal && (
-          <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4">Add New Address</h3>
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="label" className="block font-semibold text-gray-600">
-                    Address Label
-                  </label>
-                  <input
-                    id="label"
-                    type="text"
-                    value={newAddress.label}
-                    onChange={(e) => setNewAddress({ ...newAddress, label: e.target.value })}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="address" className="block font-semibold text-gray-600">
-                    Address
-                  </label>
-                  <input
-                    id="address"
-                    type="text"
-                    value={newAddress.address}
-                    onChange={(e) => setNewAddress({ ...newAddress, address: e.target.value })}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-                  />
-                </div>
-                <div className="flex justify-end space-x-4 mt-4">
-                  <button
-                    onClick={() => setShowAddModal(false)}
-                    className="text-gray-500 border border-gray-300 px-4 py-2 rounded-md"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleAddAddress}
-                    className="text-white bg-pink-500 px-4 py-2 rounded-md"
-                  >
-                    Add Address
-                  </button>
-                </div>
+          <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">Thêm địa chỉ mới</h3>
+              <AddressSelector value={undefined} onChange={setNewAddress as any} />
+              <div className="flex justify-end space-x-2 mt-4">
+                <button className="px-4 py-2 bg-gray-200 rounded" onClick={() => setShowAddModal(false)}>
+                  Hủy
+                </button>
+                <button
+                  className="px-4 py-2 bg-green-600 text-white rounded disabled:opacity-50"
+                  onClick={handleAddAddress}
+                  disabled={!newAddress}
+                >
+                  Lưu
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* Modal chỉnh sửa địa chỉ */}
+        {showEditModal !== null && editAddress && (
+          <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">Chỉnh sửa địa chỉ</h3>
+              <AddressSelector value={editAddress} onChange={setEditAddress as any} />
+              <div className="flex justify-end space-x-2 mt-4">
+                <button className="px-4 py-2 bg-gray-200 rounded" onClick={() => setShowEditModal(null)}>
+                  Hủy
+                </button>
+                <button
+                  className="px-4 py-2 bg-green-600 text-white rounded disabled:opacity-50"
+                  onClick={handleEditAddress}
+                  disabled={!editAddress}
+                >
+                  Lưu
+                </button>
               </div>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { products } from '../../data/Guest/Home';
 import { FaShoppingCart, FaCheckCircle, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
@@ -10,6 +10,10 @@ const ProductDetailPage: React.FC = () => {
   const { addToCart } = useCart();
   const imgRef = useRef<HTMLImageElement>(null);
   const imgRefs = React.useRef<{ [key: number]: React.RefObject<HTMLImageElement | null> }>({});
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  }, []);
 
   if (!product) {
     return <div className="p-6 text-center text-red-600 text-xl">Không tìm thấy sản phẩm.</div>;
@@ -76,7 +80,7 @@ const ProductDetailPage: React.FC = () => {
     addToCart({
       id: Number(product.id),
       name: product.name,
-      price: product.price,
+      price: parseInt((product.price || '').replace(/\D/g, '')) || 0,
       image: product.image
     });
   };
@@ -114,9 +118,9 @@ const ProductDetailPage: React.FC = () => {
       }
     }
     addToCart({
-      id: item.id,
+      id: Number(item.id),
       name: item.name,
-      price: item.price,
+      price: parseInt((item.price || '').replace(/\D/g, '')) || 0,
       image: item.image
     });
   };
@@ -191,36 +195,74 @@ const ProductDetailPage: React.FC = () => {
       {relatedProducts.length > 0 && (
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Sản phẩm liên quan</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            {relatedProducts.map((item) => (
-              <div
-                key={item.id}
-                className="bg-white p-4 rounded-xl shadow-xl transform transition-all duration-400 hover:shadow-2xl hover:-translate-y-2"
-              >
-                <Link to={`/productdetail/${item.id}`}>
-                  <img
-                    ref={
-                      imgRefs.current[item.id] ||
-                      (imgRefs.current[item.id] = React.createRef<HTMLImageElement>())
-                    }
-                    src={item.image}
-                    alt={item.name}
-                    className="w-full h-40 object-cover rounded-lg transform transition-transform duration-300 hover:scale-105"
-                  />
-                </Link>
-                <h4 className="text-lg font-medium mt-2 text-gray-800">{item.name}</h4>
-                <p className="text-green-600 font-semibold">{item.price}</p>
-                <button
-                  onClick={(e) => handleAddToCartRelated(e, item)}
-                  className="mt-2 w-full bg-green-600 text-white px-4 py-2 rounded-md shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex items-center justify-center"
-                >
-                  <FaShoppingCart className="mr-2" /> Thêm Vào Giỏ Hàng
-                </button>
-              </div>
-            ))}
-          </div>
+          <RelatedProductsSlider products={relatedProducts} handleAddToCartRelated={handleAddToCartRelated} imgRefs={imgRefs} />
         </div>
       )}
+    </div>
+  );
+};
+
+const RelatedProductsSlider: React.FC<{
+  products: any[];
+  handleAddToCartRelated: (e: React.MouseEvent, item: any) => void;
+  imgRefs: React.MutableRefObject<{ [key: number]: React.RefObject<HTMLImageElement | null> }>;
+}> = ({ products, handleAddToCartRelated, imgRefs }) => {
+  const [start, setStart] = React.useState(0);
+  const itemsPerView = 4;
+  const canPrev = start > 0;
+  const canNext = start + itemsPerView < products.length;
+
+  const handlePrev = () => setStart((prev) => Math.max(0, prev - itemsPerView));
+  const handleNext = () => setStart((prev) => Math.min(products.length - itemsPerView, prev + itemsPerView));
+
+  return (
+    <div className="relative">
+      <button
+        onClick={handlePrev}
+        disabled={!canPrev}
+        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white border rounded-full shadow p-2 text-green-600 disabled:opacity-30"
+        aria-label="prev"
+      >
+        <FaChevronLeft />
+      </button>
+      <div className="overflow-x-hidden">
+        <div className="flex transition-transform duration-500" style={{ transform: `translateX(-${start * (100 / itemsPerView)}%)` }}>
+          {products.slice(start, start + itemsPerView).map((item) => (
+            <div
+              key={item.id}
+              className="bg-white p-4 rounded-xl shadow-xl transform transition-all duration-400 hover:shadow-2xl hover:-translate-y-2 min-w-[220px] max-w-xs mx-2 flex-shrink-0"
+            >
+              <Link to={`/productdetail/${item.id}`}>
+                <img
+                  ref={
+                    imgRefs.current[item.id] ||
+                    (imgRefs.current[item.id] = React.createRef<HTMLImageElement>())
+                  }
+                  src={item.image}
+                  alt={item.name}
+                  className="w-full h-40 object-cover rounded-lg transform transition-transform duration-300 hover:scale-105"
+                />
+              </Link>
+              <h4 className="text-lg font-medium mt-2 text-gray-800">{item.name}</h4>
+              <p className="text-green-600 font-semibold">{item.price}</p>
+              <button
+                onClick={(e) => handleAddToCartRelated(e, item)}
+                className="mt-2 w-full bg-green-600 text-white px-4 py-2 rounded-md shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex items-center justify-center"
+              >
+                <FaShoppingCart className="mr-2" /> Thêm Vào Giỏ Hàng
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+      <button
+        onClick={handleNext}
+        disabled={!canNext}
+        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white border rounded-full shadow p-2 text-green-600 disabled:opacity-30"
+        aria-label="next"
+      >
+        <FaChevronRight />
+      </button>
     </div>
   );
 };

@@ -1,55 +1,160 @@
-import { useState } from "react";
+import { useCart } from '../../reduxSlice/CartContext';
+import {  useEffect } from "react";
 import Header from '../../components/Guest/Header';
-import Footer from '../../components/Guest/Footer';
+// import Footer from '../../components/Guest/Footer'; // Remove Footer import
 import CartSummary from "../../components/Guest/cart/CartSummary";
 import MarketInfo from "../../components/Guest/cart/MarketInfo";
 import Recommendations from "../../components/Guest/cart/Recommendations";
 import CartList from "../../components/Guest/cart/CartList";
-import { cartItems as initialItems } from "../../data/Guest/cart";
-import { recommendations as recommendedItems } from "../../data/Guest/recommendations";
+import { products } from '../../data/Guest/Home';
+import { useNavigate } from 'react-router-dom';
+import EmptyCart from '../../components/Guest/cart/EmptyCart';
+import { useUser } from '../../reduxSlice/UserContext';
+import { districts } from '../../data/Guest/hcm_districts_sample';
+import haversine from 'haversine-distance';
 
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState(initialItems);
-  const deliveryFee = 50000;
+  const { cart, updateQuantity, removeFromCart } = useCart();
+  const { addresses } = useUser();
+  const navigate = useNavigate();
 
-  const updateQuantity = (id: number, newQuantity: number) => {
-    setCartItems(items =>
-      items.map(item =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      )
-    );
-  };
+  // Lấy địa chỉ đang chọn
+  const selectedAddress = addresses.find(a => a.isSelected) || addresses[0];
 
-  const removeItem = (id: number) => {
-    setCartItems(items => items.filter(item => item.id !== id));
-  };
+  // Hàm lấy lat/lng từ address
+  function getLatLngFromAddress(address: any) {
+    if (!address) return null;
+    const district = districts.find((d) => d.name === address.district);
+    const ward = district?.wards.find((w) => w.name === address.ward);
+    if (ward) {
+      return { latitude: ward.latitude, longitude: ward.longitude };
+    }
+    return null;
+  }
+  // Hàm tính phí ship
+  function calculateShippingFee(userCoords: { latitude: number; longitude: number } | null) {
+    const STORE_LOCATION = { latitude: 10.754027, longitude: 106.663874 };
+    if (!userCoords) return 0;
+    const distance = haversine(userCoords, STORE_LOCATION) / 1000; // km
+    if (distance <= 3) return 15000;
+    if (distance <= 7) return 25000;
+    return 35000;
+  }
+  let dynamicDeliveryFee = 0;
+  if (selectedAddress) {
+    const coords = getLatLngFromAddress(selectedAddress);
+    if (coords) dynamicDeliveryFee = calculateShippingFee(coords);
+  }
 
-  const subtotal = cartItems.reduce(
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  }, []);
+
+  // DEBUG LOG: log mỗi khi cart thay đổi
+  useEffect(() => {
+    console.log('Cart context:', cart);
+    const cartListItems = cart.map(item => {
+      const product = products.find(p => p.id === item.id);
+      const priceNumber = parseInt((typeof item.price === 'string' ? item.price : String(item.price)).replace(/\D/g, '')) || 0;
+      const originalPrice = product ? parseInt((typeof product.price === 'string' ? product.price : String(product.price)).replace(/\D/g, '')) || priceNumber : priceNumber;
+      return {
+        ...item,
+        price: priceNumber,
+        originalPrice,
+      };
+    });
+    console.log('CartListItems:', cartListItems);
+  }, [cart]);
+
+  // Map cart context sang CartList type
+  const cartListItems = cart.map(item => {
+    // Tìm sản phẩm gốc để lấy giá gốc nếu muốn
+    const product = products.find(p => p.id === item.id);
+    // Chuyển price từ string sang number
+    const priceNumber = parseInt((typeof item.price === 'string' ? item.price : String(item.price)).replace(/\D/g, '')) || 0;
+    // Nếu có originalPrice thì lấy, không thì lấy price
+    const originalPrice = product ? parseInt((typeof product.price === 'string' ? product.price : String(product.price)).replace(/\D/g, '')) || priceNumber : priceNumber;
+    return {
+      ...item,
+      price: priceNumber,
+      originalPrice,
+    };
+  });
+
+  const subtotal = cartListItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
+
+  // Random các sản phẩm không nằm trong giỏ hàng
+  function getRandomRelatedProducts(count = 8) {
+    // Loại bỏ sản phẩm đã có trong giỏ hàng
+    const cartIds = cart.map(i => i.id);
+    const available = products.filter(p => !cartIds.includes(p.id));
+    // Map về đúng định dạng RecommendationItem
+    const mapped = available.map(p => {
+      const price = parseInt((p.price || '').replace(/\D/g, '')) || 0;
+      return {
+        id: p.id,
+        name: p.name,
+        image: p.image,
+        price,
+        originalPrice: Math.round(price * 1.15), // giả sử giảm giá 15%
+        stock: Math.floor(Math.random() * 10) + 1,
+      };
+    });
+    // Xáo trộn random
+    for (let i = mapped.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [mapped[i], mapped[j]] = [mapped[j], mapped[i]];
+    }
+    return mapped.slice(0, count);
+  }
+  const relatedItems = getRandomRelatedProducts(8);
+
+  if (cart.length === 0) {
+    return (
+      <>
+        <Header />
+        <div className="bg-gray-50 min-h-screen pt-[104px] md:pt-[88px] lg:pt-[80px]">
+          <EmptyCart />
+        </div>
+        {/* <Footer /> */}
+      </>
+    );
+  }
 
   return (
     <>
     <Header />
     <div className="bg-gray-50 min-h-screen">
-      <main className="w-full px-8 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <main className="w-full px-8 py-8 pt-[104px] md:pt-[88px] lg:pt-[80px] grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
           <MarketInfo />
           <CartList
-            items={cartItems}
+            items={cartListItems}
             onQuantityChange={updateQuantity}
-            onRemove={removeItem}
+            onRemove={removeFromCart}
           />
-          <Recommendations items={recommendedItems} />
+          <Recommendations items={relatedItems} />
         </div>
         <div className="self-start">
-          <CartSummary itemsTotal={subtotal} deliveryFee={deliveryFee} />
+          <CartSummary
+            itemsTotal={subtotal}
+            deliveryFee={dynamicDeliveryFee}
+            address={selectedAddress ? { district: selectedAddress?.district, ward: selectedAddress?.wardName } : undefined}
+          />
+          <button
+            className="w-full mt-6 bg-green-700 hover:bg-green-800 text-white py-3 rounded-full font-semibold text-lg shadow-lg transition"
+            disabled={cart.length === 0}
+            onClick={() => navigate('/checkout')}
+          >
+            Thanh toán
+          </button>
         </div>
       </main>
     </div>
-    <Footer />
+    {/* <Footer /> */}
     </>
-
   );
 }

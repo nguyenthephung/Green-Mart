@@ -7,7 +7,7 @@ const Footer: React.FC = () => {
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-5 gap-8">
         <div className="flex flex-col items-center md:items-start">
           <img
-            src="https://via.placeholder.com/100x50?text=Logo"
+            src="/logo.jpg"
             alt="Footer Logo"
             className="h-12 mb-4 rounded-md shadow-md transform hover:scale-105 transition-transform duration-200"
           />

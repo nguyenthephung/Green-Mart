@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShoppingCart, Search, User, MapPin, Home } from 'lucide-react';
 import { useCart } from '../../reduxSlice/CartContext';
+import { useCurrentLocation } from './cart/MarketInfo';
 
 const Header: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const navigate = useNavigate();
   const { getCartCount } = useCart();
+  const location = useCurrentLocation();
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -19,13 +21,13 @@ const Header: React.FC = () => {
     <header className="fixed top-0 left-0 w-full z-50 flex justify-between items-center p-4 bg-gradient-to-r from-green-600 to-green-400 text-white shadow-lg transition-all duration-300 backdrop-blur-md bg-opacity-90">
       <div className="flex items-center gap-3">
         <img
-          src="https://via.placeholder.com/80x40?text=Logo"
+          src="/logo.jpg"
           alt="Logo"
           className="h-10 rounded-md shadow-md hover:scale-105 transition-transform"
         />
         <span className="text-sm flex items-center gap-1 bg-green-700 bg-opacity-50 px-2 py-1 rounded-md">
           <MapPin size={16} />
-          1011S New York
+          {location.location}
         </span>
       </div>
 
