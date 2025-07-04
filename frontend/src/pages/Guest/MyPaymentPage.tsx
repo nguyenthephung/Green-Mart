@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import DashboardLayout from '../layouts/DashboardLayout';
+import DashboardLayout from '../../layouts/DashboardLayout';
 
 interface Payment {
   id: number;

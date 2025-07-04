@@ -21,7 +21,15 @@ const CategorySection: React.FC<CategorySectionProps> = ({
 }) => {
   return (
     <div>
-      <h3 className="text-2xl font-semibold text-gray-800 mb-4 text-center">{title}</h3>
+      <div className="mb-4 flex justify-center">
+        <div
+          className="relative px-8 py-4 rounded-xl shadow-lg bg-white/80 border border-green-200 backdrop-blur-md flex items-center justify-center min-w-[220px] max-w-full transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 hover:bg-white/90"
+        >
+          <span className="text-2xl font-bold text-green-700 drop-shadow-sm tracking-wide">
+            {title}
+          </span>
+        </div>
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} />

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { FaUser, FaMapMarkerAlt, FaCreditCard, FaBell, FaGift, FaBook, FaCog, FaQuestionCircle, FaSignOutAlt, FaShoppingCart, FaBox } from 'react-icons/fa';
+import { FaUser, FaMapMarkerAlt, FaCreditCard, FaBell, FaGift, FaBook, FaCog, FaQuestionCircle, FaSignOutAlt, FaBox } from 'react-icons/fa';
 
 const Sidebar: React.FC = () => {
   const menuItems = [

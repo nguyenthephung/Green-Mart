@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { slides, products, topDeals, testimonials } from '../data/Home';
-import CategorySection from '../components/home/CategorySection';
-import type { Product } from '../components/home/ProductCard';
+import { slides, products, topDeals} from '../../data/Guest/Home';
+import CategorySection from '../../components/Guest/home/CategorySection';
+import type { Product } from '../../components/Guest/home/ProductCard';
 import { FaShoppingCart  } from 'react-icons/fa';
+import { useCart } from '../../reduxSlice/CartContext';
 
 const Home: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -19,8 +21,13 @@ const Home: React.FC = () => {
     products.filter((p) => p.category === category).slice(0, 8);
 
   const handleAddToCart = (product: Product) => {
-    console.log('Thêm vào giỏ hàng:', product);
-    // TODO: Dispatch Redux hoặc cập nhật LocalStorage ở đây
+    addToCart({
+      id: Number(product.id),
+      name: product.name,
+      price: product.price,
+      image: product.image
+    });
+    // TODO: Hiệu ứng bay vào giỏ hàng nếu muốn
   };
 
   return (

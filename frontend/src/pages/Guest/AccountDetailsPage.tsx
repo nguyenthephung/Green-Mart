@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import DashboardLayout from '../layouts/DashboardLayout';
+import DashboardLayout from '../../layouts/DashboardLayout';
 
 const AccountDetails: React.FC = () => {
   const [fullName, setFullName] = useState<string>('Alicia Virgo');

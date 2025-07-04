@@ -1,8 +1,8 @@
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import CheckoutMain from '../components/CheckoutMain';
-import { checkoutOrderItems } from '../data/checkoutOrderItems';
-import CheckoutSummary from '../components/CheckoutSummary';
+import Header from '../../components/Guest/Header';
+import Footer from '../../components/Guest/Footer';
+import CheckoutMain from '../../components/Guest/checkout/CheckoutMain';
+import { checkoutOrderItems } from '../../data/Guest/checkoutOrderItems';
+import CheckoutSummary from '../../components/Guest/checkout/CheckoutSummary';
 
 const Checkout = () => {
   return (

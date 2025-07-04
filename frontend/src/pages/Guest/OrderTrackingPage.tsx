@@ -1,7 +1,7 @@
-import OrderProgress from "../components/myOrder/OrderProgress";
-import OrderSummary from "../components/myOrder/OrderSummary";
-import OrderItems from "../components/myOrder/OrderItems";
-import { mockOrders } from "../data/mockOrderData";
+import OrderProgress from "../../components/Guest/myOrder/OrderProgress";
+import OrderSummary from "../../components/Guest/myOrder/OrderSummary";
+import OrderItems from "../../components/Guest/myOrder/OrderItems";
+import { mockOrders } from "../../data/Guest/mockOrderData";
 import { Link, useParams } from 'react-router-dom';
 
 export default function OrderTrackingPage() {

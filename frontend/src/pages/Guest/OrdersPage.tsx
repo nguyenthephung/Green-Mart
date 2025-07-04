@@ -1,8 +1,8 @@
 import { useState } from "react";
-import DashboardLayout from "../layouts/DashboardLayout";
-import OrderTabs from "../components/myOrder/OrderTabs";
-import OrderCard from "../components/myOrder/OrderCard";
-import { mockOrders } from "../data/mockOrderData"; // sửa file name cho đúng
+import DashboardLayout from "../../layouts/DashboardLayout";
+import OrderTabs from "../../components/Guest/myOrder/OrderTabs";
+import OrderCard from "../../components/Guest/myOrder/OrderCard";
+import { mockOrders } from "../../data/Guest/mockOrderData"; // sửa file name cho đúng
 
 const OrdersPage = () => {
   const [activeTab, setActiveTab] = useState("All");

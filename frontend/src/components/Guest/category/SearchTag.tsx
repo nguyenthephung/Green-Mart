@@ -1,7 +1,7 @@
 import { Tag } from "lucide-react";
 import type  { FC } from "react";
 
-const CategoryTag: FC<{ name: string; active: boolean; onClick: () => void }> = ({ name, active, onClick }) => {
+const SearchTag: FC<{ name: string; active: boolean; onClick: () => void }> = ({ name, active, onClick }) => {
   return (
     <button
       onClick={onClick}
@@ -14,4 +14,4 @@ const CategoryTag: FC<{ name: string; active: boolean; onClick: () => void }> = 
   );
 };
 
-export default CategoryTag;
+export default SearchTag;

@@ -8,7 +8,7 @@ interface Product {
   categoryId: number;
 }
 
-const ProductCard: FC<{ product: Product }> = ({ product }) => {
+const SearchProductCard: FC<{ product: Product }> = ({ product }) => {
   return (
     <div className="border p-4 rounded-xl shadow hover:shadow-lg transition">
       <h2 className="font-semibold text-lg mb-2">{product.name}</h2>
@@ -19,4 +19,4 @@ const ProductCard: FC<{ product: Product }> = ({ product }) => {
     </div>
   );
 };
-export default ProductCard;
+export default SearchProductCard;

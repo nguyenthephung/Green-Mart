@@ -1,12 +1,12 @@
 import { useState } from "react";
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import CartSummary from "../components/CartSummary";
-import MarketInfo from "../components/MarketInfo";
-import Recommendations from "../components/Recommendations";
-import CartList from "../components/CartList";
-import { cartItems as initialItems } from "../data/cart";
-import { recommendations as recommendedItems } from "../data/recommendations";
+import Header from '../../components/Guest/Header';
+import Footer from '../../components/Guest/Footer';
+import CartSummary from "../../components/Guest/cart/CartSummary";
+import MarketInfo from "../../components/Guest/cart/MarketInfo";
+import Recommendations from "../../components/Guest/cart/Recommendations";
+import CartList from "../../components/Guest/cart/CartList";
+import { cartItems as initialItems } from "../../data/Guest/cart";
+import { recommendations as recommendedItems } from "../../data/Guest/recommendations";
 
 export default function CartPage() {
   const [cartItems, setCartItems] = useState(initialItems);
