@@ -20,6 +20,9 @@ import Checkout from './pages/Guest/CheckoutPage';
 import Home from './pages/Guest/HomePage';
 import ProductDetailPage from './pages/Guest/ProductDetailPage';
 import CategoryPage from './pages/Guest/CategoryPage';
+import MyVoucher from './pages/Guest/MyVoucherPage';
+import NotificationSettingsPage from './pages/Guest/NotificationSettingsPage';
+import NotificationListPage from './pages/Guest/NotificationListPage';
 function App() {
   return (
     <UserProvider>
@@ -40,7 +43,10 @@ function App() {
               <Route path="accountdetail" element={<AccountDetails />} />
               <Route path="myaddress" element={<MyAddress />} />
               <Route path="mypayment" element={<MyPayment />} />
+              <Route path="myvoucher" element={<MyVoucher />} />
               <Route path="myorder" element={<OrdersPage />} />
+              <Route path="notification-settings" element={<NotificationSettingsPage />} />
+              <Route path="notifications" element={<NotificationListPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />

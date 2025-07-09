@@ -28,19 +28,23 @@ function calculateShippingFee(userCoords: { latitude: number; longitude: number 
 interface CartSummaryProps {
   itemsTotal: number;
   deliveryFee: number;
+  voucherDiscount?: number;
+  voucher?: { code: string; description: string } | null;
+  onRemoveVoucher?: () => void;
+  onShowVoucherModal?: () => void;
   address?: {
     district: string;
     ward: string;
   };
 }
 
-export default function CartSummary({ itemsTotal, deliveryFee, address }: CartSummaryProps) {
+export default function CartSummary({ itemsTotal, deliveryFee, voucherDiscount = 0, voucher, onRemoveVoucher, onShowVoucherModal, address }: CartSummaryProps) {
   let dynamicFee = deliveryFee;
   if (address) {
     const coords = getLatLngFromAddress(address);
     if (coords) dynamicFee = calculateShippingFee(coords);
   }
-  const finalTotal = itemsTotal + dynamicFee;
+  const finalTotal = itemsTotal + dynamicFee - voucherDiscount;
 
   return (
     <div className="bg-white shadow-md rounded-xl p-6 w-full">
@@ -54,7 +58,17 @@ export default function CartSummary({ itemsTotal, deliveryFee, address }: CartSu
         <span>Phí giao hàng</span>
         <span>{dynamicFee.toLocaleString()} ₫</span>
       </div>
-
+      {voucher && voucherDiscount > 0 ? (
+        <div className="flex justify-between mb-2 text-green-700 text-sm">
+          <span>Voucher ({voucher.code}) <button className="ml-2 text-xs text-red-500 underline" onClick={onRemoveVoucher}>Bỏ</button></span>
+          <span>-{voucherDiscount.toLocaleString()} ₫</span>
+        </div>
+      ) : (
+        <div className="flex justify-between mb-2 text-sm">
+          <span>Chưa áp dụng voucher</span>
+          <button className="text-green-700 underline text-xs ml-2" onClick={onShowVoucherModal}>Chọn voucher</button>
+        </div>
+      )}
       <div className="flex justify-between font-bold text-base mt-2 border-t pt-2">
         <span>Tổng cộng</span>
         <span>{finalTotal.toLocaleString()} ₫</span>

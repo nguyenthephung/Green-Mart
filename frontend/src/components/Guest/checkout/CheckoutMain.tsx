@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { MapPin, CreditCard, ChevronRight, CalendarDays } from 'lucide-react';
 import type { UserInfo, AddressInfo, PaymentInfo } from '../../../reduxSlice/UserContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Item {
   id: number;
@@ -14,7 +14,7 @@ interface CheckoutMainProps {
   items: Item[];
   userInfo: UserInfo;
   address?: AddressInfo;
-  payment?: PaymentInfo;
+  payments: PaymentInfo[]; // nhận mảng payments
   onPaymentChange?: (method: string) => void;
 }
 
@@ -23,15 +23,25 @@ const paymentOptions = [
   { label: 'Thanh toán online (VNPay)', value: 'vnpay' },
 ];
 
-const CheckoutMain: FC<CheckoutMainProps> = ({ items, userInfo, address, payment, onPaymentChange }) => {
-  const [selectedPayment, setSelectedPayment] = useState(payment?.method || 'cod');
+const CheckoutMain: FC<CheckoutMainProps> = ({ items, userInfo, address, payments, onPaymentChange }) => {
+  // State cục bộ để lưu lựa chọn hiện tại
+  const [localSelectedPayment, setLocalSelectedPayment] = useState<string>('');
+
+  // Khi context payments thay đổi, chỉ đồng bộ lại nếu context khác local
+  useEffect(() => {
+    const selected = payments.find(p => p.isSelected)?.method || '';
+    if (selected && selected !== localSelectedPayment) {
+      setLocalSelectedPayment(selected);
+    }
+  }, [payments]);
+
   const visibleItems = items.slice(0, 10);
   const remainingCount = items.length - visibleItems.length;
 
-  // Khi chọn payment method, gọi callback nếu có
+  // Khi chọn payment method, cập nhật local ngay, đồng thời gọi callback để cập nhật context
   const handleSelectPayment = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedPayment(e.target.value);
-    if (onPaymentChange) onPaymentChange(e.target.value);
+    setLocalSelectedPayment(e.target.value);
+    if (onPaymentChange) { onPaymentChange(e.target.value); }
   };
 
   return (
@@ -74,9 +84,10 @@ const CheckoutMain: FC<CheckoutMainProps> = ({ items, userInfo, address, payment
               <CreditCard className="w-4 h-4" />
               <select
                 className="border rounded px-2 py-1 ml-2"
-                value={selectedPayment}
+                value={localSelectedPayment || ''}
                 onChange={handleSelectPayment}
               >
+                <option value="" disabled>Chọn phương thức thanh toán</option>
                 {paymentOptions.map(opt => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}

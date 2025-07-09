@@ -1,7 +1,6 @@
 import { useCart } from '../../reduxSlice/CartContext';
-import {  useEffect } from "react";
+import { useEffect, useState } from "react";
 import Header from '../../components/Guest/Header';
-// import Footer from '../../components/Guest/Footer'; // Remove Footer import
 import CartSummary from "../../components/Guest/cart/CartSummary";
 import MarketInfo from "../../components/Guest/cart/MarketInfo";
 import Recommendations from "../../components/Guest/cart/Recommendations";
@@ -12,11 +11,15 @@ import EmptyCart from '../../components/Guest/cart/EmptyCart';
 import { useUser } from '../../reduxSlice/UserContext';
 import { districts } from '../../data/Guest/hcm_districts_sample';
 import haversine from 'haversine-distance';
+import { vouchers } from '../../data/Guest/vouchers';
+import ShopeeVoucherModal from '../../components/Guest/cart/ShopeeVoucherModal';
+
 
 export default function CartPage() {
   const { cart, updateQuantity, removeFromCart } = useCart();
-  const { addresses } = useUser();
+  const { addresses, voucher, setVoucher } = useUser();
   const navigate = useNavigate();
+  const [showVoucherModal, setShowVoucherModal] = useState(false);
 
   // Lấy địa chỉ đang chọn
   const selectedAddress = addresses.find(a => a.isSelected) || addresses[0];
@@ -86,6 +89,18 @@ export default function CartPage() {
     0
   );
 
+  // Tính giảm giá voucher
+  let voucherDiscount = 0;
+  if (voucher && subtotal >= voucher.minOrder) {
+    if (voucher.discountType === 'percent') {
+      voucherDiscount = Math.round(subtotal * voucher.discountValue / 100);
+    } else {
+      voucherDiscount = voucher.discountValue;
+    }
+    // Không cho giảm quá tổng tiền hàng
+    if (voucherDiscount > subtotal) voucherDiscount = subtotal;
+  }
+
   // Random các sản phẩm không nằm trong giỏ hàng
   function getRandomRelatedProducts(count = 8) {
     // Loại bỏ sản phẩm đã có trong giỏ hàng
@@ -139,9 +154,38 @@ export default function CartPage() {
           <Recommendations items={relatedItems} />
         </div>
         <div className="self-start">
+          {/* Nút chọn voucher ngay tại đây */}
+          <div className="mb-4 flex items-center gap-2">
+            <span>Voucher:</span>
+            {voucher ? (
+              <>
+                <span className="text-green-700">{voucher.code}</span>
+                <button className="text-blue-600 underline" onClick={() => setShowVoucherModal(true)}>
+                  Đổi voucher
+                </button>
+                <button className="text-red-500 ml-2" onClick={() => setVoucher(null)}>
+                  Bỏ
+                </button>
+              </>
+            ) : (
+              <button className="text-blue-600 underline" onClick={() => setShowVoucherModal(true)}>
+                Chọn voucher
+              </button>
+            )}
+          </div>
+          <ShopeeVoucherModal
+            open={showVoucherModal}
+            vouchers={vouchers}
+            selectedVoucher={voucher}
+            onSelect={(v) => { setVoucher(v); setShowVoucherModal(false); }}
+            onClose={() => setShowVoucherModal(false)}
+          />
           <CartSummary
             itemsTotal={subtotal}
             deliveryFee={dynamicDeliveryFee}
+            voucherDiscount={voucherDiscount}
+            voucher={voucher}
+            onRemoveVoucher={() => setVoucher(null)}
             address={selectedAddress ? { district: selectedAddress?.district, ward: selectedAddress?.wardName } : undefined}
           />
           <button

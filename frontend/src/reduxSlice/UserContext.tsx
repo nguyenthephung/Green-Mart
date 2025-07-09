@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
+import type { Voucher } from '../types/Voucher';
 
 export interface UserInfo {
   fullName: string;
@@ -34,6 +35,8 @@ interface UserContextType {
   setAddresses: (addresses: AddressInfo[]) => void;
   payments: PaymentInfo[];
   setPayments: (payments: PaymentInfo[]) => void;
+  voucher: Voucher | null;
+  setVoucher: (voucher: Voucher | null) => void;
 }
 
 const defaultUserInfo: UserInfo = {
@@ -63,6 +66,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     const stored = localStorage.getItem('payments');
     return stored ? JSON.parse(stored) : [];
   });
+  const [voucher, setVoucher] = useState<Voucher | null>(() => {
+    const stored = localStorage.getItem('voucher');
+    return stored ? JSON.parse(stored) : null;
+  });
 
   useEffect(() => {
     localStorage.setItem('userInfo', JSON.stringify(userInfo));
@@ -73,9 +80,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     localStorage.setItem('payments', JSON.stringify(payments));
   }, [payments]);
+  useEffect(() => {
+    localStorage.setItem('voucher', JSON.stringify(voucher));
+  }, [voucher]);
 
   return (
-    <UserContext.Provider value={{ userInfo, setUserInfo, addresses, setAddresses, payments, setPayments }}>
+    <UserContext.Provider value={{ userInfo, setUserInfo, addresses, setAddresses, payments, setPayments, voucher, setVoucher }}>
       {children}
     </UserContext.Provider>
   );

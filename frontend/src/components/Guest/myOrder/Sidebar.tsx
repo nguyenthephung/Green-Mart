@@ -6,13 +6,8 @@ const Sidebar: React.FC = () => {
     { icon: <FaUser />, label: 'Thông tin tài khoản', path: '/accountdetail' },
     { icon: <FaBox />, label: 'Đơn hàng của tôi', path: '/myorder' },
     { icon: <FaMapMarkerAlt />, label: 'Địa chỉ của tôi', path: '/myaddress' },
-    { icon: <FaCreditCard />, label: 'Phương thức thanh toán', path: '/mypayment' },
     { icon: <FaBell />, label: 'Cài đặt thông báo', path: '/notification-settings' },
-    { icon: <FaGift />, label: 'Giới thiệu bạn bè', path: '/refer-friends' },
-    { icon: <FaBook />, label: 'Mã giảm giá', path: '/coupons' },
-    { icon: <FaBook />, label: 'Công thức của tôi', path: '/my-recipes' },
-    { icon: <FaCog />, label: 'Cài đặt tài khoản', path: '/account-settings' },
-    { icon: <FaQuestionCircle />, label: 'Trung tâm trợ giúp', path: '/help-center' },
+    { icon: <FaBook />, label: 'Mã giảm giá ', path: '/myvoucher' },
   ];
 
   return (

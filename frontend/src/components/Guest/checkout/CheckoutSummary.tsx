@@ -4,18 +4,28 @@ import type {
   AddressInfo,
   PaymentInfo,
 } from "../../../reduxSlice/UserContext";
-import { useMemo, useState } from "react";
-import { Plus } from "lucide-react";
+import { useMemo, useState, useEffect } from "react";
 import haversine from "haversine-distance";
 import { districts } from "../../../data/Guest/hcm_districts_sample";
+
+// Define VoucherInfo type if not imported from elsewhere
+export interface VoucherInfo {
+  code: string;
+  discount: number;
+  [key: string]: any;
+}
 
 const tipOptions = [5000, 10000, 15000, 20000, 30000, 40000, 50000];
 
 interface CheckoutSummaryProps {
   cart: CartItem[];
   address?: AddressInfo;
-  payment?: PaymentInfo;
+  payments: PaymentInfo[]; // nhận mảng payments
   userInfo: UserInfo;
+  voucherDiscount?: number;
+  voucher?: VoucherInfo | null;
+  onRemoveVoucher?: () => void;
+  onShowVoucherModal?: () => void;
 }
 
 const STORE_LOCATION = {
@@ -43,12 +53,21 @@ function calculateShippingFee(
   return 35000;
 }
 
-const CheckoutSummary = ({ cart, address, payment, userInfo }: CheckoutSummaryProps) => {
+const CheckoutSummary = ({ cart, address, payments, userInfo, voucherDiscount = 0, voucher, onRemoveVoucher, onShowVoucherModal }: CheckoutSummaryProps) => {
   const [selectedTip, setSelectedTip] = useState<number | null>(null);
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const [localPayment, setLocalPayment] = useState<PaymentInfo | null>(null);
   const deliveryFee = 15000;
   const serviceFee = 25000;
-  const couponDiscount = 0;
+
+  // Khi payments thay đổi, đồng bộ lại localPayment
+  useEffect(() => {
+    let payment = payments.find(p => p.isSelected) || null;
+    if (!payment && payments.length > 0) {
+      payment = payments.find(p => p.method === 'cod') || payments.find(p => p.method === 'vnpay') || payments[0];
+    }
+    setLocalPayment(payment);
+  }, [payments]);
 
   const itemsTotal = useMemo(
     () =>
@@ -82,13 +101,13 @@ const CheckoutSummary = ({ cart, address, payment, userInfo }: CheckoutSummaryPr
   }
 
   const total =
-    itemsTotal + dynamicDeliveryFee + serviceFee + (selectedTip || 0) - couponDiscount;
+    itemsTotal + dynamicDeliveryFee + serviceFee + (selectedTip || 0) - (voucherDiscount || 0);
 
   const formatVND = (value: number) =>
     value.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
 
   const handlePlaceOrder = () => {
-    if (payment?.method === 'vnpay') {
+    if (localPayment?.method === 'vnpay') {
       // Redirect đến sandbox VNPay (giả lập)
       // Thông thường sẽ gọi API backend để lấy link, ở đây demo redirect trực tiếp
       const vnpaySandboxUrl =
@@ -109,7 +128,7 @@ const CheckoutSummary = ({ cart, address, payment, userInfo }: CheckoutSummaryPr
         image: item.image,
       })),
       deliveryFee: deliveryFee,
-      payWith: payment ? payment.method : "",
+      payWith: localPayment ? localPayment.method : "",
       deliveryAddress: address ? address.address : "",
     };
     // Lưu vào localStorage
@@ -124,37 +143,54 @@ const CheckoutSummary = ({ cart, address, payment, userInfo }: CheckoutSummaryPr
 
   return (
     <div className="bg-white shadow-md rounded-xl p-6 w-full">
-      <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
+      <h2 className="text-lg font-semibold mb-4">Tóm tắt đơn hàng</h2>
       <div className="mb-2 text-sm text-gray-700">
         <div>
-          <b>Khách:</b> {userInfo.fullName} - {userInfo.phone}
+          <b>Khách hàng:</b> {userInfo.fullName} - {userInfo.phone}
         </div>
         <div>
-          <b>Địa chỉ:</b> {address ? address.address : "Chưa chọn"}
+          <b>Địa chỉ nhận hàng:</b> {address ? address.address : "Chưa chọn"}
         </div>
         <div>
-          <b>Thanh toán:</b> {payment ? payment.method : "Chưa chọn"}
+          <b>Phương thức thanh toán:</b> {
+            localPayment && (localPayment.method === 'cod' || localPayment.method === 'vnpay')
+              ? (localPayment.method === 'cod'
+                  ? 'Thanh toán khi nhận hàng (COD)'
+                  : 'Thanh toán online (VNPay)')
+              : 'Chưa chọn phương thức thanh toán'
+          }
         </div>
       </div>
       <div className="text-sm space-y-2">
         <div className="flex justify-between">
-          <span>Delivery fee</span>
+          <span>Phí giao hàng</span>
           <span>{formatVND(dynamicDeliveryFee)}</span>
         </div>
         <div className="flex justify-between">
-          <span>Service fee</span>
+          <span>Phí dịch vụ</span>
           <span>{formatVND(serviceFee)}</span>
         </div>
         <div className="flex justify-between mb-4">
-          <span>Items total</span>
+          <span>Tạm tính</span>
           <span>{formatVND(itemsTotal)}</span>
         </div>
+        {voucher && voucherDiscount > 0 ? (
+          <div className="flex justify-between mb-2 text-green-700 text-sm">
+            <span>Mã giảm giá ({voucher.code}) <button className="ml-2 text-xs text-red-500 underline" onClick={onRemoveVoucher}>Bỏ</button></span>
+            <span>-{formatVND(voucherDiscount)}</span>
+          </div>
+        ) : (
+          <div className="flex justify-between mb-2 text-sm">
+            <span>Chưa áp dụng mã giảm giá</span>
+            <button className="text-green-700 underline text-xs ml-2" onClick={onShowVoucherModal}>Chọn mã</button>
+          </div>
+        )}
       </div>
       <hr className="my-4" />
       <div>
-        <h3 className="text-sm font-medium mb-1">Delivery Tip</h3>
+        <h3 className="text-sm font-medium mb-1">Tiền tip cho tài xế</h3>
         <p className="text-xs text-gray-500 mb-2">
-          Your delivery person keeps 100% of tips.
+          100% tiền tip sẽ được chuyển cho tài xế giao hàng.
         </p>
         <div className="flex flex-wrap gap-2 mb-4">
           {tipOptions.map((tip) => (
@@ -171,27 +207,19 @@ const CheckoutSummary = ({ cart, address, payment, userInfo }: CheckoutSummaryPr
             </button>
           ))}
           <button className="px-3 py-1 text-sm rounded-full border bg-green-50 text-green-700 hover:bg-green-100">
-            Other
+            Khác
           </button>
         </div>
       </div>
       <hr className="my-4" />
-      <div className="flex justify-between items-center mb-4 text-sm">
-        <span>Coupon</span>
-        <button className="flex items-center gap-1 text-green-700 hover:underline text-sm">
-          <Plus size={14} />
-          Add Coupon
-        </button>
-      </div>
-      <hr className="my-4" />
       <div className="flex justify-between items-center text-lg font-semibold mb-6">
-        <span>Total</span>
+        <span>Tổng cộng</span>
         <span>{formatVND(total)}</span>
       </div>
       <p className="text-xs text-gray-500 mb-4 text-center">
-        By placing this order, you are agreeing to{" "}
+        Khi bấm "Đặt hàng", bạn đã đồng ý với{' '}
         <a href="#" className="underline">
-          Terms and Conditions
+          Điều khoản & Chính sách
         </a>
         .
       </p>

@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingCart, Search, User, MapPin, Home } from 'lucide-react';
+import { ShoppingCart, Search, User, MapPin, Home, Bell } from 'lucide-react';
 import { useCart } from '../../reduxSlice/CartContext';
 import { useCurrentLocation } from './cart/MarketInfo';
+import NotificationDropdown from './NotificationDropdown';
 
 const Header: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [showDropdown, setShowDropdown] = useState(false);
+  let dropdownTimeout: NodeJS.Timeout | null = null;
   const navigate = useNavigate();
   const { getCartCount } = useCart();
   const location = useCurrentLocation();
@@ -15,6 +18,14 @@ const Header: React.FC = () => {
     if (searchTerm.trim() !== '') {
       navigate(`/search?search=${encodeURIComponent(searchTerm.trim())}`);
     }
+  };
+
+  const handleDropdownEnter = () => {
+    if (dropdownTimeout) clearTimeout(dropdownTimeout);
+    setShowDropdown(true);
+  };
+  const handleDropdownLeave = () => {
+    dropdownTimeout = setTimeout(() => setShowDropdown(false), 120);
   };
 
   return (
@@ -56,6 +67,25 @@ const Header: React.FC = () => {
         >
           <Home size={20} />
         </button>
+        <div
+          className="relative"
+          onMouseEnter={handleDropdownEnter}
+          onMouseLeave={handleDropdownLeave}
+        >
+          <button
+            className="relative hover:text-gray-200 hover:scale-110 transition cursor-pointer"
+            tabIndex={0}
+            aria-label="Xem thông báo"
+            type="button"
+          >
+            <Bell size={20} />
+          </button>
+          {showDropdown && (
+            <div onMouseEnter={handleDropdownEnter} onMouseLeave={handleDropdownLeave}>
+              <NotificationDropdown onClose={() => setShowDropdown(false)} />
+            </div>
+          )}
+        </div>
         <button
           onClick={() => navigate('/mycart')}
           className="relative hover:text-gray-200 hover:scale-110 transition cursor-pointer"
