@@ -35,6 +35,8 @@ interface CartSummaryProps {
   address?: {
     district: string;
     ward: string;
+    fullName?: string;
+    phone?: string;
   };
 }
 
@@ -49,7 +51,11 @@ export default function CartSummary({ itemsTotal, deliveryFee, voucherDiscount =
   return (
     <div className="bg-white shadow-md rounded-xl p-6 w-full">
       <h3 className="text-xl font-semibold mb-4">Tóm tắt đơn hàng</h3>
-
+      {address && (address.fullName || address.phone) && (
+        <div className="mb-2 text-sm text-green-700">
+          <span>Người nhận: {address.fullName || '---'} | SĐT: {address.phone || '---'}</span>
+        </div>
+      )}
       <div className="flex justify-between mb-2 text-sm">
         <span>Tạm tính</span>
         <span>{itemsTotal.toLocaleString()} ₫</span>

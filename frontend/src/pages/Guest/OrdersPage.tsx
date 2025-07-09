@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import OrderTabs from "../../components/Guest/myOrder/OrderTabs";
 import OrderCard from "../../components/Guest/myOrder/OrderCard";
+import { normalizeOrdersInLocalStorage } from '../../utils/normalizeOrdersStatus';
 
 interface OrderItem {
   name: string;
@@ -9,6 +10,7 @@ interface OrderItem {
   oldPrice: number;
   quantity: number;
   image: string;
+  shop?: string;
 }
 
 interface Order {
@@ -26,9 +28,22 @@ const OrdersPage = () => {
   const [orders, setOrders] = useState<Order[]>([]);
 
   useEffect(() => {
+    normalizeOrdersInLocalStorage();
     const stored = localStorage.getItem("orders");
     setOrders(stored ? JSON.parse(stored) : []);
   }, []);
+
+  const tabKeys = [
+    "Tất cả",
+    "Chờ xác nhận",
+    "Chờ giao hàng",
+    "Đã hủy"
+  ];
+  const tabCounts = tabKeys.reduce((acc, key) => {
+    if (key === "Tất cả") acc[key] = orders.length;
+    else acc[key] = orders.filter((o) => o.status === key).length;
+    return acc;
+  }, {} as Record<string, number>);
 
   const filteredOrders = orders.filter(
     (order) => activeTab === "Tất cả" || order.status === activeTab
@@ -39,7 +54,7 @@ const OrdersPage = () => {
       <h1 className="text-2xl md:text-3xl font-bold mb-6 text-gray-900">
         Đơn hàng của tôi
       </h1>
-      <OrderTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+      <OrderTabs activeTab={activeTab} setActiveTab={setActiveTab} counts={tabCounts} tabs={tabKeys} />
 
       {filteredOrders.length === 0 ? (
         <p className="text-gray-500 mt-6 text-center">
@@ -59,9 +74,11 @@ const OrdersPage = () => {
                   0
                 ) + order.deliveryFee
               }
-              items={order.items.reduce((sum: number, item: OrderItem) => sum + item.quantity, 0)}
-              images={order.items.map((i: OrderItem) => i.image)}
+              items={order.items}
+              deliveryFee={order.deliveryFee}
               payWith={order.payWith}
+              deliveryAddress={order.deliveryAddress}
+              shippingStatus={order.status === 'Chờ giao hàng' ? 'Đơn hàng đã rời kho phân loại tới HCM Mega SOC' : ''}
             />
           ))}
         </div>

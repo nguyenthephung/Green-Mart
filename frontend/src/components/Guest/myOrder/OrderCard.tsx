@@ -1,19 +1,32 @@
 import { Link } from "react-router-dom";
 
-type OrderCardProps = {
+export type OrderItem = {
+  name: string;
+  price: number;
+  oldPrice: number;
+  quantity: number;
+  image: string;
+  variant?: string;
+};
+
+export type OrderCardProps = {
   id: string;
   status: string;
   date: string;
   total: number;
-  items: number;
-  images: string[];
+  items: OrderItem[];
+  deliveryFee: number;
   payWith: string;
+  deliveryAddress: string;
+  shippingStatus?: string;
 };
 
 const statusColors: Record<string, string> = {
   "Hoàn thành": "text-green-600 border-green-600",
   "Đã hủy": "text-red-600 border-red-600",
   "Đang xử lý": "text-gray-900 border-gray-900",
+  "Chờ giao hàng": "text-orange-600 border-orange-600",
+  "Vận chuyển": "text-blue-600 border-blue-600",
 };
 
 export default function OrderCard({
@@ -22,66 +35,104 @@ export default function OrderCard({
   date,
   total,
   items,
-  images,
+  deliveryFee,
   payWith,
+  deliveryAddress,
+  shippingStatus = "Đơn hàng đã rời kho phân loại tới HCM Mega SOC",
 }: OrderCardProps) {
   return (
-    <div className="border rounded-2xl bg-white p-6 mb-8 transition-all duration-300 shadow-[0_4px_24px_rgba(17,17,17,0.10),0_1.5px_8px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_32px_rgba(17,17,17,0.18),0_3px_16px_rgba(0,0,0,0.12)] border-gray-200 relative overflow-hidden group">
-      <div
-        className="absolute inset-0 pointer-events-none group-hover:scale-105 transition-transform duration-300"
-        style={{
-          boxShadow:
-            "0 8px 32px 0 rgba(67,56,202,0.10), 0 1.5px 8px 0 rgba(0,0,0,0.08)",
-        }}
-      ></div>
-      <div className="flex justify-between items-center mb-2">
-        <div>
-          <h2 className="font-extrabold text-lg md:text-xl text-gray-900 drop-shadow-[0_2px_2px_rgba(17,17,17,0.10)]">
-            Đơn hàng - {status}
-          </h2>
-          <p className="text-gray-500 text-sm font-medium">{date}</p>
-        </div>
-        <div className="flex flex-col text-right gap-1">
-          <div className="text-xl font-extrabold text-gray-800 drop-shadow-[0_2px_2px_rgba(17,17,17,0.15)]">
-            {total.toLocaleString()}₫
-          </div>
-          <div className="text-sm text-gray-500 font-semibold">{payWith}</div>
-        </div>
-      </div>
-      <div className="flex justify-between items-center mb-3">
+    <div className="bg-white rounded-xl border border-gray-200 shadow p-6 mb-8">
+      {/* Trạng thái */}
+      <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <div className="text-sm text-gray-700 font-semibold">
-            <strong>Số lượng</strong> {items} sản phẩm
-          </div>
+          {/* Có thể thêm icon shop hoặc logo nếu muốn */}
+        </div>
+        <div className="flex items-center gap-2">
           <span
-            className={`text-xs border px-3 py-1 rounded-full font-bold shadow-md bg-gradient-to-r from-gray-100 to-gray-50 ${statusColors[status]}`}
-            style={{ textShadow: "0 1px 2px #fff" }}
+            className={`text-sm font-bold px-3 py-1 rounded-full border ${
+              statusColors[status] || "text-gray-700 border-gray-300"
+            } bg-white`}
           >
             {status}
           </span>
         </div>
+      </div>
+      {/* Sản phẩm */}
+      <div className="divide-y">
+        {items.map((item, idx) => (
+          <div key={idx} className="flex gap-4 py-4 items-center">
+            <img
+              src={item.image}
+              alt={item.name}
+              className="w-20 h-20 object-cover rounded border border-gray-200"
+            />
+            <div className="flex-1">
+              <div className="font-semibold text-gray-900 text-base mb-1">
+                {item.name}
+              </div>
+              <div className="text-xs text-gray-500 mb-1">
+                Phân loại: {item.variant || "Mặc định"}
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-orange-600 font-bold text-lg">
+                  {item.price.toLocaleString()}₫
+                </span>
+                {item.oldPrice > item.price && (
+                  <span className="text-gray-400 line-through text-sm">
+                    {item.oldPrice.toLocaleString()}₫
+                  </span>
+                )}
+                <span className="ml-2 text-gray-700 text-sm">
+                  x{item.quantity}
+                </span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      {/* Trạng thái giao hàng + tổng tiền */}
+      <div className="flex justify-between items-center mt-4">
+        <div className="flex items-center gap-2">
+          <span className="text-green-700 font-semibold flex items-center gap-1">
+            <svg
+              width="18"
+              height="18"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M7 17l5-5 5 5"
+                stroke="#22c55e"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            {shippingStatus}
+          </span>
+          <span className="ml-3 text-orange-600 font-bold">
+            CHỜ GIAO HÀNG
+          </span>
+        </div>
+        <div className="text-right">
+          <div className="text-gray-500 text-sm">Thành tiền:</div>
+          <div className="text-2xl font-bold text-orange-600">
+            {total.toLocaleString()}₫
+          </div>
+        </div>
+      </div>
+      {/* Nút hành động */}
+      <div className="flex justify-end gap-3 mt-4">
         <Link
           to={`/ordertracking/${id}`}
-          className="text-sm font-bold text-blue-600 hover:underline hover:text-gray-900 transition-colors duration-200 drop-shadow-[0_1px_1px_rgba(0,0,0,0.10)]"
+          className="px-5 py-2 border border-gray-300 rounded font-bold text-gray-700 hover:bg-gray-100 transition"
         >
-          Xem chi tiết &rarr;
+          Xem Chi Tiết
         </Link>
       </div>
-      <div className="flex gap-2 mt-2">
-        {images.slice(0, 4).map((img, idx) => (
-          <img
-            key={idx}
-            src={img}
-            alt=""
-            className="w-12 h-12 rounded-xl object-cover border-2 border-gray-100 shadow-md"
-            style={{ boxShadow: "0 2px 8px 0 rgba(17,17,17,0.10)" }}
-          />
-        ))}
-        {images.length > 4 && (
-          <span className="text-xs text-gray-500 ml-2 font-semibold">
-            +{images.length - 4} sản phẩm khác
-          </span>
-        )}
+      {/* Thông tin phụ */}
+      <div className="text-xs text-gray-400 mt-2">
+        Mã đơn hàng: <b>{id}</b> | Ngày đặt: {date}
       </div>
     </div>
   );

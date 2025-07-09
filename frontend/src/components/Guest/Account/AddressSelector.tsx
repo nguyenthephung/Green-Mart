@@ -7,6 +7,9 @@ export interface UserAddress {
   street: string;
   latitude: number;
   longitude: number;
+  // Thêm các trường mới
+  fullName: string;
+  phone: string;
 }
 
 interface Ward {
@@ -53,6 +56,8 @@ export default function AddressSelector({
         street,
         latitude: wardObj.latitude,
         longitude: wardObj.longitude,
+        fullName: value?.fullName || '',
+        phone: value?.phone || '',
       });
     }
   };
@@ -90,7 +95,6 @@ export default function AddressSelector({
           ))}
         </select>
       </div>
-      {/* Thay select thành input cho số nhà, tên đường */}
       <div>
         <label className="block font-medium mb-1">Số nhà, tên đường</label>
         <input
@@ -100,13 +104,7 @@ export default function AddressSelector({
           placeholder="VD: 123 Nguyễn Trãi"
         />
       </div>
-      <button
-        className="bg-green-600 text-white px-4 py-2 rounded mt-2"
-        onClick={handleSave}
-        disabled={!selectedDistrict || !selectedWard || !street}
-      >
-        Lưu địa chỉ
-      </button>
+      {/* Đã bỏ nút Lưu địa chỉ ở đây, chỉ dùng nút Lưu của form cha */}
     </div>
   );
 }

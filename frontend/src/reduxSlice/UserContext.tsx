@@ -3,12 +3,15 @@ import type { ReactNode } from 'react';
 import type { Voucher } from '../types/Voucher';
 
 export interface UserInfo {
+  avatar: string;
   fullName: string;
   email: string;
   phone: string;
 }
 
 export interface AddressInfo {
+  phone: ReactNode;
+  fullName: string;
   wardName: string;
   id: number;
   label: string;

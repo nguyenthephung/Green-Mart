@@ -186,7 +186,12 @@ export default function CartPage() {
             voucherDiscount={voucherDiscount}
             voucher={voucher}
             onRemoveVoucher={() => setVoucher(null)}
-            address={selectedAddress ? { district: selectedAddress?.district, ward: selectedAddress?.wardName } : undefined}
+            address={selectedAddress ? {
+              district: selectedAddress?.district,
+              ward: selectedAddress?.wardName,
+              fullName: selectedAddress?.fullName,
+              phone: typeof selectedAddress?.phone === 'string' ? selectedAddress.phone : '',
+            } : undefined}
           />
           <button
             className="w-full mt-6 bg-green-700 hover:bg-green-800 text-white py-3 rounded-full font-semibold text-lg shadow-lg transition"
