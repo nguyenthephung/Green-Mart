@@ -31,11 +31,18 @@ const ShopeeVoucherModal: React.FC<ShopeeVoucherModalProps> = ({ open, vouchers,
           <h2 className="text-lg font-semibold">Chọn Voucher</h2>
           <button className="text-gray-500 hover:text-red-500 text-xl" onClick={onClose}>&times;</button>
         </div>
-        {/* Input mã voucher */}
+        {/* Input mã voucher + search */}
         <div className="flex gap-2 px-6 py-4 border-b items-center">
           <input
             type="text"
             className="flex-1 border rounded px-3 py-2 text-sm"
+            placeholder="Tìm kiếm voucher theo mã hoặc tên..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+          <input
+            type="text"
+            className="w-32 border rounded px-3 py-2 text-sm"
             placeholder="Mã Voucher"
             value={inputCode}
             onChange={e => setInputCode(e.target.value)}

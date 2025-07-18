@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { products } from '../../data/Guest/Home';
 import { FaShoppingCart, FaCheckCircle, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { useCart } from '../../reduxSlice/CartContext';
+import { comments as mockComments } from '../../data/Guest/comments';
+import type { Comment } from '../../data/Guest/comments';
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -10,6 +12,15 @@ const ProductDetailPage: React.FC = () => {
   const { addToCart } = useCart();
   const imgRef = useRef<HTMLImageElement>(null);
   const imgRefs = React.useRef<{ [key: number]: React.RefObject<HTMLImageElement | null> }>({});
+
+  // Thêm hook quản lý comment
+  const [comments, setComments] = React.useState<Comment[]>([]);
+  const [commentInput, setCommentInput] = React.useState('');
+  const [editingId, setEditingId] = React.useState<number|null>(null);
+  const [editingContent, setEditingContent] = React.useState('');
+
+  // Giả lập user hiện tại (có thể lấy từ context thực tế)
+  const currentUser = { id: 2, name: 'Nguyễn Văn A', role: 'user' }; // role: 'user' | 'admin'
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
@@ -125,6 +136,56 @@ const ProductDetailPage: React.FC = () => {
     });
   };
 
+  // Lọc comment theo sản phẩm và đồng bộ localStorage
+  React.useEffect(() => {
+    const storageKey = `comments_product_${id}`;
+    const local = localStorage.getItem(storageKey);
+    if (local) {
+      setComments(JSON.parse(local));
+    } else {
+      // Nếu chưa có localStorage thì lấy mock và lưu vào localStorage
+      const filtered = mockComments.filter(c => c.productId === Number(id));
+      setComments(filtered);
+      localStorage.setItem(storageKey, JSON.stringify(filtered));
+    }
+  }, [id]);
+
+  // Lưu comment vào localStorage mỗi khi thay đổi
+  React.useEffect(() => {
+    if (id) {
+      localStorage.setItem(`comments_product_${id}`, JSON.stringify(comments));
+    }
+  }, [comments, id]);
+
+  const handleAddComment = () => {
+    if (!commentInput.trim()) return;
+    const newComment: Comment = {
+      id: Date.now(),
+      productId: Number(id),
+      userId: currentUser.id,
+      userName: currentUser.name,
+      content: commentInput,
+      createdAt: new Date().toISOString()
+    };
+    setComments(prev => [...prev, newComment]);
+    setCommentInput('');
+  };
+
+  const handleEditComment = (comment: Comment) => {
+    setEditingId(comment.id);
+    setEditingContent(comment.content);
+  };
+
+  const handleSaveEdit = () => {
+    setComments(prev => prev.map(c => c.id === editingId ? { ...c, content: editingContent } : c));
+    setEditingId(null);
+    setEditingContent('');
+  };
+
+  const handleDeleteComment = (id: number) => {
+    setComments(prev => prev.filter(c => c.id !== id));
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-200 py-10 px-4 md:px-16">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-start mb-16">
@@ -198,6 +259,78 @@ const ProductDetailPage: React.FC = () => {
           <RelatedProductsSlider products={relatedProducts} handleAddToCartRelated={handleAddToCartRelated} imgRefs={imgRefs} />
         </div>
       )}
+
+      {/* Bình luận sản phẩm */}
+      <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6 mb-10 mt-16">
+        <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+          <span className="inline-block w-2 h-6 bg-green-500 rounded-full mr-2"></span>
+          Bình luận sản phẩm
+          <span className="ml-2 text-base text-gray-400 font-normal">({comments.length})</span>
+        </h3>
+        <div className="flex gap-2 mb-6">
+          <img
+            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name)}&background=34d399&color=fff&size=48`}
+            alt={currentUser.name}
+            className="w-10 h-10 rounded-full border-2 border-green-400 shadow"
+          />
+          <input
+            type="text"
+            className="flex-1 border-2 border-green-200 rounded-lg px-3 py-2 focus:outline-green-500 bg-gray-50 text-gray-800 shadow-sm"
+            placeholder="Chia sẻ cảm nhận về sản phẩm..."
+            value={commentInput}
+            onChange={e => setCommentInput(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') handleAddComment(); }}
+          />
+          <button
+            className="bg-gradient-to-br from-green-400 to-green-600 text-white px-5 py-2 rounded-lg font-semibold shadow-lg hover:from-green-500 hover:to-green-700 transition-all duration-200"
+            onClick={handleAddComment}
+          >Gửi</button>
+        </div>
+        <div className="divide-y divide-gray-100">
+          {comments.length === 0 && <div className="text-gray-400 text-center py-8">Chưa có bình luận nào. Hãy là người đầu tiên!</div>}
+          {comments.map(c => (
+            <div key={c.id} className="py-4 flex items-start gap-3 group relative">
+              <img
+                src={`https://ui-avatars.com/api/?name=${encodeURIComponent(c.userName)}&background=bbf7d0&color=166534&size=48`}
+                alt={c.userName}
+                className="w-10 h-10 rounded-full border border-green-200 shadow-sm"
+              />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-semibold text-green-700 text-base truncate max-w-[120px]">{c.userName}</span>
+                  <span className="text-xs text-gray-400">{new Date(c.createdAt).toLocaleString()}</span>
+                  {c.userId === currentUser.id && <span className="ml-2 text-xs text-green-500 bg-green-100 px-2 py-0.5 rounded">Bạn</span>}
+                  {currentUser.role === 'admin' && c.userId !== currentUser.id && <span className="ml-2 text-xs text-red-500 bg-red-100 px-2 py-0.5 rounded">Admin xóa được</span>}
+                </div>
+                {editingId === c.id ? (
+                  <div className="flex gap-2 items-center mt-1">
+                    <input
+                      className="border-2 border-green-300 rounded px-2 py-1 flex-1 bg-gray-50"
+                      value={editingContent}
+                      onChange={e => setEditingContent(e.target.value)}
+                      autoFocus
+                    />
+                    <button className="text-green-600 font-bold px-2 py-1 hover:underline" onClick={handleSaveEdit}>Lưu</button>
+                    <button className="text-gray-500 px-2 py-1 hover:underline" onClick={() => setEditingId(null)}>Hủy</button>
+                  </div>
+                ) : (
+                  <div className="text-gray-800 text-base leading-relaxed break-words whitespace-pre-line">
+                    {c.content}
+                  </div>
+                )}
+              </div>
+              {(c.userId === currentUser.id || currentUser.role === 'admin') && editingId !== c.id && (
+                <div className="flex flex-col gap-1 ml-2 absolute right-0 top-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  {c.userId === currentUser.id && (
+                    <button className="text-blue-600 text-xs px-2 py-1 hover:underline" onClick={() => handleEditComment(c)}>Sửa</button>
+                  )}
+                  <button className="text-red-500 text-xs px-2 py-1 hover:underline" onClick={() => handleDeleteComment(c.id)}>Xóa</button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

@@ -13,11 +13,12 @@ export interface Product {
   isFeatured?: boolean;
 }
 
-interface ProductCardProps {
+ interface ProductCardProps {
   product: Product;
   onAddToCart: (product: Product) => void;
+  showSaleBadge?: boolean;
+  showHotBadge?: boolean;
 }
-
 const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
   const imgRef = useRef<HTMLImageElement>(null);
 

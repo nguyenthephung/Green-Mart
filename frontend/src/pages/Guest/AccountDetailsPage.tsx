@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useUser } from '../../reduxSlice/UserContext';
 import DashboardLayout from '../../layouts/DashboardLayout';
 
@@ -7,6 +7,10 @@ const AccountDetails: React.FC = () => {
   const [editMode, setEditMode] = useState(false);
   const [tempInfo, setTempInfo] = useState(userInfo);
   const [avatar, setAvatar] = useState(userInfo.avatar || 'https://i.pravatar.cc/120?u=' + (userInfo.email || 'user'));
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  }, []);
 
   const handleEdit = () => {
     setTempInfo(userInfo);

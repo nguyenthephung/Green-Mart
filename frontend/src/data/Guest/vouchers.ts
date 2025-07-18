@@ -42,3 +42,81 @@ export const vouchers: Voucher[] = [
     note: 'Chỉ có trên Live',
   },
 ];
+
+// Danh sách voucher hệ thống dùng cho LuckyWheel
+export const luckyVouchers = [
+  {
+    code: 'LUCKY10K',
+    label: 'Voucher 10K',
+    discountType: 'amount',
+    discountValue: 10000,
+    expired: '31.12.2025',
+    description: 'Giảm 10.000đ cho đơn bất kỳ.',
+  },
+  {
+    code: 'LUCKY20K',
+    label: 'Voucher 20K',
+    discountType: 'amount',
+    discountValue: 20000,
+    expired: '31.12.2025',
+    description: 'Giảm 20.000đ cho đơn bất kỳ.',
+  },
+  {
+    code: 'LUCKY50K',
+    label: 'Voucher 50K',
+    discountType: 'amount',
+    discountValue: 50000,
+    expired: '31.12.2025',
+    description: 'Giảm 50.000đ cho đơn bất kỳ.',
+  },
+  {
+    code: 'LUCKY100K',
+    label: 'Voucher 100K',
+    discountType: 'amount',
+    discountValue: 100000,
+    expired: '31.12.2025',
+    description: 'Giảm 100.000đ cho đơn bất kỳ.',
+  },
+  {
+    code: 'LUCKY5P',
+    label: 'Voucher 5%',
+    discountType: 'percent',
+    discountValue: 5,
+    expired: '31.12.2025',
+    description: 'Giảm 5% cho đơn bất kỳ.',
+  },
+  {
+    code: 'LUCKY10P',
+    label: 'Voucher 10%',
+    discountType: 'percent',
+    discountValue: 10,
+    expired: '31.12.2025',
+    description: 'Giảm 10% cho đơn bất kỳ.',
+  },
+  {
+    code: 'LUCKY20P',
+    label: 'Voucher 20%',
+    discountType: 'percent',
+    discountValue: 20,
+    expired: '31.12.2025',
+    description: 'Giảm 20% cho đơn bất kỳ.',
+  },
+];
+
+// Lưu voucher quay được vào localStorage cho từng user
+export function getUserVouchers(userId: string | number) {
+  const key = `user_vouchers_${userId}`;
+  const data = localStorage.getItem(key);
+  return data ? JSON.parse(data) : [];
+}
+
+export function addUserVoucher(userId: string | number, voucher: any) {
+  const key = `user_vouchers_${userId}`;
+  const current = getUserVouchers(userId);
+  const newVoucher = {
+    ...voucher,
+    receivedAt: new Date().toISOString(),
+    used: false,
+  };
+  localStorage.setItem(key, JSON.stringify([...current, newVoucher]));
+}

@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { useUser } from '../../reduxSlice/UserContext';
 import { vouchers } from '../../data/Guest/vouchers';
-import ShopeeVoucherModal from '../../components/Guest/cart/ShopeeVoucherModal';
-import type { Voucher } from '../../types/Voucher';
+
 
 const MyVoucherPage: React.FC = () => {
   const { voucher, setVoucher } = useUser();
-  const [showVoucherModal, setShowVoucherModal] = useState(false);
+ 
 
   return (
     <DashboardLayout>
@@ -33,20 +32,7 @@ const MyVoucherPage: React.FC = () => {
             </div>
           ))}
         </div>
-        {/* Modal chọn nhanh (nếu muốn giữ) */}
-        {/* <button
-          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 mb-4"
-          onClick={() => setShowVoucherModal(true)}
-        >
-          Chọn voucher
-        </button>
-        <ShopeeVoucherModal
-          open={showVoucherModal}
-          vouchers={vouchers}
-          selectedVoucher={voucher}
-          onSelect={(v) => { setVoucher(v); setShowVoucherModal(false); }}
-          onClose={() => setShowVoucherModal(false)}
-        /> */}
+     
         {voucher && (
           <div className="mt-6 p-4 bg-green-100 rounded text-green-800">
             Voucher đang áp dụng: <b>{voucher.code}</b> - {voucher.description}

@@ -2,13 +2,16 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import ProductCard from './ProductCard';
 import type { Product } from './ProductCard';
+
 interface CategorySectionProps {
   title: string;
   category: string;
   products: Product[];
   onAddToCart: (product: Product) => void;
   viewMoreLink: string;
-  colorClass: string; // ví dụ "bg-red-600"
+  heroImage: string;
+  productCount: number;
+  titleClass?: string;
 }
 
 const CategorySection: React.FC<CategorySectionProps> = ({
@@ -16,15 +19,22 @@ const CategorySection: React.FC<CategorySectionProps> = ({
   products,
   onAddToCart,
   viewMoreLink,
-  colorClass
+  heroImage,
+  productCount,
+  titleClass = '',
 }) => {
   return (
     <div>
-      <div className="mb-4 flex justify-center">
+      <div className="mb-6">
         <div
-          className="relative px-8 py-4 rounded-xl shadow-lg bg-white/80 border border-green-200 backdrop-blur-md flex items-center justify-center min-w-[220px] max-w-full transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 hover:bg-white/90"
+          className={`relative px-4 py-3 rounded-xl shadow-xl border-l-8 border-green-500 bg-white/90 flex items-center gap-3 w-fit max-w-full transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 hover:bg-green-50 ${titleClass}`}
         >
-          <span className="text-2xl font-bold text-green-700 drop-shadow-sm tracking-wide">
+          <img
+            src={heroImage}
+            alt={title}
+            className="w-12 h-12 object-cover rounded-lg border-2 border-green-200 bg-white"
+          />
+          <span className="text-2xl md:text-3xl font-extrabold text-green-800 tracking-wide drop-shadow-sm">
             {title}
           </span>
         </div>
@@ -34,12 +44,30 @@ const CategorySection: React.FC<CategorySectionProps> = ({
           <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} />
         ))}
       </div>
-      <div className="text-center mt-4">
+      <div className="flex justify-center mt-6">
         <Link
           to={viewMoreLink}
-          className={`inline-block ${colorClass} text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300`}
+          className="border border-red-500 text-red-600 px-6 py-2 rounded-xl font-medium text-lg tracking-wide bg-white hover:bg-red-50 transition-all duration-200 flex items-center gap-2"
         >
-          Xem Thêm
+          <span>
+            Xem thêm <span className="font-bold">{productCount}</span> sản phẩm{' '}
+            <span className="font-bold">{title}</span>
+          </span>
+          <svg
+            width="22"
+            height="22"
+            fill="none"
+            viewBox="0 0 24 24"
+            className="text-red-500"
+          >
+            <path
+              d="M19 9l-7 7-7-7"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </Link>
       </div>
     </div>

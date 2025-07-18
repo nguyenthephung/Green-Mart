@@ -57,3 +57,15 @@ export const testimonials = [
   { id: 1, name: 'Nguyễn Văn A', text: 'Rất hài lòng với dịch vụ, sản phẩm chất lượng tuyệt vời!', image: 'https://via.placeholder.com/50x50?text=NV+A' },
   { id: 2, name: 'Trần Thị B', text: 'Giao hàng nhanh chóng, giá cả hợp lý!', image: 'https://via.placeholder.com/50x50?text=TT+B' },
 ];
+
+// Danh mục sản phẩm lấy từ các category có trong products
+export const categories = [
+  { name: 'Thịt', value: 'meat', hero: '/src/assets/category-hero/meat.jpg' },
+  { name: 'Sữa', value: 'milk', hero: '/src/assets/category-hero/milk.jpg' },
+  { name: 'Rau củ', value: 'vegetables', hero: '/src/assets/category-hero/vegetables.jpg' },
+  { name: 'Trái cây', value: 'fruits', hero: '/src/assets/category-hero/fruits.jpg' },
+  { name: 'Đồ khô', value: 'dryfood', hero: '/src/assets/category-hero/dryfood.jpg' },
+  { name: 'Gia vị', value: 'spices', hero: '/src/assets/category-hero/spices.jpg' },
+  { name: 'Đồ uống', value: 'drink', hero: '/src/assets/category-hero/drink.jpg' },
+  { name: 'Bánh kẹo', value: 'snack', hero: '/src/assets/category-hero/snack.jpg' },
+];

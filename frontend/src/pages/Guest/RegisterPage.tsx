@@ -1,20 +1,53 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useUser } from "../../reduxSlice/UserContext";
 
 export default function Register() {
-  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<any>({});
+  const [message, setMessage] = useState("");
+  
   const navigate = useNavigate();
+  const { register } = useUser();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate password match
     if (password !== confirmPassword) {
-      alert("Passwords do not match");
+      setErrors({ confirmPassword: "Mật khẩu xác nhận không khớp" });
       return;
     }
-    navigate("/login");
+
+    setIsLoading(true);
+    setErrors({});
+    setMessage("");
+
+    try {
+      const result = await register({ name, email, phone, password });
+      
+      if (result.success) {
+        setMessage(result.message);
+        // Navigate after short delay to show success message
+        setTimeout(() => {
+          navigate("/home");
+        }, 1000);
+      } else {
+        setMessage(result.message);
+        if (result.errors) {
+          setErrors(result.errors);
+        }
+      }
+    } catch (error) {
+      setMessage("Lỗi kết nối. Vui lòng thử lại.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -28,63 +61,130 @@ export default function Register() {
           Welcome to GREEN MART
         </h2>
 
+        {message && (
+          <div className={`mb-4 p-3 rounded-lg text-sm ${
+            message.includes('thành công') 
+              ? 'bg-green-100 text-green-700 border border-green-300' 
+              : 'bg-red-100 text-red-700 border border-red-300'
+          }`}>
+            {message}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            placeholder="Username"
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-          <input
-            type="email"
-            placeholder="Email"
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Confirm password"
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
+          <div>
+            <input
+              type="text"
+              placeholder="Họ và tên"
+              className={`w-full px-4 py-3 rounded-xl border bg-gray-100 focus:outline-none focus:ring-2 ${
+                errors.name 
+                  ? 'border-red-300 focus:ring-red-500' 
+                  : 'border-gray-200 focus:ring-black'
+              }`}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+            {errors.name && (
+              <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+            )}
+          </div>
+
+          <div>
+            <input
+              type="email"
+              placeholder="Email"
+              className={`w-full px-4 py-3 rounded-xl border bg-gray-100 focus:outline-none focus:ring-2 ${
+                errors.email 
+                  ? 'border-red-300 focus:ring-red-500' 
+                  : 'border-gray-200 focus:ring-black'
+              }`}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            {errors.email && (
+              <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+            )}
+          </div>
+
+          <div>
+            <input
+              type="tel"
+              placeholder="Số điện thoại (VD: 0901234567)"
+              className={`w-full px-4 py-3 rounded-xl border bg-gray-100 focus:outline-none focus:ring-2 ${
+                errors.phone 
+                  ? 'border-red-300 focus:ring-red-500' 
+                  : 'border-gray-200 focus:ring-black'
+              }`}
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              required
+            />
+            {errors.phone && (
+              <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+            )}
+          </div>
+
+          <div>
+            <input
+              type="password"
+              placeholder="Mật khẩu (ít nhất 6 ký tự)"
+              className={`w-full px-4 py-3 rounded-xl border bg-gray-100 focus:outline-none focus:ring-2 ${
+                errors.password 
+                  ? 'border-red-300 focus:ring-red-500' 
+                  : 'border-gray-200 focus:ring-black'
+              }`}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            {errors.password && (
+              <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+            )}
+          </div>
+
+          <div>
+            <input
+              type="password"
+              placeholder="Xác nhận mật khẩu"
+              className={`w-full px-4 py-3 rounded-xl border bg-gray-100 focus:outline-none focus:ring-2 ${
+                errors.confirmPassword 
+                  ? 'border-red-300 focus:ring-red-500' 
+                  : 'border-gray-200 focus:ring-black'
+              }`}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+            {errors.confirmPassword && (
+              <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
+            )}
+          </div>
 
           <button
             type="submit"
-            className="w-full bg-black text-white py-3 rounded-xl text-sm font-semibold hover:bg-gray-800 transition"
+            disabled={isLoading}
+            className="w-full bg-black text-white py-3 rounded-xl text-sm font-semibold hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Agree and Register
+            {isLoading ? 'Đang đăng ký...' : 'Đăng ký'}
           </button>
         </form>
 
-        <div className="my-6 text-center text-sm text-gray-500">Or Login with</div>
+        <div className="my-6 text-center text-sm text-gray-500">Or Register with</div>
 
-        <div className="flex justify-center gap-4 mb-6">
-          <button className="border p-3 rounded-xl w-12 h-12 flex items-center justify-center">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png" alt="Facebook" className="w-5 h-5" />
+        <div className="flex gap-4 mb-6">
+          <button className="flex-1 flex items-center justify-center py-3 border border-gray-200 rounded-xl hover:bg-gray-50">
+            <span className="text-xl mr-2">📱</span>
+            Facebook
           </button>
-          <button className="border p-3 rounded-xl w-12 h-12 flex items-center justify-center">
-            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" className="w-5 h-5" />
-          </button>
-          <button className="border p-3 rounded-xl w-12 h-12 flex items-center justify-center">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple" className="w-5 h-5" />
+          <button className="flex-1 flex items-center justify-center py-3 border border-gray-200 rounded-xl hover:bg-gray-50">
+            <span className="text-xl mr-2">🔍</span>
+            Google
           </button>
         </div>
 
-        <div className="text-center text-sm">
+        <div className="text-center text-sm text-gray-600">
           Already have an account?{" "}
           <Link to="/login" className="text-green-600 font-semibold">
             Login here

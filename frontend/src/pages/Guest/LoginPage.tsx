@@ -1,15 +1,42 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useUser } from "../../reduxSlice/UserContext";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<any>({});
+  const [message, setMessage] = useState("");
+  
   const navigate = useNavigate();
+  const { login } = useUser();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email && password) {
-      navigate("/home");
+    setIsLoading(true);
+    setErrors({});
+    setMessage("");
+
+    try {
+      const result = await login({ email, password });
+      
+      if (result.success) {
+        setMessage(result.message);
+        // Navigate after short delay to show success message
+        setTimeout(() => {
+          navigate("/home");
+        }, 1000);
+      } else {
+        setMessage(result.message);
+        if (result.errors) {
+          setErrors(result.errors);
+        }
+      }
+    } catch (error) {
+      setMessage("Lỗi kết nối. Vui lòng thử lại.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -24,30 +51,59 @@ export default function Login() {
           Welcome back! Glad <br /> to see you, Again!
         </h2>
 
-        <form onSubmit={handleLogin} className="space-y-4">
-          <input
-            type="email"
-            placeholder="Enter your email"
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+        {message && (
+          <div className={`mb-4 p-3 rounded-lg text-sm ${
+            message.includes('thành công') 
+              ? 'bg-green-100 text-green-700 border border-green-300' 
+              : 'bg-red-100 text-red-700 border border-red-300'
+          }`}>
+            {message}
+          </div>
+        )}
 
-          <input
-            type="password"
-            placeholder="Enter your password"
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div>
+            <input
+              type="email"
+              placeholder="Enter your email"
+              className={`w-full px-4 py-3 rounded-xl border bg-gray-100 focus:outline-none focus:ring-2 ${
+                errors.email 
+                  ? 'border-red-300 focus:ring-red-500' 
+                  : 'border-gray-200 focus:ring-black'
+              }`}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            {errors.email && (
+              <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+            )}
+          </div>
+
+          <div>
+            <input
+              type="password"
+              placeholder="Enter your password"
+              className={`w-full px-4 py-3 rounded-xl border bg-gray-100 focus:outline-none focus:ring-2 ${
+                errors.password 
+                  ? 'border-red-300 focus:ring-red-500' 
+                  : 'border-gray-200 focus:ring-black'
+              }`}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            {errors.password && (
+              <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+            )}
+          </div>
 
           <button
             type="submit"
-            className="w-full bg-black text-white py-3 rounded-xl text-sm font-semibold hover:bg-gray-800 transition"
+            disabled={isLoading}
+            className="w-full bg-black text-white py-3 rounded-xl text-sm font-semibold hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Login
+            {isLoading ? 'Đang đăng nhập...' : 'Login'}
           </button>
         </form>
 

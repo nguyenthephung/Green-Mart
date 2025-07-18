@@ -35,9 +35,7 @@ export default function OrderCard({
   date,
   total,
   items,
-  deliveryFee,
-  payWith,
-  deliveryAddress,
+
   shippingStatus = "Đơn hàng đã rời kho phân loại tới HCM Mega SOC",
 }: OrderCardProps) {
   return (

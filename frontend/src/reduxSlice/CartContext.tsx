@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
+import { useUser } from './UserContext';
 
 export interface CartItem {
   id: number;
@@ -26,17 +27,25 @@ export const useCart = () => {
 };
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
+  const { user } = useUser();
   const [cart, setCart] = useState<CartItem[]>(() => {
-    const stored = localStorage.getItem('cart');
+    const cartKey = user ? `cart_${user.id}` : 'cart_guest';
+    const stored = localStorage.getItem(cartKey);
     return stored ? JSON.parse(stored) : [];
   });
 
-  // Lắng nghe sự kiện storage để đồng bộ cart giữa các tab hoặc khi localStorage thay đổi
+  // Update cart when user changes
+  useEffect(() => {
+    const cartKey = user ? `cart_${user.id}` : 'cart_guest';
+    const stored = localStorage.getItem(cartKey);
+    setCart(stored ? JSON.parse(stored) : []);
+  }, [user]);
 
   // Lưu cart vào localStorage mỗi khi cart thay đổi
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cart));
-  }, [cart]);
+    const cartKey = user ? `cart_${user.id}` : 'cart_guest';
+    localStorage.setItem(cartKey, JSON.stringify(cart));
+  }, [cart, user]);
 
   const addToCart = (item: Omit<CartItem, 'quantity'>) => {
     

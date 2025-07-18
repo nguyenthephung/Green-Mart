@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { FaUser, FaMapMarkerAlt,  FaBell, FaBook, FaSignOutAlt, FaBox } from 'react-icons/fa';
+import LuckyWheel from '../Account/LuckyWheel';
 
 const Sidebar: React.FC = () => {
   const menuItems = [
@@ -11,7 +12,7 @@ const Sidebar: React.FC = () => {
   ];
 
   return (
-    <aside className="w-64 p-6 bg-white border-r">
+    <aside className="w-64 p-6 bg-white border-r relative">
       <div className="flex items-center gap-3 mb-6">
         <img src="https://i.pravatar.cc/40" alt="Avatar" className="rounded-full" />
         <div>
@@ -28,6 +29,7 @@ const Sidebar: React.FC = () => {
           </li>
         ))}
       </ul>
+      <LuckyWheel userId={1} />
       <div className="absolute bottom-6 left-6 flex items-center gap-3 text-gray-700 hover:text-red-500 cursor-pointer">
         <FaSignOutAlt />
         <Link to="/login" className="w-full">
