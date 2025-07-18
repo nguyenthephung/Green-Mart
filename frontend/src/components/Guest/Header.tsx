@@ -198,7 +198,7 @@ const Header: React.FC = () => {
                     </button>
                     <button
                       onClick={() => {
-                        navigate('/orders');
+                        navigate('/myorder');
                         setShowUserMenu(false);
                       }}
                       className="w-full text-left px-4 py-2 text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors flex items-center gap-2"
