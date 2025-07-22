@@ -90,8 +90,9 @@ const UserSchema: Schema = new Schema({
   timestamps: true
 });
 
-// Indexes
-UserSchema.index({ email: 1 });
+// Indexes (chỉ tạo index cho các field không có unique: true)
 UserSchema.index({ phone: 1 });
+UserSchema.index({ role: 1 });
+UserSchema.index({ status: 1 });
 
 export default mongoose.model<IUser>('User', UserSchema);

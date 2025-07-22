@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useUser } from "../../reduxSlice/UserContext";
+import { useUserStore } from "../../stores/useUserStore";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -13,10 +13,16 @@ export default function Register() {
   const [message, setMessage] = useState("");
   
   const navigate = useNavigate();
-  const { register } = useUser();
+  const register = useUserStore(state => state.register);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate required fields
+    if (!name.trim() || !email.trim() || !password.trim()) {
+      setErrors({ general: "Vui lòng điền đầy đủ thông tin bắt buộc" });
+      return;
+    }
     
     // Validate password match
     if (password !== confirmPassword) {
@@ -29,14 +35,12 @@ export default function Register() {
     setMessage("");
 
     try {
-      const result = await register({ name, email, phone, password });
+      const result = await register(name, email, password, phone);
       
       if (result.success) {
-        setMessage(result.message);
-        // Navigate after short delay to show success message
-        setTimeout(() => {
-          navigate("/home");
-        }, 1000);
+        setMessage("Đăng ký thành công! Đang chuyển hướng...");
+        // Navigate immediately on success
+        navigate("/home");
       } else {
         setMessage(result.message);
         if (result.errors) {
@@ -44,6 +48,7 @@ export default function Register() {
         }
       }
     } catch (error) {
+      console.error("Register error:", error);
       setMessage("Lỗi kết nối. Vui lòng thử lại.");
     } finally {
       setIsLoading(false);

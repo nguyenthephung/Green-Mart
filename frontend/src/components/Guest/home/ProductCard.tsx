@@ -1,6 +1,9 @@
 import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { FaShoppingCart } from 'react-icons/fa';
+import { Heart } from 'lucide-react';
+import { useWishlist } from '../../../reduxSlice/WishlistContext';
+import { useUserStore } from '../../../stores/useUserStore';
 
 export interface Product {
   id: string | number;
@@ -19,8 +22,27 @@ export interface Product {
   showSaleBadge?: boolean;
   showHotBadge?: boolean;
 }
-const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, showSaleBadge = true }) => {
   const imgRef = useRef<HTMLImageElement>(null);
+  
+  // Safe wishlist hooks with error handling
+  let wishlistHooks = null;
+  let userHooks = null;
+  
+  try {
+    wishlistHooks = useWishlist();
+    userHooks = useUserStore();
+  } catch (error) {
+    console.warn('Wishlist context not available:', error);
+  }
+  
+  const { addToWishlist, removeFromWishlist, isInWishlist } = wishlistHooks || {
+    addToWishlist: async () => {},
+    removeFromWishlist: async () => {},
+    isInWishlist: () => false
+  };
+  
+  const { user } = userHooks || { user: null };
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -60,8 +82,56 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
     onAddToCart(product);
   };
 
+  const handleWishlistToggle = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    
+    if (!user) {
+      // Redirect to login or show login modal
+      alert('Vui lòng đăng nhập để sử dụng tính năng này');
+      return;
+    }
+
+    try {
+      if (isInWishlist(product.id.toString())) {
+        await removeFromWishlist(product.id.toString());
+      } else {
+        // Chuyển đổi price string thành number
+        const priceStr = product.salePrice || product.price;
+        const priceNumber = parseFloat(priceStr.replace(/[^\d]/g, ''));
+        const originalPriceNumber = product.isSale ? parseFloat(product.price.replace(/[^\d]/g, '')) : undefined;
+        
+        await addToWishlist({
+          id: product.id,
+          name: product.name,
+          price: priceNumber,
+          originalPrice: originalPriceNumber,
+          discount: product.isSale && originalPriceNumber ? Math.round((1 - priceNumber / originalPriceNumber) * 100) : undefined,
+          image: product.image,
+          category: product.category,
+          inStock: true
+        });
+      }
+    } catch (error) {
+      console.error('Error toggling wishlist:', error);
+    }
+  };
+
   return (
     <div className="bg-white p-4 rounded-xl shadow-xl transform transition-all duration-400 hover:shadow-2xl hover:-translate-y-2 perspective-1000 relative">
+      {/* Wishlist Button */}
+      <button
+        onClick={handleWishlistToggle}
+        className={`absolute top-2 right-2 p-2 rounded-full transition-all duration-200 z-10 ${
+          user && isInWishlist(product.id.toString())
+            ? 'bg-red-500 text-white hover:bg-red-600'
+            : 'bg-white text-gray-400 hover:text-red-500 hover:bg-red-50'
+        } shadow-md hover:shadow-lg`}
+        title={user && isInWishlist(product.id.toString()) ? 'Xóa khỏi danh sách yêu thích' : 'Thêm vào danh sách yêu thích'}
+      >
+        <Heart size={16} className={user && isInWishlist(product.id.toString()) ? 'fill-current' : ''} />
+      </button>
+
       <Link to={`/productdetail/${product.id}`}>
         <img
           ref={imgRef}
@@ -71,11 +141,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
         />
       </Link>
       <h4 className="text-lg font-medium mt-2">{product.name}</h4>
-      {product.isSale ? (
+      {product.isSale && showSaleBadge ? (
         <div className="flex items-center gap-2 mt-1">
           <span className="text-gray-400 line-through text-sm">{product.price}</span>
           <span className="text-red-600 font-bold text-lg">{product.salePrice}</span>
           <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">SALE</span>
+        </div>
+      ) : product.isSale ? (
+        <div className="flex items-center gap-2 mt-1">
+          <span className="text-gray-400 line-through text-sm">{product.price}</span>
+          <span className="text-red-600 font-bold text-lg">{product.salePrice}</span>
         </div>
       ) : (
         <p className="text-gray-600">{product.price}</p>

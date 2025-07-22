@@ -21,12 +21,32 @@ export type OrderCardProps = {
   shippingStatus?: string;
 };
 
-const statusColors: Record<string, string> = {
-  "Hoàn thành": "text-green-600 border-green-600",
-  "Đã hủy": "text-red-600 border-red-600",
-  "Đang xử lý": "text-gray-900 border-gray-900",
-  "Chờ giao hàng": "text-orange-600 border-orange-600",
-  "Vận chuyển": "text-blue-600 border-blue-600",
+const statusConfig: Record<string, { color: string; bg: string; icon: string }> = {
+  "Hoàn thành": { 
+    color: "text-green-700", 
+    bg: "bg-green-100 border-green-200", 
+    icon: "M5 13l4 4L19 7" 
+  },
+  "Đã hủy": { 
+    color: "text-red-700", 
+    bg: "bg-red-100 border-red-200", 
+    icon: "M6 18L18 6M6 6l12 12" 
+  },
+  "Đang xử lý": { 
+    color: "text-blue-700", 
+    bg: "bg-blue-100 border-blue-200", 
+    icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" 
+  },
+  "Chờ giao hàng": { 
+    color: "text-orange-700", 
+    bg: "bg-orange-100 border-orange-200", 
+    icon: "M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m6.75 4.5v-3a1.5 1.5 0 011.5-1.5h3a1.5 1.5 0 011.5 1.5v3m-6 0h4.5m0 0h2.625a1.125 1.125 0 001.125-1.125V11.25a1.125 1.125 0 00-1.125-1.125H15.75m-6.75 0H9.375a1.125 1.125 0 01-1.125-1.125V5.625m8.25 0h2.25a1.125 1.125 0 011.125 1.125v1.5m0 0H15.75m0 0v3M12 7.5V6a1.5 1.5 0 00-1.5-1.5h-3A1.5 1.5 0 006 6v1.5h6z" 
+  },
+  "Vận chuyển": { 
+    color: "text-purple-700", 
+    bg: "bg-purple-100 border-purple-200", 
+    icon: "M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m6.75 4.5v-3a1.5 1.5 0 011.5-1.5h3a1.5 1.5 0 011.5 1.5v3m-6 0h4.5m0 0h2.625a1.125 1.125 0 001.125-1.125V11.25a1.125 1.125 0 00-1.125-1.125H15.75m-6.75 0H9.375a1.125 1.125 0 01-1.125-1.125V5.625m8.25 0h2.25a1.125 1.125 0 011.125 1.125v1.5m0 0H15.75m0 0v3M12 7.5V6a1.5 1.5 0 00-1.5-1.5h-3A1.5 1.5 0 006 6v1.5h6z" 
+  },
 };
 
 export default function OrderCard({
@@ -35,52 +55,80 @@ export default function OrderCard({
   date,
   total,
   items,
-
   shippingStatus = "Đơn hàng đã rời kho phân loại tới HCM Mega SOC",
 }: OrderCardProps) {
+  const statusInfo = statusConfig[status] || { 
+    color: "text-gray-700", 
+    bg: "bg-gray-100 border-gray-200", 
+    icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" 
+  };
+
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow p-6 mb-8">
-      {/* Trạng thái */}
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          {/* Có thể thêm icon shop hoặc logo nếu muốn */}
+    <div className="bg-white rounded-2xl border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 p-6 group">
+      {/* Header with Status */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+          </div>
+          <div>
+            <div className="font-semibold text-gray-900">Đơn hàng #{id}</div>
+            <div className="text-sm text-gray-500">{date}</div>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span
-            className={`text-sm font-bold px-3 py-1 rounded-full border ${
-              statusColors[status] || "text-gray-700 border-gray-300"
-            } bg-white`}
-          >
-            {status}
-          </span>
+        <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border ${statusInfo.bg} ${statusInfo.color}`}>
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d={statusInfo.icon} />
+          </svg>
+          <span className="font-semibold text-sm">{status}</span>
         </div>
       </div>
-      {/* Sản phẩm */}
-      <div className="divide-y">
+
+      {/* Shipping Status */}
+      {status === "Chờ giao hàng" && (
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 mb-6 border border-green-200">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <div>
+              <div className="font-semibold text-green-800">Đang vận chuyển</div>
+              <div className="text-sm text-green-600">{shippingStatus}</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Products */}
+      <div className="space-y-4 mb-6">
         {items.map((item, idx) => (
-          <div key={idx} className="flex gap-4 py-4 items-center">
+          <div key={idx} className="flex gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors duration-200">
             <img
               src={item.image}
               alt={item.name}
-              className="w-20 h-20 object-cover rounded border border-gray-200"
+              className="w-16 h-16 object-cover rounded-lg border border-gray-200"
             />
             <div className="flex-1">
-              <div className="font-semibold text-gray-900 text-base mb-1">
-                {item.name}
-              </div>
-              <div className="text-xs text-gray-500 mb-1">
+              <div className="font-semibold text-gray-900 mb-1">{item.name}</div>
+              <div className="text-xs text-gray-500 mb-2">
                 Phân loại: {item.variant || "Mặc định"}
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-orange-600 font-bold text-lg">
-                  {item.price.toLocaleString()}₫
-                </span>
-                {item.oldPrice > item.price && (
-                  <span className="text-gray-400 line-through text-sm">
-                    {item.oldPrice.toLocaleString()}₫
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-green-600 font-bold">
+                    {item.price.toLocaleString()}₫
                   </span>
-                )}
-                <span className="ml-2 text-gray-700 text-sm">
+                  {item.oldPrice > item.price && (
+                    <span className="text-gray-400 line-through text-sm">
+                      {item.oldPrice.toLocaleString()}₫
+                    </span>
+                  )}
+                </div>
+                <span className="text-gray-600 text-sm font-medium">
                   x{item.quantity}
                 </span>
               </div>
@@ -88,49 +136,29 @@ export default function OrderCard({
           </div>
         ))}
       </div>
-      {/* Trạng thái giao hàng + tổng tiền */}
-      <div className="flex justify-between items-center mt-4">
-        <div className="flex items-center gap-2">
-          <span className="text-green-700 font-semibold flex items-center gap-1">
-            <svg
-              width="18"
-              height="18"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M7 17l5-5 5 5"
-                stroke="#22c55e"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            {shippingStatus}
-          </span>
-          <span className="ml-3 text-orange-600 font-bold">
-            CHỜ GIAO HÀNG
-          </span>
-        </div>
-        <div className="text-right">
-          <div className="text-gray-500 text-sm">Thành tiền:</div>
-          <div className="text-2xl font-bold text-orange-600">
-            {total.toLocaleString()}₫
-          </div>
-        </div>
+
+      {/* Total */}
+      <div className="flex justify-between items-center mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
+        <span className="text-gray-700 font-medium">Tổng thanh toán:</span>
+        <span className="text-2xl font-bold text-green-600">
+          {total.toLocaleString()}₫
+        </span>
       </div>
-      {/* Nút hành động */}
-      <div className="flex justify-end gap-3 mt-4">
+
+      {/* Action Buttons */}
+      <div className="flex justify-end gap-3">
         <Link
           to={`/ordertracking/${id}`}
-          className="px-5 py-2 border border-gray-300 rounded font-bold text-gray-700 hover:bg-gray-100 transition"
+          className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl group-hover:scale-105 transform"
         >
-          Xem Chi Tiết
+          <span className="flex items-center gap-2">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            Xem Chi Tiết
+          </span>
         </Link>
-      </div>
-      {/* Thông tin phụ */}
-      <div className="text-xs text-gray-400 mt-2">
-        Mã đơn hàng: <b>{id}</b> | Ngày đặt: {date}
       </div>
     </div>
   );

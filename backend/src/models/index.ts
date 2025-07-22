@@ -9,6 +9,7 @@ export { default as Comment } from './Comment';
 export { default as Notification } from './Notification';
 export { default as Cart } from './Cart';
 export { default as NotificationSettings } from './NotificationSettings';
+export { Wishlist } from './Wishlist';
 
 // Export interfaces
 export type { IUser } from './User';
@@ -21,3 +22,4 @@ export type { IComment } from './Comment';
 export type { INotification } from './Notification';
 export type { ICart, ICartItem } from './Cart';
 export type { INotificationSettings } from './NotificationSettings';
+export type { IWishlist } from './Wishlist';

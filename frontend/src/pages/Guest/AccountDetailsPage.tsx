@@ -1,28 +1,83 @@
 import React, { useState, useEffect } from 'react';
-import { useUser } from '../../reduxSlice/UserContext';
+import { useUserStore } from '../../stores/useUserStore';
+import { profileService } from '../../services/profileService';
 import DashboardLayout from '../../layouts/DashboardLayout';
 
 const AccountDetails: React.FC = () => {
-  const { userInfo, setUserInfo } = useUser();
+  const user = useUserStore(state => state.user);
   const [editMode, setEditMode] = useState(false);
-  const [tempInfo, setTempInfo] = useState(userInfo);
-  const [avatar, setAvatar] = useState(userInfo.avatar || 'https://i.pravatar.cc/120?u=' + (userInfo.email || 'user'));
+  const [loading, setLoading] = useState(false);
+  const [tempInfo, setTempInfo] = useState({
+    fullName: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    avatar: user?.avatar || ''
+  });
+  const [avatar, setAvatar] = useState(user?.avatar || `https://i.pravatar.cc/120?u=${user?.email || 'user'}`);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-  }, []);
+    // Update tempInfo when user data changes
+    if (user) {
+      setTempInfo({
+        fullName: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        avatar: user.avatar || ''
+      });
+      setAvatar(user.avatar || `https://i.pravatar.cc/120?u=${user.email || 'user'}`);
+    }
+  }, [user]);
 
   const handleEdit = () => {
-    setTempInfo(userInfo);
+    if (user) {
+      setTempInfo({
+        fullName: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        avatar: user.avatar || ''
+      });
+    }
     setEditMode(true);
   };
+
   const handleCancel = () => {
     setEditMode(false);
-    setTempInfo(userInfo);
+    if (user) {
+      setTempInfo({
+        fullName: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        avatar: user.avatar || ''
+      });
+    }
   };
-  const handleSave = () => {
-    setUserInfo({ ...tempInfo, avatar });
-    setEditMode(false);
+
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      // Call API to update profile
+      const result = await profileService.updateProfile({
+        name: tempInfo.fullName,
+        phone: tempInfo.phone,
+        avatar: avatar
+      });
+      
+      if (result.success) {
+        setEditMode(false);
+        console.log('Profile updated successfully');
+        // Refresh page to get updated user data
+        window.location.reload();
+      } else {
+        console.error('Failed to update profile:', result.message);
+        // You can show error message to user here
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      // You can show error message to user here
+    } finally {
+      setLoading(false);
+    }
   };
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -31,102 +86,187 @@ const AccountDetails: React.FC = () => {
     }
   };
 
+  // Show loading state if user is not loaded yet
+  if (!user) {
+    return (
+      <DashboardLayout>
+        <div className="bg-white p-8 rounded-2xl shadow-lg max-w-2xl mx-auto mt-6">
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+            <span className="ml-3 text-gray-600">Đang tải thông tin...</span>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
-      <div className="bg-white p-8 rounded-2xl shadow-lg max-w-2xl mx-auto mt-6">
-        <h2 className="text-2xl font-bold text-green-700 mb-8 flex items-center gap-2">
-          <svg className="w-7 h-7 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-          Thông tin tài khoản
-        </h2>
-        <div className="flex flex-col items-center mb-8">
-          <div className="relative">
-            <img src={avatar} alt="avatar" className="w-28 h-28 rounded-full object-cover border-4 border-green-200 shadow" />
+      <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-8 rounded-3xl shadow-xl max-w-3xl mx-auto mt-6 border border-green-100">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-2 flex items-center justify-center gap-3">
+            <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            Thông tin tài khoản
+          </h2>
+          <p className="text-gray-600">Quản lý và cập nhật thông tin cá nhân của bạn</p>
+        </div>
+
+        {/* Avatar Section */}
+        <div className="flex flex-col items-center mb-10">
+          <div className="relative group">
+            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 p-1 shadow-xl">
+              <img 
+                src={avatar} 
+                alt="avatar" 
+                className="w-full h-full rounded-full object-cover bg-white"
+              />
+            </div>
             {editMode && (
-              <label className="absolute bottom-1 right-1 bg-white rounded-full p-1 shadow cursor-pointer hover:bg-green-100 transition">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536M9 13l6-6m2 2l-6 6m-2 2H7v-2a2 2 0 012-2h2v2a2 2 0 01-2 2z" /></svg>
+              <label className="absolute bottom-2 right-2 bg-white rounded-full p-2 shadow-lg cursor-pointer hover:bg-green-50 transition-all group-hover:scale-110">
+                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
                 <input type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
               </label>
             )}
           </div>
-          <div className="mt-2 text-gray-500 text-sm">Ảnh đại diện</div>
+          <div className="mt-4 text-center">
+            <h3 className="text-xl font-semibold text-gray-900">{user?.name || 'Người dùng'}</h3>
+            <p className="text-gray-600">{user?.email}</p>
+          </div>
         </div>
-        <form className="space-y-6">
-          {/* Họ và tên */}
-          <div className="flex items-center gap-3">
-            <span className="text-green-600">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-            </span>
-            <div className="w-full">
-              <label htmlFor="full-name" className="font-semibold text-gray-600">Họ và tên</label>
+
+        {/* Form */}
+        <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
+          <form className="space-y-8">
+            {/* Họ và tên */}
+            <div className="group">
+              <label htmlFor="full-name" className="flex items-center gap-3 font-semibold text-gray-700 mb-3">
+                <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                Họ và tên
+              </label>
               <input
                 id="full-name"
                 type="text"
-                value={editMode ? tempInfo.fullName : userInfo.fullName}
+                value={editMode ? tempInfo.fullName : (user?.name || '')}
                 onChange={e => setTempInfo({ ...tempInfo, fullName: e.target.value })}
-                className={`mt-1 block w-full px-3 py-2 border ${editMode ? 'border-green-400 bg-white' : 'border-gray-200 bg-gray-100'} rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent`}
+                className={`w-full px-4 py-4 border-2 rounded-xl shadow-sm transition-all duration-200 ${
+                  editMode 
+                    ? 'border-green-300 bg-white focus:border-green-500 focus:ring-4 focus:ring-green-100' 
+                    : 'border-gray-200 bg-gray-50 cursor-not-allowed'
+                } focus:outline-none text-gray-900`}
                 placeholder="Nhập họ và tên"
                 disabled={!editMode}
               />
             </div>
-          </div>
-          {/* Số điện thoại */}
-          <div className="flex items-center gap-3">
-            <span className="text-green-600">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm0 10a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H5a2 2 0 01-2-2v-2zm8-8h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V7a2 2 0 012-2zm0 10h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2a2 2 0 012-2z" /></svg>
-            </span>
-            <div className="w-full">
-              <label htmlFor="mobile-number" className="font-semibold text-gray-600">Số điện thoại</label>
+
+            {/* Số điện thoại */}
+            <div className="group">
+              <label htmlFor="mobile-number" className="flex items-center gap-3 font-semibold text-gray-700 mb-3">
+                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                </div>
+                Số điện thoại
+              </label>
               <input
                 id="mobile-number"
                 type="text"
-                value={editMode ? tempInfo.phone : userInfo.phone}
+                value={editMode ? tempInfo.phone : (user?.phone || '')}
                 onChange={e => setTempInfo({ ...tempInfo, phone: e.target.value })}
-                className={`mt-1 block w-full px-3 py-2 border ${editMode ? 'border-green-400 bg-white' : 'border-gray-200 bg-gray-100'} rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent`}
+                className={`w-full px-4 py-4 border-2 rounded-xl shadow-sm transition-all duration-200 ${
+                  editMode 
+                    ? 'border-blue-300 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100' 
+                    : 'border-gray-200 bg-gray-50 cursor-not-allowed'
+                } focus:outline-none text-gray-900`}
                 placeholder="Nhập số điện thoại"
                 disabled={!editMode}
               />
             </div>
-          </div>
-          {/* Email */}
-          <div className="flex items-center gap-3">
-            <span className="text-green-600">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16 12H8m8 0a4 4 0 11-8 0 4 4 0 018 0zm-8 0V8a4 4 0 018 0v4" /></svg>
-            </span>
-            <div className="w-full">
-              <label htmlFor="email-address" className="font-semibold text-gray-600">Địa chỉ email</label>
+
+            {/* Email */}
+            <div className="group">
+              <label htmlFor="email-address" className="flex items-center gap-3 font-semibold text-gray-700 mb-3">
+                <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                Địa chỉ email
+              </label>
               <input
                 id="email-address"
                 type="email"
-                value={editMode ? tempInfo.email : userInfo.email}
+                value={editMode ? tempInfo.email : (user?.email || '')}
                 onChange={e => setTempInfo({ ...tempInfo, email: e.target.value })}
-                className={`mt-1 block w-full px-3 py-2 border ${editMode ? 'border-green-400 bg-white' : 'border-gray-200 bg-gray-100'} rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent`}
+                className={`w-full px-4 py-4 border-2 rounded-xl shadow-sm transition-all duration-200 ${
+                  editMode 
+                    ? 'border-purple-300 bg-white focus:border-purple-500 focus:ring-4 focus:ring-purple-100' 
+                    : 'border-gray-200 bg-gray-50 cursor-not-allowed'
+                } focus:outline-none text-gray-900`}
                 placeholder="Nhập địa chỉ email"
                 disabled={!editMode}
               />
             </div>
+          </form>
+
+          {/* Action Buttons */}
+          <div className="mt-10 flex justify-end gap-4">
+            {editMode ? (
+              <>
+                <button
+                  type="button"
+                  className="px-8 py-3 rounded-xl bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition-all duration-200 flex items-center gap-2"
+                  onClick={handleCancel}
+                  disabled={loading}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  Hủy
+                </button>
+                <button
+                  type="button"
+                  className="px-8 py-3 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2 disabled:opacity-50"
+                  onClick={handleSave}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                  ) : (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                  {loading ? 'Đang lưu...' : 'Lưu thay đổi'}
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                className="px-8 py-3 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2"
+                onClick={handleEdit}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Chỉnh sửa thông tin
+              </button>
+            )}
           </div>
-        </form>
-        <div className="mt-8 flex justify-end gap-3">
-          {editMode ? (
-            <>
-              <button
-                type="button"
-                className="px-5 py-2 rounded bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition"
-                onClick={handleCancel}
-              >Hủy</button>
-              <button
-                type="button"
-                className="px-6 py-2 rounded bg-green-700 text-white font-semibold hover:bg-green-800 transition"
-                onClick={handleSave}
-              >Lưu</button>
-            </>
-          ) : (
-            <button
-              type="button"
-              className="px-6 py-2 rounded bg-green-700 text-white font-semibold hover:bg-green-800 transition"
-              onClick={handleEdit}
-            >Chỉnh sửa</button>
-          )}
         </div>
       </div>
     </DashboardLayout>

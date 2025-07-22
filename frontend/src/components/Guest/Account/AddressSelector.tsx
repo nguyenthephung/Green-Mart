@@ -36,29 +36,72 @@ export default function AddressSelector({
   const [street, setStreet] = useState<string>(value?.street || "");
 
   const districtObj = typedDistricts.find((d: District) => d.name === selectedDistrict);
-  const wardObj = districtObj?.wards.find((w: Ward) => w.name === selectedWard);
 
   const handleDistrictChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedDistrict(e.target.value);
+    const newDistrict = e.target.value;
+    setSelectedDistrict(newDistrict);
     setSelectedWard("");
+    
+    // Trigger onChange immediately when district changes
+    if (newDistrict) {
+      const districtData = typedDistricts.find((d: District) => d.name === newDistrict);
+      if (districtData) {
+        onChange({
+          district: newDistrict,
+          ward: "",
+          street: street,
+          latitude: 0,
+          longitude: 0,
+          fullName: value?.fullName || '',
+          phone: value?.phone || '',
+        });
+      }
+    }
   };
+  
   const handleWardChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedWard(e.target.value);
+    const newWard = e.target.value;
+    setSelectedWard(newWard);
+    
+    // Trigger onChange immediately when ward changes
+    if (selectedDistrict && newWard) {
+      const districtData = typedDistricts.find((d: District) => d.name === selectedDistrict);
+      const wardData = districtData?.wards.find((w: Ward) => w.name === newWard);
+      
+      if (districtData && wardData) {
+        onChange({
+          district: selectedDistrict,
+          ward: newWard,
+          street: street,
+          latitude: wardData.latitude,
+          longitude: wardData.longitude,
+          fullName: value?.fullName || '',
+          phone: value?.phone || '',
+        });
+      }
+    }
   };
+  
   const handleStreetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setStreet(e.target.value);
-  };
-  const handleSave = () => {
-    if (districtObj && wardObj && street) {
-      onChange({
-        district: districtObj.name,
-        ward: wardObj.name,
-        street,
-        latitude: wardObj.latitude,
-        longitude: wardObj.longitude,
-        fullName: value?.fullName || '',
-        phone: value?.phone || '',
-      });
+    const newStreet = e.target.value;
+    setStreet(newStreet);
+    
+    // Trigger onChange immediately when street changes
+    if (selectedDistrict && selectedWard && newStreet) {
+      const districtData = typedDistricts.find((d: District) => d.name === selectedDistrict);
+      const wardData = districtData?.wards.find((w: Ward) => w.name === selectedWard);
+      
+      if (districtData && wardData) {
+        onChange({
+          district: selectedDistrict,
+          ward: selectedWard,
+          street: newStreet,
+          latitude: wardData.latitude,
+          longitude: wardData.longitude,
+          fullName: value?.fullName || '',
+          phone: value?.phone || '',
+        });
+      }
     }
   };
 

@@ -1,0 +1,197 @@
+/* Performance optimizations for scroll lag */
+
+/* Tối ưu hóa transform và animations để giảm lag */
+.optimize-scroll {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Tối ưu hóa grid layouts */
+.optimized-grid {
+  contain: layout style paint;
+}
+
+/* Tối ưu hóa flying animation */
+.flying-item {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+/* Tối ưu hóa hero slider */
+.hero-slide {
+  will-change: opacity, transform;
+  backface-visibility: hidden;
+}
+
+/* Video Modal Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slideIn {
+  animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Giảm complexity của complex selectors */
+.section-container {
+  contain: layout;
+  transform: translateZ(0);
+}
+
+/* Optimize image rendering */
+.optimized-image {
+  image-rendering: -webkit-optimize-contrast;
+  transform: translateZ(0);
+}
+
+/* CSS containment cho các sections */
+.product-section {
+  contain: layout style;
+}
+
+/* Reduce paint areas */
+.scroll-optimized {
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+/* Enhanced animations for new UI */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animate-slideInLeft {
+  animation: slideInLeft 0.6s ease-out forwards;
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.4s ease-out forwards;
+}
+
+/* Smooth transitions for hover effects */
+.hover-lift {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-8px);
+}
+
+/* Glass morphism effect */
+.glass-effect {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Gradient text utilities */
+.gradient-text-emerald {
+  background: linear-gradient(135deg, #10b981, #059669);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-fire {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Product Badge Positioning */
+.product-badge {
+  position: absolute;
+  z-index: 30;
+  pointer-events: none;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.product-badge-sale {
+  top: 0.5rem;
+  left: 0.5rem;
+  background: linear-gradient(135deg, #ef4444, #ec4899);
+  color: white;
+}
+
+.product-badge-hot {
+  top: 0.5rem;
+  right: 0.5rem;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: white;
+}
+
+/* Ensure badges don't interfere with content */
+.product-card-wrapper {
+  position: relative;
+  padding-top: 2.5rem; /* Space for badges */
+}
+
+.product-card-content {
+  position: relative;
+  z-index: 10;
+}

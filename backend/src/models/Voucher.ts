@@ -84,8 +84,8 @@ const VoucherSchema: Schema = new Schema({
   timestamps: true
 });
 
-// Indexes
-VoucherSchema.index({ code: 1 });
+// Indexes (chỉ tạo index cho các field không có unique: true)
 VoucherSchema.index({ isActive: 1, expired: 1 });
+VoucherSchema.index({ discountType: 1 });
 
 export default mongoose.model<IVoucher>('Voucher', VoucherSchema);

@@ -17,19 +17,39 @@ interface CartListProps {
 
 export default function CartList({ items, onQuantityChange, onRemove }: CartListProps) {
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6 max-h-[500px] overflow-y-auto">
-      <h2 className="text-xl font-semibold mb-4">Giỏ hàng</h2>
+    <div className="bg-white rounded-2xl shadow-lg p-6 border border-green-100">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+          🛒 Giỏ hàng
+          <span className="text-sm font-normal text-gray-500">({items.length} sản phẩm)</span>
+        </h2>
+        {items.length > 0 && (
+          <div className="text-sm text-gray-500">
+            Tổng: {items.reduce((sum, item) => sum + item.price * item.quantity, 0).toLocaleString()} ₫
+          </div>
+        )}
+      </div>
+      
       {items.length > 0 ? (
-        items.map(item => (
-          <CartItem
-            key={item.id}
-            item={item}
-            onQuantityChange={onQuantityChange}
-            onRemove={onRemove}
-          />
-        ))
+        <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
+          {items.map(item => (
+            <CartItem
+              key={item.id}
+              item={item}
+              onQuantityChange={onQuantityChange}
+              onRemove={onRemove}
+            />
+          ))}
+        </div>
       ) : (
-        <p className="text-gray-500 text-center py-10">Giỏ hàng trống.</p>
+        <div className="text-center py-12">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+            </svg>
+          </div>
+          <p className="text-gray-500">Giỏ hàng trống.</p>
+        </div>
       )}
     </div>
   );

@@ -64,9 +64,12 @@ export const validateRegister = (req: Request, res: Response, next: NextFunction
 };
 
 export const validateLogin = (req: Request, res: Response, next: NextFunction): void => {
+  console.log('Login validation - Request body:', req.body);
+  
   const { email, password } = req.body;
   
   if (!email || !password) {
+    console.log('Login validation failed - Missing fields');
     res.status(400).json({
       success: false,
       message: 'Vui lòng điền email và mật khẩu.',
@@ -81,6 +84,7 @@ export const validateLogin = (req: Request, res: Response, next: NextFunction): 
   // Validate email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
+    console.log('Login validation failed - Invalid email format');
     res.status(400).json({
       success: false,
       message: 'Email không hợp lệ.',
@@ -89,5 +93,6 @@ export const validateLogin = (req: Request, res: Response, next: NextFunction): 
     return;
   }
 
+  console.log('Login validation passed');
   next();
 };

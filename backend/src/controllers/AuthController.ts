@@ -95,6 +95,8 @@ export class AuthController {
   // Đăng nhập
   static login = async (req: Request, res: Response): Promise<void> => {
     try {
+      console.log('Login controller - Request body:', req.body);
+      
       const { email, password } = req.body;
 
       // Find user by email
@@ -103,6 +105,7 @@ export class AuthController {
       });
 
       if (!user) {
+        console.log('Login failed - User not found for email:', email);
         res.status(401).json({
           success: false,
           message: 'Email hoặc mật khẩu không đúng.',

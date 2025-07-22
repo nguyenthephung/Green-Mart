@@ -2,14 +2,14 @@ import React, { useRef, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { products } from '../../data/Guest/Home';
 import { FaShoppingCart, FaCheckCircle, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import { useCart } from '../../reduxSlice/CartContext';
+import { useCartStore } from '../../stores/useCartStore';
 import { comments as mockComments } from '../../data/Guest/comments';
 import type { Comment } from '../../data/Guest/comments';
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const product = products.find((p) => String(p.id) === id);
-  const { addToCart } = useCart();
+  const addToCart = useCartStore(state => state.addToCart);
   const imgRef = useRef<HTMLImageElement>(null);
   const imgRefs = React.useRef<{ [key: number]: React.RefObject<HTMLImageElement | null> }>({});
 

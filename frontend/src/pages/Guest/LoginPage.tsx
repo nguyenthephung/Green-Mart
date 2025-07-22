@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useUser } from "../../reduxSlice/UserContext";
+import { useUserStore } from "../../stores/useUserStore";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -10,7 +10,7 @@ export default function Login() {
   const [message, setMessage] = useState("");
   
   const navigate = useNavigate();
-  const { login } = useUser();
+  const login = useUserStore(state => state.login);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,15 +18,25 @@ export default function Login() {
     setErrors({});
     setMessage("");
 
+    // Validation
+    if (!email.trim()) {
+      setErrors({ email: "Email không được để trống" });
+      setIsLoading(false);
+      return;
+    }
+    if (!password.trim()) {
+      setErrors({ password: "Mật khẩu không được để trống" });
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const result = await login({ email, password });
+      const result = await login(email, password);
       
       if (result.success) {
-        setMessage(result.message);
-        // Navigate after short delay to show success message
-        setTimeout(() => {
-          navigate("/home");
-        }, 1000);
+        setMessage("Đăng nhập thành công! Đang chuyển hướng...");
+        // Navigate immediately on success
+        navigate("/home");
       } else {
         setMessage(result.message);
         if (result.errors) {
@@ -34,6 +44,7 @@ export default function Login() {
         }
       }
     } catch (error) {
+      console.error("Login error:", error);
       setMessage("Lỗi kết nối. Vui lòng thử lại.");
     } finally {
       setIsLoading(false);

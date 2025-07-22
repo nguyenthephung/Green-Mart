@@ -8,23 +8,29 @@ const OrderTabs = ({ activeTab, setActiveTab, counts = {}, tabs }: { activeTab: 
   const tabList = tabs ? tabs.map(t => ({ label: t, key: t })) : defaultTabs;
 
   return (
-    <div className="flex gap-3 mb-6 border-b pb-2 overflow-x-auto">
+    <div className="flex gap-2 overflow-x-auto">
       {tabList.map(tab => (
         <button
           key={tab.key}
           onClick={() => setActiveTab(tab.key)}
-          className={`relative px-5 py-2 rounded-t-lg font-bold transition-all duration-200 text-base border-b-4 ${
+          className={`relative px-6 py-3 rounded-xl font-semibold transition-all duration-300 text-sm whitespace-nowrap ${
             activeTab === tab.key
-              ? "border-orange-500 text-orange-600 bg-white" : "border-transparent text-gray-700 bg-gray-50 hover:bg-gray-100 hover:text-orange-600"
+              ? "bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg shadow-green-200 transform scale-105" 
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-green-600"
           }`}
-          style={activeTab === tab.key ? { fontWeight: 900 } : {}}
         >
-          {tab.label}
-          {counts[tab.key] > 0 && (
-            <span className="ml-2 inline-block min-w-[22px] px-2 py-0.5 rounded-full bg-orange-500 text-white text-xs font-bold align-middle animate-pulse">
-              {counts[tab.key]}
-            </span>
-          )}
+          <span className="flex items-center gap-2">
+            {tab.label}
+            {counts[tab.key] > 0 && (
+              <span className={`inline-flex items-center justify-center min-w-[20px] h-5 px-2 rounded-full text-xs font-bold ${
+                activeTab === tab.key 
+                  ? "bg-white text-green-600" 
+                  : "bg-green-600 text-white"
+              }`}>
+                {counts[tab.key]}
+              </span>
+            )}
+          </span>
         </button>
       ))}
     </div>

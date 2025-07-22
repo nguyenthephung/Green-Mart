@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface RecommendationItem {
   id: number;
@@ -18,6 +19,11 @@ export default function Recommendations({ items }: RecommendationsProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+  const navigate = useNavigate();
+
+  const handleProductClick = (productId: number) => {
+    navigate(`/productdetail/${productId}`);
+  };
 
   const updateScrollButtons = () => {
     if (!scrollRef.current) return;
@@ -80,7 +86,8 @@ export default function Recommendations({ items }: RecommendationsProps) {
         {items.map((item) => (
           <div
             key={item.id}
-            className="min-w-[220px] bg-green-50 rounded-2xl p-4 flex-shrink-0"
+            className="min-w-[220px] bg-green-50 rounded-2xl p-4 flex-shrink-0 cursor-pointer hover:bg-green-100 transition-colors duration-200"
+            onClick={() => handleProductClick(item.id)}
           >
             <img
               src={item.image}

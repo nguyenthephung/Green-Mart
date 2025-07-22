@@ -8,7 +8,15 @@ export default function MainLayout() {
   const location = useLocation();
 
   useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    // Chỉ scroll smooth cho các trang không phải home để tránh lag
+    if (location.pathname === '/home') {
+      // Immediate scroll for home page để tránh lag
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+    } else {
+      // Smooth scroll cho các trang khác
+      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    }
   }, [location.pathname]);
 
   // Điều kiện xác định trang cần full-width (bao gồm /home và /ordertracking)

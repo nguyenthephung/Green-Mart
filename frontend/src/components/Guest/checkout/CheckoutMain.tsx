@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { MapPin, CreditCard, ChevronRight, CalendarDays } from 'lucide-react';
-import type { UserInfo, AddressInfo, PaymentInfo } from '../../../reduxSlice/UserContext';
+import type { UserInfo, AddressInfo, PaymentInfo } from '../../../contexts/UserContext';
 import { useState, useEffect } from 'react';
 
 interface Item {

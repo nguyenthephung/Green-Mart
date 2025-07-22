@@ -1,5 +1,5 @@
 // API configuration
-const API_BASE_URL = '/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // Types
 export interface LoginData {
@@ -73,15 +73,52 @@ const apiClient = async <T>(
 
   try {
     const response = await fetch(url, config);
-    const data = await response.json();
+    
+    // Kiểm tra xem response có content không
+    const contentType = response.headers.get('content-type');
+    let data;
+    
+    // Nếu response có content-type là JSON và có body
+    if (contentType && contentType.includes('application/json')) {
+      const text = await response.text();
+      if (text) {
+        try {
+          data = JSON.parse(text);
+        } catch (parseError) {
+          console.error('JSON Parse Error:', parseError);
+          throw new Error('Server trả về dữ liệu không hợp lệ');
+        }
+      } else {
+        data = { success: false, message: 'Server không trả về dữ liệu' };
+      }
+    } else {
+      // Nếu không phải JSON, tạo response object mặc định
+      const text = await response.text();
+      data = { 
+        success: response.ok, 
+        message: response.ok ? 'Thành công' : (text || 'Lỗi server'),
+        data: null
+      };
+    }
     
     if (!response.ok) {
-      throw new Error(data.message || 'API request failed');
+      throw new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
     }
     
     return data;
-  } catch (error) {
-    console.error('API Error:', error);
+  } catch (error: any) {
+    console.error('API Error:', {
+      url,
+      method: config.method || 'GET',
+      error: error.message,
+      stack: error.stack
+    });
+    
+    // Tạo response lỗi chuẩn
+    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      throw new Error('Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng.');
+    }
+    
     throw error;
   }
 };
@@ -113,6 +150,14 @@ export const authAPI = {
   logout: async (): Promise<ApiResponse<null>> => {
     return apiClient<null>('/auth/logout', {
       method: 'POST',
+    });
+  },
+
+  // Cập nhật profile
+  updateProfile: async (data: any): Promise<ApiResponse<User>> => {
+    return apiClient<User>('/auth/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data),
     });
   },
 };
