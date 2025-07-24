@@ -48,27 +48,27 @@ const notifications = [
 const NotificationDropdown: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
   return (
     <div 
-      className="absolute right-0 mt-2 w-96 bg-white rounded-2xl shadow-2xl z-50 border border-gray-100 max-h-[70vh] overflow-hidden"
+      className="absolute right-0 mt-2 w-96 rounded-2xl shadow-2xl z-50 border border-gray-700 max-h-[70vh] overflow-hidden"
       style={{
-        background: 'linear-gradient(145deg, #ffffff, #f8fafc)',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05)'
+        background: 'rgb(17, 24, 39)',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(55, 65, 81, 0.3)'
       }}
     >
-      <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-green-50 to-green-100">
+      <div className="flex justify-between items-center px-6 py-4 border-b border-gray-700 bg-gradient-to-r from-gray-800 to-gray-900">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <span className="font-semibold text-gray-800">Thông báo</span>
+          <span className="font-semibold text-white">Thông báo</span>
           <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium">
             {notifications.length}
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <button className="text-xs text-green-600 hover:text-green-700 font-medium hover:underline transition-colors">
+          <button className="text-xs text-green-400 hover:text-green-300 font-medium hover:underline transition-colors">
             Đánh dấu đã đọc
           </button>
           {onClose && (
             <button 
-              className="ml-2 w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500 transition-all duration-200" 
+              className="ml-2 w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-900/20 text-gray-400 hover:text-red-400 transition-all duration-200" 
               onClick={onClose} 
               aria-label="Đóng thông báo"
             >
@@ -80,22 +80,22 @@ const NotificationDropdown: React.FC<{ onClose?: () => void }> = ({ onClose }) =
         </div>
       </div>
       
-      <div className="max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+      <div className="max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent">
         {notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 px-6">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-              <svg className="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+            <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mb-4">
+              <svg className="w-8 h-8 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
               </svg>
             </div>
-            <p className="text-gray-500 text-sm font-medium">Không có thông báo mới</p>
+            <p className="text-gray-400 text-sm font-medium">Không có thông báo mới</p>
           </div>
         ) : (
-          <div className="divide-y divide-gray-50">
+          <div className="divide-y divide-gray-700">
             {notifications.map((n, index) => (
               <div 
                 key={n.id} 
-                className="flex gap-4 px-6 py-4 hover:bg-gradient-to-r hover:from-green-25 hover:to-green-50 transition-all duration-200 group cursor-pointer"
+                className="flex gap-4 px-6 py-4 hover:bg-gray-800/50 transition-all duration-200 group cursor-pointer"
                 style={{
                   animationDelay: `${index * 50}ms`,
                   animation: 'slideInRight 0.3s ease-out'
@@ -125,13 +125,13 @@ const NotificationDropdown: React.FC<{ onClose?: () => void }> = ({ onClose }) =
                 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between mb-2">
-                    <h4 className="font-semibold text-sm text-gray-800 group-hover:text-green-700 transition-colors">
+                    <h4 className="font-semibold text-sm text-white group-hover:text-green-400 transition-colors">
                       {n.status}
                     </h4>
-                    <span className="text-xs text-gray-500 flex-shrink-0 ml-2">{n.time}</span>
+                    <span className="text-xs text-gray-400 flex-shrink-0 ml-2">{n.time}</span>
                   </div>
                   
-                  <p className="text-xs text-gray-600 leading-relaxed mb-3 line-clamp-2">
+                  <p className="text-xs text-gray-300 leading-relaxed mb-3 line-clamp-2">
                     <span dangerouslySetInnerHTML={{
                       __html: n.desc
                         .replace(n.orderId, `<span class="font-semibold text-green-600">${n.orderId}</span>`)
@@ -169,8 +169,8 @@ const NotificationDropdown: React.FC<{ onClose?: () => void }> = ({ onClose }) =
         )}
       </div>
       
-      <div className="px-6 py-3 border-t border-gray-100 bg-gray-50">
-        <button className="w-full text-center text-sm font-medium text-green-600 hover:text-green-700 transition-colors">
+      <div className="px-6 py-3 border-t border-gray-700 bg-gray-800">
+        <button className="w-full text-center text-sm font-medium text-green-400 hover:text-green-300 transition-colors">
           Xem tất cả thông báo
         </button>
       </div>

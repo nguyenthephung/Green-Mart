@@ -185,7 +185,7 @@ export default function CartPage() {
     return (
       <>
         <Header />
-        <div className="bg-gray-50 min-h-screen pt-[104px] md:pt-[88px] lg:pt-[80px]">
+        <div className="bg-app-secondary min-h-screen pt-[104px] md:pt-[88px] lg:pt-[80px]">
           {ErrorComponent}
         </div>
       </>
@@ -197,10 +197,10 @@ export default function CartPage() {
     return (
       <>
         <Header />
-        <div className="bg-gray-50 min-h-screen pt-[104px] md:pt-[88px] lg:pt-[80px] flex items-center justify-center">
+        <div className="bg-app-secondary min-h-screen pt-[104px] md:pt-[88px] lg:pt-[80px] flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Đang tải giỏ hàng...</p>
+            <p className="text-app-secondary">Đang tải giỏ hàng...</p>
           </div>
         </div>
       </>
@@ -212,7 +212,7 @@ export default function CartPage() {
     return (
       <>
         <Header />
-        <div className="bg-gradient-to-br from-green-50 via-white to-emerald-50 min-h-screen pt-[104px] md:pt-[88px] lg:pt-[80px]">
+        <div className="bg-gradient-app-main min-h-screen pt-[104px] md:pt-[88px] lg:pt-[80px]">
           <EmptyCart />
         </div>
         {/* <Footer /> */}
@@ -223,15 +223,15 @@ export default function CartPage() {
   return (
     <>
     <Header />
-    <div className="bg-gradient-to-br from-green-50 via-white to-emerald-50 min-h-screen">
+    <div className="bg-gradient-app-main min-h-screen">
       {/* Hero Section */}
       <div className="pt-[104px] md:pt-[88px] lg:pt-[80px] pb-8">
         <div className="max-w-7xl mx-auto px-8">
           <div className="text-center py-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            <h1 className="text-4xl font-bold text-app-primary mb-2">
               🛒 Giỏ hàng của bạn
             </h1>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-app-secondary">
               {cart.length} sản phẩm đã chọn • Tổng: {subtotal.toLocaleString()} ₫
             </p>
           </div>
@@ -250,8 +250,8 @@ export default function CartPage() {
         </div>
         <div className="space-y-6">
           {/* Voucher Selection Card */}
-          <div className="bg-white rounded-2xl shadow-lg p-6 border border-green-100">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <div className="bg-app-card rounded-2xl shadow-lg p-6 border border-green-100">
+            <h3 className="text-lg font-semibold text-app-primary mb-4 flex items-center gap-2">
               🎫 Mã giảm giá
             </h3>
             <div className="flex items-center gap-3">
@@ -325,7 +325,7 @@ export default function CartPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5H4M7 13l-2.293 2.293c-.39.39-.39 1.02 0 1.41L6.4 18H20M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z" />
             </svg>
             Tiến hành thanh toán
-            <span className="bg-white/20 px-3 py-1 rounded-full text-sm">
+            <span className="bg-emerald-500/30 px-3 py-1 rounded-full text-sm text-white">
               {(subtotal + dynamicDeliveryFee - voucherDiscount).toLocaleString()} ₫
             </span>
           </button>

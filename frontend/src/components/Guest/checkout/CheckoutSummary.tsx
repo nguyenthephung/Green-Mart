@@ -142,20 +142,20 @@ const CheckoutSummary = ({ cart, address, payments, userInfo, voucherDiscount = 
   };
 
   return (
-    <div className="bg-white shadow-lg rounded-2xl p-6 w-full border border-green-100">
-      <h2 className="text-xl font-semibold mb-6 text-gray-900 flex items-center gap-2">
+    <div className="bg-app-card shadow-lg rounded-2xl p-6 w-full border border-green-100">
+      <h2 className="text-xl font-semibold mb-6 text-app-primary flex items-center gap-2">
         📋 Tóm tắt đơn hàng
       </h2>
 
       {/* Customer Information Card */}
       <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-100">
-        <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+        <h3 className="font-semibold text-app-primary mb-3 flex items-center gap-2">
           <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
           Thông tin đơn hàng
         </h3>
-        <div className="space-y-2 text-sm text-gray-700">
+        <div className="space-y-2 text-sm text-app-secondary">
           <div className="flex items-center gap-2">
             <span className="font-medium">Khách hàng:</span>
             <span>{userInfo?.fullName || 'Chưa đăng nhập'} - {userInfo?.phone || 'Chưa có SĐT'}</span>
@@ -171,7 +171,7 @@ const CheckoutSummary = ({ cart, address, payments, userInfo, voucherDiscount = 
                 ? 'bg-orange-100 text-orange-700' 
                 : localPayment?.method === 'vnpay'
                 ? 'bg-blue-100 text-blue-700'
-                : 'bg-gray-100 text-gray-700'
+                : 'bg-app-input text-app-secondary'
             }`}>
               {localPayment && (localPayment.method === 'cod' || localPayment.method === 'vnpay')
                 ? (localPayment.method === 'cod'
@@ -186,23 +186,23 @@ const CheckoutSummary = ({ cart, address, payments, userInfo, voucherDiscount = 
       {/* Price Breakdown */}
       <div className="space-y-3 mb-6">
         <div className="flex justify-between items-center py-2">
-          <span className="text-gray-600">Tạm tính</span>
-          <span className="font-medium">{formatVND(itemsTotal)}</span>
+          <span className="text-app-secondary">Tạm tính</span>
+          <span className="font-medium text-app-primary">{formatVND(itemsTotal)}</span>
         </div>
         
         <div className="flex justify-between items-center py-2">
-          <span className="text-gray-600 flex items-center gap-2">
+          <span className="text-app-secondary flex items-center gap-2">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             Phí giao hàng
           </span>
-          <span className="font-medium">{formatVND(dynamicDeliveryFee)}</span>
+          <span className="font-medium text-app-primary">{formatVND(dynamicDeliveryFee)}</span>
         </div>
 
         <div className="flex justify-between items-center py-2">
-          <span className="text-gray-600">Phí dịch vụ</span>
-          <span className="font-medium">{formatVND(serviceFee)}</span>
+          <span className="text-app-secondary">Phí dịch vụ</span>
+          <span className="font-medium text-app-primary">{formatVND(serviceFee)}</span>
         </div>
 
         {voucher && voucherDiscount > 0 ? (
@@ -223,7 +223,7 @@ const CheckoutSummary = ({ cart, address, payments, userInfo, voucherDiscount = 
           </div>
         ) : (
           <div className="flex justify-between items-center py-2">
-            <span className="text-gray-600">Mã giảm giá</span>
+            <span className="text-app-secondary">Mã giảm giá</span>
             <button 
               className="text-green-600 hover:text-green-700 text-sm font-medium transition flex items-center gap-1" 
               onClick={onShowVoucherModal}

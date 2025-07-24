@@ -90,10 +90,10 @@ const AccountDetails: React.FC = () => {
   if (!user) {
     return (
       <DashboardLayout>
-        <div className="bg-white p-8 rounded-2xl shadow-lg max-w-2xl mx-auto mt-6">
+        <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg max-w-2xl mx-auto mt-6 border border-gray-200 dark:border-gray-600">
           <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
-            <span className="ml-3 text-gray-600">Đang tải thông tin...</span>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 dark:border-green-400"></div>
+            <span className="ml-3 text-gray-600 dark:text-gray-300">Đang tải thông tin...</span>
           </div>
         </div>
       </DashboardLayout>
@@ -102,33 +102,33 @@ const AccountDetails: React.FC = () => {
 
   return (
     <DashboardLayout>
-      <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-8 rounded-3xl shadow-xl max-w-3xl mx-auto mt-6 border border-green-100">
+      <div className="bg-app-card p-8 rounded-3xl shadow-xl max-w-3xl mx-auto mt-6 border-app-default">
         {/* Header */}
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2 flex items-center justify-center gap-3">
-            <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
+          <h2 className="text-3xl font-bold text-app-primary mb-2 flex items-center justify-center gap-3">
+            <div className="w-10 h-10 bg-brand-green rounded-full flex items-center justify-center">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
             Thông tin tài khoản
           </h2>
-          <p className="text-gray-600">Quản lý và cập nhật thông tin cá nhân của bạn</p>
+          <p className="text-app-secondary">Quản lý và cập nhật thông tin cá nhân của bạn</p>
         </div>
 
         {/* Avatar Section */}
-        <div className="flex flex-col items-center mb-10">
+        <div className="flex flex-col items-center mb-10 bg-app-secondary rounded-2xl p-6 border-app-default">
           <div className="relative group">
             <div className="w-32 h-32 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 p-1 shadow-xl">
               <img 
                 src={avatar} 
                 alt="avatar" 
-                className="w-full h-full rounded-full object-cover bg-white"
+                className="w-full h-full rounded-full object-cover bg-app-input"
               />
             </div>
             {editMode && (
-              <label className="absolute bottom-2 right-2 bg-white rounded-full p-2 shadow-lg cursor-pointer hover:bg-green-50 transition-all group-hover:scale-110">
-                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <label className="absolute bottom-2 right-2 bg-app-input rounded-full p-2 shadow-lg cursor-pointer hover:bg-green-50 dark:hover:bg-gray-500 transition-all group-hover:scale-110">
+                <svg className="w-5 h-5 text-brand-green" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
@@ -137,19 +137,19 @@ const AccountDetails: React.FC = () => {
             )}
           </div>
           <div className="mt-4 text-center">
-            <h3 className="text-xl font-semibold text-gray-900">{user?.name || 'Người dùng'}</h3>
-            <p className="text-gray-600">{user?.email}</p>
+            <h3 className="text-xl font-semibold text-app-primary">{user?.name || 'Người dùng'}</h3>
+            <p className="text-app-secondary">{user?.email}</p>
           </div>
         </div>
 
         {/* Form */}
-        <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
+        <div className="bg-app-card rounded-2xl p-8 shadow-lg border-app-default">
           <form className="space-y-8">
             {/* Họ và tên */}
             <div className="group">
-              <label htmlFor="full-name" className="flex items-center gap-3 font-semibold text-gray-700 mb-3">
-                <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <label htmlFor="full-name" className="flex items-center gap-3 font-semibold text-app-primary mb-3">
+                <div className="w-8 h-8 bg-brand-green/10 rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-brand-green" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                 </div>
@@ -162,9 +162,9 @@ const AccountDetails: React.FC = () => {
                 onChange={e => setTempInfo({ ...tempInfo, fullName: e.target.value })}
                 className={`w-full px-4 py-4 border-2 rounded-xl shadow-sm transition-all duration-200 ${
                   editMode 
-                    ? 'border-green-300 bg-white focus:border-green-500 focus:ring-4 focus:ring-green-100' 
-                    : 'border-gray-200 bg-gray-50 cursor-not-allowed'
-                } focus:outline-none text-gray-900`}
+                    ? 'form-control-focus' 
+                    : 'form-control-disabled'
+                } focus:outline-none text-app-primary placeholder-app-muted`}
                 placeholder="Nhập họ và tên"
                 disabled={!editMode}
               />
@@ -172,9 +172,9 @@ const AccountDetails: React.FC = () => {
 
             {/* Số điện thoại */}
             <div className="group">
-              <label htmlFor="mobile-number" className="flex items-center gap-3 font-semibold text-gray-700 mb-3">
-                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <label htmlFor="mobile-number" className="flex items-center gap-3 font-semibold text-app-primary mb-3">
+                <div className="w-8 h-8 bg-blue-500/10 rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
                 </div>
@@ -187,9 +187,9 @@ const AccountDetails: React.FC = () => {
                 onChange={e => setTempInfo({ ...tempInfo, phone: e.target.value })}
                 className={`w-full px-4 py-4 border-2 rounded-xl shadow-sm transition-all duration-200 ${
                   editMode 
-                    ? 'border-blue-300 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100' 
-                    : 'border-gray-200 bg-gray-50 cursor-not-allowed'
-                } focus:outline-none text-gray-900`}
+                    ? 'form-control-focus' 
+                    : 'form-control-disabled'
+                } focus:outline-none text-app-primary placeholder-app-muted`}
                 placeholder="Nhập số điện thoại"
                 disabled={!editMode}
               />
@@ -197,9 +197,9 @@ const AccountDetails: React.FC = () => {
 
             {/* Email */}
             <div className="group">
-              <label htmlFor="email-address" className="flex items-center gap-3 font-semibold text-gray-700 mb-3">
-                <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <label htmlFor="email-address" className="flex items-center gap-3 font-semibold text-app-primary mb-3">
+                <div className="w-8 h-8 bg-purple-500/10 rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                 </div>
@@ -212,9 +212,9 @@ const AccountDetails: React.FC = () => {
                 onChange={e => setTempInfo({ ...tempInfo, email: e.target.value })}
                 className={`w-full px-4 py-4 border-2 rounded-xl shadow-sm transition-all duration-200 ${
                   editMode 
-                    ? 'border-purple-300 bg-white focus:border-purple-500 focus:ring-4 focus:ring-purple-100' 
-                    : 'border-gray-200 bg-gray-50 cursor-not-allowed'
-                } focus:outline-none text-gray-900`}
+                    ? 'form-control-focus' 
+                    : 'form-control-disabled'
+                } focus:outline-none text-app-primary placeholder-app-muted`}
                 placeholder="Nhập địa chỉ email"
                 disabled={!editMode}
               />
@@ -227,7 +227,7 @@ const AccountDetails: React.FC = () => {
               <>
                 <button
                   type="button"
-                  className="px-8 py-3 rounded-xl bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition-all duration-200 flex items-center gap-2"
+                  className="btn-secondary flex items-center gap-2"
                   onClick={handleCancel}
                   disabled={loading}
                 >
@@ -238,7 +238,7 @@ const AccountDetails: React.FC = () => {
                 </button>
                 <button
                   type="button"
-                  className="px-8 py-3 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2 disabled:opacity-50"
+                  className="btn-primary flex items-center gap-2 disabled:opacity-50"
                   onClick={handleSave}
                   disabled={loading}
                 >
@@ -257,7 +257,7 @@ const AccountDetails: React.FC = () => {
             ) : (
               <button
                 type="button"
-                className="px-8 py-3 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2"
+                className="btn-primary flex items-center gap-2"
                 onClick={handleEdit}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">

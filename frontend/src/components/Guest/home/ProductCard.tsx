@@ -118,14 +118,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, showSal
   };
 
   return (
-    <div className="bg-white p-4 rounded-xl shadow-xl transform transition-all duration-400 hover:shadow-2xl hover:-translate-y-2 perspective-1000 relative">
+    <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-xl transform transition-all duration-400 hover:shadow-2xl dark:shadow-gray-900/50 hover:-translate-y-2 perspective-1000 relative">
       {/* Wishlist Button */}
       <button
         onClick={handleWishlistToggle}
         className={`absolute top-2 right-2 p-2 rounded-full transition-all duration-200 z-10 ${
           user && isInWishlist(product.id.toString())
             ? 'bg-red-500 text-white hover:bg-red-600'
-            : 'bg-white text-gray-400 hover:text-red-500 hover:bg-red-50'
+            : 'bg-white dark:bg-gray-700 text-gray-400 dark:text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20'
         } shadow-md hover:shadow-lg`}
         title={user && isInWishlist(product.id.toString()) ? 'Xóa khỏi danh sách yêu thích' : 'Thêm vào danh sách yêu thích'}
       >
@@ -140,20 +140,20 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, showSal
           className="w-full h-40 object-cover rounded-lg transform transition-transform duration-300 hover:scale-105"
         />
       </Link>
-      <h4 className="text-lg font-medium mt-2">{product.name}</h4>
+      <h4 className="text-lg font-medium mt-2 text-gray-900 dark:text-gray-100">{product.name}</h4>
       {product.isSale && showSaleBadge ? (
         <div className="flex items-center gap-2 mt-1">
-          <span className="text-gray-400 line-through text-sm">{product.price}</span>
+          <span className="text-gray-400 dark:text-gray-500 line-through text-sm">{product.price}</span>
           <span className="text-red-600 font-bold text-lg">{product.salePrice}</span>
           <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">SALE</span>
         </div>
       ) : product.isSale ? (
         <div className="flex items-center gap-2 mt-1">
-          <span className="text-gray-400 line-through text-sm">{product.price}</span>
+          <span className="text-gray-400 dark:text-gray-500 line-through text-sm">{product.price}</span>
           <span className="text-red-600 font-bold text-lg">{product.salePrice}</span>
         </div>
       ) : (
-        <p className="text-gray-600">{product.price}</p>
+        <p className="text-gray-600 dark:text-gray-300">{product.price}</p>
       )}
       <button
         onClick={handleAddToCart}

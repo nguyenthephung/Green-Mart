@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dark Mode Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+</head>
+<body class="transition-colors duration-300">
+    <div class="min-h-screen bg-white dark:bg-gray-900 p-8">
+        <div class="max-w-md mx-auto">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                Dark Mode Test
+            </h1>
+            
+            <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-4">
+                <p class="text-gray-700 dark:text-gray-300">
+                    This background should change from light gray to dark gray
+                </p>
+            </div>
+            
+            <button 
+                id="themeToggle"
+                class="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors"
+            >
+                Toggle Dark Mode
+            </button>
+            
+            <div class="mt-4 p-3 border border-gray-300 dark:border-gray-600 rounded">
+                <span class="text-gray-600 dark:text-gray-400">
+                    Current mode: <span id="currentMode">light</span>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const button = document.getElementById('themeToggle');
+        const currentMode = document.getElementById('currentMode');
+        const html = document.documentElement;
+        
+        let isDark = false;
+        
+        button.addEventListener('click', () => {
+            isDark = !isDark;
+            
+            if (isDark) {
+                html.classList.add('dark');
+                currentMode.textContent = 'dark';
+                console.log('Added dark class to html');
+            } else {
+                html.classList.remove('dark');
+                currentMode.textContent = 'light';
+                console.log('Removed dark class from html');
+            }
+            
+            console.log('Current html classes:', html.className);
+        });
+        
+        // Initial log
+        console.log('Initial html classes:', html.className);
+    </script>
+</body>
+</html>

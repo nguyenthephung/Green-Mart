@@ -27,14 +27,14 @@ const CategorySection: React.FC<CategorySectionProps> = ({
     <div>
       <div className="mb-6">
         <div
-          className={`relative px-4 py-3 rounded-xl shadow-xl border-l-8 border-green-500 bg-white/90 flex items-center gap-3 w-fit max-w-full transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 hover:bg-green-50 ${titleClass}`}
+          className={`relative px-4 py-3 rounded-xl shadow-xl border-l-8 border-green-500 bg-white/90 dark:bg-gray-800/90 flex items-center gap-3 w-fit max-w-full transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 hover:bg-green-50 dark:hover:bg-gray-700 ${titleClass}`}
         >
           <img
             src={heroImage}
             alt={title}
             className="w-12 h-12 object-cover rounded-lg border-2 border-green-200 bg-white"
           />
-          <span className="text-2xl md:text-3xl font-extrabold text-green-800 tracking-wide drop-shadow-sm">
+          <span className="text-2xl md:text-3xl font-extrabold text-green-800 dark:text-green-300 tracking-wide drop-shadow-sm">
             {title}
           </span>
         </div>
@@ -47,7 +47,7 @@ const CategorySection: React.FC<CategorySectionProps> = ({
       <div className="flex justify-center mt-6">
         <Link
           to={viewMoreLink}
-          className="border border-red-500 text-red-600 px-6 py-2 rounded-xl font-medium text-lg tracking-wide bg-white hover:bg-red-50 transition-all duration-200 flex items-center gap-2"
+          className="border border-red-500 text-red-600 dark:text-red-400 px-6 py-2 rounded-xl font-medium text-lg tracking-wide bg-white dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 flex items-center gap-2"
         >
           <span>
             Xem thêm <span className="font-bold">{productCount}</span> sản phẩm{' '}

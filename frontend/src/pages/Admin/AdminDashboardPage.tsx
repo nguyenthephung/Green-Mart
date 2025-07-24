@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { stats, recentOrders, topProducts, quickStats } from '../../data/Admin/dashboard';
+import { recentOrders, topProducts, quickStats } from '../../data/Admin/dashboard';
 
 const AdminDashboard: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedFilter, setSelectedFilter] = useState('all');
-  const [notifications, setNotifications] = useState([
+  const [notifications] = useState([
     { id: 1, message: '5 sản phẩm sắp hết hàng', type: 'warning', time: '5 phút trước' },
     { id: 2, message: 'Đơn hàng #DH001 đã được giao', type: 'success', time: '10 phút trước' },
     { id: 3, message: '12 khách hàng mới đăng ký', type: 'info', time: '15 phút trước' },

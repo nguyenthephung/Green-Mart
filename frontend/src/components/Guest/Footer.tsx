@@ -3,7 +3,7 @@ import { FaFacebook, FaInstagram, FaTwitter, FaEnvelope, FaPhone, FaMapMarkerAlt
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-gradient-to-br from-gray-900 via-gray-800 to-green-900 text-white mt-16 relative overflow-hidden">
+    <footer className="bg-gradient-to-br from-gray-900 via-gray-800 to-green-900 dark:from-gray-950 dark:via-gray-900 dark:to-green-950 text-white mt-16 relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-10 left-10 w-32 h-32 bg-green-400 rounded-full blur-3xl"></div>

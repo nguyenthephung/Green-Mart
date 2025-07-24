@@ -25,15 +25,15 @@ const Sidebar: React.FC = () => {
 
   return (
     <>
-      <aside className="w-72 p-6 pt-24 bg-gradient-to-br from-green-50 to-emerald-50 border-r border-green-100 shadow-sm flex flex-col h-full">
+      <aside className="w-72 p-6 pt-24 bg-app-secondary border-r border-app-border shadow-sm flex flex-col h-full">
         {/* User Profile */}
-        <div className="flex items-center gap-4 mb-8 p-4 bg-white rounded-xl shadow-sm border border-green-100">
+        <div className="flex items-center gap-4 mb-8 p-4 bg-app-card rounded-xl shadow-sm border-app-default">
           <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
             {user?.name?.charAt(0).toUpperCase() || 'U'}
           </div>
           <div className="flex-1">
-            <h4 className="font-semibold text-gray-800">{user?.name || 'User'}</h4>
-            <p className="text-sm text-gray-500">{user?.email}</p>
+            <h4 className="font-semibold text-app-primary">{user?.name || 'User'}</h4>
+            <p className="text-sm text-app-secondary">{user?.email}</p>
           </div>
         </div>
 
@@ -59,11 +59,11 @@ const Sidebar: React.FC = () => {
                 to={item.path}
                 className={`flex items-center gap-4 p-4 rounded-xl transition-all duration-200 group ${
                   isActive
-                    ? 'bg-green-500 text-white shadow-lg'
-                    : 'text-gray-700 hover:bg-white hover:shadow-md hover:text-green-600'
+                    ? 'bg-brand-green text-white shadow-lg'
+                    : 'text-app-primary hover:bg-app-card hover:shadow-md hover:text-brand-green'
                 }`}
               >
-                <span className={`text-lg ${isActive ? 'text-white' : 'text-green-500 group-hover:text-green-600'}`}>
+                <span className={`text-lg ${isActive ? 'text-white' : 'text-brand-green'}`}>
                   {item.icon}
                 </span>
                 <span className="font-medium">{item.label}</span>
@@ -73,10 +73,10 @@ const Sidebar: React.FC = () => {
         </nav>
 
         {/* Logout Button - At bottom */}
-        <div className="mt-6 pt-4 border-t border-green-200">
+        <div className="mt-6 pt-4 border-t border-app-border">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-4 p-4 text-gray-700 hover:text-red-500 hover:bg-white rounded-xl transition-all duration-200 group"
+            className="w-full flex items-center gap-4 p-4 text-app-primary hover:text-red-500 hover:bg-app-card rounded-xl transition-all duration-200 group"
           >
             <FaSignOutAlt className="text-lg group-hover:text-red-500" />
             <span className="font-medium">Đăng xuất</span>

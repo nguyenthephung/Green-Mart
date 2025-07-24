@@ -19,31 +19,59 @@ export default function OrderSummary({ id, items, deliveryFee, payWith, delivery
     return total + (item.price * item.quantity);
   }, 0);
   const total = subtotal + deliveryFee;
+  
   return (
-    <div className="bg-white rounded-2xl p-6 space-y-4 text-base shadow-[0_4px_24px_rgba(17,17,17,0.10),0_1.5px_8px_rgba(0,0,0,0.08)] border border-gray-100">
-      <div>
-        <div className="font-extrabold text-gray-900 text-lg">Mã đơn hàng</div>
-        <div className="text-gray-800 text-xl font-extrabold drop-shadow-[0_2px_2px_rgba(17,17,17,0.10)]">#{id}</div>
+    <div className="bg-app-card rounded-2xl p-6 space-y-4 shadow-lg border-app-border">
+      <div className="text-center pb-4 border-b border-app-border">
+        <h3 className="font-bold text-app-primary text-lg flex items-center justify-center gap-2">
+          <svg className="w-5 h-5 text-brand-green" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Tóm tắt đơn hàng
+        </h3>
+        <div className="text-app-secondary text-sm mt-1">Mã đơn: #{id}</div>
       </div>
-      <div className="flex justify-between">
-        <span className="font-semibold">Tạm tính</span>
-        <span className="font-bold text-gray-800">{subtotal.toLocaleString()}₫</span>
+      
+      <div className="space-y-3">
+        <div className="flex justify-between items-center">
+          <span className="text-app-secondary">Tạm tính</span>
+          <span className="font-semibold text-app-primary">{subtotal.toLocaleString()}₫</span>
+        </div>
+        
+        <div className="flex justify-between items-center">
+          <span className="text-app-secondary">Phí giao hàng</span>
+          <span className="font-semibold text-app-primary">{deliveryFee.toLocaleString()}₫</span>
+        </div>
+        
+        <div className="border-t border-app-border pt-3">
+          <div className="flex justify-between items-center">
+            <span className="font-bold text-app-primary">Tổng cộng</span>
+            <span className="font-bold text-xl text-brand-green">{total.toLocaleString()}₫</span>
+          </div>
+        </div>
       </div>
-      <div className="flex justify-between">
-        <span className="font-semibold">Phí giao hàng</span>
-        <span className="font-bold text-gray-800">{deliveryFee.toLocaleString()}₫</span>
-      </div>
-      <div className="flex justify-between font-extrabold border-t pt-2 text-lg">
-        <span>Tổng cộng</span>
-        <span className="text-gray-900">{total.toLocaleString()}₫</span>
-      </div>
-      <div>
-        <div className="font-semibold">Thanh toán bằng</div>
-        <div className="text-gray-700 font-bold">{payWith}</div>
-      </div>
-      <div>
-        <div className="font-semibold">Địa chỉ nhận hàng</div>
-        <div className="text-gray-900 font-bold">{deliveryAddress}</div>
+      
+      <div className="space-y-4 pt-4 border-t border-app-border">
+        <div className="bg-app-secondary p-4 rounded-lg">
+          <div className="flex items-center gap-2 mb-2">
+            <svg className="w-4 h-4 text-brand-green" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+            </svg>
+            <span className="font-semibold text-app-primary text-sm">Thanh toán</span>
+          </div>
+          <div className="text-app-secondary text-sm">{payWith}</div>
+        </div>
+        
+        <div className="bg-app-secondary p-4 rounded-lg">
+          <div className="flex items-center gap-2 mb-2">
+            <svg className="w-4 h-4 text-brand-green" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span className="font-semibold text-app-primary text-sm">Địa chỉ giao hàng</span>
+          </div>
+          <div className="text-app-secondary text-sm">{deliveryAddress}</div>
+        </div>
       </div>
     </div>
   );

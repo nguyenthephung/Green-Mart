@@ -68,25 +68,25 @@ export default function MarketInfo() {
   }, []);
 
   return (
-    <div className="bg-white shadow-md p-4 rounded-xl mb-6 flex justify-between items-center">
+    <div className="bg-app-card shadow-md p-4 rounded-xl mb-6 flex justify-between items-center border border-app-border">
       <div className="flex items-center gap-3">
-        <div className="bg-green-50 text-green-700 p-3 rounded-full">
+        <div className="bg-app-emerald text-brand-green p-3 rounded-full">
           <ShoppingCart className="w-6 h-6" />
         </div>
         <div>
-          <h2 className="font-semibold text-lg">Green Mart</h2>
-          <div className="flex items-center text-sm text-green-700 font-medium">
+          <h2 className="font-semibold text-lg text-app-primary">Green Mart</h2>
+          <div className="flex items-center text-sm text-brand-green font-medium">
             <MapPin className="w-4 h-4 mr-1" />
             {STORE_LOCATION.address}
           </div>
-          <div className="text-xs text-gray-500">Vị trí của bạn: {location}</div>
+          <div className="text-xs text-app-muted">Vị trí của bạn: {location}</div>
           {shippingFee !== null && (
             <div className="text-xs text-blue-600 font-medium">Phí ship tạm tính: {shippingFee.toLocaleString()}đ</div>
           )}
         </div>
       </div>
 
-      <div className="flex items-center gap-2 border border-green-700 text-black px-4 py-2 rounded-full text-sm font-medium bg-green-50">
+      <div className="flex items-center gap-2 border border-brand-green text-white px-4 py-2 rounded-full text-sm font-medium bg-brand-green">
         <Calendar className="w-4 h-4" />
         <span>{time}</span>
         <ChevronRight className="w-4 h-4" />

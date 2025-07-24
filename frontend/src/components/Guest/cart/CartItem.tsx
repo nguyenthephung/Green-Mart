@@ -27,35 +27,35 @@ export default function CartItem({ item, onQuantityChange, onRemove }: CartItemP
   };
 
   return (
-    <div className="flex items-center justify-between py-4 border-b">
+    <div className="flex items-center justify-between py-4 border-b border-app-border">
       <div className="flex items-center gap-4">
         <img src={item.image} alt={item.name} className="w-16 h-16 object-contain" />
         <div>
-          <h3 className="font-medium">{item.name}</h3>
-          <div className="text-sm text-gray-500 line-through">{item.originalPrice.toLocaleString()} ₫</div>
+          <h3 className="font-medium text-app-primary">{item.name}</h3>
+          <div className="text-sm text-app-muted line-through">{item.originalPrice.toLocaleString()} ₫</div>
           <div className="text-green-700 font-bold">{item.price.toLocaleString()} ₫</div>
         </div>
       </div>
 
       <div className="flex items-center gap-8">
-      <div className="flex items-center gap-2 bg-gray-100 rounded-full px-2 py-1">
+      <div className="flex items-center gap-2 bg-app-input rounded-full px-2 py-1">
         {item.quantity === 1 ? (
           <button
             onClick={() => onRemove(item.id)}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-white text-black hover:bg-gray-200"
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-app-card text-app-primary hover:bg-app-secondary"
           >
             <Trash2 className="w-5 h-5" />
           </button>
         ) : (
           <button
             onClick={handleDecrease}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-white text-black hover:bg-gray-200"
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-app-card text-app-primary hover:bg-app-secondary"
           >
             <Minus className="w-5 h-5" />
           </button>
         )}
 
-        <span className="w-12 text-center font-medium">{item.quantity}</span>
+        <span className="w-12 text-center font-medium text-app-primary">{item.quantity}</span>
 
         <button
           onClick={handleIncrease}
@@ -73,7 +73,7 @@ export default function CartItem({ item, onQuantityChange, onRemove }: CartItemP
         </button>
 
         {/* Total price */}
-        <div className="w-25 text-right font-medium">{(item.price * item.quantity).toLocaleString()} ₫</div>
+        <div className="w-25 text-right font-medium text-app-primary">{(item.price * item.quantity).toLocaleString()} ₫</div>
       </div>
     </div>
   );

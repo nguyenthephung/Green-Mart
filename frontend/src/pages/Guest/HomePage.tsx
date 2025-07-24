@@ -7,9 +7,6 @@ import { useCartStore } from '../../stores/useCartStore';
 import ProductCard from '../../components/Guest/home/ProductCard';
 import { usePageLoading } from '../../components/Guest/cart/MarketInfo';
 import { SparklesIcon, FireIcon,  StarIcon } from '@heroicons/react/24/solid';
-import VideoModal from '../../components/Guest/VideoModal';
-import YouTubeVideoModal from '../../components/Guest/YouTubeVideoModal';
-import VideoTest from '../../components/Guest/VideoTest';
 import '../../styles/performance.css';
 import meatHero from '../../assets/category-hero/meat.jpg';
 import vegetablesHero from '../../assets/category-hero/vegetables.jpg';
@@ -70,13 +67,128 @@ const Home: React.FC = () => {
   const loading = usePageLoading();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isScrolling, setIsScrolling] = useState(false);
-  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
-  const [videoSrc, setVideoSrc] = useState("/natural_banner.mp4");
-  const [useYouTube, setUseYouTube] = useState(true); // Mặc định dùng YouTube
   const addToCart = useCartStore(state => state.addToCart);
-  
-  // Debug logging for video modal state
-  console.log('HomePage video state:', { isVideoModalOpen, useYouTube, videoSrc });
+
+  // Force body background for dark mode
+  useEffect(() => {
+    const updateBodyStyle = () => {
+      const isDark = document.documentElement.classList.contains('dark');
+      if (isDark) {
+        document.body.style.backgroundColor = '#111827';
+        document.body.style.color = '#f9fafb';
+        
+        // Force category headers background
+        const categoryHeaders = document.querySelectorAll('div[class*="bg-white/90"]');
+        categoryHeaders.forEach(header => {
+          (header as HTMLElement).style.backgroundColor = 'rgba(31, 41, 55, 0.9)';
+        });
+        
+        // Force testimonials section background
+        const testimonialsSection = document.querySelector('.bg-gradient-to-br.from-emerald-50.to-green-100');
+        if (testimonialsSection) {
+          (testimonialsSection as HTMLElement).style.background = 'linear-gradient(to bottom right, #111827, #1f2937)';
+        }
+        
+        // Fix gradient text elements for better visibility
+        const gradientTexts = document.querySelectorAll('.bg-clip-text.text-transparent');
+        gradientTexts.forEach(element => {
+          const el = element as HTMLElement;
+          const classes = el.className;
+          
+          // Apply specific gradient fixes based on color scheme
+          if (classes.includes('from-emerald-600') && classes.includes('to-green-600')) {
+            el.style.background = 'linear-gradient(to right, #10b981, #22c55e)';
+            el.style.backgroundClip = 'text';
+            el.style.webkitBackgroundClip = 'text';
+          } else if (classes.includes('from-yellow-500') && classes.includes('to-orange-600')) {
+            el.style.background = 'linear-gradient(to right, #eab308, #ea580c)';
+            el.style.backgroundClip = 'text';
+            el.style.webkitBackgroundClip = 'text';
+          } else if (classes.includes('from-red-600') && classes.includes('to-pink-600')) {
+            el.style.background = 'linear-gradient(to right, #dc2626, #db2777)';
+            el.style.backgroundClip = 'text';
+            el.style.webkitBackgroundClip = 'text';
+          } else if (classes.includes('from-emerald-300') && classes.includes('to-green-200')) {
+            el.style.background = 'linear-gradient(to right, #a7f3d0, #bbf7d0)';
+            el.style.backgroundClip = 'text';
+            el.style.webkitBackgroundClip = 'text';
+          }
+        });
+        
+        // Fix header logo text specifically
+        const headerTexts = document.querySelectorAll('header .text-gray-800');
+        headerTexts.forEach(text => {
+          (text as HTMLElement).style.color = '#f9fafb';
+        });
+        
+      } else {
+        document.body.style.backgroundColor = '';
+        document.body.style.color = '';
+        
+        // Force reset category headers background to original light colors
+        const categoryHeaders = document.querySelectorAll('div[class*="bg-white/90"]');
+        categoryHeaders.forEach(header => {
+          const el = header as HTMLElement;
+          el.style.backgroundColor = '';
+          el.style.removeProperty('background-color');
+          // Force light mode background
+          el.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+          setTimeout(() => {
+            el.style.backgroundColor = '';
+          }, 100);
+        });
+        
+        // Force reset testimonials section background to original light gradient
+        const testimonialsSection = document.querySelector('.bg-gradient-to-br.from-emerald-50.to-green-100');
+        if (testimonialsSection) {
+          const el = testimonialsSection as HTMLElement;
+          el.style.background = '';
+          el.style.removeProperty('background');
+          // Force light mode gradient
+          el.style.background = 'linear-gradient(to bottom right, #ecfdf5, #dcfce7)';
+          setTimeout(() => {
+            el.style.background = '';
+          }, 100);
+        }
+        
+        // Reset gradient text styles
+        const gradientTexts = document.querySelectorAll('.bg-clip-text.text-transparent');
+        gradientTexts.forEach(element => {
+          const el = element as HTMLElement;
+          el.style.background = '';
+          el.style.backgroundClip = '';
+          el.style.webkitBackgroundClip = '';
+          el.style.removeProperty('background');
+          el.style.removeProperty('background-clip');
+          el.style.removeProperty('-webkit-background-clip');
+        });
+        
+        // Reset header text styles
+        const headerTexts = document.querySelectorAll('header .text-gray-800');
+        headerTexts.forEach(text => {
+          const el = text as HTMLElement;
+          el.style.color = '';
+          el.style.removeProperty('color');
+        });
+      }
+    };
+    
+    updateBodyStyle();
+    
+    const observer = new MutationObserver(updateBodyStyle);
+    observer.observe(document.documentElement, { 
+      attributes: true, 
+      attributeFilter: ['class'] 
+    });
+    
+    // Also run after DOM updates
+    const interval = setInterval(updateBodyStyle, 1000);
+    
+    return () => {
+      observer.disconnect();
+      clearInterval(interval);
+    };
+  }, []);
 
   // Detect scrolling để tạm dừng animations khi scroll - optimize performance
   useEffect(() => {
@@ -244,11 +356,11 @@ const Home: React.FC = () => {
   if (loading) {  // Removed isDataLoading check
     console.log('HomePage is loading...'); // Debug log
     return (
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white/80">
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white/80 dark:bg-gray-900/80">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 text-lg">Đang tải trang chủ...</p>
-          <p className="text-xs text-gray-400 mt-2">Debug: HomePage loading</p>
+          <div className="w-16 h-16 border-4 border-green-600 dark:border-green-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-300 text-lg">Đang tải trang chủ...</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Debug: HomePage loading</p>
         </div>
       </div>
     );
@@ -257,7 +369,7 @@ const Home: React.FC = () => {
   console.log('HomePage loaded, rendering content'); // Debug log
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 scroll-optimized">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 scroll-optimized">
       {/* Enhanced Hero Section */}
       <div className="relative w-full h-[60vh] md:h-[80vh] overflow-hidden mb-16">
         {/* Background with parallax effect */}
@@ -307,12 +419,6 @@ const Home: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </Link>
-              <button 
-                className="bg-white/20 backdrop-blur-sm text-white px-6 py-4 rounded-2xl border border-white/30 hover:bg-white/30 transition-all duration-300 font-semibold"
-                onClick={() => setIsVideoModalOpen(true)}
-              >
-                🎥 Xem Video Giới Thiệu
-              </button>
             </div>
           </div>
         </div>
@@ -367,7 +473,7 @@ const Home: React.FC = () => {
             <h2 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent mb-4">
               Flash Sale
             </h2>
-            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+            <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">
               Cơ hội vàng! Giảm giá sốc chỉ có hôm nay. Nhanh tay trước khi hết hàng!
             </p>
           </div>
@@ -377,7 +483,7 @@ const Home: React.FC = () => {
             {saleProducts.map((product, index) => (
               <div 
                 key={product.id} 
-                className="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-red-100"
+                className="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl dark:shadow-gray-900/50 transition-all duration-300 overflow-hidden border border-red-100 dark:border-red-900/30"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 {/* Sale Badge - điều chỉnh vị trí để không che tên sản phẩm */}
@@ -416,14 +522,14 @@ const Home: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-100 rounded-full text-emerald-700 font-semibold mb-4">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-full text-emerald-700 dark:text-emerald-300 font-semibold mb-4">
             <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
             Danh Mục Sản Phẩm
           </div>
           <h2 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-6">
             Tươi Ngon Từ Thiên Nhiên
           </h2>
-          <p className="text-gray-600 text-lg max-w-3xl mx-auto">
+          <p className="text-gray-600 dark:text-gray-300 text-lg max-w-3xl mx-auto">
             Khám phá bộ sưu tập đa dạng các sản phẩm tươi ngon, chất lượng cao được tuyển chọn kỹ lưỡng
           </p>
         </div>
@@ -525,7 +631,7 @@ const Home: React.FC = () => {
           <h2 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-yellow-500 to-orange-600 bg-clip-text text-transparent mb-4">
             Được Yêu Thích Nhất
           </h2>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+          <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">
             Những sản phẩm được khách hàng đánh giá cao và mua nhiều nhất tại GreenMart
           </p>
         </div>
@@ -535,7 +641,7 @@ const Home: React.FC = () => {
           {featuredProducts.map((product, index) => (
             <div 
               key={product.id} 
-              className="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-yellow-100 transform hover:-translate-y-2"
+              className="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl dark:shadow-gray-900/50 transition-all duration-300 overflow-hidden border border-yellow-100 dark:border-yellow-900/30 transform hover:-translate-y-2"
               style={{ animationDelay: `${index * 150}ms` }}
             >
               {/* Hot Badge - điều chỉnh vị trí để không che tên sản phẩm */}
@@ -569,18 +675,18 @@ const Home: React.FC = () => {
       </div>
 
       {/* Enhanced Testimonials */}
-      <div className="bg-gradient-to-br from-emerald-50 to-green-100 py-20">
+      <div className="bg-gradient-to-br from-emerald-50 to-green-100 dark:from-gray-900 dark:to-gray-800 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section Header */}
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-3 px-6 py-3 bg-white rounded-full shadow-lg mb-6">
+            <div className="inline-flex items-center gap-3 px-6 py-3 bg-white dark:bg-gray-800 rounded-full shadow-lg mb-6">
               <SparklesIcon className="w-6 h-6 text-emerald-500" />
-              <span className="font-bold text-gray-700">Khách Hàng Nói Gì?</span>
+              <span className="font-bold text-gray-700 dark:text-gray-300">Khách Hàng Nói Gì?</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-6">
               Câu Chuyện Thành Công
             </h2>
-            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+            <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">
               Hàng nghìn khách hàng đã tin tưởng và yêu thích GreenMart
             </p>
           </div>
@@ -590,7 +696,7 @@ const Home: React.FC = () => {
             {testimonials.map((testimonial, index) => (
               <div 
                 key={testimonial.id} 
-                className="group bg-white p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-emerald-100 relative overflow-hidden"
+                className="group bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-xl hover:shadow-2xl dark:shadow-gray-900/50 transition-all duration-300 border border-emerald-100 dark:border-gray-700 relative overflow-hidden"
                 style={{ animationDelay: `${index * 200}ms` }}
               >
                 {/* Background decoration */}
@@ -618,32 +724,32 @@ const Home: React.FC = () => {
                     </div>
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-800 text-lg">{testimonial.name}</h3>
+                    <h3 className="font-bold text-gray-800 dark:text-gray-200 text-lg">{testimonial.name}</h3>
                     <div className="flex items-center gap-1 mt-1">
                       {[...Array(5)].map((_, i) => (
                         <StarIcon key={i} className="w-4 h-4 text-yellow-400" />
                       ))}
-                      <span className="text-sm text-gray-500 ml-2">Khách hàng thân thiết</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">Khách hàng thân thiết</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Testimonial text */}
-                <blockquote className="text-gray-700 text-lg leading-relaxed italic relative z-10">
+                <blockquote className="text-gray-700 dark:text-gray-300 text-lg leading-relaxed italic relative z-10">
                   "{testimonial.text}"
                 </blockquote>
 
                 {/* Rating bar */}
-                <div className="mt-6 pt-6 border-t border-emerald-100">
+                <div className="mt-6 pt-6 border-t border-emerald-100 dark:border-gray-700">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-500">Đánh giá tổng thể</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">Đánh giá tổng thể</span>
                     <div className="flex items-center gap-2">
                       <div className="flex">
                         {[...Array(5)].map((_, i) => (
                           <StarIcon key={i} className="w-4 h-4 text-yellow-400" />
                         ))}
                       </div>
-                      <span className="text-sm font-semibold text-gray-700">5.0</span>
+                      <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">5.0</span>
                     </div>
                   </div>
                 </div>
@@ -653,9 +759,9 @@ const Home: React.FC = () => {
 
           {/* Call to Action */}
           <div className="text-center mt-16">
-            <div className="bg-white rounded-2xl p-8 shadow-xl max-w-md mx-auto">
-              <h3 className="text-2xl font-bold text-gray-800 mb-4">Tham Gia Cộng Đồng</h3>
-              <p className="text-gray-600 mb-6">Hơn 10,000+ khách hàng hài lòng</p>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl max-w-md mx-auto">
+              <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4">Tham Gia Cộng Đồng</h3>
+              <p className="text-gray-600 dark:text-gray-300 mb-6">Hơn 10,000+ khách hàng hài lòng</p>
               <Link 
                 to="/register"
                 className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:scale-105 transition-transform duration-300"
@@ -669,37 +775,6 @@ const Home: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* Video Modal - Conditional rendering */}
-      {useYouTube ? (
-        <YouTubeVideoModal
-          isOpen={isVideoModalOpen}
-          onClose={() => setIsVideoModalOpen(false)}
-          videoId="M7lc1UVf-VE" // YouTube sample video - Big Buck Bunny
-          title="GreenMart - Hành Trình Xanh"
-        />
-      ) : (
-        <VideoModal
-          isOpen={isVideoModalOpen}
-          onClose={() => setIsVideoModalOpen(false)}
-          videoSrc={videoSrc}
-          title="GreenMart - Hành Trình Xanh"
-        />
-      )}
-
-      {/* Video Test Panel - chỉ hiện trong development */}
-      <VideoTest 
-        currentSrc={videoSrc}
-        onVideoSrcChange={setVideoSrc}
-      />
-      
-      {/* YouTube Toggle Button - for testing */}
-      <button
-        onClick={() => setUseYouTube(!useYouTube)}
-        className="fixed bottom-4 left-4 bg-blue-500 text-white px-3 py-2 rounded text-xs z-50 opacity-75 hover:opacity-100"
-      >
-        {useYouTube ? 'YouTube Mode' : 'Local Mode'}
-      </button>
     </div>
   );
 };

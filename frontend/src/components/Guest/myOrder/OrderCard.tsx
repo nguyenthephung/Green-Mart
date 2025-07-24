@@ -58,24 +58,24 @@ export default function OrderCard({
   shippingStatus = "Đơn hàng đã rời kho phân loại tới HCM Mega SOC",
 }: OrderCardProps) {
   const statusInfo = statusConfig[status] || { 
-    color: "text-gray-700", 
-    bg: "bg-gray-100 border-gray-200", 
+    color: "text-app-secondary", 
+    bg: "bg-app-secondary border-app-border", 
     icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" 
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 p-6 group">
+    <div className="bg-app-card rounded-2xl border-app-border shadow-lg hover:shadow-xl transition-all duration-300 p-6 group">
       {/* Header with Status */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
+          <div className="w-10 h-10 bg-brand-green rounded-full flex items-center justify-center">
             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
           </div>
           <div>
-            <div className="font-semibold text-gray-900">Đơn hàng #{id}</div>
-            <div className="text-sm text-gray-500">{date}</div>
+            <div className="font-semibold text-app-primary">Đơn hàng #{id}</div>
+            <div className="text-sm text-app-secondary">{date}</div>
           </div>
         </div>
         <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border ${statusInfo.bg} ${statusInfo.color}`}>
@@ -88,16 +88,16 @@ export default function OrderCard({
 
       {/* Shipping Status */}
       {status === "Chờ giao hàng" && (
-        <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 mb-6 border border-green-200">
+        <div className="bg-brand-green/5 rounded-xl p-4 mb-6 border border-brand-green/20">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 bg-brand-green rounded-full flex items-center justify-center">
               <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
             <div>
-              <div className="font-semibold text-green-800">Đang vận chuyển</div>
-              <div className="text-sm text-green-600">{shippingStatus}</div>
+              <div className="font-semibold text-brand-green">Đang vận chuyển</div>
+              <div className="text-sm text-brand-green/80">{shippingStatus}</div>
             </div>
           </div>
         </div>
@@ -106,29 +106,29 @@ export default function OrderCard({
       {/* Products */}
       <div className="space-y-4 mb-6">
         {items.map((item, idx) => (
-          <div key={idx} className="flex gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors duration-200">
+          <div key={idx} className="flex gap-4 p-4 bg-app-secondary rounded-xl hover:bg-app-secondary/80 transition-colors duration-200">
             <img
               src={item.image}
               alt={item.name}
-              className="w-16 h-16 object-cover rounded-lg border border-gray-200"
+              className="w-16 h-16 object-cover rounded-lg border-app-border"
             />
             <div className="flex-1">
-              <div className="font-semibold text-gray-900 mb-1">{item.name}</div>
-              <div className="text-xs text-gray-500 mb-2">
+              <div className="font-semibold text-app-primary mb-1">{item.name}</div>
+              <div className="text-xs text-app-muted mb-2">
                 Phân loại: {item.variant || "Mặc định"}
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-green-600 font-bold">
+                  <span className="text-brand-green font-bold">
                     {item.price.toLocaleString()}₫
                   </span>
                   {item.oldPrice > item.price && (
-                    <span className="text-gray-400 line-through text-sm">
+                    <span className="text-app-muted line-through text-sm">
                       {item.oldPrice.toLocaleString()}₫
                     </span>
                   )}
                 </div>
-                <span className="text-gray-600 text-sm font-medium">
+                <span className="text-app-secondary text-sm font-medium">
                   x{item.quantity}
                 </span>
               </div>
@@ -138,9 +138,9 @@ export default function OrderCard({
       </div>
 
       {/* Total */}
-      <div className="flex justify-between items-center mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
-        <span className="text-gray-700 font-medium">Tổng thanh toán:</span>
-        <span className="text-2xl font-bold text-green-600">
+      <div className="flex justify-between items-center mb-6 p-4 bg-brand-green/5 rounded-xl border border-brand-green/20">
+        <span className="text-app-primary font-medium">Tổng thanh toán:</span>
+        <span className="text-2xl font-bold text-brand-green">
           {total.toLocaleString()}₫
         </span>
       </div>
@@ -149,15 +149,13 @@ export default function OrderCard({
       <div className="flex justify-end gap-3">
         <Link
           to={`/ordertracking/${id}`}
-          className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl group-hover:scale-105 transform"
+          className="bg-brand-green hover:bg-brand-green/90 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl group-hover:scale-105 transform flex items-center gap-2 hover:-translate-y-0.5"
         >
-          <span className="flex items-center gap-2">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
-            Xem Chi Tiết
-          </span>
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+          Xem Chi Tiết
         </Link>
       </div>
     </div>

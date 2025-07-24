@@ -24,7 +24,7 @@ export default function MainLayout() {
 
   return (
    
-        <div className="font-sans flex flex-col min-h-screen">
+        <div className="font-sans flex flex-col min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
           <Header />
           <main className={`flex-1 pt-[104px] md:pt-[88px] lg:pt-[80px] ${isFullWidthPage ? 'px-4 py-6' : 'px-4 py-6 max-w-6xl mx-auto'}`}>
             <Outlet />

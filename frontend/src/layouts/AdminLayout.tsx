@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import ThemeToggle from '../components/ui/ThemeToggle';
 
 // Notification Dropdown Component
 const NotificationDropdown: React.FC = () => {
@@ -26,7 +27,7 @@ const NotificationDropdown: React.FC = () => {
     <div className="relative">
       <button
         onClick={() => setShowNotifications(!showNotifications)}
-        className="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors relative"
+        className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors relative"
         title="Thông báo"
       >
         <span className="text-lg">🔔</span>
@@ -38,13 +39,13 @@ const NotificationDropdown: React.FC = () => {
       </button>
 
       {showNotifications && (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-gray-200 rounded-xl shadow-lg z-50 max-h-96 overflow-y-auto">
-          <div className="p-4 border-b border-gray-200">
+        <div className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg z-50 max-h-96 overflow-y-auto">
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-gray-900">Thông báo</h3>
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100">Thông báo</h3>
               <button
                 onClick={() => setShowNotifications(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
               >
                 ✕
               </button>
@@ -113,11 +114,11 @@ const AdminLayout: React.FC = () => {
   const currentPage = adminMenu.find(item => item.path === location.pathname);
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen flex bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
       {/* Sidebar */}
-      <aside className={`${isCollapsed ? 'w-20' : 'w-72'} bg-white border-r border-gray-200 shadow-xl flex flex-col transition-all duration-300 ease-in-out relative overflow-visible`}>
+      <aside className={`${isCollapsed ? 'w-20' : 'w-72'} bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-xl flex flex-col transition-all duration-300 ease-in-out relative overflow-visible`}>
         {/* Header */}
-        <div className="h-20 flex items-center justify-between px-6 border-b border-gray-200 bg-gradient-to-r from-green-600 to-green-700">
+        <div className="h-20 flex items-center justify-between px-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-green-600 to-green-700 dark:from-green-700 dark:to-green-800">
           <div className={`flex items-center ${isCollapsed ? 'justify-center' : ''}`}>
             <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-lg">
               <span className="text-2xl">🛒</span>
@@ -200,8 +201,8 @@ const AdminLayout: React.FC = () => {
             {!isCollapsed && (
               <>
                 <div className="flex-1 text-left">
-                  <p className="font-semibold text-gray-900">Admin User</p>
-                  <p className="text-xs text-gray-500">admin@greenmart.com</p>
+                  <p className="font-semibold text-gray-900 dark:text-gray-100">Admin User</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">admin@greenmart.com</p>
                 </div>
                 <span className="text-gray-400">⚙️</span>
               </>
@@ -218,7 +219,7 @@ const AdminLayout: React.FC = () => {
 
           {/* Profile Dropdown */}
           {showProfile && !isCollapsed && (
-            <div className="absolute bottom-full left-4 right-4 mb-2 bg-white border border-gray-200 rounded-xl shadow-lg p-2 z-50">
+            <div className="absolute bottom-full left-4 right-4 mb-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg p-2 z-50">
               <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm text-gray-700">
                 <span>👤</span>
                 Hồ sơ cá nhân
@@ -254,19 +255,19 @@ const AdminLayout: React.FC = () => {
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-h-screen">
         {/* Top Header */}
-        <header className="bg-white border-b border-gray-200 px-8 py-4 shadow-sm">
+        <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-8 py-4 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className={`w-8 h-8 rounded-lg bg-gradient-to-r ${currentPage?.color || 'from-gray-500 to-gray-600'} flex items-center justify-center`}>
                 <span className="text-white text-lg">{currentPage?.icon || '📄'}</span>
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{currentPage?.label || 'Trang Admin'}</h1>
-                <div className="flex items-center gap-2 text-sm text-gray-500">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{currentPage?.label || 'Trang Admin'}</h1>
+                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                   <span>🏠</span>
                   <span>Admin</span>
                   <span>/</span>
-                  <span className="text-gray-700 font-medium">{currentPage?.label || 'Trang'}</span>
+                  <span className="text-gray-700 dark:text-gray-300 font-medium">{currentPage?.label || 'Trang'}</span>
                 </div>
               </div>
             </div>
@@ -274,14 +275,15 @@ const AdminLayout: React.FC = () => {
             <div className="flex items-center gap-4">
               {/* Quick Actions */}
               <div className="flex items-center gap-2">
+                <ThemeToggle size="sm" />
                 <NotificationDropdown />
-                <button className="p-2 rounded-lg bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors" title="Cài đặt">
+                <button className="p-2 rounded-lg bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-colors" title="Cài đặt">
                   ⚙️
                 </button>
               </div>
               
               {/* Current Time */}
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-gray-500 dark:text-gray-400">
                 {new Date().toLocaleString('vi-VN')}
               </div>
             </div>
@@ -289,7 +291,7 @@ const AdminLayout: React.FC = () => {
         </header>
 
         {/* Page Content */}
-        <div className="flex-1 p-8 bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="flex-1 p-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
           <Outlet />
         </div>
       </main>

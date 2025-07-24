@@ -2,7 +2,6 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { authService, type User } from '../services/authService';
 import { tokenManager } from '../services/api';
-import type { Voucher } from '../types/Voucher';
 
 export type { User };
 

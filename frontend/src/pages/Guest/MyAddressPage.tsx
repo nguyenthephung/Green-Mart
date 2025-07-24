@@ -171,11 +171,11 @@ const MyAddresses: React.FC = () => {
 
   return (
     <DashboardLayout>
-      <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-8 rounded-3xl shadow-xl max-w-4xl mx-auto mt-6 border border-green-100">
+      <div className="bg-app-secondary p-8 rounded-3xl shadow-xl max-w-4xl mx-auto mt-6 border-app-default">
         {/* Header */}
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2 flex items-center justify-center gap-3">
-            <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
+          <h2 className="text-3xl font-bold text-app-primary mb-2 flex items-center justify-center gap-3">
+            <div className="w-10 h-10 bg-brand-green rounded-full flex items-center justify-center">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -183,13 +183,13 @@ const MyAddresses: React.FC = () => {
             </div>
             Địa chỉ của tôi
           </h2>
-          <p className="text-gray-600">Quản lý các địa chỉ giao hàng của bạn</p>
+          <p className="text-app-secondary">Quản lý các địa chỉ giao hàng của bạn</p>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+        <div className="bg-app-card rounded-2xl p-6 shadow-lg border-app-default">
           {/* Error Message */}
           {error && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl">
+            <div className="mb-4 p-4 bg-red-50/50 border border-red-200/50 rounded-xl">
               <div className="flex items-center gap-2">
                 <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
@@ -210,8 +210,8 @@ const MyAddresses: React.FC = () => {
           {/* Loading State */}
           {loading && (
             <div className="text-center py-8">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-              <p className="mt-2 text-gray-600">Đang xử lý...</p>
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-brand-green"></div>
+              <p className="mt-2 text-app-secondary">Đang xử lý...</p>
             </div>
           )}
 
@@ -221,8 +221,8 @@ const MyAddresses: React.FC = () => {
                 key={address.id} 
                 className={`relative p-6 rounded-2xl border-2 transition-all duration-200 hover:shadow-lg ${
                   address.isSelected 
-                    ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-300 shadow-md' 
-                    : 'bg-white border-gray-200 hover:border-green-200'
+                    ? 'bg-brand-green/5 border-brand-green shadow-md' 
+                    : 'bg-app-card border-app-border hover:border-brand-green/50'
                 }`}
               > 
                 <div className="flex items-start gap-4">
@@ -231,33 +231,33 @@ const MyAddresses: React.FC = () => {
                       type="radio"
                       checked={address.isSelected}
                       onChange={() => handleSelectAddress(address.id)}
-                      className="h-5 w-5 text-green-600 border-2 border-gray-300 focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                      className="h-5 w-5 text-brand-green border-2 border-app-border focus:ring-2 focus:ring-brand-green focus:ring-offset-2"
                     />
                   </div>
                   
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <span className="font-bold text-gray-900 text-lg">{address.fullName || 'Người nhận'}</span>
-                      <span className="text-gray-600 text-sm bg-gray-100 px-3 py-1 rounded-full">{address.phone}</span>
+                      <span className="font-bold text-app-primary text-lg">{address.fullName || 'Người nhận'}</span>
+                      <span className="text-app-secondary text-sm bg-app-secondary/30 px-3 py-1 rounded-full">{address.phone}</span>
                       {address.isSelected && (
-                        <span className="px-3 py-1 bg-green-600 text-white text-xs rounded-full font-medium">
+                        <span className="px-3 py-1 bg-brand-green text-white text-xs rounded-full font-medium">
                           Địa chỉ mặc định
                         </span>
                       )}
                     </div>
-                    <div className="text-gray-700 mb-2 flex items-start gap-2">
-                      <svg className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <div className="text-app-primary mb-2 flex items-start gap-2">
+                      <svg className="w-5 h-5 text-brand-green mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
                       <span className="leading-relaxed">{address.address}</span>
                     </div>
-                    <div className="text-gray-500 text-sm">{address.wardName} • {address.district}</div>
+                    <div className="text-app-muted text-sm">{address.wardName} • {address.district}</div>
                   </div>
                   
                   <div className="flex flex-col gap-2">
                     <button
-                      className="flex items-center gap-2 text-green-700 hover:bg-green-50 px-4 py-2 rounded-xl transition-all duration-200 font-medium"
+                      className="flex items-center gap-2 text-brand-green hover:bg-brand-green/10 px-4 py-2 rounded-xl transition-all duration-200 font-medium"
                       onClick={() => {
                         setShowEditModal(address.id);
                         setEditAddress(address as UserAddress);
@@ -270,7 +270,7 @@ const MyAddresses: React.FC = () => {
                     </button>
                     <button
                       onClick={() => handleDeleteAddress(address.id)}
-                      className="flex items-center gap-2 text-red-500 hover:bg-red-50 px-4 py-2 rounded-xl transition-all duration-200 font-medium"
+                      className="flex items-center gap-2 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 px-4 py-2 rounded-xl transition-all duration-200 font-medium"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -284,20 +284,20 @@ const MyAddresses: React.FC = () => {
             
             {addresses.length === 0 && (
               <div className="text-center py-12">
-                <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <div className="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-12 h-12 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Chưa có địa chỉ nào</h3>
-                <p className="text-gray-600 mb-6">Thêm địa chỉ đầu tiên để bắt đầu mua sắm</p>
+                <h3 className="text-xl font-semibold text-app-primary mb-2">Chưa có địa chỉ nào</h3>
+                <p className="text-app-secondary mb-6">Thêm địa chỉ đầu tiên để bắt đầu mua sắm</p>
               </div>
             )}
             
             <div className="flex justify-center py-6">
               <button 
-                className="flex items-center gap-3 text-green-700 hover:text-green-800 font-semibold bg-green-50 hover:bg-green-100 px-6 py-3 rounded-xl transition-all duration-200" 
+                className="btn-secondary flex items-center gap-3" 
                 onClick={() => setShowAddModal(true)}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -311,7 +311,7 @@ const MyAddresses: React.FC = () => {
         {/* Modal thêm địa chỉ */}
         {showAddModal && (
           <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-60 z-50 p-4 overflow-y-auto">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm relative transform transition-all duration-300 scale-100 my-4">
+            <div className="bg-app-card rounded-2xl shadow-2xl w-full max-w-sm relative transform transition-all duration-300 scale-100 my-4">
               {/* Header với gradient - compact */}
               <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-t-2xl p-3 text-white relative overflow-hidden">
                 <button

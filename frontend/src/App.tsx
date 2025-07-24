@@ -2,6 +2,7 @@ import AppRouter from './router/AppRouter';
 import { useEffect, useState } from 'react';
 import { useUserStore } from './stores/useUserStore';
 import { WishlistProvider } from './reduxSlice/WishlistContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 function App() {
   const checkAuthStatus = useUserStore(state => state.checkAuthStatus);
@@ -28,26 +29,24 @@ function App() {
 
   // Hiển thị loading screen khi app đang khởi tạo
   if (!appInitialized) {
-    console.log('App is still initializing...'); // Debug log
     return (
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-gradient-to-br from-emerald-50 to-green-50">
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-gradient-to-br from-emerald-50 to-green-50 dark:from-gray-900 dark:to-gray-800">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-emerald-700 text-lg font-semibold">Đang khởi tạo GreenMart...</p>
-          <p className="text-emerald-600 text-sm mt-2">Siêu thị tươi ngon mỗi ngày!</p>
-          <p className="text-xs text-gray-500 mt-2">Debug: App not initialized</p>
+          <div className="w-16 h-16 border-4 border-emerald-600 dark:border-emerald-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-emerald-700 dark:text-emerald-300 text-lg font-semibold">Đang khởi tạo GreenMart...</p>
+          <p className="text-emerald-600 dark:text-emerald-400 text-sm mt-2">Siêu thị tươi ngon mỗi ngày!</p>
         </div>
       </div>
     );
   }
 
-  console.log('App initialized successfully'); // Debug log
-
   return (
     <div className="animate-fadeIn">
-      <WishlistProvider>
-        <AppRouter />
-      </WishlistProvider>
+      <ThemeProvider>
+        <WishlistProvider>
+          <AppRouter />
+        </WishlistProvider>
+      </ThemeProvider>
     </div>
   );
 }

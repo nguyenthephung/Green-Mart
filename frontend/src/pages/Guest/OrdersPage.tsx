@@ -51,59 +51,56 @@ const OrdersPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-8 rounded-3xl shadow-xl border border-green-100">
+      <div className="bg-app-secondary p-8 rounded-3xl shadow-xl border-app-default">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center justify-center gap-3">
-            <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
+          <h1 className="text-3xl font-bold text-app-primary mb-2 flex items-center justify-center gap-3">
+            <div className="w-10 h-10 bg-brand-green rounded-full flex items-center justify-center">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
             </div>
             Đơn hàng của tôi
           </h1>
-          <p className="text-gray-600">Theo dõi và quản lý tất cả đơn hàng của bạn</p>
+          <p className="text-app-secondary">Theo dõi và quản lý tất cả đơn hàng của bạn</p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {tabKeys.map((tab) => (
-            <div key={tab} className="bg-white rounded-2xl p-4 shadow-lg border border-gray-100">
+            <div key={tab} className="bg-app-card rounded-2xl p-4 shadow-lg border-app-default">
               <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">{tabCounts[tab]}</div>
-                <div className="text-sm text-gray-600 mt-1">{tab}</div>
+                <div className="text-2xl font-bold text-brand-green">{tabCounts[tab]}</div>
+                <div className="text-sm text-app-secondary mt-1">{tab}</div>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100">
-          <div className="p-6 border-b border-gray-100">
+        <div className="bg-app-card rounded-2xl shadow-lg border-app-default">
+          <div className="p-6 border-b border-app-border">
             <OrderTabs activeTab={activeTab} setActiveTab={setActiveTab} counts={tabCounts} tabs={tabKeys} />
           </div>
 
           <div className="p-6">
             {filteredOrders.length === 0 ? (
               <div className="text-center py-16">
-                <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <div className="w-24 h-24 bg-app-secondary rounded-full flex items-center justify-center mx-auto mb-6">
+                  <svg className="w-12 h-12 text-app-muted" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                <h3 className="text-xl font-semibold text-app-primary mb-2">
                   {activeTab === "Tất cả" ? "Chưa có đơn hàng nào" : `Không có đơn hàng ${activeTab.toLowerCase()}`}
                 </h3>
-                <p className="text-gray-600 mb-6">
+                <p className="text-app-secondary mb-6">
                   {activeTab === "Tất cả" 
                     ? "Hãy bắt đầu mua sắm để tạo đơn hàng đầu tiên của bạn!" 
                     : `Hiện tại không có đơn hàng nào ở trạng thái ${activeTab.toLowerCase()}.`
                   }
                 </p>
                 {activeTab === "Tất cả" && (
-                  <button 
-                    className="px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl"
-                    onClick={() => window.location.href = '/home'}
-                  >
+                  <button className="btn-primary">
                     Bắt đầu mua sắm
                   </button>
                 )}
