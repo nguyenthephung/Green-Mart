@@ -114,7 +114,7 @@ const AdminLayout: React.FC = () => {
   const currentPage = adminMenu.find(item => item.path === location.pathname);
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
+    <div className="min-h-screen flex bg-gray-50 dark:bg-gray-900">
       {/* Sidebar */}
       <aside className={`${isCollapsed ? 'w-20' : 'w-72'} bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-xl flex flex-col transition-all duration-300 ease-in-out relative overflow-visible`}>
         {/* Header */}
@@ -253,7 +253,7 @@ const AdminLayout: React.FC = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-h-screen">
+      <main className="flex-1 flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* Top Header */}
         <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-8 py-4 shadow-sm">
           <div className="flex items-center justify-between">
@@ -291,7 +291,7 @@ const AdminLayout: React.FC = () => {
         </header>
 
         {/* Page Content */}
-        <div className="flex-1 p-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="flex-1 p-8 bg-gray-50 dark:bg-gray-900">
           <Outlet />
         </div>
       </main>

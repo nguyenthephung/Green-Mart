@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useCallback, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { products } from '../../data/Guest/Home';
 import { FaShoppingCart, FaCheckCircle, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
@@ -11,53 +11,83 @@ const ProductDetailPage: React.FC = () => {
   const product = products.find((p) => String(p.id) === id);
   const addToCart = useCartStore(state => state.addToCart);
   const imgRef = useRef<HTMLImageElement>(null);
-  const imgRefs = React.useRef<{ [key: number]: React.RefObject<HTMLImageElement | null> }>({});
+  const imgRefs = useRef<{ [key: number]: React.RefObject<HTMLImageElement | null> }>({});
 
-  // Thêm hook quản lý comment
+  // Early return if product not found
+  if (!product) {
+    return <div className="p-6 text-center text-red-600 text-xl">Không tìm thấy sản phẩm.</div>;
+  }
+
+  // Optimize state - combine related UI states
+  const [uiState, setUiState] = React.useState({
+    mainImage: product.image,
+    descIndex: 0,
+    commentInput: '',
+    editingId: null as number | null,
+    editingContent: ''
+  });
+  
   const [comments, setComments] = React.useState<Comment[]>([]);
-  const [commentInput, setCommentInput] = React.useState('');
-  const [editingId, setEditingId] = React.useState<number|null>(null);
-  const [editingContent, setEditingContent] = React.useState('');
 
-  // Giả lập user hiện tại (có thể lấy từ context thực tế)
-  const currentUser = { id: 2, name: 'Nguyễn Văn A', role: 'user' }; // role: 'user' | 'admin'
+  // Memoize user and related products
+  const currentUser = useMemo(() => ({ 
+    id: 2, 
+    name: 'Nguyễn Văn A', 
+    role: 'user' as const 
+  }), []);
+
+  const relatedProducts = useMemo(() => 
+    products.filter((p) => p.category === product.category && String(p.id) !== id),
+    [product.category, id]
+  );
+
+  const descriptionImages = useMemo(() => product.descriptionImages || [], [product.descriptionImages]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
   }, []);
 
-  if (!product) {
-    return <div className="p-6 text-center text-red-600 text-xl">Không tìm thấy sản phẩm.</div>;
-  }
-
-  const relatedProducts = products.filter(
-    (p) => p.category === product.category && String(p.id) !== id
-  );
-
-  // State cho ảnh lớn và index ảnh mô tả
-  const [mainImage, setMainImage] = React.useState(product.image);
-  const [descIndex, setDescIndex] = React.useState(0);
-  const descriptionImages = product.descriptionImages || [];
-  const handlePrev = () => {
+  // Optimize image navigation handlers
+  const handlePrev = useCallback(() => {
     if (descriptionImages.length > 0) {
-      setDescIndex((prev) => (prev - 1 + descriptionImages.length) % descriptionImages.length);
-      setMainImage(descriptionImages[(descIndex - 1 + descriptionImages.length) % descriptionImages.length]);
+      setUiState(prev => {
+        const newIndex = (prev.descIndex - 1 + descriptionImages.length) % descriptionImages.length;
+        return {
+          ...prev,
+          descIndex: newIndex,
+          mainImage: descriptionImages[newIndex]
+        };
+      });
     }
-  };
-  const handleNext = () => {
+  }, [descriptionImages]);
+
+  const handleNext = useCallback(() => {
     if (descriptionImages.length > 0) {
-      setDescIndex((prev) => (prev + 1) % descriptionImages.length);
-      setMainImage(descriptionImages[(descIndex + 1) % descriptionImages.length]);
+      setUiState(prev => {
+        const newIndex = (prev.descIndex + 1) % descriptionImages.length;
+        return {
+          ...prev,
+          descIndex: newIndex,
+          mainImage: descriptionImages[newIndex]
+        };
+      });
     }
-  };
-  React.useEffect(() => {
+  }, [descriptionImages]);
+
+  // Update main image when descIndex changes
+  useEffect(() => {
     if (descriptionImages.length > 0) {
-      setMainImage(descriptionImages[descIndex]);
+      setUiState(prev => ({
+        ...prev,
+        mainImage: descriptionImages[prev.descIndex]
+      }));
     } else {
-      setMainImage(product.image);
+      setUiState(prev => ({
+        ...prev,
+        mainImage: product.image
+      }));
     }
-    // eslint-disable-next-line
-  }, [descIndex, product.id]);
+  }, [uiState.descIndex, product.id, descriptionImages]);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -157,34 +187,43 @@ const ProductDetailPage: React.FC = () => {
     }
   }, [comments, id]);
 
-  const handleAddComment = () => {
-    if (!commentInput.trim()) return;
+  // Optimized comment handlers
+  const handleAddComment = useCallback(() => {
+    if (!uiState.commentInput.trim()) return;
     const newComment: Comment = {
       id: Date.now(),
       productId: Number(id),
       userId: currentUser.id,
       userName: currentUser.name,
-      content: commentInput,
+      content: uiState.commentInput,
       createdAt: new Date().toISOString()
     };
     setComments(prev => [...prev, newComment]);
-    setCommentInput('');
-  };
+    setUiState(prev => ({ ...prev, commentInput: '' }));
+  }, [uiState.commentInput, id, currentUser]);
 
-  const handleEditComment = (comment: Comment) => {
-    setEditingId(comment.id);
-    setEditingContent(comment.content);
-  };
+  const handleEditComment = useCallback((comment: Comment) => {
+    setUiState(prev => ({
+      ...prev,
+      editingId: comment.id,
+      editingContent: comment.content
+    }));
+  }, []);
 
-  const handleSaveEdit = () => {
-    setComments(prev => prev.map(c => c.id === editingId ? { ...c, content: editingContent } : c));
-    setEditingId(null);
-    setEditingContent('');
-  };
+  const handleSaveEdit = useCallback(() => {
+    setComments(prev => prev.map(c => 
+      c.id === uiState.editingId ? { ...c, content: uiState.editingContent } : c
+    ));
+    setUiState(prev => ({
+      ...prev,
+      editingId: null,
+      editingContent: ''
+    }));
+  }, [uiState.editingId, uiState.editingContent]);
 
-  const handleDeleteComment = (id: number) => {
-    setComments(prev => prev.filter(c => c.id !== id));
-  };
+  const handleDeleteComment = useCallback((commentId: number) => {
+    setComments(prev => prev.filter(c => c.id !== commentId));
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-200 py-10 px-4 md:px-16">
@@ -192,7 +231,8 @@ const ProductDetailPage: React.FC = () => {
         {/* Hình ảnh sản phẩm + gallery mô tả */}
         <div className="bg-white p-6 rounded-2xl shadow-2xl transform hover:rotate-1 transition-transform duration-500 perspective-1000">
           <img
-            src={mainImage}
+            ref={imgRef}
+            src={uiState.mainImage}
             alt={product.name}
             className="w-full h-[400px] object-cover rounded-xl transition-transform duration-300 hover:scale-105 mb-4"
           />
@@ -212,8 +252,12 @@ const ProductDetailPage: React.FC = () => {
                   key={idx}
                   src={img}
                   alt={`Mô tả ${idx + 1}`}
-                  className={`w-20 h-20 object-cover rounded-lg border-2 cursor-pointer transition-all duration-200 ${descIndex === idx ? 'border-green-600' : 'border-gray-200'}`}
-                  onClick={() => { setDescIndex(idx); setMainImage(img); }}
+                  className={`w-20 h-20 object-cover rounded-lg border-2 cursor-pointer transition-all duration-200 ${uiState.descIndex === idx ? 'border-green-600' : 'border-gray-200'}`}
+                  onClick={() => setUiState(prev => ({ 
+                    ...prev, 
+                    descIndex: idx, 
+                    mainImage: img 
+                  }))}
                 />
               ))}
               <button
@@ -277,8 +321,8 @@ const ProductDetailPage: React.FC = () => {
             type="text"
             className="flex-1 border-2 border-green-200 rounded-lg px-3 py-2 focus:outline-green-500 bg-gray-50 text-gray-800 shadow-sm"
             placeholder="Chia sẻ cảm nhận về sản phẩm..."
-            value={commentInput}
-            onChange={e => setCommentInput(e.target.value)}
+            value={uiState.commentInput}
+            onChange={e => setUiState(prev => ({ ...prev, commentInput: e.target.value }))}
             onKeyDown={e => { if (e.key === 'Enter') handleAddComment(); }}
           />
           <button
@@ -300,18 +344,17 @@ const ProductDetailPage: React.FC = () => {
                   <span className="font-semibold text-green-700 text-base truncate max-w-[120px]">{c.userName}</span>
                   <span className="text-xs text-gray-400">{new Date(c.createdAt).toLocaleString()}</span>
                   {c.userId === currentUser.id && <span className="ml-2 text-xs text-green-500 bg-green-100 px-2 py-0.5 rounded">Bạn</span>}
-                  {currentUser.role === 'admin' && c.userId !== currentUser.id && <span className="ml-2 text-xs text-red-500 bg-red-100 px-2 py-0.5 rounded">Admin xóa được</span>}
                 </div>
-                {editingId === c.id ? (
+                {uiState.editingId === c.id ? (
                   <div className="flex gap-2 items-center mt-1">
                     <input
                       className="border-2 border-green-300 rounded px-2 py-1 flex-1 bg-gray-50"
-                      value={editingContent}
-                      onChange={e => setEditingContent(e.target.value)}
+                      value={uiState.editingContent}
+                      onChange={e => setUiState(prev => ({ ...prev, editingContent: e.target.value }))}
                       autoFocus
                     />
                     <button className="text-green-600 font-bold px-2 py-1 hover:underline" onClick={handleSaveEdit}>Lưu</button>
-                    <button className="text-gray-500 px-2 py-1 hover:underline" onClick={() => setEditingId(null)}>Hủy</button>
+                    <button className="text-gray-500 px-2 py-1 hover:underline" onClick={() => setUiState(prev => ({ ...prev, editingId: null }))}>Hủy</button>
                   </div>
                 ) : (
                   <div className="text-gray-800 text-base leading-relaxed break-words whitespace-pre-line">
@@ -319,7 +362,7 @@ const ProductDetailPage: React.FC = () => {
                   </div>
                 )}
               </div>
-              {(c.userId === currentUser.id || currentUser.role === 'admin') && editingId !== c.id && (
+              {c.userId === currentUser.id && uiState.editingId !== c.id && (
                 <div className="flex flex-col gap-1 ml-2 absolute right-0 top-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                   {c.userId === currentUser.id && (
                     <button className="text-blue-600 text-xs px-2 py-1 hover:underline" onClick={() => handleEditComment(c)}>Sửa</button>
@@ -400,4 +443,4 @@ const RelatedProductsSlider: React.FC<{
   );
 };
 
-export default ProductDetailPage;
+export default React.memo(ProductDetailPage);

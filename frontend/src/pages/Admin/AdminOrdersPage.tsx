@@ -185,13 +185,13 @@ const AdminOrders: React.FC = () => {
   const totalRevenue = orders.filter(o => o.status === 'delivered').reduce((sum, o) => sum + o.totalAmount, 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Quản lý đơn hàng</h1>
-            <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Quản lý đơn hàng</h1>
+            <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-300">
               <span>Tổng: <span className="font-semibold text-blue-600">{totalOrders}</span> đơn hàng</span>
               <span>Chờ xác nhận: <span className="font-semibold text-yellow-600">{pendingOrders}</span></span>
               <span>Đang giao: <span className="font-semibold text-purple-600">{shippingOrders}</span></span>

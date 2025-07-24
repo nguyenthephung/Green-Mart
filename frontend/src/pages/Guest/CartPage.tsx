@@ -8,6 +8,7 @@ import Recommendations from "../../components/Guest/cart/Recommendations";
 import CartList from "../../components/Guest/cart/CartList";
 import { products } from '../../data/Guest/Home';
 import { useNavigate } from 'react-router-dom';
+import { LoadingSpinner } from '../../components/Loading';
 import EmptyCart from '../../components/Guest/cart/EmptyCart';
 import { districts } from '../../data/Guest/hcm_districts_sample';
 import haversine from 'haversine-distance';
@@ -197,11 +198,11 @@ export default function CartPage() {
     return (
       <>
         <Header />
-        <div className="bg-app-secondary min-h-screen pt-[104px] md:pt-[88px] lg:pt-[80px] flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600 mx-auto mb-4"></div>
-            <p className="text-app-secondary">Đang tải giỏ hàng...</p>
-          </div>
+        <div className="bg-app-secondary min-h-screen pt-[104px] md:pt-[88px] lg:pt-[80px]">
+          <LoadingSpinner
+            size="xl"
+            text="Đang tải giỏ hàng..."
+          />
         </div>
       </>
     );

@@ -148,13 +148,13 @@ const AdminCategories: React.FC = () => {
   const totalProducts = categories.reduce((sum, c) => sum + c.productCount, 0);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Quản lý danh mục</h1>
-            <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Quản lý danh mục</h1>
+            <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-300">
               <span>Tổng: <span className="font-semibold text-blue-600">{totalCategories}</span> danh mục</span>
               <span>Hoạt động: <span className="font-semibold text-green-600">{activeCategories}</span></span>
               <span>Tổng sản phẩm: <span className="font-semibold text-purple-600">{totalProducts}</span></span>

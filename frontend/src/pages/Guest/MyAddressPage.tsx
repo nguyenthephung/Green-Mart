@@ -1,36 +1,59 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useUserStore } from '../../stores/useUserStore';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import AddressSelector, { type UserAddress } from '../../components/Guest/Account/AddressSelector';
-import type { AddressInfo } from '../../reduxSlice/UserContext';
 import { AddressService, type AddressResponse } from '../../services/addressService';
+import type { AddressInfo } from '../../reduxSlice/UserContext';
 
 const MyAddresses: React.FC = () => {
   const user = useUserStore(state => state.user);
   const addresses = useUserStore(state => state.addresses);
   const setAddresses = useUserStore(state => state.setAddresses);
-  const [showAddModal, setShowAddModal] = useState<boolean>(false);
-  const [showEditModal, setShowEditModal] = useState<number | null>(null);
-  const [newAddress, setNewAddress] = useState<UserAddress | null>(null);
-  const [editAddress, setEditAddress] = useState<UserAddress | null>(null);
+  
+  // Optimize state - combine related states
+  const [modals, setModals] = useState({
+    showAdd: false,
+    editId: null as number | null
+  });
+  
+  const [addressData, setAddressData] = useState<{
+    new: UserAddress | null;
+    edit: UserAddress | null;
+  }>({
+    new: null,
+    edit: null
+  });
+  
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
-  // Convert AddressResponse to AddressInfo
-  const convertToAddressInfo = (addressResponse: AddressResponse): AddressInfo => ({
-    id: parseInt(addressResponse.id), // Convert string id to number for AddressInfo
+  // Memoize conversion function
+  const convertToAddressInfo = useCallback((addressResponse: AddressResponse): AddressInfo => ({
+    id: parseInt(addressResponse.id),
     isSelected: addressResponse.isSelected,
     label: addressResponse.label,
     address: addressResponse.address,
     wardName: addressResponse.wardName,
     phone: addressResponse.phone,
     fullName: addressResponse.fullName,
-    district: addressResponse.district,
-    ward: addressResponse.ward,
-    street: addressResponse.street,
+    district: addressResponse.district || '',
+    ward: addressResponse.ward || '',
+    street: addressResponse.street || '',
     latitude: addressResponse.latitude || 0,
     longitude: addressResponse.longitude || 0,
-  });
+  }), []);
+
+  // Optimized modal handlers
+  const handleModalToggle = useCallback((type: 'add' | 'edit', value?: boolean | number) => {
+    if (type === 'add') {
+      setModals(prev => ({ ...prev, showAdd: value as boolean }));
+      if (!value) setAddressData(prev => ({ ...prev, new: null }));
+    } else {
+      const editId = typeof value === 'number' ? value : null;
+      setModals(prev => ({ ...prev, editId }));
+      if (!editId) setAddressData(prev => ({ ...prev, edit: null }));
+    }
+  }, []);
 
   // Load addresses từ API khi component mount
   useEffect(() => {
@@ -52,40 +75,36 @@ const MyAddresses: React.FC = () => {
     };
 
     loadAddresses();
-  }, [user?.id, setAddresses]);
+  }, [user?.id, setAddresses, convertToAddressInfo]);
 
-  // Thêm địa chỉ mới với API
-  const handleAddAddress = async () => {
-    if (!newAddress || !user?.id) return;
+  // Optimized address handlers with better error handling
+  const handleAddAddress = useCallback(async () => {
+    if (!addressData.new || !user?.id) return;
     
     try {
       setLoading(true);
       setError('');
       
-      const addressResponse = await AddressService.createAddress(parseInt(user.id), newAddress);
-      
+      const addressResponse = await AddressService.createAddress(parseInt(user.id), addressData.new);
       const newAddressInfo = convertToAddressInfo(addressResponse);
       
-      // Cập nhật local state
-      const updatedAddresses = [
+      setAddresses([
         ...addresses.map((a: AddressInfo) => ({ ...a, isSelected: false })),
         newAddressInfo,
-      ];
+      ]);
       
-      setAddresses(updatedAddresses);
-      setNewAddress(null);
-      setShowAddModal(false);
+      handleModalToggle('add', false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Lỗi khi thêm địa chỉ mới');
       console.error('Error adding address:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [addressData.new, user?.id, addresses, setAddresses, convertToAddressInfo, handleModalToggle]);
 
-  // Sửa địa chỉ với API
-  const handleEditAddress = async () => {
-    if (!editAddress || showEditModal === null || !user?.id) return;
+  // Optimized edit address handler
+  const handleEditAddress = useCallback(async () => {
+    if (!addressData.edit || !modals.editId || !user?.id) return;
     
     try {
       setLoading(true);
@@ -93,31 +112,29 @@ const MyAddresses: React.FC = () => {
       
       const addressResponse = await AddressService.updateAddress(
         parseInt(user.id), 
-        showEditModal.toString(), 
-        editAddress
+        modals.editId.toString(), 
+        addressData.edit
       );
       
       const updatedAddressInfo = convertToAddressInfo(addressResponse);
       
-      // Cập nhật local state
       setAddresses(
         addresses.map((a: AddressInfo) =>
-          a.id === showEditModal ? updatedAddressInfo : a
+          a.id === modals.editId ? updatedAddressInfo : a
         )
       );
       
-      setEditAddress(null);
-      setShowEditModal(null);
+      handleModalToggle('edit', undefined);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Lỗi khi cập nhật địa chỉ');
       console.error('Error updating address:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [addressData.edit, modals.editId, user?.id, addresses, setAddresses, convertToAddressInfo, handleModalToggle]);
 
-  // Chọn địa chỉ giao hàng với API
-  const handleSelectAddress = async (id: number) => {
+  // Optimized select address handler
+  const handleSelectAddress = useCallback(async (id: number) => {
     if (!user?.id) return;
     
     try {
@@ -126,11 +143,11 @@ const MyAddresses: React.FC = () => {
       
       await AddressService.setDefaultAddress(parseInt(user.id), id.toString());
       
-      // Cập nhật local state
       setAddresses(
-        addresses.map((address: AddressInfo) =>
-          address.id === id ? { ...address, isSelected: true } : { ...address, isSelected: false }
-        )
+        addresses.map((address: AddressInfo) => ({
+          ...address,
+          isSelected: address.id === id
+        }))
       );
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Lỗi khi đặt địa chỉ mặc định');
@@ -138,10 +155,10 @@ const MyAddresses: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id, addresses, setAddresses]);
 
-  // Xóa địa chỉ với API
-  const handleDeleteAddress = async (id: number) => {
+  // Optimized delete address handler
+  const handleDeleteAddress = useCallback(async (id: number) => {
     if (!user?.id) return;
     
     try {
@@ -150,24 +167,14 @@ const MyAddresses: React.FC = () => {
       
       await AddressService.deleteAddress(parseInt(user.id), id.toString());
       
-      // Cập nhật local state
-      let newAddresses = addresses.filter((address: AddressInfo) => address.id !== id);
-      
-      // Nếu xóa địa chỉ đang chọn thì chọn lại địa chỉ đầu tiên nếu còn
-      if (!newAddresses.some((a: AddressInfo) => a.isSelected) && newAddresses.length > 0) {
-        newAddresses[0].isSelected = true;
-        // Gọi API để đặt địa chỉ đầu tiên làm mặc định
-        await AddressService.setDefaultAddress(parseInt(user.id), newAddresses[0].id.toString());
-      }
-      
-      setAddresses(newAddresses);
+      setAddresses(addresses.filter((address: AddressInfo) => address.id !== id));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Lỗi khi xóa địa chỉ');
       console.error('Error deleting address:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id, addresses, setAddresses]);
 
   return (
     <DashboardLayout>
@@ -259,8 +266,8 @@ const MyAddresses: React.FC = () => {
                     <button
                       className="flex items-center gap-2 text-brand-green hover:bg-brand-green/10 px-4 py-2 rounded-xl transition-all duration-200 font-medium"
                       onClick={() => {
-                        setShowEditModal(address.id);
-                        setEditAddress(address as UserAddress);
+                        handleModalToggle('edit', address.id);
+                        setAddressData(prev => ({ ...prev, edit: address as UserAddress }));
                       }}
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -298,7 +305,7 @@ const MyAddresses: React.FC = () => {
             <div className="flex justify-center py-6">
               <button 
                 className="btn-secondary flex items-center gap-3" 
-                onClick={() => setShowAddModal(true)}
+                onClick={() => handleModalToggle('add', true)}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -309,14 +316,14 @@ const MyAddresses: React.FC = () => {
           </div>
         </div>
         {/* Modal thêm địa chỉ */}
-        {showAddModal && (
+        {modals.showAdd && (
           <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-60 z-50 p-4 overflow-y-auto">
             <div className="bg-app-card rounded-2xl shadow-2xl w-full max-w-sm relative transform transition-all duration-300 scale-100 my-4">
               {/* Header với gradient - compact */}
               <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-t-2xl p-3 text-white relative overflow-hidden">
                 <button
                   className="absolute top-2 right-2 p-1.5 rounded-full hover:bg-white hover:bg-opacity-20 text-white hover:text-white transition-all duration-200 z-20"
-                  onClick={() => setShowAddModal(false)}
+                  onClick={() => handleModalToggle('add', false)}
                   aria-label="Đóng"
                   type="button"
                 >
@@ -362,17 +369,21 @@ const MyAddresses: React.FC = () => {
                             type="text"
                             className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-transparent transition-all duration-200 pl-7 text-xs"
                             placeholder="Nhập họ và tên người nhận"
-                            value={newAddress?.fullName || ''}
+                            value={addressData.new?.fullName || ''}
                             onChange={e => {
-                              setNewAddress({
-                                fullName: e.target.value,
-                                phone: newAddress?.phone ?? '',
-                                street: newAddress?.street ?? '',
-                                ward: newAddress?.ward ?? '',
-                                district: newAddress?.district ?? '',
-                                latitude: newAddress?.latitude ?? 0,
-                                longitude: newAddress?.longitude ?? 0,
-                              });
+                              setAddressData(prev => ({
+                                ...prev,
+                                new: {
+                                  ...prev.new,
+                                  fullName: e.target.value,
+                                  phone: prev.new?.phone ?? '',
+                                  street: prev.new?.street ?? '',
+                                  ward: prev.new?.ward ?? '',
+                                  district: prev.new?.district ?? '',
+                                  latitude: prev.new?.latitude ?? 0,
+                                  longitude: prev.new?.longitude ?? 0,
+                                } as UserAddress
+                              }));
                             }}
                             disabled={loading}
                           />
@@ -391,17 +402,21 @@ const MyAddresses: React.FC = () => {
                             type="tel"
                             className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-transparent transition-all duration-200 pl-7 text-xs"
                             placeholder="Nhập số điện thoại"
-                            value={newAddress?.phone || ''}
+                            value={addressData.new?.phone || ''}
                             onChange={e => {
-                              setNewAddress({
-                                fullName: newAddress?.fullName ?? '',
-                                phone: e.target.value,
-                                street: newAddress?.street ?? '',
-                                ward: newAddress?.ward ?? '',
-                                district: newAddress?.district ?? '',
-                                latitude: newAddress?.latitude ?? 0,
-                                longitude: newAddress?.longitude ?? 0,
-                              });
+                              setAddressData(prev => ({
+                                ...prev,
+                                new: {
+                                  ...prev.new,
+                                  fullName: prev.new?.fullName ?? '',
+                                  phone: e.target.value,
+                                  street: prev.new?.street ?? '',
+                                  ward: prev.new?.ward ?? '',
+                                  district: prev.new?.district ?? '',
+                                  latitude: prev.new?.latitude ?? 0,
+                                  longitude: prev.new?.longitude ?? 0,
+                                } as UserAddress
+                              }));
                             }}
                             disabled={loading}
                             required
@@ -427,13 +442,15 @@ const MyAddresses: React.FC = () => {
                     <AddressSelector 
                       value={undefined} 
                       onChange={addr => {
-                        setNewAddress({ 
-                          ...(newAddress || {}), 
-                          ...addr,
-                          // Đảm bảo có fullName và phone từ input trước đó
-                          fullName: newAddress?.fullName || '',
-                          phone: newAddress?.phone || ''
-                        });
+                        setAddressData(prev => ({
+                          ...prev,
+                          new: { 
+                            ...(prev.new || {}), 
+                            ...addr,
+                            fullName: prev.new?.fullName || '',
+                            phone: prev.new?.phone || ''
+                          } as UserAddress
+                        }));
                       }} 
                     />
                   </div>
@@ -442,7 +459,7 @@ const MyAddresses: React.FC = () => {
                   <div className="flex gap-2 pt-1">
                     <button
                       type="button"
-                      onClick={() => setShowAddModal(false)}
+                      onClick={() => handleModalToggle('add', false)}
                       className="flex-1 py-1.5 px-3 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50 transition-all duration-200 text-xs"
                       disabled={loading}
                     >
@@ -451,7 +468,7 @@ const MyAddresses: React.FC = () => {
                     <button
                       type="submit"
                       className="flex-1 py-1.5 px-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-md font-medium hover:from-green-600 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-1 text-xs"
-                      disabled={!(newAddress && newAddress.fullName && newAddress.phone && newAddress.street && newAddress.ward && newAddress.district) || loading}
+                      disabled={!(addressData.new && addressData.new.fullName && addressData.new.phone && addressData.new.street && addressData.new.ward && addressData.new.district) || loading}
                     >
                       {loading && <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>}
                       {loading ? 'Đang lưu...' : 'Lưu địa chỉ'}
@@ -463,14 +480,14 @@ const MyAddresses: React.FC = () => {
           </div>
         )}
         {/* Modal chỉnh sửa địa chỉ */}
-        {showEditModal !== null && editAddress && (
+        {modals.editId !== null && addressData.edit && (
           <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-60 z-50 p-4 overflow-y-auto">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm relative transform transition-all duration-300 scale-100 my-4">
               {/* Header với gradient - compact */}
               <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-t-2xl p-3 text-white relative overflow-hidden">
                 <button
                   className="absolute top-2 right-2 p-1.5 rounded-full hover:bg-white hover:bg-opacity-20 text-white hover:text-white transition-all duration-200 z-20"
-                  onClick={() => setShowEditModal(null)}
+                  onClick={() => handleModalToggle('edit', undefined)}
                   aria-label="Đóng"
                   type="button"
                 >
@@ -515,8 +532,11 @@ const MyAddresses: React.FC = () => {
                             type="text"
                             className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent transition-all duration-200 pl-7 text-xs"
                             placeholder="Nhập họ và tên người nhận"
-                            value={editAddress?.fullName || ''}
-                            onChange={e => setEditAddress({ ...(editAddress || {}), fullName: e.target.value })}
+                            value={addressData.edit?.fullName || ''}
+                            onChange={e => setAddressData(prev => ({
+                              ...prev,
+                              edit: { ...(prev.edit || {}), fullName: e.target.value } as UserAddress
+                            }))}
                             disabled={loading}
                             required
                           />
@@ -535,8 +555,11 @@ const MyAddresses: React.FC = () => {
                             type="tel"
                             className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent transition-all duration-200 pl-7 text-xs"
                             placeholder="Nhập số điện thoại"
-                            value={editAddress?.phone || ''}
-                            onChange={e => setEditAddress({ ...(editAddress || {}), phone: e.target.value })}
+                            value={addressData.edit?.phone || ''}
+                            onChange={e => setAddressData(prev => ({
+                              ...prev,
+                              edit: { ...(prev.edit || {}), phone: e.target.value } as UserAddress
+                            }))}
                             disabled={loading}
                             required
                           />
@@ -558,14 +581,20 @@ const MyAddresses: React.FC = () => {
                       Địa chỉ giao hàng
                     </h4>
                     
-                    <AddressSelector value={editAddress} onChange={addr => setEditAddress({ ...(editAddress || {}), ...addr })} />
+                    <AddressSelector 
+                      value={addressData.edit} 
+                      onChange={addr => setAddressData(prev => ({
+                        ...prev,
+                        edit: { ...(prev.edit || {}), ...addr } as UserAddress
+                      }))} 
+                    />
                   </div>
 
                   {/* Action buttons - compact */}
                   <div className="flex gap-2 pt-1">
                     <button
                       type="button"
-                      onClick={() => setShowEditModal(null)}
+                      onClick={() => handleModalToggle('edit', undefined)}
                       className="flex-1 py-1.5 px-3 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50 transition-all duration-200 text-xs"
                       disabled={loading}
                     >
@@ -574,7 +603,7 @@ const MyAddresses: React.FC = () => {
                     <button
                       type="submit"
                       className="flex-1 py-1.5 px-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-md font-medium hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-1 text-xs"
-                      disabled={!(editAddress && editAddress.fullName && editAddress.phone && editAddress.street && editAddress.ward && editAddress.district) || loading}
+                      disabled={!(addressData.edit && addressData.edit.fullName && addressData.edit.phone && addressData.edit.street && addressData.edit.ward && addressData.edit.district) || loading}
                     >
                       {loading && <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>}
                       {loading ? 'Đang cập nhật...' : 'Cập nhật địa chỉ'}
@@ -590,4 +619,4 @@ const MyAddresses: React.FC = () => {
   );
 };
 
-export default MyAddresses;
+export default React.memo(MyAddresses);

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useUserStore } from '../stores/useUserStore';
+import { LoadingSpinner } from './Loading';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -19,12 +20,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // Hiển thị loading khi đang check auth
   if (isLoading) {
     return (
-      <div className="w-full min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto mb-2"></div>
-          <p className="text-gray-600">Đang kiểm tra quyền truy cập...</p>
-        </div>
-      </div>
+      <LoadingSpinner
+        size="lg"
+        text="Đang kiểm tra quyền truy cập..."
+        fullScreen={true}
+      />
     );
   }
 

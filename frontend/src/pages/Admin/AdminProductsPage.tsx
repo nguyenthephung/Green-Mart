@@ -147,8 +147,8 @@ const AdminProducts: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     return status === 'active'
-      ? 'bg-green-100 text-green-800 border-green-200' 
-      : 'bg-red-100 text-red-800 border-red-200';
+      ? 'bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700' 
+      : 'bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-200 border-red-200 dark:border-red-700';
   };
 
   const getStockStatus = (stock: number) => {
@@ -165,14 +165,14 @@ const AdminProducts: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Quản lý sản phẩm</h1>
-            <p className="text-gray-600">
-              Tổng cộng: <span className="font-semibold text-green-600">{filteredAndSortedProducts.length}</span> sản phẩm
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Quản lý sản phẩm</h1>
+            <p className="text-gray-600 dark:text-gray-300">
+              Tổng cộng: <span className="font-semibold text-green-600">      {filteredAndSortedProducts.length}</span> sản phẩm
               {search && (
                 <span className="ml-2 text-sm">
                   (lọc từ {products.length} sản phẩm)
@@ -186,7 +186,7 @@ const AdminProducts: React.FC = () => {
               className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 ${
                 showFilters 
                   ? 'bg-blue-600 text-white shadow-lg' 
-                  : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                  : 'bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-700'
               }`}
             >
               <span>🔍</span>
@@ -350,29 +350,29 @@ const AdminProducts: React.FC = () => {
                     </div>
                   </th>
                   <th 
-                    className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                    className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     onClick={() => handleSort('stock')}
                   >
                     <div className="flex items-center gap-1">
                       Tồn kho {getSortIcon('stock')}
                     </div>
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Trạng thái
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Khuyến mãi
                   </th>
-                  <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Thao tác
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 {currentProducts.map((product) => {
                   const stockStatus = getStockStatus(product.stock);
                   return (
-                    <tr key={product.id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={product.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <img 
                           src={product.images?.[0] || product.image} 

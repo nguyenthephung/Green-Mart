@@ -225,6 +225,27 @@ h2.text-transparent {
 
 /* ====== BODY AND ROOT BACKGROUNDS ====== */
 body {
+  background-color: rgb(249 250 251) !important;
+}
+
+.dark body {
+  background-color: rgb(31 41 55) !important;
+}
+
+#root {
+  background-color: rgb(249 250 251) !important;
+}
+
+.dark #root {
+  background-color: rgb(31 41 55) !important;
+}
+
+.min-h-screen {
+  background: rgb(249 250 251) !important;
+}
+
+/* ====== BODY AND ROOT BACKGROUNDS ====== */
+body {
   background-color: rgb(var(--color-bg-secondary)) !important;
 }
 
@@ -370,17 +391,125 @@ body {
   animation: fadeOutUp 0.2s ease-in forwards !important;
 }
 
+/* Performance Optimized Animations */
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translate3d(0, 10px, 0);
+  }
+  to { 
+    opacity: 1; 
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes fadeOut {
+  from { 
+    opacity: 1; 
+    transform: translate3d(0, 0, 0);
+  }
+  to { 
+    opacity: 0; 
+    transform: translate3d(0, -10px, 0);
+  }
+}
+
+@keyframes slideInDown {
+  from { 
+    transform: translate3d(0, -100%, 0);
+    opacity: 0;
+  }
+  to { 
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutUp {
+  from { 
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+  to { 
+    transform: translate3d(0, -100%, 0);
+    opacity: 0;
+  }
+}
+
+/* Optimized Animation Classes */
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out forwards;
+  will-change: opacity, transform;
+}
+
+.animate-fadeOut {
+  animation: fadeOut 0.2s ease-in forwards;
+  will-change: opacity, transform;
+}
+
 .animate-slideInDown {
-  animation: slideInDown 0.3s ease-out forwards !important;
+  animation: slideInDown 0.3s ease-out forwards;
+  will-change: transform, opacity;
 }
 
 .animate-slideOutUp {
-  animation: slideOutUp 0.2s ease-in forwards !important;
+  animation: slideOutUp 0.2s ease-in forwards;
+  will-change: transform, opacity;
+}
+
+/* Enhanced Loading Animations - GPU Optimized */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-green {
+  0%, 100% { 
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+  }
+  50% { 
+    box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+  }
+}
+
+@keyframes bounce-dots {
+  0%, 80%, 100% { 
+    transform: scale3d(0, 0, 1);
+    opacity: 0.5;
+  }
+  40% { 
+    transform: scale3d(1, 1, 1);
+    opacity: 1;
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+  will-change: transform;
 }
 
 .animate-spin-slow {
-  animation: spin 3s linear infinite !important;
+  animation: spin 3s linear infinite;
+  will-change: transform;
 }
+
+.animate-pulse-green {
+  animation: pulse-green 2s infinite;
+}
+
+.loading-dots span {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--brand-green);
+  margin: 0 2px;
+  animation: bounce-dots 1.4s infinite ease-in-out both;
+}
+
+.loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+.loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+.loading-dots span:nth-child(3) { animation-delay: 0s; }
 
 .animate-bounce {
   animation: bounce 1s infinite !important;
@@ -1060,7 +1189,6 @@ body {
   width: 100% !important;
   text-align: left !important;
   padding: 0.75rem 1rem !important;
-  transition: all 0.2s ease-in-out !important;
   display: flex !important;
   align-items: center !important;
   gap: 0.75rem !important;
@@ -1079,7 +1207,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(var(--color-green-primary), 0.1);
+  background: rgba(55, 65, 81, 0.9);
   transform: translateX(-100%);
   transition: transform 0.3s ease;
   z-index: 0;
@@ -1095,7 +1223,7 @@ body {
 }
 
 .dropdown-item:hover {
-  color: rgb(var(--color-green-primary)) !important;
+  color: white !important;
 }
 
 .dropdown-item .icon-wrapper {
@@ -1106,11 +1234,10 @@ body {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  transition: all 0.2s ease-in-out !important;
 }
 
 .dropdown-item:hover .icon-wrapper {
-  background-color: rgba(var(--color-green-primary), 0.2) !important;
+  background-color: rgba(75, 85, 99, 0.8) !important;
 }
 
 /* Dropdown item variants */

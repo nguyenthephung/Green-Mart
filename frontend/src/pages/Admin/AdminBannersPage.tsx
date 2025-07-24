@@ -194,9 +194,9 @@ const AdminBanners: React.FC = () => {
   const herobanners = banners.filter(b => b.position === 'hero').length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Quản lý banner</h1>
@@ -346,7 +346,7 @@ const AdminBanners: React.FC = () => {
                     Banner
                   </th>
                   <th 
-                    className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                    className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     onClick={() => handleSort('position')}
                   >
                     <div className="flex items-center gap-1">
@@ -354,18 +354,18 @@ const AdminBanners: React.FC = () => {
                     </div>
                   </th>
                   <th 
-                    className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                    className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     onClick={() => handleSort('priority')}
                   >
                     <div className="flex items-center gap-1">
                       Ưu tiên {getSortIcon('priority')}
                     </div>
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Trạng thái
                   </th>
                   <th 
-                    className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                    className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     onClick={() => handleSort('clickCount')}
                   >
                     <div className="flex items-center gap-1">
@@ -373,21 +373,21 @@ const AdminBanners: React.FC = () => {
                     </div>
                   </th>
                   <th 
-                    className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                    className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     onClick={() => handleSort('startDate')}
                   >
                     <div className="flex items-center gap-1">
                       Thời gian {getSortIcon('startDate')}
                     </div>
                   </th>
-                  <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Thao tác
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 {currentBanners.map((banner) => (
-                  <tr key={banner.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={banner.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
                         <div className="w-20 h-12 bg-gray-200 rounded-lg overflow-hidden">
@@ -658,42 +658,42 @@ const AddBannerModal: React.FC<{show: boolean, onAdd: (banner: Omit<Banner, 'id'
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="p-6">
-          <h2 className="text-xl font-bold mb-4">Thêm banner mới</h2>
+          <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Thêm banner mới</h2>
           <div className="space-y-4">
             <input
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({...formData, title: e.target.value})}
               placeholder="Tiêu đề banner"
-              className="w-full px-4 py-2 border rounded-lg"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
             />
             <textarea
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
               placeholder="Mô tả (tùy chọn)"
-              className="w-full px-4 py-2 border rounded-lg h-20"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 h-20"
             />
             <input
               type="url"
               value={formData.imageUrl}
               onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
               placeholder="URL hình ảnh"
-              className="w-full px-4 py-2 border rounded-lg"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
             />
             <input
               type="url"
               value={formData.linkUrl}
               onChange={(e) => setFormData({...formData, linkUrl: e.target.value})}
               placeholder="URL liên kết (tùy chọn)"
-              className="w-full px-4 py-2 border rounded-lg"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
             />
             <div className="grid grid-cols-2 gap-4">
               <select
                 value={formData.position}
                 onChange={(e) => setFormData({...formData, position: e.target.value as Banner['position']})}
-                className="w-full px-4 py-2 border rounded-lg"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               >
                 <option value="hero">Hero Banner</option>
                 <option value="sidebar">Sidebar</option>
@@ -706,7 +706,7 @@ const AddBannerModal: React.FC<{show: boolean, onAdd: (banner: Omit<Banner, 'id'
                 onChange={(e) => setFormData({...formData, priority: parseInt(e.target.value) || 1})}
                 placeholder="Ưu tiên"
                 min="1"
-                className="w-full px-4 py-2 border rounded-lg"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -714,14 +714,14 @@ const AddBannerModal: React.FC<{show: boolean, onAdd: (banner: Omit<Banner, 'id'
                 type="date"
                 value={formData.startDate}
                 onChange={(e) => setFormData({...formData, startDate: e.target.value})}
-                className="w-full px-4 py-2 border rounded-lg"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
               <input
                 type="date"
                 value={formData.endDate}
                 onChange={(e) => setFormData({...formData, endDate: e.target.value})}
                 placeholder="Ngày kết thúc"
-                className="w-full px-4 py-2 border rounded-lg"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
               />
             </div>
             <div className="flex items-center gap-2">
@@ -731,12 +731,12 @@ const AddBannerModal: React.FC<{show: boolean, onAdd: (banner: Omit<Banner, 'id'
                 onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
                 className="w-4 h-4"
               />
-              <label>Kích hoạt ngay</label>
+              <label className="text-gray-900 dark:text-white">Kích hoạt ngay</label>
             </div>
           </div>
           <div className="flex gap-2 mt-6">
-            <button onClick={onClose} className="flex-1 px-4 py-2 border rounded-lg">Hủy</button>
-            <button onClick={handleAdd} className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg">Thêm</button>
+            <button onClick={onClose} className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">Hủy</button>
+            <button onClick={handleAdd} className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg">Thêm</button>
           </div>
         </div>
       </div>
@@ -756,42 +756,42 @@ const EditBannerModal: React.FC<{show: boolean, banner: Banner, onSave: (banner:
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="p-6">
-          <h2 className="text-xl font-bold mb-4">Sửa banner</h2>
+          <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Sửa banner</h2>
           <div className="space-y-4">
             <input
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({...formData, title: e.target.value})}
               placeholder="Tiêu đề banner"
-              className="w-full px-4 py-2 border rounded-lg"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
             />
             <textarea
               value={formData.description || ''}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
               placeholder="Mô tả (tùy chọn)"
-              className="w-full px-4 py-2 border rounded-lg h-20"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 h-20"
             />
             <input
               type="url"
               value={formData.imageUrl}
               onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
               placeholder="URL hình ảnh"
-              className="w-full px-4 py-2 border rounded-lg"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
             />
             <input
               type="url"
               value={formData.linkUrl || ''}
               onChange={(e) => setFormData({...formData, linkUrl: e.target.value})}
               placeholder="URL liên kết (tùy chọn)"
-              className="w-full px-4 py-2 border rounded-lg"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
             />
             <div className="grid grid-cols-2 gap-4">
               <select
                 value={formData.position}
                 onChange={(e) => setFormData({...formData, position: e.target.value as Banner['position']})}
-                className="w-full px-4 py-2 border rounded-lg"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               >
                 <option value="hero">Hero Banner</option>
                 <option value="sidebar">Sidebar</option>
@@ -804,7 +804,7 @@ const EditBannerModal: React.FC<{show: boolean, banner: Banner, onSave: (banner:
                 onChange={(e) => setFormData({...formData, priority: parseInt(e.target.value) || 1})}
                 placeholder="Ưu tiên"
                 min="1"
-                className="w-full px-4 py-2 border rounded-lg"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -812,14 +812,14 @@ const EditBannerModal: React.FC<{show: boolean, banner: Banner, onSave: (banner:
                 type="date"
                 value={formData.startDate}
                 onChange={(e) => setFormData({...formData, startDate: e.target.value})}
-                className="w-full px-4 py-2 border rounded-lg"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
               <input
                 type="date"
                 value={formData.endDate || ''}
                 onChange={(e) => setFormData({...formData, endDate: e.target.value || undefined})}
                 placeholder="Ngày kết thúc"
-                className="w-full px-4 py-2 border rounded-lg"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
               />
             </div>
             <div className="flex items-center gap-2">
@@ -829,12 +829,12 @@ const EditBannerModal: React.FC<{show: boolean, banner: Banner, onSave: (banner:
                 onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
                 className="w-4 h-4"
               />
-              <label>Đang hoạt động</label>
+              <label className="text-gray-900 dark:text-white">Đang hoạt động</label>
             </div>
           </div>
           <div className="flex gap-2 mt-6">
-            <button onClick={onClose} className="flex-1 px-4 py-2 border rounded-lg">Hủy</button>
-            <button onClick={handleSave} className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg">Lưu</button>
+            <button onClick={onClose} className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">Hủy</button>
+            <button onClick={handleSave} className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Lưu</button>
           </div>
         </div>
       </div>
@@ -847,54 +847,54 @@ const ViewBannerModal: React.FC<{show: boolean, banner: Banner, onClose: () => v
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="p-6">
-          <h2 className="text-xl font-bold mb-4">Chi tiết banner</h2>
+          <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Chi tiết banner</h2>
           <div className="space-y-4">
-            <div className="aspect-video bg-gray-200 rounded-lg overflow-hidden">
+            <div className="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
               <img src={banner.imageUrl} alt={banner.title} className="w-full h-full object-cover" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Tiêu đề</label>
-                <p className="text-gray-900">{banner.title}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tiêu đề</label>
+                <p className="text-gray-900 dark:text-white">{banner.title}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Vị trí</label>
-                <p className="text-gray-900">{banner.position}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Vị trí</label>
+                <p className="text-gray-900 dark:text-white">{banner.position}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Ưu tiên</label>
-                <p className="text-gray-900">{banner.priority}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Ưu tiên</label>
+                <p className="text-gray-900 dark:text-white">{banner.priority}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Trạng thái</label>
-                <p className="text-gray-900">{banner.isActive ? 'Đang hoạt động' : 'Tạm dừng'}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Trạng thái</label>
+                <p className="text-gray-900 dark:text-white">{banner.isActive ? 'Đang hoạt động' : 'Tạm dừng'}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Lượt click</label>
-                <p className="text-gray-900">{banner.clickCount.toLocaleString()}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Lượt click</label>
+                <p className="text-gray-900 dark:text-white">{banner.clickCount.toLocaleString()}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Ngày tạo</label>
-                <p className="text-gray-900">{new Date(banner.createdAt).toLocaleString('vi-VN')}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Ngày tạo</label>
+                <p className="text-gray-900 dark:text-white">{new Date(banner.createdAt).toLocaleString('vi-VN')}</p>
               </div>
             </div>
             {banner.description && (
               <div>
-                <label className="block text-sm font-medium text-gray-700">Mô tả</label>
-                <p className="text-gray-900">{banner.description}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Mô tả</label>
+                <p className="text-gray-900 dark:text-white">{banner.description}</p>
               </div>
             )}
             {banner.linkUrl && (
               <div>
-                <label className="block text-sm font-medium text-gray-700">Liên kết</label>
-                <a href={banner.linkUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{banner.linkUrl}</a>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Liên kết</label>
+                <a href={banner.linkUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">{banner.linkUrl}</a>
               </div>
             )}
           </div>
           <div className="flex justify-end mt-6">
-            <button onClick={onClose} className="px-4 py-2 bg-gray-600 text-white rounded-lg">Đóng</button>
+            <button onClick={onClose} className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg">Đóng</button>
           </div>
         </div>
       </div>
@@ -907,12 +907,12 @@ const ConfirmDeleteBannerModal: React.FC<{show: boolean, bannerTitle: string, on
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-6 w-full max-w-sm">
-        <h2 className="text-xl font-bold mb-4 text-red-700">Xác nhận xóa</h2>
-        <p className="mb-6">Bạn có chắc chắn muốn xóa banner <strong>"{bannerTitle}"</strong> không?</p>
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-sm">
+        <h2 className="text-xl font-bold mb-4 text-red-700 dark:text-red-400">Xác nhận xóa</h2>
+        <p className="mb-6 text-gray-900 dark:text-white">Bạn có chắc chắn muốn xóa banner <strong>"{bannerTitle}"</strong> không?</p>
         <div className="flex gap-2">
-          <button onClick={onCancel} className="flex-1 px-4 py-2 border rounded-lg">Hủy</button>
-          <button onClick={onConfirm} className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg">Xóa</button>
+          <button onClick={onCancel} className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">Hủy</button>
+          <button onClick={onConfirm} className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg">Xóa</button>
         </div>
       </div>
     </div>

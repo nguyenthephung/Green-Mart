@@ -56,21 +56,21 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white px-4">
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900 px-4 transition-colors duration-300">
       <div className="w-full max-w-sm">
         <button className="mb-6" onClick={() => navigate(-1)}>
-          <span className="text-2xl">&larr;</span>
+          <span className="text-2xl text-gray-800 dark:text-white">&larr;</span>
         </button>
 
-        <h2 className="text-2xl font-bold mb-6">
+        <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
           Welcome to GREEN MART
         </h2>
 
         {message && (
           <div className={`mb-4 p-3 rounded-lg text-sm ${
             message.includes('thành công') 
-              ? 'bg-green-100 text-green-700 border border-green-300' 
-              : 'bg-red-100 text-red-700 border border-red-300'
+              ? 'bg-green-100 dark:bg-green-800 text-green-700 dark:text-green-200 border border-green-300 dark:border-green-600' 
+              : 'bg-red-100 dark:bg-red-800 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-600'
           }`}>
             {message}
           </div>
@@ -81,17 +81,17 @@ export default function Register() {
             <input
               type="text"
               placeholder="Họ và tên"
-              className={`w-full px-4 py-3 rounded-xl border bg-gray-100 focus:outline-none focus:ring-2 ${
+              className={`w-full px-4 py-3 rounded-xl border bg-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 focus:outline-none focus:ring-2 ${
                 errors.name 
-                  ? 'border-red-300 focus:ring-red-500' 
-                  : 'border-gray-200 focus:ring-black'
+                  ? 'border-red-300 focus:ring-red-500 dark:border-red-500' 
+                  : 'border-gray-200 focus:ring-black dark:focus:ring-green-500'
               }`}
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
             />
             {errors.name && (
-              <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.name}</p>
             )}
           </div>
 

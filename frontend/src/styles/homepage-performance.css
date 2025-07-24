@@ -1,0 +1,124 @@
+/* Performance optimizations for HomePage */
+.transform-gpu {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+.hero-slide {
+  will-change: opacity;
+  backface-visibility: hidden;
+}
+
+.flying-item {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  pointer-events: none;
+}
+
+/* Optimize scroll performance */
+.scroll-optimized {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Reduce animation complexity during scroll */
+.scrolling * {
+  animation-play-state: paused !important;
+}
+
+/* GPU acceleration classes */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.gpu-accelerated:hover {
+  transform: translateZ(0) scale(1.05);
+}
+
+/* Optimize grid layouts */
+.optimized-grid {
+  contain: layout style paint;
+}
+
+.optimized-grid > * {
+  will-change: transform;
+  contain: layout style paint;
+}
+
+/* Optimize testimonials animation */
+.testimonial-card {
+  will-change: transform, box-shadow;
+  contain: layout style paint;
+}
+
+/* Performance-optimized button hover effects */
+.perf-button {
+  transform: translateZ(0);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.perf-button:hover {
+  transform: translateZ(0) translateY(-2px);
+}
+
+/* Optimize category sections */
+.category-section {
+  contain: layout style paint;
+}
+
+.category-section .product-grid {
+  contain: layout;
+}
+
+/* Smooth text rendering */
+.optimized-text {
+  text-rendering: optimizeSpeed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Optimize background gradients */
+.optimized-gradient {
+  background-attachment: fixed;
+  will-change: background-position;
+}
+
+/* Debounced animations */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Optimize carousel performance */
+.carousel-container {
+  contain: layout style paint;
+}
+
+.carousel-slide {
+  contain: strict;
+  will-change: opacity;
+}
+
+/* Performance hints for images */
+.optimized-image {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: optimize-contrast;
+}
+
+/* Reduce layout thrashing */
+.stable-layout {
+  contain: layout;
+}
+
+/* Optimize modal and dropdown performance */
+.performance-modal {
+  will-change: opacity, transform;
+  contain: layout style paint;
+}

@@ -195,7 +195,7 @@ const AdminUsers: React.FC = () => {
   const totalSpent = users.reduce((sum, u) => sum + u.totalSpent, 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-gray-50 min-h-screen transition-colors duration-300">
       {/* Header */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
@@ -220,7 +220,7 @@ const AdminUsers: React.FC = () => {
                   setItemsPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white text-gray-900"
               >
                 <option value={5}>5</option>
                 <option value={10}>10</option>
@@ -303,7 +303,7 @@ const AdminUsers: React.FC = () => {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Tên, email, số điện thoại..."
-                  className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                  className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors bg-white text-gray-900 placeholder-gray-400"
                 />
                 <span className="absolute left-3 top-2.5 text-gray-400">🔍</span>
               </div>
@@ -313,7 +313,7 @@ const AdminUsers: React.FC = () => {
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value as FilterStatus)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors bg-white text-gray-900"
               >
                 <option value="all">Tất cả</option>
                 <option value="active">Hoạt động</option>
@@ -326,7 +326,7 @@ const AdminUsers: React.FC = () => {
               <select
                 value={filterRole}
                 onChange={(e) => setFilterRole(e.target.value as FilterRole)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors bg-white text-gray-900"
               >
                 <option value="all">Tất cả vai trò</option>
                 <option value="admin">👑 Admin</option>
@@ -343,7 +343,7 @@ const AdminUsers: React.FC = () => {
                   setSortField(field as SortField);
                   setSortOrder(order as SortOrder);
                 }}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors bg-white text-gray-900"
               >
                 <option value="name-asc">Tên A-Z</option>
                 <option value="name-desc">Tên Z-A</option>
@@ -414,28 +414,28 @@ const AdminUsers: React.FC = () => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {currentUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center overflow-hidden">
+                        <div className="w-10 h-10 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center overflow-hidden">
                           {user.avatar ? (
                             <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                           ) : (
-                            <span className="text-gray-600 font-medium">{user.name.charAt(0)}</span>
+                            <span className="text-gray-600 dark:text-gray-300 font-medium">{user.name.charAt(0)}</span>
                           )}
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                          <div className="text-sm font-medium text-gray-900 dark:text-white flex items-center gap-2">
                             {user.name}
-                            {user.isVerified && <span className="text-blue-500" title="Đã xác thực">✓</span>}
+                            {user.isVerified && <span className="text-blue-500 dark:text-blue-400" title="Đã xác thực">✓</span>}
                           </div>
-                          <div className="text-sm text-gray-500">ID: {user.id}</div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">ID: {user.id}</div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900">{user.email}</div>
-                      <div className="text-sm text-gray-500">{user.phone}</div>
+                      <div className="text-sm text-gray-900 dark:text-white">{user.email}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">{user.phone}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getRoleColor(user.role)}`}>
@@ -454,34 +454,34 @@ const AdminUsers: React.FC = () => {
                         <option value="suspended">Tạm khóa</option>
                       </select>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {user.totalOrders}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {formatPrice(user.totalSpent)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                       {formatDateTime(user.lastLogin)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => openViewModal(user)}
-                          className="text-gray-600 hover:text-gray-900 p-1 rounded transition-colors"
+                          className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 p-1 rounded transition-colors"
                           title="Xem chi tiết"
                         >
                           👁️
                         </button>
                         <button
                           onClick={() => openEditModal(user)}
-                          className="text-blue-600 hover:text-blue-900 p-1 rounded transition-colors"
+                          className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 p-1 rounded transition-colors"
                           title="Chỉnh sửa"
                         >
                           ✏️
                         </button>
                         <button
                           onClick={() => setDeleteId(user.id)}
-                          className="text-red-600 hover:text-red-900 p-1 rounded transition-colors"
+                          className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 p-1 rounded transition-colors"
                           title="Xóa"
                           disabled={user.role === 'admin'}
                         >
@@ -497,9 +497,9 @@ const AdminUsers: React.FC = () => {
           
           {totalItems === 0 && (
             <div className="text-center py-12">
-              <div className="text-gray-400 text-6xl mb-4">👥</div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Không tìm thấy người dùng</h3>
-              <p className="text-gray-500">
+              <div className="text-gray-400 dark:text-gray-500 text-6xl mb-4">👥</div>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Không tìm thấy người dùng</h3>
+              <p className="text-gray-500 dark:text-gray-400">
                 {search ? 'Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc' : 'Chưa có người dùng nào'}
               </p>
             </div>
@@ -509,14 +509,14 @@ const AdminUsers: React.FC = () => {
         /* Grid View */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {currentUsers.map((user) => (
-            <div key={user.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1">
+            <div key={user.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1">
               <div className="p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center overflow-hidden">
+                  <div className="w-12 h-12 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center overflow-hidden">
                     {user.avatar ? (
                       <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                     ) : (
-                      <span className="text-gray-600 font-bold text-lg">{user.name.charAt(0)}</span>
+                      <span className="text-gray-600 dark:text-gray-300 font-bold text-lg">{user.name.charAt(0)}</span>
                     )}
                   </div>
                   <div className="flex flex-col gap-1">
@@ -529,26 +529,26 @@ const AdminUsers: React.FC = () => {
                   </div>
                 </div>
                 
-                <h3 className="text-base font-bold text-gray-900 mb-1 flex items-center gap-2">
+                <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1 flex items-center gap-2">
                   {user.name}
-                  {user.isVerified && <span className="text-blue-500" title="Đã xác thực">✓</span>}
+                  {user.isVerified && <span className="text-blue-500 dark:text-blue-400" title="Đã xác thực">✓</span>}
                 </h3>
                 
-                <p className="text-xs text-gray-600 mb-1">{user.email}</p>
-                <p className="text-xs text-gray-600 mb-3">{user.phone}</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">{user.email}</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">{user.phone}</p>
                 
                 <div className="grid grid-cols-2 gap-3 mb-3">
                   <div className="text-center">
-                    <div className="text-base font-bold text-blue-600">{user.totalOrders}</div>
-                    <div className="text-xs text-gray-500">Đơn hàng</div>
+                    <div className="text-base font-bold text-blue-600 dark:text-blue-400">{user.totalOrders}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Đơn hàng</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-xs font-bold text-green-600">{formatPrice(user.totalSpent)}</div>
-                    <div className="text-xs text-gray-500">Chi tiêu</div>
+                    <div className="text-xs font-bold text-green-600 dark:text-green-400">{formatPrice(user.totalSpent)}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Chi tiêu</div>
                   </div>
                 </div>
                 
-                <div className="text-xs text-gray-500 mb-3">
+                <div className="text-xs text-gray-500 dark:text-gray-400 mb-3">
                   <div>Tham gia: {formatDate(user.joinDate)}</div>
                   <div>Đăng nhập: {formatDateTime(user.lastLogin)}</div>
                 </div>
@@ -556,7 +556,7 @@ const AdminUsers: React.FC = () => {
                 <div className="flex gap-1">
                   <button
                     onClick={() => openViewModal(user)}
-                    className="flex-1 px-2 py-1 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-xs"
+                    className="flex-1 px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-xs"
                   >
                     Xem
                   </button>
@@ -580,9 +580,9 @@ const AdminUsers: React.FC = () => {
           
           {totalItems === 0 && (
             <div className="col-span-full text-center py-12">
-              <div className="text-gray-400 text-6xl mb-4">👥</div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Không tìm thấy người dùng</h3>
-              <p className="text-gray-500">
+              <div className="text-gray-400 dark:text-gray-500 text-6xl mb-4">👥</div>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Không tìm thấy người dùng</h3>
+              <p className="text-gray-500 dark:text-gray-400">
                 {search ? 'Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc' : 'Chưa có người dùng nào'}
               </p>
             </div>
@@ -608,10 +608,10 @@ const AdminUsers: React.FC = () => {
       {/* Loading indicator */}
       {isLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 shadow-xl">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-xl">
             <div className="flex items-center gap-3">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
-              <span className="text-gray-700">Đang xử lý...</span>
+              <span className="text-gray-700 dark:text-gray-300">Đang xử lý...</span>
             </div>
           </div>
         </div>
@@ -696,34 +696,34 @@ const AddUserModal: React.FC<{show: boolean, onAdd: (user: Omit<User, 'id'>) => 
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-6 w-full max-w-md">
-        <h2 className="text-xl font-bold mb-4">Thêm người dùng mới</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md">
+        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Thêm người dùng mới</h2>
         <div className="space-y-4">
           <input
             type="text"
             value={formData.name}
             onChange={(e) => setFormData({...formData, name: e.target.value})}
             placeholder="Họ và tên"
-            className="w-full px-4 py-2 border rounded-lg"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
           />
           <input
             type="email"
             value={formData.email}
             onChange={(e) => setFormData({...formData, email: e.target.value})}
             placeholder="Email"
-            className="w-full px-4 py-2 border rounded-lg"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
           />
           <input
             type="tel"
             value={formData.phone}
             onChange={(e) => setFormData({...formData, phone: e.target.value})}
             placeholder="Số điện thoại"
-            className="w-full px-4 py-2 border rounded-lg"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
           />
           <select
             value={formData.role}
             onChange={(e) => setFormData({...formData, role: e.target.value as any})}
-            className="w-full px-4 py-2 border rounded-lg"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           >
             <option value="user">👤 Khách hàng</option>
             <option value="staff">👨‍💼 Nhân viên</option>
@@ -734,12 +734,12 @@ const AddUserModal: React.FC<{show: boolean, onAdd: (user: Omit<User, 'id'>) => 
             value={formData.address}
             onChange={(e) => setFormData({...formData, address: e.target.value})}
             placeholder="Địa chỉ"
-            className="w-full px-4 py-2 border rounded-lg"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
           />
         </div>
         <div className="flex gap-2 mt-6">
-          <button onClick={onClose} className="flex-1 px-4 py-2 border rounded-lg">Hủy</button>
-          <button onClick={handleAdd} className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg">Thêm</button>
+          <button onClick={onClose} className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">Hủy</button>
+          <button onClick={handleAdd} className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg">Thêm</button>
         </div>
       </div>
     </div>
@@ -758,34 +758,34 @@ const EditUserModal: React.FC<{show: boolean, user: User, onSave: (user: User) =
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-6 w-full max-w-md">
-        <h2 className="text-xl font-bold mb-4">Sửa thông tin người dùng</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md">
+        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Sửa thông tin người dùng</h2>
         <div className="space-y-4">
           <input
             type="text"
             value={formData.name}
             onChange={(e) => setFormData({...formData, name: e.target.value})}
             placeholder="Họ và tên"
-            className="w-full px-4 py-2 border rounded-lg"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
           />
           <input
             type="email"
             value={formData.email}
             onChange={(e) => setFormData({...formData, email: e.target.value})}
             placeholder="Email"
-            className="w-full px-4 py-2 border rounded-lg"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
           />
           <input
             type="tel"
             value={formData.phone}
             onChange={(e) => setFormData({...formData, phone: e.target.value})}
             placeholder="Số điện thoại"
-            className="w-full px-4 py-2 border rounded-lg"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
           />
           <select
             value={formData.role}
             onChange={(e) => setFormData({...formData, role: e.target.value as any})}
-            className="w-full px-4 py-2 border rounded-lg"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           >
             <option value="user">👤 Khách hàng</option>
             <option value="staff">👨‍💼 Nhân viên</option>
@@ -796,7 +796,7 @@ const EditUserModal: React.FC<{show: boolean, user: User, onSave: (user: User) =
             value={formData.address || ''}
             onChange={(e) => setFormData({...formData, address: e.target.value})}
             placeholder="Địa chỉ"
-            className="w-full px-4 py-2 border rounded-lg"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
           />
           <div className="flex items-center gap-2">
             <input
@@ -805,12 +805,12 @@ const EditUserModal: React.FC<{show: boolean, user: User, onSave: (user: User) =
               onChange={(e) => setFormData({...formData, isVerified: e.target.checked})}
               className="w-4 h-4"
             />
-            <label>Đã xác thực</label>
+            <label className="text-gray-900 dark:text-white">Đã xác thực</label>
           </div>
         </div>
         <div className="flex gap-2 mt-6">
-          <button onClick={onClose} className="flex-1 px-4 py-2 border rounded-lg">Hủy</button>
-          <button onClick={handleSave} className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg">Lưu</button>
+          <button onClick={onClose} className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">Hủy</button>
+          <button onClick={handleSave} className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Lưu</button>
         </div>
       </div>
     </div>
@@ -822,65 +822,65 @@ const ViewUserModal: React.FC<{show: boolean, user: User, onClose: () => void}> 
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-6 w-full max-w-lg">
-        <h2 className="text-xl font-bold mb-4">Chi tiết người dùng</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-lg">
+        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Chi tiết người dùng</h2>
         <div className="space-y-4">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center overflow-hidden">
+            <div className="w-16 h-16 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center overflow-hidden">
               {user.avatar ? (
                 <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
               ) : (
-                <span className="text-gray-600 font-bold text-xl">{user.name.charAt(0)}</span>
+                <span className="text-gray-600 dark:text-gray-300 font-bold text-xl">{user.name.charAt(0)}</span>
               )}
             </div>
             <div>
-              <h3 className="text-lg font-bold">{user.name}</h3>
-              <p className="text-gray-600">ID: {user.id}</p>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">{user.name}</h3>
+              <p className="text-gray-600 dark:text-gray-400">ID: {user.id}</p>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Email</label>
-              <p className="text-gray-900">{user.email}</p>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+              <p className="text-gray-900 dark:text-white">{user.email}</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Điện thoại</label>
-              <p className="text-gray-900">{user.phone}</p>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Điện thoại</label>
+              <p className="text-gray-900 dark:text-white">{user.phone}</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Vai trò</label>
-              <p className="text-gray-900">{user.role === 'admin' ? 'Admin' : user.role === 'staff' ? 'Nhân viên' : 'Khách hàng'}</p>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Vai trò</label>
+              <p className="text-gray-900 dark:text-white">{user.role === 'admin' ? 'Admin' : user.role === 'staff' ? 'Nhân viên' : 'Khách hàng'}</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Trạng thái</label>
-              <p className="text-gray-900">{user.status === 'active' ? 'Hoạt động' : user.status === 'suspended' ? 'Tạm khóa' : 'Không hoạt động'}</p>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Trạng thái</label>
+              <p className="text-gray-900 dark:text-white">{user.status === 'active' ? 'Hoạt động' : user.status === 'suspended' ? 'Tạm khóa' : 'Không hoạt động'}</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Tham gia</label>
-              <p className="text-gray-900">{new Date(user.joinDate).toLocaleDateString('vi-VN')}</p>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tham gia</label>
+              <p className="text-gray-900 dark:text-white">{new Date(user.joinDate).toLocaleDateString('vi-VN')}</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Đăng nhập cuối</label>
-              <p className="text-gray-900">{new Date(user.lastLogin).toLocaleString('vi-VN')}</p>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Đăng nhập cuối</label>
+              <p className="text-gray-900 dark:text-white">{new Date(user.lastLogin).toLocaleString('vi-VN')}</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Tổng đơn hàng</label>
-              <p className="text-gray-900">{user.totalOrders}</p>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tổng đơn hàng</label>
+              <p className="text-gray-900 dark:text-white">{user.totalOrders}</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Tổng chi tiêu</label>
-              <p className="text-gray-900">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(user.totalSpent)}</p>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tổng chi tiêu</label>
+              <p className="text-gray-900 dark:text-white">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(user.totalSpent)}</p>
             </div>
           </div>
           {user.address && (
             <div>
-              <label className="block text-sm font-medium text-gray-700">Địa chỉ</label>
-              <p className="text-gray-900">{user.address}</p>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Địa chỉ</label>
+              <p className="text-gray-900 dark:text-white">{user.address}</p>
             </div>
           )}
         </div>
         <div className="flex justify-end mt-6">
-          <button onClick={onClose} className="px-4 py-2 bg-gray-600 text-white rounded-lg">Đóng</button>
+          <button onClick={onClose} className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg">Đóng</button>
         </div>
       </div>
     </div>
@@ -892,12 +892,12 @@ const ConfirmDeleteUserModal: React.FC<{show: boolean, userName: string, onConfi
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-6 w-full max-w-sm">
-        <h2 className="text-xl font-bold mb-4 text-red-700">Xác nhận xóa</h2>
-        <p className="mb-6">Bạn có chắc chắn muốn xóa người dùng <strong>"{userName}"</strong> không?</p>
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-sm">
+        <h2 className="text-xl font-bold mb-4 text-red-700 dark:text-red-400">Xác nhận xóa</h2>
+        <p className="mb-6 text-gray-900 dark:text-white">Bạn có chắc chắn muốn xóa người dùng <strong>"{userName}"</strong> không?</p>
         <div className="flex gap-2">
-          <button onClick={onCancel} className="flex-1 px-4 py-2 border rounded-lg">Hủy</button>
-          <button onClick={onConfirm} className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg">Xóa</button>
+          <button onClick={onCancel} className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">Hủy</button>
+          <button onClick={onConfirm} className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg">Xóa</button>
         </div>
       </div>
     </div>

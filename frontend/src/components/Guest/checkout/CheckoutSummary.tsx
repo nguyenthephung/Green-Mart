@@ -1,12 +1,28 @@
 import type { CartItem } from "../../../stores/useCartStore";
-import type {
-  UserInfo,
-  AddressInfo,
-  PaymentInfo,
-} from "../../../contexts/UserContext";
 import { useMemo, useState, useEffect } from "react";
 import haversine from "haversine-distance";
 import { districts } from "../../../data/Guest/hcm_districts_sample";
+
+// Define interfaces locally instead of importing from removed UserContext
+interface UserInfo {
+  fullName: string;
+  phone: string;
+  email?: string;
+}
+
+interface AddressInfo {
+  address: string;
+  district?: string;
+  ward?: string;
+  city?: string;
+  latitude?: number;
+  longitude?: number;
+}
+
+interface PaymentInfo {
+  method: string;
+  isSelected: boolean;
+}
 
 // Define VoucherInfo type if not imported from elsewhere
 export interface VoucherInfo {
@@ -267,14 +283,14 @@ const CheckoutSummary = ({ cart, address, payments, userInfo, voucherDiscount = 
               className={`px-3 py-2 text-sm rounded-xl border transition-all ${
                 selectedTip === tip
                   ? "bg-purple-600 text-white border-purple-600 shadow-md"
-                  : "bg-white text-purple-600 border-purple-200 hover:bg-purple-50 hover:border-purple-300"
+                  : "bg-white dark:bg-gray-700 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:border-purple-300 dark:hover:border-purple-400"
               }`}
               onClick={() => setSelectedTip(selectedTip === tip ? null : tip)}
             >
               {formatVND(tip)}
             </button>
           ))}
-          <button className="px-3 py-2 text-sm rounded-xl border bg-white text-purple-600 border-purple-200 hover:bg-purple-50 hover:border-purple-300 transition-all">
+          <button className="px-3 py-2 text-sm rounded-xl border bg-white dark:bg-gray-700 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:border-purple-300 dark:hover:border-purple-400 transition-all">
             Khác
           </button>
         </div>

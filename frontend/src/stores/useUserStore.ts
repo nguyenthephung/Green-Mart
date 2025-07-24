@@ -32,7 +32,7 @@ export const useUserStore = create<UserState>()(
   persist(
     (set) => ({
       user: null,
-      isLoading: true,
+      isLoading: false,  // Tắt loading mặc định
       isAuthenticated: false,
       userInfo: null,
       addresses: [],
@@ -131,8 +131,10 @@ export const useUserStore = create<UserState>()(
         set({ isLoading: true });
         try {
           const token = tokenManager.get();
+          
           if (token) {
             const response = await authService.getProfile();
+            
             if (response.success && response.data) {
               set({ 
                 user: response.data, 
@@ -155,6 +157,7 @@ export const useUserStore = create<UserState>()(
             });
           }
         } catch (error) {
+          console.error('Auth check failed:', error);
           tokenManager.remove();
           set({ 
             user: null, 

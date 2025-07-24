@@ -1,16 +1,49 @@
 /* Performance optimizations for scroll lag */
 
-/* Tối ưu hóa transform và animations để giảm lag */
+/* Critical Performance Optimizations */
 .optimize-scroll {
   will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  contain: layout style paint;
+}
+
+/* GPU Acceleration for smooth animations */
+.gpu-accelerated {
   transform: translateZ(0);
   backface-visibility: hidden;
   perspective: 1000px;
+  will-change: transform;
 }
 
-/* Tối ưu hóa grid layouts */
+/* Optimize images loading */
+.lazy-image {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  will-change: opacity;
+}
+
+.lazy-image.loaded {
+  opacity: 1;
+  will-change: auto;
+}
+
+/* Optimize grid layouts */
 .optimized-grid {
   contain: layout style paint;
+  transform: translateZ(0);
+}
+
+/* Reduce repaints for cards */
+.optimized-card {
+  contain: layout style;
+  transform: translateZ(0);
+  will-change: auto;
+}
+
+.optimized-card:hover {
+  will-change: transform;
 }
 
 /* Tối ưu hóa flying animation */

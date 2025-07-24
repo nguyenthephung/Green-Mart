@@ -23,36 +23,46 @@ interface CartState {
   getItemQuantity: (id: number) => number;
 }
 
-// Helper function để tính totals
+// Helper function để tính totals - moved outside for performance
 const calculateTotals = (items: CartItem[]) => {
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-  const totalAmount = items.reduce((sum, item) => sum + (Number(item.price) * item.quantity), 0);
+  let totalItems = 0;
+  let totalAmount = 0;
+  
+  for (const item of items) {
+    totalItems += item.quantity;
+    totalAmount += Number(item.price) * item.quantity;
+  }
+  
   return { totalItems, totalAmount };
 };
 
-export const useCartStore = create<CartState>()(
+export const useOptimizedCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
       totalItems: 0,
       totalAmount: 0,
 
-      addToCart: (newItem: Omit<CartItem, 'quantity'>) => {
+      addToCart: (newItem) => {
         const state = get();
-        const existingItem = state.items.find(item => item.id === newItem.id);
+        const existingItemIndex = state.items.findIndex(item => item.id === newItem.id);
         
         let updatedItems: CartItem[];
-        if (existingItem) {
-          updatedItems = state.items.map(item =>
-            item.id === newItem.id 
-              ? { ...item, quantity: item.quantity + 1 }
-              : item
-          );
+        
+        if (existingItemIndex >= 0) {
+          // Update existing item
+          updatedItems = [...state.items];
+          updatedItems[existingItemIndex] = {
+            ...updatedItems[existingItemIndex],
+            quantity: updatedItems[existingItemIndex].quantity + 1
+          };
         } else {
+          // Add new item
           updatedItems = [...state.items, { ...newItem, quantity: 1 }];
         }
 
         const { totalItems, totalAmount } = calculateTotals(updatedItems);
+
         set({
           items: updatedItems,
           totalItems,
@@ -60,7 +70,7 @@ export const useCartStore = create<CartState>()(
         });
       },
 
-      removeFromCart: (id: number) => {
+      removeFromCart: (id) => {
         const state = get();
         const updatedItems = state.items.filter(item => item.id !== id);
         const { totalItems, totalAmount } = calculateTotals(updatedItems);
@@ -72,7 +82,7 @@ export const useCartStore = create<CartState>()(
         });
       },
 
-      updateQuantity: (id: number, quantity: number) => {
+      updateQuantity: (id, quantity) => {
         if (quantity <= 0) {
           get().removeFromCart(id);
           return;
@@ -80,12 +90,11 @@ export const useCartStore = create<CartState>()(
 
         const state = get();
         const updatedItems = state.items.map(item =>
-          item.id === id
-            ? { ...item, quantity }
-            : item
+          item.id === id ? { ...item, quantity } : item
         );
-
+        
         const { totalItems, totalAmount } = calculateTotals(updatedItems);
+
         set({
           items: updatedItems,
           totalItems,
@@ -105,13 +114,14 @@ export const useCartStore = create<CartState>()(
         return get().totalItems;
       },
 
-      getItemQuantity: (id: number) => {
+      getItemQuantity: (id) => {
         const item = get().items.find(item => item.id === id);
         return item?.quantity || 0;
-      },
+      }
     }),
     {
       name: 'cart-storage',
+      version: 1,
     }
   )
 );

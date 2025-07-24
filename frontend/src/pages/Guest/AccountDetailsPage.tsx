@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useUserStore } from '../../stores/useUserStore';
 import { profileService } from '../../services/profileService';
 import DashboardLayout from '../../layouts/DashboardLayout';
+import { LoadingSpinner } from '../../components/Loading';
 
 const AccountDetails: React.FC = () => {
   const user = useUserStore(state => state.user);
@@ -91,10 +92,10 @@ const AccountDetails: React.FC = () => {
     return (
       <DashboardLayout>
         <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg max-w-2xl mx-auto mt-6 border border-gray-200 dark:border-gray-600">
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 dark:border-green-400"></div>
-            <span className="ml-3 text-gray-600 dark:text-gray-300">Đang tải thông tin...</span>
-          </div>
+          <LoadingSpinner
+            size="md"
+            text="Đang tải thông tin..."
+          />
         </div>
       </DashboardLayout>
     );

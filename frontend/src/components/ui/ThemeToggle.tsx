@@ -47,7 +47,7 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({
           ${sizeClasses[size]}
           bg-gray-100 dark:bg-gray-800 
           hover:bg-gray-200 dark:hover:bg-gray-700 
-          rounded-lg transition-all duration-300 
+          rounded-lg
           flex items-center justify-center
           border border-gray-200 dark:border-gray-700
           shadow-sm hover:shadow-md
@@ -63,10 +63,10 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({
           <SunIcon 
             className={`
               ${iconClasses[size]}
-              text-yellow-500 transition-all duration-300 absolute inset-0
+              text-yellow-500 absolute inset-0
               ${theme === 'light' 
-                ? 'opacity-100 rotate-0 scale-100' 
-                : 'opacity-0 rotate-180 scale-75'
+                ? 'opacity-100' 
+                : 'opacity-0'
               }
             `}
           />
@@ -75,10 +75,10 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({
           <MoonIcon 
             className={`
               ${iconClasses[size]}
-              text-blue-400 transition-all duration-300 absolute inset-0
+              text-blue-400 absolute inset-0
               ${theme === 'dark' 
-                ? 'opacity-100 rotate-0 scale-100' 
-                : 'opacity-0 -rotate-180 scale-75'
+                ? 'opacity-100' 
+                : 'opacity-0'
               }
             `}
           />

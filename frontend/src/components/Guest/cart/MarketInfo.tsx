@@ -36,12 +36,13 @@ export function calculateShippingFee(userCoords: { latitude: number; longitude: 
   return 35000;
 }
 
+// Export được di chuyển sang components/Loading/index.ts
+// Giữ lại để tương thích ngược
 export function usePageLoading() {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Tắt loading mặc định
   useEffect(() => {
-    setLoading(true);
-    const timer = setTimeout(() => setLoading(false), 800); // hiệu ứng 0.8s
-    return () => clearTimeout(timer);
+    // Bỏ hiệu ứng loading
+    setLoading(false);
   }, []);
   return loading;
 }

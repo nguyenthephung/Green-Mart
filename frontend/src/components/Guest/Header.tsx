@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShoppingCart, Search, User, Home, Bell, LogOut, Heart } from 'lucide-react';
 import { useCartStore } from '../../stores/useCartStore';
@@ -7,7 +7,7 @@ import { useWishlist } from '../../reduxSlice/WishlistContext';
 import NotificationDropdown from './NotificationDropdown';
 import ThemeToggle from '../ui/ThemeToggle';
 
-const Header: React.FC = () => {
+const Header: React.FC = memo(() => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [showDropdown, setShowDropdown] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -56,26 +56,26 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50 bg-app-header/70 backdrop-blur-sm border-b border-app-border transition-all duration-300">
+    <header className="fixed top-0 left-0 w-full z-50 bg-app-header/70 backdrop-blur-sm border-b border-app-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo Section */}
           <div 
-            className="flex items-center gap-3 cursor-pointer group"
+            className="flex items-center gap-3 cursor-pointer group flex-shrink-0"
             onClick={() => navigate('/home')}
           >
             <div className="relative">
               <img
                 src="/logo.jpg"
                 alt="Logo"
-                className="h-12 w-12 rounded-xl shadow-lg group-hover:scale-105 transition-all duration-300 ring-2 ring-green-100"
+                className="h-12 w-12 rounded-xl shadow-lg ring-2 ring-green-100"
               />
               <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
             </div>
             <div className="flex items-center gap-2">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="w-8 h-8 text-green-600 group-hover:text-green-700 transition-colors"
+                className="w-8 h-8 text-green-600"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -88,7 +88,7 @@ const Header: React.FC = () => {
                 />
               </svg>
               <div className="flex flex-col">
-                <span className="text-2xl font-black text-app-primary tracking-tight group-hover:text-green-600 transition-colors">
+                <span className="text-2xl font-black text-app-primary tracking-tight">
                   Green Mart
                 </span>
                 <span className="text-xs text-green-600 font-medium -mt-1">
@@ -105,17 +105,17 @@ const Header: React.FC = () => {
           >
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-app-muted group-hover:text-green-500 transition-colors" />
+                <Search className="h-5 w-5 text-app-muted" />
               </div>
               <input
-                className="w-full pl-12 pr-4 py-3 bg-app-input border border-app-border rounded-2xl text-app-primary placeholder-app-muted focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 hover:bg-app-card hover:shadow-md font-medium"
+                className="w-full pl-12 pr-20 py-3 bg-app-input border border-app-border rounded-2xl text-app-primary placeholder-app-muted focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent font-medium"
                 placeholder="Tìm kiếm sản phẩm tươi ngon..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
               <button
                 type="submit"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200"
               >
                 <Search size={16} />
               </button>
@@ -123,20 +123,18 @@ const Header: React.FC = () => {
           </form>
 
           {/* Actions Section */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             {/* Theme Toggle */}
             <ThemeToggle size="sm" className="mr-1" />
             
             {/* Home Button */}
             <button
               onClick={() => navigate('/home')}
-              className="p-3 text-app-secondary hover:text-green-600 hover:bg-green-50 rounded-xl transition-all duration-300 group relative"
+              className="p-3 text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700 rounded-xl group relative transition-colors duration-200"
               title="Trang chủ"
             >
-              <Home size={20} className="group-hover:scale-110 transition-transform" />
+              <Home size={20} />
             </button>
-
-            {/* Demo buttons removed for production */}
 
             {/* Notifications */}
             <div
@@ -145,13 +143,13 @@ const Header: React.FC = () => {
               onMouseLeave={handleDropdownLeave}
             >
               <button
-                className="p-3 text-app-secondary hover:text-green-600 hover:bg-green-50 rounded-xl transition-all duration-300 group relative"
+                className="p-3 text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700 rounded-xl group relative transition-colors duration-200"
                 tabIndex={0}
                 aria-label="Xem thông báo"
                 type="button"
                 title="Thông báo"
               >
-                <Bell size={20} className="group-hover:scale-110 transition-transform" />
+                <Bell size={20} />
                 <span className="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse border-2 border-white shadow-sm"></span>
               </button>
               {showDropdown && (
@@ -168,34 +166,34 @@ const Header: React.FC = () => {
               )}
             </div>
 
-            {/* Wishlist Button */}
-            <button
-              onClick={() => navigate('/wishlist')}
-              className="p-3 text-gray-600 hover:text-red-600 hover:bg-red-50 dark:text-gray-300 dark:hover:text-red-400 dark:hover:bg-red-900/20 rounded-xl transition-all duration-300 group relative"
-              title="Danh sách yêu thích"
-            >
-              <Heart size={20} className="group-hover:scale-110 transition-transform" />
-              {user && getWishlistCount() > 0 && (
-                <span className="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center shadow-lg border-2 border-white font-bold animate-bounce">
-                  {getWishlistCount()}
-                </span>
-              )}
-            </button>
-
-            {/* Cart Button */}
+            {/* Cart Button - Fixed positioning */}
             <button
               onClick={() => navigate('/mycart')}
-              className="p-3 text-gray-600 hover:text-green-600 hover:bg-green-50 dark:text-gray-300 dark:hover:text-green-400 dark:hover:bg-green-900/20 rounded-xl transition-all duration-300 group relative"
+              className="p-3 text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-green-400 dark:hover:bg-green-900/20 rounded-xl group relative transition-colors duration-200"
               title="Giỏ hàng"
             >
               <span id="cart-fly-icon" className="inline-block relative">
-                <ShoppingCart size={20} className="group-hover:scale-110 transition-transform" />
+                <ShoppingCart size={20} />
                 {getCartCount() > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center shadow-lg border-2 border-white font-bold animate-bounce">
+                  <span className="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center shadow-lg border-2 border-white dark:border-gray-800 font-bold min-w-[20px]">
                     {getCartCount()}
                   </span>
                 )}
               </span>
+            </button>
+
+            {/* Wishlist Button - Fixed positioning */}
+            <button
+              onClick={() => navigate('/wishlist')}
+              className="p-3 text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-red-400 dark:hover:bg-red-900/20 rounded-xl group relative transition-colors duration-200"
+              title="Danh sách yêu thích"
+            >
+              <Heart size={20} />
+              {user && getWishlistCount() > 0 && (
+                <span className="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center shadow-lg border-2 border-white dark:border-gray-800 font-bold min-w-[20px]">
+                  {getWishlistCount()}
+                </span>
+              )}
             </button>
 
             {/* Account Button */}
@@ -203,7 +201,7 @@ const Header: React.FC = () => {
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 rounded-xl flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 font-medium"
+                  className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 rounded-xl flex items-center gap-2 shadow-lg font-medium transition-colors duration-200"
                 >
                   <User size={18} />
                   <span className="hidden sm:inline">{user.name}</span>
@@ -211,13 +209,9 @@ const Header: React.FC = () => {
                 
                 {showUserMenu && (
                   <div 
-                    className="absolute right-0 mt-3 w-56 bg-app-card rounded-2xl shadow-xl border-app-default py-3 z-50 transform transition-all duration-200 ease-out opacity-100 scale-100"
-                    style={{
-                      boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-                      animation: showUserMenu ? 'slideInDown 0.2s ease-out' : 'slideOutUp 0.2s ease-in'
-                    }}
+                    className="absolute right-0 mt-3 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50"
                   >
-                    <div className="px-4 py-3 border-b border-app-border">
+                    <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white font-bold">
                           {user.name?.charAt(0).toUpperCase()}
@@ -309,7 +303,7 @@ const Header: React.FC = () => {
             ) : (
               <button
                 onClick={() => navigate('/login')}
-                className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 rounded-xl flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 font-medium"
+                className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 rounded-xl flex items-center gap-2 shadow-lg font-medium"
               >
                 <User size={18} />
                 <span className="hidden sm:inline">Đăng nhập</span>
@@ -320,6 +314,8 @@ const Header: React.FC = () => {
       </div>
     </header>
   );
-};
+});
+
+Header.displayName = 'Header';
 
 export default Header;

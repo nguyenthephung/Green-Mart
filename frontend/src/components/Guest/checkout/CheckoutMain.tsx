@@ -1,6 +1,5 @@
 import type { FC } from 'react';
 import { MapPin, CreditCard, ChevronRight, CalendarDays } from 'lucide-react';
-import type { UserInfo, AddressInfo, PaymentInfo } from '../../../contexts/UserContext';
 import { useState, useEffect } from 'react';
 
 interface Item {
@@ -8,6 +7,24 @@ interface Item {
   name: string;
   image: string;
   quantity: number;
+}
+
+interface UserInfo {
+  fullName: string;
+  phone: string;
+  email?: string;
+}
+
+interface AddressInfo {
+  address: string;
+  district?: string;
+  ward?: string;
+  city?: string;
+}
+
+interface PaymentInfo {
+  method: string;
+  isSelected: boolean;
 }
 
 interface CheckoutMainProps {

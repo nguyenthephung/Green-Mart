@@ -1,13 +1,15 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, memo } from 'react';
 import { Link } from 'react-router-dom';
 import { products, testimonials } from '../../data/Guest/Home';
 import CategorySection from '../../components/Guest/home/CategorySection';
 import type { Product } from '../../components/Guest/home/ProductCard';
 import { useCartStore } from '../../stores/useCartStore';
 import ProductCard from '../../components/Guest/home/ProductCard';
-import { usePageLoading } from '../../components/Guest/cart/MarketInfo';
-import { SparklesIcon, FireIcon,  StarIcon } from '@heroicons/react/24/solid';
+import { usePageLoading } from '../../components/Loading';
+import { LoadingSpinner } from '../../components/Loading';
+import { SparklesIcon, FireIcon, StarIcon } from '@heroicons/react/24/solid';
 import '../../styles/performance.css';
+import '../../styles/homepage-performance.css';
 import meatHero from '../../assets/category-hero/meat.jpg';
 import vegetablesHero from '../../assets/category-hero/vegetables.jpg';
 import fruitsHero from '../../assets/category-hero/fruits.jpg';
@@ -17,7 +19,7 @@ import drinkHero from '../../assets/category-hero/drink.jpg';
 import snackHero from '../../assets/category-hero/snack.jpg';
 import milkHero from '../../assets/category-hero/milk.jpg';
 
-// Real slides data using actual images and online banners
+// Real slides data using actual images
 const realSlides = [
   {
     id: 1,
@@ -63,220 +65,80 @@ const realSlides = [
   }
 ];
 
-const Home: React.FC = () => {
-  const loading = usePageLoading();
+const Home: React.FC = memo(() => {
+  const loading = usePageLoading(0);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isScrolling, setIsScrolling] = useState(false);
   const addToCart = useCartStore(state => state.addToCart);
 
-  // Force body background for dark mode
-  useEffect(() => {
-    const updateBodyStyle = () => {
-      const isDark = document.documentElement.classList.contains('dark');
-      if (isDark) {
-        document.body.style.backgroundColor = '#111827';
-        document.body.style.color = '#f9fafb';
-        
-        // Force category headers background
-        const categoryHeaders = document.querySelectorAll('div[class*="bg-white/90"]');
-        categoryHeaders.forEach(header => {
-          (header as HTMLElement).style.backgroundColor = 'rgba(31, 41, 55, 0.9)';
-        });
-        
-        // Force testimonials section background
-        const testimonialsSection = document.querySelector('.bg-gradient-to-br.from-emerald-50.to-green-100');
-        if (testimonialsSection) {
-          (testimonialsSection as HTMLElement).style.background = 'linear-gradient(to bottom right, #111827, #1f2937)';
-        }
-        
-        // Fix gradient text elements for better visibility
-        const gradientTexts = document.querySelectorAll('.bg-clip-text.text-transparent');
-        gradientTexts.forEach(element => {
-          const el = element as HTMLElement;
-          const classes = el.className;
-          
-          // Apply specific gradient fixes based on color scheme
-          if (classes.includes('from-emerald-600') && classes.includes('to-green-600')) {
-            el.style.background = 'linear-gradient(to right, #10b981, #22c55e)';
-            el.style.backgroundClip = 'text';
-            el.style.webkitBackgroundClip = 'text';
-          } else if (classes.includes('from-yellow-500') && classes.includes('to-orange-600')) {
-            el.style.background = 'linear-gradient(to right, #eab308, #ea580c)';
-            el.style.backgroundClip = 'text';
-            el.style.webkitBackgroundClip = 'text';
-          } else if (classes.includes('from-red-600') && classes.includes('to-pink-600')) {
-            el.style.background = 'linear-gradient(to right, #dc2626, #db2777)';
-            el.style.backgroundClip = 'text';
-            el.style.webkitBackgroundClip = 'text';
-          } else if (classes.includes('from-emerald-300') && classes.includes('to-green-200')) {
-            el.style.background = 'linear-gradient(to right, #a7f3d0, #bbf7d0)';
-            el.style.backgroundClip = 'text';
-            el.style.webkitBackgroundClip = 'text';
-          }
-        });
-        
-        // Fix header logo text specifically
-        const headerTexts = document.querySelectorAll('header .text-gray-800');
-        headerTexts.forEach(text => {
-          (text as HTMLElement).style.color = '#f9fafb';
-        });
-        
-      } else {
-        document.body.style.backgroundColor = '';
-        document.body.style.color = '';
-        
-        // Force reset category headers background to original light colors
-        const categoryHeaders = document.querySelectorAll('div[class*="bg-white/90"]');
-        categoryHeaders.forEach(header => {
-          const el = header as HTMLElement;
-          el.style.backgroundColor = '';
-          el.style.removeProperty('background-color');
-          // Force light mode background
-          el.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
-          setTimeout(() => {
-            el.style.backgroundColor = '';
-          }, 100);
-        });
-        
-        // Force reset testimonials section background to original light gradient
-        const testimonialsSection = document.querySelector('.bg-gradient-to-br.from-emerald-50.to-green-100');
-        if (testimonialsSection) {
-          const el = testimonialsSection as HTMLElement;
-          el.style.background = '';
-          el.style.removeProperty('background');
-          // Force light mode gradient
-          el.style.background = 'linear-gradient(to bottom right, #ecfdf5, #dcfce7)';
-          setTimeout(() => {
-            el.style.background = '';
-          }, 100);
-        }
-        
-        // Reset gradient text styles
-        const gradientTexts = document.querySelectorAll('.bg-clip-text.text-transparent');
-        gradientTexts.forEach(element => {
-          const el = element as HTMLElement;
-          el.style.background = '';
-          el.style.backgroundClip = '';
-          el.style.webkitBackgroundClip = '';
-          el.style.removeProperty('background');
-          el.style.removeProperty('background-clip');
-          el.style.removeProperty('-webkit-background-clip');
-        });
-        
-        // Reset header text styles
-        const headerTexts = document.querySelectorAll('header .text-gray-800');
-        headerTexts.forEach(text => {
-          const el = text as HTMLElement;
-          el.style.color = '';
-          el.style.removeProperty('color');
-        });
-      }
-    };
+  // Create flying effect for add to cart animation - Optimized
+  const createFlyingEffect = useCallback((event: React.MouseEvent, product: Product) => {
+    // Skip animation if user is scrolling for better performance
+    if (isScrolling) return;
     
-    updateBodyStyle();
+    const clickedElement = event.currentTarget as HTMLElement;
+    const rect = clickedElement.getBoundingClientRect();
+    const cartIcon = document.getElementById('cart-fly-icon');
     
-    const observer = new MutationObserver(updateBodyStyle);
-    observer.observe(document.documentElement, { 
-      attributes: true, 
-      attributeFilter: ['class'] 
+    if (!cartIcon) return;
+
+    const cartRect = cartIcon.getBoundingClientRect();
+    
+    // Create flying element with optimized properties
+    const flyingEl = document.createElement('div');
+    flyingEl.className = 'flying-item';
+    flyingEl.style.cssText = `
+      position: fixed;
+      left: ${rect.left + rect.width / 2}px;
+      top: ${rect.top + rect.height / 2}px;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+      transition: all 0.8s cubic-bezier(.4,1.6,.6,1);
+      pointer-events: none;
+      will-change: transform, opacity;
+    `;
+    
+    flyingEl.innerHTML = `
+      <div style="background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 4px; border: 2px solid #10b981;">
+        <img src="${product.image}" alt="${product.name}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; display: block;" />
+      </div>
+    `;
+    
+    document.body.appendChild(flyingEl);
+    
+    // Use RAF for smoother animation
+    requestAnimationFrame(() => {
+      flyingEl.style.left = `${cartRect.left + cartRect.width / 2}px`;
+      flyingEl.style.top = `${cartRect.top + cartRect.height / 2}px`;
+      flyingEl.style.transform = 'translate(-50%, -50%) scale(0.3)';
+      flyingEl.style.opacity = '0';
     });
     
-    // Also run after DOM updates
-    const interval = setInterval(updateBodyStyle, 1000);
-    
-    return () => {
-      observer.disconnect();
-      clearInterval(interval);
-    };
-  }, []);
-
-  // Detect scrolling để tạm dừng animations khi scroll - optimize performance
-  useEffect(() => {
-    let scrollTimeout: NodeJS.Timeout;
-    let ticking = false;
-    
-    const handleScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          setIsScrolling(true);
-          clearTimeout(scrollTimeout);
-          scrollTimeout = setTimeout(() => {
-            setIsScrolling(false);
-          }, 100); // Giảm từ 150ms xuống 100ms
-          ticking = false;
-        });
-        ticking = true;
+    // Remove element after animation
+    setTimeout(() => {
+      if (flyingEl.parentNode) {
+        flyingEl.parentNode.removeChild(flyingEl);
       }
-    };
+    }, 800);
+  }, [isScrolling]);
+
+  const triggerCartBounce = useCallback(() => {
+    // Skip bounce animation if scrolling for better performance
+    if (isScrolling) return;
     
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      clearTimeout(scrollTimeout);
-    };
-  }, []);
-
-  // Memoize filtered products để tránh re-filter mỗi render
-  const saleProducts = useMemo(() => 
-    products.filter((product) => product.isSale), 
-    []
-  );
-  
-  const featuredProducts = useMemo(() => 
-    products.filter((product) => product.isFeatured), 
-    []
-  );
-  
-  const hasSaleProducts = useMemo(() => 
-    saleProducts.length > 0, 
-    [saleProducts]
-  );
-
-  // Scroll to top when component mounts - tối ưu để tránh lag
-  useEffect(() => {
-    // Force scroll to top immediately without animation
-    window.scrollTo(0, 0);
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
-  }, []);
-
-  // Ensure scroll position is maintained correctly
-  useEffect(() => {
-    // Prevent any unwanted scrolling during render
-    const preventScroll = () => {
-      if (window.scrollY > 100) {
-        window.scrollTo(0, 0);
-      }
-    };
-
-    // Check scroll position after component fully renders
-    const timeoutId = setTimeout(preventScroll, 100);
-    
-    return () => clearTimeout(timeoutId);
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % realSlides.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Memoize getProductsByCategory để tránh re-calculation
-  const getProductsByCategory = useMemo(() => {
-    const categorizedProducts = products.reduce((acc, product) => {
-      if (!acc[product.category]) {
-        acc[product.category] = [];
-      }
-      acc[product.category].push(product);
-      return acc;
-    }, {} as Record<string, typeof products>);
-
-    return (category: string) => categorizedProducts[category]?.slice(0, 8) || [];
-  }, []);
+    const cartIcon = document.getElementById('cart-fly-icon');
+    if (cartIcon) {
+      cartIcon.style.transform = 'scale(1.2)';
+      cartIcon.style.transition = 'transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+      
+      setTimeout(() => {
+        cartIcon.style.transform = 'scale(1)';
+      }, 300);
+    }
+  }, [isScrolling]);
 
   // Enhanced handleAddToCart with optimized flying animation
-  const handleAddToCart = (product: Product, event?: React.MouseEvent) => {
+  const handleAddToCart = useCallback((product: Product, event?: React.MouseEvent) => {
     // Add to cart
     addToCart({
       id: Number(product.id),
@@ -292,100 +154,117 @@ const Home: React.FC = () => {
 
     // Cart icon bounce effect
     triggerCartBounce();
-  };
+  }, [addToCart, createFlyingEffect, triggerCartBounce]);
 
-  const createFlyingEffect = (event: React.MouseEvent, product: Product) => {
-    const clickedElement = event.currentTarget as HTMLElement;
-    const rect = clickedElement.getBoundingClientRect();
-    const cartIcon = document.getElementById('cart-fly-icon');
+  // Detect scrolling để tạm dừng animations khi scroll - Optimized
+  useEffect(() => {
+    let scrollTimeout: NodeJS.Timeout;
+    let animationId: number;
+    let lastScrollY = 0;
     
-    if (!cartIcon) return;
-
-    const cartRect = cartIcon.getBoundingClientRect();
-    
-    // Create flying element
-    const flyingEl = document.createElement('div');
-    flyingEl.className = 'flying-item';
-    flyingEl.innerHTML = `
-      <div className="bg-white rounded-lg shadow-lg p-2 border-2 border-green-500">
-        <img src="${product.image}" alt="${product.name}" className="w-12 h-12 object-cover rounded" />
-      </div>
-    `;
-    
-    // Set initial position
-    flyingEl.style.left = `${rect.left + rect.width / 2}px`;
-    flyingEl.style.top = `${rect.top + rect.height / 2}px`;
-    flyingEl.style.transform = 'translate(-50%, -50%)';
-    
-    document.body.appendChild(flyingEl);
-    
-    // Animate to cart
-    setTimeout(() => {
-      flyingEl.style.left = `${cartRect.left + cartRect.width / 2}px`;
-      flyingEl.style.top = `${cartRect.top + cartRect.height / 2}px`;
-      flyingEl.style.transform = 'translate(-50%, -50%) scale(0.2)';
-      flyingEl.style.opacity = '0';
-    }, 100);
-    
-    // Remove element after animation
-    setTimeout(() => {
-      if (flyingEl.parentNode) {
-        flyingEl.parentNode.removeChild(flyingEl);
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const scrollDelta = Math.abs(currentScrollY - lastScrollY);
+      
+      // Only update if scroll delta is significant (reduce unnecessary updates)
+      if (scrollDelta > 5) {
+        if (animationId) {
+          cancelAnimationFrame(animationId);
+        }
+        
+        animationId = requestAnimationFrame(() => {
+          setIsScrolling(true);
+          clearTimeout(scrollTimeout);
+          scrollTimeout = setTimeout(() => {
+            setIsScrolling(false);
+          }, 150); // Increased timeout for better performance
+        });
+        
+        lastScrollY = currentScrollY;
       }
-    }, 1000);
-  };
+    };
+    
+    // Use passive listener for better performance
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      clearTimeout(scrollTimeout);
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+    };
+  }, []);
 
-  const triggerCartBounce = () => {
-    const cartIcon = document.getElementById('cart-fly-icon');
-    if (cartIcon) {
-      cartIcon.classList.add('animate-cartBounce');
-      setTimeout(() => {
-        cartIcon.classList.remove('animate-cartBounce');
-      }, 600);
-    }
-  };
+  // Memoize filtered products
+  const saleProducts = useMemo(() => 
+    products.filter((product) => product.isSale), 
+    []
+  );
+  
+  const featuredProducts = useMemo(() => 
+    products.filter((product) => product.isFeatured), 
+    []
+  );
+  
+  const hasSaleProducts = useMemo(() => 
+    saleProducts.length > 0, 
+    [saleProducts]
+  );
 
-  // Tạm thời vô hiệu hóa error handling trong quá trình phát triển
-  /*
-  // Show error component if there's an error
-  if (error) {
-    return ErrorComponent;
-  }
-  */
+  // Auto-slide effect - Optimized
+  useEffect(() => {
+    // Pause auto-slide when scrolling to improve performance
+    if (isScrolling) return;
+    
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % realSlides.length);
+    }, 6000); // Increased interval to reduce CPU usage
+    
+    return () => clearInterval(interval);
+  }, [isScrolling]);
 
-  if (loading) {  // Removed isDataLoading check
-    console.log('HomePage is loading...'); // Debug log
+  // Memoize getProductsByCategory
+  const getProductsByCategory = useMemo(() => {
+    const categorizedProducts = products.reduce((acc, product) => {
+      if (!acc[product.category]) {
+        acc[product.category] = [];
+      }
+      acc[product.category].push(product);
+      return acc;
+    }, {} as Record<string, typeof products>);
+
+    return (category: string) => categorizedProducts[category]?.slice(0, 8) || [];
+  }, []);
+
+  if (loading) {
     return (
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white/80 dark:bg-gray-900/80">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-green-600 dark:border-green-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-300 text-lg">Đang tải trang chủ...</p>
-          <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Debug: HomePage loading</p>
-        </div>
-      </div>
+      <LoadingSpinner
+        size="xl"
+        text="Đang tải trang chủ..."
+        fullScreen={true}
+      />
     );
   }
 
-  console.log('HomePage loaded, rendering content'); // Debug log
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 scroll-optimized">
-      {/* Enhanced Hero Section */}
-      <div className="relative w-full h-[60vh] md:h-[80vh] overflow-hidden mb-16">
-        {/* Background with parallax effect */}
+      {/* Hero Section */}
+      <div className="relative w-full h-[60vh] md:h-[80vh] overflow-hidden mb-16 carousel-container">
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/20 to-green-900/30 z-10"></div>
         
         {realSlides.map((slide, index) => (
           <div
             key={slide.id}
-            className={`absolute w-full h-full transition-all duration-1000 hero-slide ${
-              index === currentSlide ? 'opacity-100 scale-100 z-5' : 'opacity-0 scale-105 z-0'
+            className={`absolute w-full h-full transition-opacity duration-1000 ${
+              index === currentSlide ? 'opacity-100 z-5' : 'opacity-0 z-0'
             }`}
             style={{ 
               backgroundImage: `url(${slide.image})`, 
               backgroundSize: 'cover', 
               backgroundPosition: 'center',
-              filter: 'brightness(0.9) contrast(1.1)'
+              filter: 'brightness(0.9) contrast(1.1)',
+              transform: 'translateZ(0)', // Force GPU acceleration
+              willChange: index === currentSlide || Math.abs(index - currentSlide) <= 1 ? 'opacity' : 'auto'
             }}
           >
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30 z-10"></div>
@@ -394,7 +273,7 @@ const Home: React.FC = () => {
         
         {/* Hero Content */}
         <div className="absolute inset-0 z-20 flex items-center justify-center text-white text-center p-6">
-          <div className="max-w-4xl mx-auto optimize-scroll">
+          <div className="max-w-4xl mx-auto">
             <div className="mb-6">
               <span className="inline-block px-4 py-2 bg-emerald-500/90 backdrop-blur-sm rounded-full text-sm font-semibold tracking-wide">
                 🌱 Fresh & Organic
@@ -423,7 +302,7 @@ const Home: React.FC = () => {
           </div>
         </div>
 
-        {/* Enhanced Navigation */}
+        {/* Navigation */}
         <button
           className="absolute left-6 top-1/2 -translate-y-1/2 z-30 bg-white/10 backdrop-blur-md hover:bg-white/20 text-white rounded-full p-3 shadow-xl transition-all border border-white/20"
           onClick={() => setCurrentSlide((prev) => (prev - 1 + realSlides.length) % realSlides.length)}
@@ -443,7 +322,7 @@ const Home: React.FC = () => {
           </svg>
         </button>
         
-        {/* Enhanced Indicators */}
+        {/* Indicators */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-30">
           {realSlides.map((_, idx) => (
             <button
@@ -460,10 +339,9 @@ const Home: React.FC = () => {
         </div>
       </div>
 
-      {/* Enhanced Sale Section */}
+      {/* Sale Section */}
       {hasSaleProducts && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
-          {/* Section Header */}
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-red-500 to-pink-500 rounded-full text-white font-bold text-lg shadow-xl mb-4">
               <FireIcon className="w-7 h-7 animate-pulse" />
@@ -478,22 +356,14 @@ const Home: React.FC = () => {
             </p>
           </div>
 
-          {/* Products Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 optimized-grid">
-            {saleProducts.map((product, index) => (
-              <div 
-                key={product.id} 
-                className="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl dark:shadow-gray-900/50 transition-all duration-300 overflow-hidden border border-red-100 dark:border-red-900/30"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                {/* Sale Badge - điều chỉnh vị trí để không che tên sản phẩm */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {saleProducts.map((product) => (
+              <div key={product.id} className="relative transform-gpu">
                 <div className="absolute top-1 left-1 z-20">
                   <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-1.5 py-0.5 rounded-md text-xs font-bold shadow-lg">
                     🔥 SALE
                   </span>
                 </div>
-                
-                {/* Product Card Content */}
                 <ProductCard 
                   product={product} 
                   onAddToCart={handleAddToCart} 
@@ -503,7 +373,6 @@ const Home: React.FC = () => {
             ))}
           </div>
 
-          {/* Call to Action */}
           <div className="text-center mt-12">
             <Link 
               to="/category?sale=true"
@@ -518,9 +387,8 @@ const Home: React.FC = () => {
         </div>
       )}
 
-      {/* Enhanced Categories Section */}
+      {/* Categories Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
-        {/* Section Header */}
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-full text-emerald-700 dark:text-emerald-300 font-semibold mb-4">
             <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
@@ -534,8 +402,7 @@ const Home: React.FC = () => {
           </p>
         </div>
 
-        {/* Categories Grid */}
-        <div className="space-y-20 optimize-scroll">
+        <div className="space-y-20">
           <CategorySection
             title="🥩 Thịt - Cá - Trứng - Sữa"
             category="meat"
@@ -619,9 +486,8 @@ const Home: React.FC = () => {
         </div>
       </div>
 
-      {/* Enhanced Featured Products */}
+      {/* Featured Products */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
-        {/* Section Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full text-white font-bold text-lg shadow-xl mb-4">
             <StarIcon className="w-7 h-7 animate-spin" />
@@ -636,23 +502,15 @@ const Home: React.FC = () => {
           </p>
         </div>
 
-        {/* Products Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 optimized-grid">
-          {featuredProducts.map((product, index) => (
-            <div 
-              key={product.id} 
-              className="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl dark:shadow-gray-900/50 transition-all duration-300 overflow-hidden border border-yellow-100 dark:border-yellow-900/30 transform hover:-translate-y-2"
-              style={{ animationDelay: `${index * 150}ms` }}
-            >
-              {/* Hot Badge - điều chỉnh vị trí để không che tên sản phẩm */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {featuredProducts.map((product) => (
+            <div key={product.id} className="relative transform-gpu">
               <div className="absolute top-1 right-1 z-20">
                 <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-1.5 py-0.5 rounded-md text-xs font-bold shadow-lg flex items-center gap-1">
                   <StarIcon className="w-3 h-3" />
                   HOT
                 </div>
               </div>
-              
-              {/* Product Card Content */}
               <ProductCard 
                 product={product} 
                 onAddToCart={handleAddToCart} 
@@ -662,7 +520,6 @@ const Home: React.FC = () => {
           ))}
         </div>
 
-        {/* Call to Action */}
         <div className="text-center mt-12">
           <Link 
             to="/category?featured=true"
@@ -674,10 +531,9 @@ const Home: React.FC = () => {
         </div>
       </div>
 
-      {/* Enhanced Testimonials */}
+      {/* Testimonials */}
       <div className="bg-gradient-to-br from-emerald-50 to-green-100 dark:from-gray-900 dark:to-gray-800 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Section Header */}
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-3 px-6 py-3 bg-white dark:bg-gray-800 rounded-full shadow-lg mb-6">
               <SparklesIcon className="w-6 h-6 text-emerald-500" />
@@ -691,25 +547,20 @@ const Home: React.FC = () => {
             </p>
           </div>
 
-          {/* Testimonials Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-            {testimonials.map((testimonial, index) => (
+            {testimonials.map((testimonial) => (
               <div 
                 key={testimonial.id} 
-                className="group bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-xl hover:shadow-2xl dark:shadow-gray-900/50 transition-all duration-300 border border-emerald-100 dark:border-gray-700 relative overflow-hidden"
-                style={{ animationDelay: `${index * 200}ms` }}
+                className="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-xl hover:shadow-2xl dark:shadow-gray-900/50 transition-all duration-300 border border-emerald-100 dark:border-gray-700 relative overflow-hidden"
               >
-                {/* Background decoration */}
                 <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-emerald-100 to-green-100 rounded-bl-full opacity-50"></div>
                 
-                {/* Quote icon */}
                 <div className="absolute top-6 left-6 text-emerald-200">
                   <svg width="40" height="40" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M7.17 6.17A7.001 7.001 0 0 0 2 13a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1c0-1.306-.835-2.417-2.03-2.83A5.001 5.001 0 0 1 7.17 6.17zm9.66 0A7.001 7.001 0 0 0 11.66 13a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1c0-1.306-.835-2.417-2.03-2.83A5.001 5.001 0 0 1 16.83 6.17z"/>
                   </svg>
                 </div>
 
-                {/* Customer info */}
                 <div className="flex items-center gap-4 mb-6 relative z-10">
                   <div className="relative">
                     <img 
@@ -734,12 +585,10 @@ const Home: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Testimonial text */}
                 <blockquote className="text-gray-700 dark:text-gray-300 text-lg leading-relaxed italic relative z-10">
                   "{testimonial.text}"
                 </blockquote>
 
-                {/* Rating bar */}
                 <div className="mt-6 pt-6 border-t border-emerald-100 dark:border-gray-700">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-500 dark:text-gray-400">Đánh giá tổng thể</span>
@@ -757,7 +606,6 @@ const Home: React.FC = () => {
             ))}
           </div>
 
-          {/* Call to Action */}
           <div className="text-center mt-16">
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl max-w-md mx-auto">
               <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4">Tham Gia Cộng Đồng</h3>
@@ -777,6 +625,6 @@ const Home: React.FC = () => {
       </div>
     </div>
   );
-};
+});
 
 export default Home;

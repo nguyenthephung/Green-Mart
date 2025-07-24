@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, memo } from 'react';
 
 type Theme = 'light' | 'dark';
 
@@ -22,9 +22,9 @@ interface ThemeProviderProps {
   children: React.ReactNode;
 }
 
-export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
+export const ThemeProvider: React.FC<ThemeProviderProps> = memo(({ children }) => {
   const [theme, setTheme] = useState<Theme>(() => {
-    // Kiểm tra localStorage trước
+    // Đọc theme từ localStorage ngay lập tức để tránh layout shift
     if (typeof window !== 'undefined') {
       const savedTheme = localStorage.getItem('greenmart-theme') as Theme;
       if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
@@ -41,21 +41,25 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   });
 
   useEffect(() => {
-    console.log('ThemeProvider useEffect triggered, theme:', theme);
+    console.log('🎨 ThemeProvider useEffect triggered, theme:', theme);
     const root = window.document.documentElement;
+    const body = window.document.body;
     
     // Remove existing theme classes
     root.classList.remove('light', 'dark');
-    console.log('Removed existing theme classes');
+    body.classList.remove('light', 'dark');
+    console.log('🗑️ Removed existing theme classes');
     
-    // Add new theme class
+    // Add new theme class to both html and body
     root.classList.add(theme);
-    console.log('Added theme class:', theme, 'to documentElement');
-    console.log('Current documentElement classes:', root.className);
+    body.classList.add(theme);
+    console.log('✅ Added theme class:', theme, 'to documentElement and body');
+    console.log('📋 Current documentElement classes:', root.className);
+    console.log('📋 Current body classes:', body.className);
     
     // Save to localStorage
     localStorage.setItem('greenmart-theme', theme);
-    console.log('Saved theme to localStorage:', theme);
+    console.log('💾 Saved theme to localStorage:', theme);
     
     // Update meta theme-color for mobile browsers
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
@@ -88,4 +92,6 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       {children}
     </ThemeContext.Provider>
   );
-};
+});
+
+ThemeProvider.displayName = 'ThemeProvider';
