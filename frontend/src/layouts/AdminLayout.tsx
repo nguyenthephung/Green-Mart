@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import ThemeToggle from '../components/ui/ThemeToggle';
 
@@ -111,17 +111,35 @@ const AdminLayout: React.FC = () => {
   const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(document.documentElement.classList.contains('dark'));
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
 
   const currentPage = adminMenu.find(item => item.path === location.pathname);
 
   return (
-    <div className="min-h-screen flex bg-gray-50 dark:bg-gray-900">
+    <div
+      className="min-h-screen flex bg-gray-50 dark:bg-gray-900"
+      style={{ backgroundColor: isDarkMode ? '#111827' : '#f9fafb' }}
+    >
       {/* Sidebar */}
-      <aside className={`${isCollapsed ? 'w-20' : 'w-72'} bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-xl flex flex-col transition-all duration-300 ease-in-out relative overflow-visible`}>
+      <aside
+        className={`${isCollapsed ? 'w-20' : 'w-72'} bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-xl flex flex-col transition-all duration-300 ease-in-out relative overflow-visible`}
+        style={{ backgroundColor: isDarkMode ? '#111827' : '#fff' }}
+      >
         {/* Header */}
         <div className="h-20 flex items-center justify-between px-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-green-600 to-green-700 dark:from-green-700 dark:to-green-800">
           <div className={`flex items-center ${isCollapsed ? 'justify-center' : ''}`}>
-            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-lg">
+            <div
+              className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-lg"
+              style={{ backgroundColor: isDarkMode ? '#111827' : '#fff' }}
+            >
               <span className="text-2xl">🛒</span>
             </div>
             {!isCollapsed && (
@@ -220,7 +238,7 @@ const AdminLayout: React.FC = () => {
 
           {/* Profile Dropdown */}
           {showProfile && !isCollapsed && (
-            <div className="absolute bottom-full left-4 right-4 mb-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg p-2 z-50">
+            <div className="absolute bottom-full left-4 right-4 mb-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg p-2 z-50" style={{ backgroundColor: isDarkMode ? '#111827' : '#fff' }}>
               <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm text-gray-700">
                 <span>👤</span>
                 Hồ sơ cá nhân
@@ -254,9 +272,15 @@ const AdminLayout: React.FC = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
+      <main
+        className="flex-1 flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900"
+        style={{ backgroundColor: isDarkMode ? '#111827' : '#f9fafb' }}
+      >
         {/* Top Header */}
-        <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-8 py-4 shadow-sm">
+        <header
+          className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-8 py-4 shadow-sm"
+          style={{ backgroundColor: isDarkMode ? '#111827' : '#fff' }}
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className={`w-8 h-8 rounded-lg bg-gradient-to-r ${currentPage?.color || 'from-gray-500 to-gray-600'} flex items-center justify-center`}>
@@ -281,6 +305,7 @@ const AdminLayout: React.FC = () => {
                 <button className="p-2 rounded-lg bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-colors" title="Cài đặt">
                   ⚙️
                 </button>
+
               </div>
               
               {/* Current Time */}
@@ -292,7 +317,7 @@ const AdminLayout: React.FC = () => {
         </header>
 
         {/* Page Content */}
-        <div className="flex-1 p-8 bg-gray-50 dark:bg-gray-900">
+        <div className="flex-1 p-8 bg-gray-50 dark:bg-gray-900" style={{ backgroundColor: isDarkMode ? '#111827' : '#f9fafb' }}>
           <Outlet />
         </div>
       </main>

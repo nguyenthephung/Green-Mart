@@ -4,6 +4,17 @@ import { recentOrders, topProducts, quickStats } from '../../data/Admin/dashboar
 const AdminDashboard: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedFilter, setSelectedFilter] = useState('all');
+  // Theme state for reactive background fix
+  const [isDarkMode, setIsDarkMode] = useState(document.documentElement.classList.contains('dark'));
+  // Chế độ dark: true = nền đen, false = chữ đen
+  const [darkModeType, setDarkModeType] = useState<'background' | 'text'>('background');
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
   const [notifications] = useState([
     { id: 1, message: '5 sản phẩm sắp hết hàng', type: 'warning', time: '5 phút trước' },
     { id: 2, message: 'Đơn hàng #DH001 đã được giao', type: 'success', time: '10 phút trước' },
@@ -28,7 +39,16 @@ const AdminDashboard: React.FC = () => {
   });
 
   return (
-    <div className="space-y-8">
+    <div
+      className="space-y-8"
+      style={
+        isDarkMode
+          ? darkModeType === 'background'
+            ? { backgroundColor: '#111827', color: '#fff' }
+            : { backgroundColor: '#fff', color: '#111827' }
+          : undefined
+      }
+    >
       {/* Header & Notifications */}
       <div className="space-y-8">
         <div className="flex justify-between items-start">
@@ -45,7 +65,10 @@ const AdminDashboard: React.FC = () => {
             </p>
           </div>
           <div className="relative">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 max-w-sm">
+            <div
+              className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 max-w-sm"
+              style={{ backgroundColor: isDarkMode ? '#18181b' : '#fff' }}
+            >
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-semibold text-gray-800 dark:text-white">Thông báo</h3>
                 <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
@@ -56,7 +79,7 @@ const AdminDashboard: React.FC = () => {
                 {notifications.map(n => (
                   <li key={n.id} className="flex justify-between items-center text-sm">
                     <span className="text-gray-700 dark:text-gray-300">{n.message}</span>
-                    <span className="text-gray-500 dark:text-gray-500 text-xs">{n.time}</span>
+                    <span className="text-gray-500 dark:text-gray-400 text-xs">{n.time}</span>
                   </li>
                 ))}
               </ul>
@@ -68,12 +91,13 @@ const AdminDashboard: React.FC = () => {
           {quickStats.map((stat, i) => (
             <div 
               key={i} 
-              className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 border-l-4 border-green-500 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer group"
+              className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 border-l-4 border-green-500 dark:border-green-400 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer group"
+              style={{ backgroundColor: isDarkMode ? '#18181b' : '#fff' }}
             >
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200 transition-colors">{stat.label}</p>
-                  <p className={`text-2xl font-bold ${stat.color} group-hover:scale-110 transition-transform`}>
+                  <p className={`text-2xl font-bold ${stat.color} dark:text-${stat.color?.split('-')[1] || 'green'}-400 group-hover:scale-110 transition-transform`}>
                     {stat.value}
                   </p>
                 </div>
@@ -87,24 +111,39 @@ const AdminDashboard: React.FC = () => {
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Recent Orders */}
-        <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
+        <div
+          className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300"
+          style={{ backgroundColor: isDarkMode ? '#18181b' : '#fff' }}
+        >
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Đơn hàng gần đây</h2>
             <div className="flex items-center space-x-4">
               <div className="flex space-x-2">
-                {['all', 'Đã giao', 'Đang xử lý', 'Đang vận chuyển'].map((filter) => (
-                  <button
-                    key={filter}
-                    onClick={() => setSelectedFilter(filter)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                      selectedFilter === filter 
-                        ? 'bg-green-600 text-white shadow-md' 
-                        : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                    }`}
-                  >
-                    {filter === 'all' ? 'Tất cả' : filter}
-                  </button>
-                ))}
+                {['all', 'Đã giao', 'Đang xử lý', 'Đang vận chuyển'].map((filter) => {
+                  const isSelected = selectedFilter === filter;
+                  return (
+                    <button
+                      key={filter}
+                      onClick={() => setSelectedFilter(filter)}
+                      style={
+                        isDarkMode
+                          ? isSelected
+                            ? { backgroundColor: '#23272f', color: '#fff', boxShadow: '0 2px 8px 0 #0002' }
+                            : { backgroundColor: '#23272f', color: '#e5e7eb' }
+                          : isSelected
+                            ? { backgroundColor: '#d1fae5', color: '#065f46', boxShadow: '0 2px 8px 0 #10b98122' }
+                            : { backgroundColor: '#f3f4f6', color: '#374151' }
+                      }
+                      className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                        isSelected
+                          ? 'shadow-md'
+                          : 'hover:bg-gray-200 dark:hover:bg-[#18181b]'
+                      }`}
+                    >
+                      {filter === 'all' ? 'Tất cả' : filter}
+                    </button>
+                  );
+                })}
               </div>
               <button className="text-green-600 dark:text-green-400 font-semibold hover:text-green-700 dark:hover:text-green-300 transition-colors hover:underline">
                 Xem tất cả →
@@ -114,12 +153,12 @@ const AdminDashboard: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-gray-500 dark:text-gray-400 border-b-2 border-gray-100 dark:border-gray-700">
-                  <th className="py-3 font-semibold hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer">Mã đơn hàng ↕</th>
-                  <th className="py-3 font-semibold hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer">Khách hàng ↕</th>
-                  <th className="py-3 font-semibold hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer">Tổng tiền ↕</th>
-                  <th className="py-3 font-semibold hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer">Trạng thái ↕</th>
-                  <th className="py-3 font-semibold hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer">Thời gian ↕</th>
+                <tr className="text-left text-gray-800 dark:text-gray-200 border-b-2 border-gray-100 dark:border-gray-700">
+                  <th className="py-3 font-semibold hover:text-green-700 dark:hover:text-green-300 cursor-pointer">Mã đơn hàng ↕</th>
+                  <th className="py-3 font-semibold hover:text-green-700 dark:hover:text-green-300 cursor-pointer">Khách hàng ↕</th>
+                  <th className="py-3 font-semibold hover:text-green-700 dark:hover:text-green-300 cursor-pointer">Tổng tiền ↕</th>
+                  <th className="py-3 font-semibold hover:text-green-700 dark:hover:text-green-300 cursor-pointer">Trạng thái ↕</th>
+                  <th className="py-3 font-semibold hover:text-green-700 dark:hover:text-green-300 cursor-pointer">Thời gian ↕</th>
                 </tr>
               </thead>
               <tbody>
@@ -130,23 +169,27 @@ const AdminDashboard: React.FC = () => {
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
                     <td className="py-4 font-semibold text-gray-800 dark:text-white group-hover:text-green-700 dark:group-hover:text-green-400">{o.id}</td>
-                    <td className="py-4 text-gray-700 dark:text-gray-300 group-hover:font-medium">{o.user}</td>
+                    <td className="py-4 text-gray-800 dark:text-gray-200 group-hover:font-medium">{o.user}</td>
                     <td className="py-4 font-bold text-green-600 dark:text-green-400 group-hover:scale-105 transition-transform">
                       {o.total.toLocaleString()}đ
                     </td>
                     <td className="py-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold transition-all group-hover:scale-105 ${
-                        o.status === 'Đã giao' ? 'bg-green-100 text-green-700 group-hover:bg-green-200' : 
-                        o.status === 'Đã hủy' ? 'bg-red-100 text-red-600 group-hover:bg-red-200' : 
-                        o.status === 'Đang vận chuyển' ? 'bg-blue-100 text-blue-700 group-hover:bg-blue-200' :
-                        'bg-yellow-100 text-yellow-700 group-hover:bg-yellow-200'
-                      }`}>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold transition-all group-hover:scale-105 ${
+                    o.status === 'Đã giao' ? 'bg-green-100 text-green-700 group-hover:bg-green-200 dark:bg-green-900 dark:text-green-300 dark:group-hover:bg-green-800' : 
+                    o.status === 'Đã hủy' ? 'bg-red-100 text-red-600 group-hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:group-hover:bg-red-800' : 
+                    o.status === 'Đang vận chuyển' ? 'bg-blue-100 text-blue-700 group-hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:group-hover:bg-blue-800' :
+                    'bg-yellow-100 text-yellow-700 group-hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-300 dark:group-hover:bg-yellow-800'
+                  }`}>
                         {o.status}
                       </span>
                     </td>
-                    <td className="py-4 text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300">
-                      <div className="font-medium">{o.date}</div>
-                      <div className="text-xs">{o.time}</div>
+                    <td className="py-4 group-hover:text-green-700 dark:group-hover:text-green-300">
+                      <div className="font-medium px-2 py-1 rounded"
+                        style={{ backgroundColor: isDarkMode ? '#23272f' : '#f3f4f6', color: isDarkMode ? '#fff' : '#23272f' }}
+                      >{o.date}</div>
+                      <div className="text-xs px-2 py-0.5 rounded mt-1"
+                        style={{ backgroundColor: isDarkMode ? '#23272f' : '#f9fafb', color: isDarkMode ? '#e5e7eb' : '#374151' }}
+                      >{o.time}</div>
                     </td>
                   </tr>
                 ))}
@@ -156,7 +199,10 @@ const AdminDashboard: React.FC = () => {
         </div>
 
         {/* Top Products */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
+        <div
+          className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300"
+          style={{ backgroundColor: isDarkMode ? '#111827' : '#fff' }}
+        >
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Sản phẩm bán chạy</h2>
             <div className="flex items-center space-x-2">
@@ -168,12 +214,18 @@ const AdminDashboard: React.FC = () => {
             {topProducts.map((product, i) => (
               <div 
                 key={i} 
-                className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl hover:bg-green-50 dark:hover:bg-gray-600 transition-all duration-300 cursor-pointer group hover:scale-102 transform"
+                className="flex items-center justify-between p-4 rounded-xl transition-all duration-300 cursor-pointer group hover:scale-102 transform"
+                style={{
+                  backgroundColor: isDarkMode ? '#1f2937' : '#f9fafb',
+                  ...(isDarkMode
+                    ? { boxShadow: '0 1px 4px 0 rgba(0,0,0,0.25)' }
+                    : { boxShadow: '0 1.5px 8px 0 rgba(16,185,129,0.07)' })
+                }}
               >
                 <div className="flex items-center space-x-3">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold transition-all group-hover:scale-110 ${
-                    i === 0 ? 'bg-yellow-500' : i === 1 ? 'bg-gray-400' : i === 2 ? 'bg-yellow-600' : 'bg-green-500'
-                  }`}>
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold transition-all group-hover:scale-110 ${
+                i === 0 ? 'bg-yellow-500 dark:bg-yellow-700' : i === 1 ? 'bg-gray-400 dark:bg-gray-700' : i === 2 ? 'bg-yellow-600 dark:bg-yellow-800' : 'bg-green-500 dark:bg-green-700'
+              }`}>
                     {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}
                   </div>
                   <div className="group-hover:translate-x-1 transition-transform">
@@ -189,10 +241,10 @@ const AdminDashboard: React.FC = () => {
             ))}
           </div>
           <div className="mt-6 flex space-x-2">
-            <button className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors font-medium">
+            <button className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 transition-colors font-medium">
               📊 Xem báo cáo
             </button>
-            <button className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+            <button className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors font-medium">
               📈 Phân tích
             </button>
           </div>
@@ -200,22 +252,34 @@ const AdminDashboard: React.FC = () => {
       </div>
 
       {/* Revenue Chart */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
+        <div
+          className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300"
+          style={{ backgroundColor: isDarkMode ? '#18181b' : '#fff' }}
+        >
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Doanh thu 7 ngày qua</h2>
           <div className="flex space-x-2">
-            <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
+            <button
+              className="px-4 py-2 rounded-lg font-medium transition-colors"
+              style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff' } : { backgroundColor: '#10b981', color: '#fff' }}
+            >
               7 ngày
             </button>
-            <button className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+            <button
+              className="px-4 py-2 rounded-lg font-medium transition-colors"
+              style={isDarkMode ? { backgroundColor: '#23272f', color: '#e5e7eb' } : { backgroundColor: '#f3f4f6', color: '#374151' }}
+            >
               30 ngày
             </button>
-            <button className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+            <button
+              className="px-4 py-2 rounded-lg font-medium transition-colors"
+              style={isDarkMode ? { backgroundColor: '#23272f', color: '#e5e7eb' } : { backgroundColor: '#f3f4f6', color: '#374151' }}
+            >
               3 tháng
             </button>
           </div>
         </div>
-        <div className="h-64 bg-gradient-to-r from-gray-700 to-gray-600 rounded-xl flex items-center justify-center relative overflow-hidden">
+        <div className="h-64 bg-gradient-to-r from-gray-700 to-gray-600 dark:from-gray-900 dark:to-gray-800 rounded-xl flex items-center justify-center relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">
             {[...Array(20)].map((_, i) => (
               <div key={i} className="absolute w-2 h-2 bg-green-500 rounded-full animate-ping" style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`, animationDelay: `${i * 0.5}s`, animationDuration: '3s' }} />
@@ -224,19 +288,19 @@ const AdminDashboard: React.FC = () => {
           <div className="text-center z-10">
             <div className="text-6xl mb-4 animate-bounce">📊</div>
             <p className="text-gray-300 text-lg font-medium">Biểu đồ doanh thu sẽ hiển thị tại đây</p>
-            <p className="text-gray-400 text-sm mt-2">Tích hợp với thư viện biểu đồ như Chart.js hoặc Recharts</p>
+            <p className="text-gray-800 dark:text-gray-200 text-sm mt-2">Tích hợp với thư viện biểu đồ như Chart.js hoặc Recharts</p>
             <div className="mt-6 grid grid-cols-3 gap-4 text-center">
-              <div className="!bg-gray-800/70 rounded-lg p-3">
-                <p className="text-2xl font-bold text-green-600">45.2M</p>
-                <p className="text-xs text-gray-400">Doanh thu tuần</p>
+              <div className="!bg-gray-800/70 dark:!bg-gray-900/80 rounded-lg p-3">
+                <p className="text-2xl font-bold text-green-600 dark:text-green-400">45.2M</p>
+                <p className="text-xs text-gray-400 dark:text-gray-300">Doanh thu tuần</p>
               </div>
-              <div className="!bg-gray-800/70 rounded-lg p-3">
-                <p className="text-2xl font-bold text-blue-600">+15%</p>
-                <p className="text-xs text-gray-400">Tăng trưởng</p>
+              <div className="!bg-gray-800/70 dark:!bg-gray-900/80 rounded-lg p-3">
+                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">+15%</p>
+                <p className="text-xs text-gray-400 dark:text-gray-300">Tăng trưởng</p>
               </div>
-              <div className="!bg-gray-800/70 rounded-lg p-3">
-                <p className="text-2xl font-bold text-purple-600">328</p>
-                <p className="text-xs text-gray-400">Đơn hàng</p>
+              <div className="!bg-gray-800/70 dark:!bg-gray-900/80 rounded-lg p-3">
+                <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">328</p>
+                <p className="text-xs text-gray-400 dark:text-gray-300">Đơn hàng</p>
               </div>
             </div>
           </div>
@@ -245,7 +309,7 @@ const AdminDashboard: React.FC = () => {
 
       {/* Floating Action Button */}
       <div className="fixed bottom-6 right-6 z-50">
-        <button className="bg-green-600 text-white p-4 rounded-full shadow-lg hover:bg-green-700 hover:scale-110 transition-all duration-300 group">
+        <button className="bg-green-600 text-white p-4 rounded-full shadow-lg hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 hover:scale-110 transition-all duration-300 group">
           <svg className="w-6 h-6 group-hover:rotate-45 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
@@ -254,7 +318,10 @@ const AdminDashboard: React.FC = () => {
 
       {/* Loading Overlay for Demo */}
       <div className="fixed top-4 right-4 z-50">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-3 flex items-center space-x-2 opacity-90">
+        <div
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-3 flex items-center space-x-2 opacity-90"
+          style={{ backgroundColor: isDarkMode ? '#18181b' : '#fff' }}
+        >
           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
           <span className="text-sm text-gray-800 dark:text-gray-300">Đồng bộ dữ liệu...</span>
         </div>
