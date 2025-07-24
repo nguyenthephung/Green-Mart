@@ -163,27 +163,61 @@ const AdminDashboard: React.FC = () => {
               </thead>
               <tbody>
                 {filteredOrders.map((o, index) => (
-                  <tr 
-                    key={o.id} 
-                    className="border-b border-gray-50 dark:border-gray-700 hover:bg-green-50 dark:hover:bg-gray-700 transition-all duration-200 cursor-pointer group"
-                    style={{ animationDelay: `${index * 50}ms` }}
+                  <tr
+                    key={o.id}
+                    className="border-b border-gray-50 dark:border-gray-700 transition-all duration-200 cursor-pointer group"
+                    style={{
+                      animationDelay: `${index * 50}ms`,
+                      ...(isDarkMode
+                        ? { backgroundColor: undefined }
+                        : { backgroundColor: undefined })
+                    }}
+                    onMouseEnter={e => {
+                      if (isDarkMode) e.currentTarget.style.backgroundColor = '#18181b';
+                      else e.currentTarget.style.backgroundColor = '#e5e7eb';
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.backgroundColor = '';
+                    }}
                   >
-                    <td className="py-4 font-semibold text-gray-800 dark:text-white group-hover:text-green-700 dark:group-hover:text-green-400">{o.id}</td>
-                    <td className="py-4 text-gray-800 dark:text-gray-200 group-hover:font-medium">{o.user}</td>
-                    <td className="py-4 font-bold text-green-600 dark:text-green-400 group-hover:scale-105 transition-transform">
+                    <td className="py-4 font-semibold text-gray-800 dark:text-white"
+                      style={isDarkMode ? { color: '#fff' } : {}}
+                    >{o.id}</td>
+                    <td className="py-4 text-gray-800 dark:text-gray-200"
+                      style={isDarkMode ? { color: '#e5e7eb' } : {}}
+                    >{o.user}</td>
+                    <td className="py-4 font-bold text-green-600 dark:text-green-400 group-hover:scale-105 transition-transform"
+                      style={isDarkMode ? { color: '#22d3ee' } : {}}
+                    >
                       {o.total.toLocaleString()}đ
                     </td>
                     <td className="py-4">
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold transition-all group-hover:scale-105 ${
-                    o.status === 'Đã giao' ? 'bg-green-100 text-green-700 group-hover:bg-green-200 dark:bg-green-900 dark:text-green-300 dark:group-hover:bg-green-800' : 
-                    o.status === 'Đã hủy' ? 'bg-red-100 text-red-600 group-hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:group-hover:bg-red-800' : 
-                    o.status === 'Đang vận chuyển' ? 'bg-blue-100 text-blue-700 group-hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:group-hover:bg-blue-800' :
-                    'bg-yellow-100 text-yellow-700 group-hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-300 dark:group-hover:bg-yellow-800'
-                  }`}>
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-semibold transition-all group-hover:scale-105`}
+                        style={
+                          isDarkMode
+                            ? o.status === 'Đã giao'
+                              ? { backgroundColor: '#23272f', color: '#4ade80' } // green
+                              : o.status === 'Đã hủy'
+                                ? { backgroundColor: '#23272f', color: '#f87171' } // red
+                                : o.status === 'Đang vận chuyển'
+                                  ? { backgroundColor: '#23272f', color: '#60a5fa' } // blue
+                                  : { backgroundColor: '#23272f', color: '#fde68a' } // yellow
+                            : o.status === 'Đã giao'
+                              ? { backgroundColor: '#bbf7d0', color: '#166534' }
+                              : o.status === 'Đã hủy'
+                                ? { backgroundColor: '#fecaca', color: '#991b1b' }
+                                : o.status === 'Đang vận chuyển'
+                                  ? { backgroundColor: '#bae6fd', color: '#1e40af' }
+                                  : { backgroundColor: '#fef9c3', color: '#92400e' }
+                        }
+                      >
                         {o.status}
                       </span>
                     </td>
-                    <td className="py-4 group-hover:text-green-700 dark:group-hover:text-green-300">
+                    <td className="py-4"
+                      style={isDarkMode ? { color: '#fff' } : {}}
+                    >
                       <div className="font-medium px-2 py-1 rounded"
                         style={{ backgroundColor: isDarkMode ? '#23272f' : '#f3f4f6', color: isDarkMode ? '#fff' : '#23272f' }}
                       >{o.date}</div>

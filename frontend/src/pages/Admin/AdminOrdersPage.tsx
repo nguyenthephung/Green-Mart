@@ -21,7 +21,15 @@ const AdminOrders: React.FC = () => {
   const [filterPayment, setFilterPayment] = useState<FilterPayment>('all');
   const [showFilters, setShowFilters] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+  // Dark mode state
+  const [isDarkMode, setIsDarkMode] = useState(document.documentElement.classList.contains('dark'));
+  React.useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -185,27 +193,30 @@ const AdminOrders: React.FC = () => {
   const totalRevenue = orders.filter(o => o.status === 'delivered').reduce((sum, o) => sum + o.totalAmount, 0);
 
   return (
-    <div className="space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
+    <div
+      className="min-h-screen transition-colors duration-300"
+      style={isDarkMode ? { backgroundColor: '#111827', color: '#fff' } : { backgroundColor: '#f9fafb' }}
+    >
       {/* Header */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+      <div
+        className="rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6"
+        style={isDarkMode ? { backgroundColor: '#18181b' } : { backgroundColor: '#fff' }}
+      >
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Quản lý đơn hàng</h1>
-            <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-300">
-              <span>Tổng: <span className="font-semibold text-blue-600">{totalOrders}</span> đơn hàng</span>
-              <span>Chờ xác nhận: <span className="font-semibold text-yellow-600">{pendingOrders}</span></span>
-              <span>Đang giao: <span className="font-semibold text-purple-600">{shippingOrders}</span></span>
-              <span>Doanh thu: <span className="font-semibold text-green-600">{formatPrice(totalRevenue)}</span></span>
+            <h1 className="text-2xl font-bold mb-2" style={isDarkMode ? { color: '#fff' } : { color: '#111827' }}>Quản lý đơn hàng</h1>
+            <div className="flex flex-wrap gap-4 text-sm" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>
+              <span>Tổng: <span className="font-semibold" style={{ color: '#2563eb' }}>{totalOrders}</span> đơn hàng</span>
+              <span>Chờ xác nhận: <span className="font-semibold" style={{ color: '#fde047' }}>{pendingOrders}</span></span>
+              <span>Đang giao: <span className="font-semibold" style={{ color: '#a78bfa' }}>{shippingOrders}</span></span>
+              <span>Doanh thu: <span className="font-semibold" style={{ color: '#22c55e' }}>{formatPrice(totalRevenue)}</span></span>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 ${
-                showFilters 
-                  ? 'bg-blue-600 text-white shadow-lg' 
-                  : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-              }`}
+              className="px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2"
+              style={isDarkMode ? (showFilters ? { backgroundColor: '#23272f', color: '#fff' } : { backgroundColor: '#23272f', color: '#60a5fa' }) : (showFilters ? { backgroundColor: '#2563eb', color: '#fff' } : { backgroundColor: '#dbeafe', color: '#1e40af' })}
             >
               <span>🔍</span>
               Bộ lọc
@@ -213,22 +224,16 @@ const AdminOrders: React.FC = () => {
             <div className="flex gap-2">
               <button
                 onClick={() => setViewMode('table')}
-                className={`px-3 py-2 rounded-lg transition-all duration-200 ${
-                  viewMode === 'table' 
-                    ? 'bg-green-600 text-white shadow-lg' 
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
+                className="px-3 py-2 rounded-lg transition-all duration-200"
+                style={isDarkMode ? (viewMode === 'table' ? { backgroundColor: '#22c55e', color: '#fff' } : { backgroundColor: '#23272f', color: '#e5e7eb' }) : (viewMode === 'table' ? { backgroundColor: '#22c55e', color: '#fff' } : { backgroundColor: '#e5e7eb', color: '#374151' })}
                 title="Xem dạng bảng"
               >
                 📋
               </button>
               <button
                 onClick={() => setViewMode('grid')}
-                className={`px-3 py-2 rounded-lg transition-all duration-200 ${
-                  viewMode === 'grid' 
-                    ? 'bg-green-600 text-white shadow-lg' 
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
+                className="px-3 py-2 rounded-lg transition-all duration-200"
+                style={isDarkMode ? (viewMode === 'grid' ? { backgroundColor: '#22c55e', color: '#fff' } : { backgroundColor: '#23272f', color: '#e5e7eb' }) : (viewMode === 'grid' ? { backgroundColor: '#22c55e', color: '#fff' } : { backgroundColor: '#e5e7eb', color: '#374151' })}
                 title="Xem dạng thẻ"
               >
                 🔳
@@ -240,9 +245,9 @@ const AdminOrders: React.FC = () => {
 
       {/* Filters */}
       {showFilters && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 animate-slideDown">
+        <div className="rounded-xl shadow-sm border border-gray-200 p-6 mb-6 animate-slideDown" style={isDarkMode ? { backgroundColor: '#18181b' } : { backgroundColor: '#fff' }}>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Bộ lọc và tìm kiếm</h3>
+            <h3 className="text-lg font-semibold" style={isDarkMode ? { color: '#fff' } : { color: '#111827' }}>Bộ lọc và tìm kiếm</h3>
             <button
               onClick={() => {
                 setSearch('');
@@ -251,31 +256,34 @@ const AdminOrders: React.FC = () => {
                 setSortField('orderDate');
                 setSortOrder('desc');
               }}
-              className="text-sm text-gray-500 hover:text-gray-700 underline"
+              className="text-sm underline"
+              style={isDarkMode ? { color: '#60a5fa' } : { color: '#2563eb' }}
             >
               Xóa bộ lọc
             </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Tìm kiếm</label>
+              <label className="block text-sm font-medium mb-2" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>Tìm kiếm</label>
               <div className="relative">
                 <input
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Mã đơn, tên khách hàng, email..."
-                  className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                  className="w-full px-4 py-2 pl-10 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                  style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
                 />
-                <span className="absolute left-3 top-2.5 text-gray-400">🔍</span>
+                <span className="absolute left-3 top-2.5" style={isDarkMode ? { color: '#a1a1aa' } : { color: '#9ca3af' }}>🔍</span>
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Trạng thái đơn hàng</label>
+              <label className="block text-sm font-medium mb-2" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>Trạng thái đơn hàng</label>
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value as FilterStatus)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
               >
                 <option value="all">Tất cả trạng thái</option>
                 <option value="pending">⏳ Chờ xác nhận</option>
@@ -286,11 +294,12 @@ const AdminOrders: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Thanh toán</label>
+              <label className="block text-sm font-medium mb-2" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>Thanh toán</label>
               <select
                 value={filterPayment}
                 onChange={(e) => setFilterPayment(e.target.value as FilterPayment)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
               >
                 <option value="all">Tất cả</option>
                 <option value="paid">💰 Đã thanh toán</option>
@@ -299,7 +308,7 @@ const AdminOrders: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Sắp xếp theo</label>
+              <label className="block text-sm font-medium mb-2" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>Sắp xếp theo</label>
               <select
                 value={`${sortField}-${sortOrder}`}
                 onChange={(e) => {
@@ -307,7 +316,8 @@ const AdminOrders: React.FC = () => {
                   setSortField(field as SortField);
                   setSortOrder(order as SortOrder);
                 }}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
               >
                 <option value="orderDate-desc">Mới nhất</option>
                 <option value="orderDate-asc">Cũ nhất</option>
@@ -324,10 +334,10 @@ const AdminOrders: React.FC = () => {
       {/* Orders Display */}
       {viewMode === 'table' ? (
         /* Table View */
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="rounded-xl shadow-sm border border-gray-200 overflow-hidden" style={isDarkMode ? { backgroundColor: '#18181b' } : { backgroundColor: '#fff' }}>
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="border-b border-gray-200" style={isDarkMode ? { backgroundColor: '#23272f' } : { backgroundColor: '#f9fafb' }}>
                 <tr>
                   <th 
                     className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
@@ -380,9 +390,11 @@ const AdminOrders: React.FC = () => {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200" style={isDarkMode ? { backgroundColor: '#18181b' } : { backgroundColor: '#fff' }}>
                 {currentOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={order.id} className="transition-colors" style={isDarkMode ? { backgroundColor: '#18181b' } : { backgroundColor: '#fff' }}
+                    onMouseEnter={e => { if (isDarkMode) e.currentTarget.style.backgroundColor = '#23272f'; else e.currentTarget.style.backgroundColor = '#f3f4f6'; }}
+                    onMouseLeave={e => { if (isDarkMode) e.currentTarget.style.backgroundColor = '#18181b'; else e.currentTarget.style.backgroundColor = '#fff'; }}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">#{order.id}</div>
                       {order.trackingCode && (
@@ -402,14 +414,27 @@ const AdminOrders: React.FC = () => {
                         {order.items.length > 1 && ` +${order.items.length - 1} khác`}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium" style={isDarkMode ? { color: '#fff' } : { color: '#111827' }}>
                       {formatPrice(order.totalAmount)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <select
                         value={order.status}
                         onChange={(e) => handleStatusChange(order.id, e.target.value as Order['status'])}
-                        className={`text-xs font-medium border rounded-full px-2.5 py-0.5 ${getStatusColor(order.status)}`}
+                        className={`text-xs font-medium border rounded-full px-2.5 py-0.5`}
+                        style={isDarkMode
+                          ? order.status === 'pending'
+                            ? { backgroundColor: '#23272f', color: '#fde68a', borderColor: '#fde68a' }
+                            : order.status === 'confirmed'
+                              ? { backgroundColor: '#23272f', color: '#60a5fa', borderColor: '#60a5fa' }
+                              : order.status === 'shipping'
+                                ? { backgroundColor: '#23272f', color: '#a78bfa', borderColor: '#a78bfa' }
+                                : order.status === 'delivered'
+                                  ? { backgroundColor: '#23272f', color: '#4ade80', borderColor: '#4ade80' }
+                                  : order.status === 'cancelled'
+                                    ? { backgroundColor: '#23272f', color: '#f87171', borderColor: '#f87171' }
+                                    : { backgroundColor: '#23272f', color: '#e5e7eb', borderColor: '#e5e7eb' }
+                          : undefined}
                         disabled={order.status === 'delivered' || order.status === 'cancelled'}
                       >
                         <option value="pending">Chờ xác nhận</option>
@@ -420,11 +445,21 @@ const AdminOrders: React.FC = () => {
                       </select>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getPaymentColor(order.paymentStatus)}`}>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border`}
+                        style={isDarkMode
+                          ? order.paymentStatus === 'paid'
+                            ? { backgroundColor: '#23272f', color: '#4ade80', borderColor: '#4ade80' }
+                            : order.paymentStatus === 'pending'
+                              ? { backgroundColor: '#23272f', color: '#fde68a', borderColor: '#fde68a' }
+                              : order.paymentStatus === 'failed'
+                                ? { backgroundColor: '#23272f', color: '#f87171', borderColor: '#f87171' }
+                                : { backgroundColor: '#23272f', color: '#e5e7eb', borderColor: '#e5e7eb' }
+                          : undefined}
+                      >
                         {getPaymentText(order.paymentStatus)}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>
                       {formatDateTime(order.orderDate)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -444,9 +479,9 @@ const AdminOrders: React.FC = () => {
           
           {totalItems === 0 && (
             <div className="text-center py-12">
-              <div className="text-gray-400 text-6xl mb-4">📦</div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Không tìm thấy đơn hàng</h3>
-              <p className="text-gray-500">
+              <div className="text-6xl mb-4" style={isDarkMode ? { color: '#71717a' } : { color: '#a1a1aa' }}>📦</div>
+              <h3 className="text-lg font-medium mb-2" style={isDarkMode ? { color: '#fff' } : { color: '#111827' }}>Không tìm thấy đơn hàng</h3>
+              <p style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>
                 {search ? 'Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc' : 'Chưa có đơn hàng nào'}
               </p>
             </div>
@@ -456,38 +491,62 @@ const AdminOrders: React.FC = () => {
         /* Grid View */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {currentOrders.map((order) => (
-            <div key={order.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1">
+            <div key={order.id} className="rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1" style={isDarkMode ? { backgroundColor: '#18181b' } : { backgroundColor: '#fff' }}>
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h3 className="text-lg font-bold text-gray-900">#{order.id}</h3>
+                  <h3 className="text-lg font-bold" style={isDarkMode ? { color: '#fff' } : { color: '#111827' }}>#{order.id}</h3>
                     {order.trackingCode && (
-                      <p className="text-sm text-gray-500">{order.trackingCode}</p>
+                      <p className="text-sm" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>{order.trackingCode}</p>
                     )}
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(order.status)}`}>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium border`}
+                      style={isDarkMode
+                        ? order.status === 'pending'
+                          ? { backgroundColor: '#23272f', color: '#fde68a', borderColor: '#fde68a' }
+                          : order.status === 'confirmed'
+                            ? { backgroundColor: '#23272f', color: '#60a5fa', borderColor: '#60a5fa' }
+                            : order.status === 'shipping'
+                              ? { backgroundColor: '#23272f', color: '#a78bfa', borderColor: '#a78bfa' }
+                              : order.status === 'delivered'
+                                ? { backgroundColor: '#23272f', color: '#4ade80', borderColor: '#4ade80' }
+                                : order.status === 'cancelled'
+                                  ? { backgroundColor: '#23272f', color: '#f87171', borderColor: '#f87171' }
+                                  : { backgroundColor: '#23272f', color: '#e5e7eb', borderColor: '#e5e7eb' }
+                        : undefined}
+                    >
                       {getStatusText(order.status)}
                     </span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getPaymentColor(order.paymentStatus)}`}>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium border`}
+                      style={isDarkMode
+                        ? order.paymentStatus === 'paid'
+                          ? { backgroundColor: '#23272f', color: '#4ade80', borderColor: '#4ade80' }
+                          : order.paymentStatus === 'pending'
+                            ? { backgroundColor: '#23272f', color: '#fde68a', borderColor: '#fde68a' }
+                            : order.paymentStatus === 'failed'
+                              ? { backgroundColor: '#23272f', color: '#f87171', borderColor: '#f87171' }
+                              : { backgroundColor: '#23272f', color: '#e5e7eb', borderColor: '#e5e7eb' }
+                        : undefined}
+                    >
                       {getPaymentText(order.paymentStatus)}
                     </span>
                   </div>
                 </div>
                 
                 <div className="mb-4">
-                  <h4 className="font-semibold text-gray-900">{order.customerName}</h4>
-                  <p className="text-sm text-gray-600">{order.customerPhone}</p>
-                  <p className="text-xs text-gray-500 truncate">{order.customerAddress}</p>
+                  <h4 className="font-semibold" style={isDarkMode ? { color: '#fff' } : { color: '#111827' }}>{order.customerName}</h4>
+                  <p className="text-sm" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>{order.customerPhone}</p>
+                  <p className="text-xs truncate" style={isDarkMode ? { color: '#a1a1aa' } : { color: '#6b7280' }}>{order.customerAddress}</p>
                 </div>
                 
                 <div className="mb-4">
-                  <div className="text-sm text-gray-700 mb-2">
+                  <div className="text-sm mb-2" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>
                     {order.items.length} sản phẩm
                   </div>
                   <div className="space-y-1">
                     {order.items.slice(0, 2).map((item) => (
-                      <div key={item.id} className="flex items-center gap-2 text-xs text-gray-600">
+                      <div key={item.id} className="flex items-center gap-2 text-xs" style={isDarkMode ? { color: '#a1a1aa' } : { color: '#6b7280' }}>
                         {item.image && (
                           <img src={item.image} alt={item.productName} className="w-6 h-6 rounded object-cover" />
                         )}
@@ -495,16 +554,16 @@ const AdminOrders: React.FC = () => {
                       </div>
                     ))}
                     {order.items.length > 2 && (
-                      <div className="text-xs text-gray-500">+{order.items.length - 2} sản phẩm khác</div>
+                      <div className="text-xs" style={isDarkMode ? { color: '#71717a' } : { color: '#a1a1aa' }}>+{order.items.length - 2} sản phẩm khác</div>
                     )}
                   </div>
                 </div>
                 
                 <div className="flex items-center justify-between mb-4">
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>
                     {formatDate(order.orderDate)}
                   </div>
-                  <div className="text-lg font-bold text-green-600">
+                  <div className="text-lg font-bold" style={isDarkMode ? { color: '#4ade80' } : { color: '#16a34a' }}>
                     {formatPrice(order.totalAmount)}
                   </div>
                 </div>
@@ -536,9 +595,9 @@ const AdminOrders: React.FC = () => {
           
           {totalItems === 0 && (
             <div className="col-span-full text-center py-12">
-              <div className="text-gray-400 text-6xl mb-4">📦</div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Không tìm thấy đơn hàng</h3>
-              <p className="text-gray-500">
+              <div className="text-6xl mb-4" style={isDarkMode ? { color: '#71717a' } : { color: '#a1a1aa' }}>📦</div>
+              <h3 className="text-lg font-medium mb-2" style={isDarkMode ? { color: '#fff' } : { color: '#111827' }}>Không tìm thấy đơn hàng</h3>
+              <p style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>
                 {search ? 'Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc' : 'Chưa có đơn hàng nào'}
               </p>
             </div>
@@ -578,6 +637,7 @@ const AdminOrders: React.FC = () => {
         <ViewOrderModal
           show={showView}
           order={viewOrder}
+          isDarkMode={isDarkMode}
           onClose={() => {
             setShowView(false);
             setViewOrder(null);
@@ -589,7 +649,7 @@ const AdminOrders: React.FC = () => {
 };
 
 // Order Detail Modal Component
-const ViewOrderModal: React.FC<{show: boolean, order: Order, onClose: () => void}> = ({ show, order, onClose }) => {
+const ViewOrderModal: React.FC<{show: boolean, order: Order, isDarkMode: boolean, onClose: () => void}> = ({ show, order, isDarkMode, onClose }) => {
   if (!show) return null;
 
   const formatPrice = (price: number) => {
@@ -621,13 +681,17 @@ const ViewOrderModal: React.FC<{show: boolean, order: Order, onClose: () => void
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+      <div
+        className="rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto"
+        style={isDarkMode ? { backgroundColor: '#18181b', color: '#fff' } : { backgroundColor: '#fff' }}
+      >
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Chi tiết đơn hàng #{order.id}</h2>
+            <h2 className="text-2xl font-bold" style={isDarkMode ? { color: '#fff' } : { color: '#111827' }}>Chi tiết đơn hàng #{order.id}</h2>
             <button
               onClick={onClose}
-              className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
+              className="p-2 rounded-lg transition-colors"
+              style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff' } : { backgroundColor: '#f3f4f6', color: '#111827' }}
             >
               ✕
             </button>
@@ -636,62 +700,68 @@ const ViewOrderModal: React.FC<{show: boolean, order: Order, onClose: () => void
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Order Info */}
             <div className="space-y-4">
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-3">Thông tin đơn hàng</h3>
+              <div
+                className="rounded-lg p-4"
+                style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff' } : { backgroundColor: '#f9fafb' }}
+              >
+                <h3 className="font-semibold mb-3" style={isDarkMode ? { color: '#fff' } : { color: '#111827' }}>Thông tin đơn hàng</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Mã đơn hàng:</span>
+                    <span style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>Mã đơn hàng:</span>
                     <span className="font-medium">#{order.id}</span>
                   </div>
                   {order.trackingCode && (
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Mã vận đơn:</span>
+                      <span style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>Mã vận đơn:</span>
                       <span className="font-medium">{order.trackingCode}</span>
                     </div>
                   )}
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Ngày đặt:</span>
+                    <span style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>Ngày đặt:</span>
                     <span>{new Date(order.orderDate).toLocaleString('vi-VN')}</span>
                   </div>
                   {order.deliveryDate && (
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Ngày giao:</span>
+                      <span style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>Ngày giao:</span>
                       <span>{new Date(order.deliveryDate).toLocaleString('vi-VN')}</span>
                     </div>
                   )}
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Trạng thái:</span>
+                    <span style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>Trạng thái:</span>
                     <span className="font-medium">{getStatusText(order.status)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Thanh toán:</span>
+                    <span style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>Thanh toán:</span>
                     <span>{getPaymentMethodText(order.paymentMethod)}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-3">Thông tin khách hàng</h3>
+              <div
+                className="rounded-lg p-4"
+                style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff' } : { backgroundColor: '#f9fafb' }}
+              >
+                <h3 className="font-semibold mb-3" style={isDarkMode ? { color: '#fff' } : { color: '#111827' }}>Thông tin khách hàng</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Họ tên:</span>
+                    <span style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>Họ tên:</span>
                     <span className="font-medium">{order.customerName}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Email:</span>
+                    <span style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>Email:</span>
                     <span>{order.customerEmail}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Điện thoại:</span>
+                    <span style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>Điện thoại:</span>
                     <span>{order.customerPhone}</span>
                   </div>
                   <div>
-                    <span className="text-gray-600">Địa chỉ:</span>
+                    <span style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>Địa chỉ:</span>
                     <p className="mt-1">{order.customerAddress}</p>
                   </div>
                   {order.notes && (
                     <div>
-                      <span className="text-gray-600">Ghi chú:</span>
+                      <span style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>Ghi chú:</span>
                       <p className="mt-1 italic">{order.notes}</p>
                     </div>
                   )}
@@ -701,22 +771,28 @@ const ViewOrderModal: React.FC<{show: boolean, order: Order, onClose: () => void
 
             {/* Order Items */}
             <div>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-3">Sản phẩm đã đặt</h3>
+              <div
+                className="rounded-lg p-4"
+                style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff' } : { backgroundColor: '#f9fafb' }}
+              >
+                <h3 className="font-semibold mb-3" style={isDarkMode ? { color: '#fff' } : { color: '#111827' }}>Sản phẩm đã đặt</h3>
                 <div className="space-y-3">
                   {order.items.map((item) => (
-                    <div key={item.id} className="flex items-center gap-3 bg-white rounded-lg p-3">
+                    <div key={item.id}
+                      className="flex items-center gap-3 rounded-lg p-3"
+                      style={isDarkMode ? { backgroundColor: '#18181b', color: '#fff' } : { backgroundColor: '#fff' }}
+                    >
                       {item.image && (
                         <img src={item.image} alt={item.productName} className="w-12 h-12 rounded-lg object-cover" />
                       )}
                       <div className="flex-1">
-                        <h4 className="font-medium text-gray-900">{item.productName}</h4>
-                        <div className="text-sm text-gray-600">
+                        <h4 className="font-medium" style={isDarkMode ? { color: '#fff' } : { color: '#111827' }}>{item.productName}</h4>
+                        <div className="text-sm" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>
                           Số lượng: {item.quantity} × {formatPrice(item.price)}
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="font-semibold text-gray-900">
+                        <div className="font-semibold" style={isDarkMode ? { color: '#fff' } : { color: '#111827' }}>
                           {formatPrice(item.quantity * item.price)}
                         </div>
                       </div>
@@ -724,10 +800,10 @@ const ViewOrderModal: React.FC<{show: boolean, order: Order, onClose: () => void
                   ))}
                 </div>
                 
-                <div className="border-t border-gray-200 mt-4 pt-4">
+                <div className="border-t mt-4 pt-4" style={isDarkMode ? { borderColor: '#374151' } : { borderColor: '#e5e7eb' }}>
                   <div className="flex justify-between items-center">
-                    <span className="text-lg font-semibold text-gray-900">Tổng cộng:</span>
-                    <span className="text-xl font-bold text-green-600">{formatPrice(order.totalAmount)}</span>
+                    <span className="text-lg font-semibold" style={isDarkMode ? { color: '#fff' } : { color: '#111827' }}>Tổng cộng:</span>
+                    <span className="text-xl font-bold" style={isDarkMode ? { color: '#4ade80' } : { color: '#16a34a' }}>{formatPrice(order.totalAmount)}</span>
                   </div>
                 </div>
               </div>
@@ -737,7 +813,8 @@ const ViewOrderModal: React.FC<{show: boolean, order: Order, onClose: () => void
           <div className="flex justify-end mt-6">
             <button
               onClick={onClose}
-              className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+              className="px-6 py-2 rounded-lg transition-colors"
+              style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff' } : { backgroundColor: '#6b7280', color: '#fff' }}
             >
               Đóng
             </button>

@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 
+
 import { adminUsers } from '../../data/Admin/users';
 import type { User } from '../../data/Admin/users';
 import Pagination from '../../components/Admin/Pagination';
@@ -11,6 +12,22 @@ type FilterStatus = 'all' | 'active' | 'inactive' | 'suspended';
 type FilterRole = 'all' | 'admin' | 'user' | 'staff';
 
 const AdminUsers: React.FC = () => {
+  // Dark mode state
+  const [isDarkMode, setIsDarkMode] = React.useState(false);
+  React.useEffect(() => {
+    const checkDark = () => setIsDarkMode(document.documentElement.classList.contains('dark'));
+    checkDark();
+    const observer = new MutationObserver(checkDark);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
+  // Helper for dark mode style
+  const darkBg = isDarkMode ? '#18181b' : '#f9fafb';
+  const cardBg = isDarkMode ? '#23272f' : '#fff';
+  const borderCol = isDarkMode ? '#23272f' : '#e5e7eb';
+  const textCol = isDarkMode ? '#fff' : '#111827';
+  const subTextCol = isDarkMode ? '#a1a1aa' : '#4b5563';
   const [users, setUsers] = useState<User[]>(adminUsers);
   const [search, setSearch] = useState('');
   const [showAdd, setShowAdd] = useState(false);
@@ -72,15 +89,14 @@ const AdminUsers: React.FC = () => {
           aValue = a.totalSpent;
           bValue = b.totalSpent;
           break;
+
         default:
           return 0;
       }
-
       if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
       if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
       return 0;
     });
-
     return filtered;
   }, [users, search, sortField, sortOrder, filterStatus, filterRole]);
 
@@ -103,6 +119,67 @@ const AdminUsers: React.FC = () => {
       setSortField(field);
       setSortOrder('asc');
     }
+  };
+
+  // ...rest of logic...
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('vi-VN');
+  };
+
+  const formatDateTime = (dateString: string) => {
+    return new Date(dateString).toLocaleString('vi-VN');
+  };
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND'
+    }).format(price);
+  };
+
+  const totalUsers = users.length;
+  const activeUsers = users.filter(u => u.status === 'active').length;
+  const verifiedUsers = users.filter(u => u.isVerified).length;
+  const totalSpent = users.reduce((sum, u) => sum + u.totalSpent, 0);
+
+  // (no code after the return statement)
+  const getSortIcon = (field: SortField) => {
+    if (sortField !== field) return '↕️';
+    return sortOrder === 'asc' ? '↑' : '↓';
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return 'bg-green-100 text-green-800 border-green-200';
+      case 'inactive': return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'suspended': return 'bg-red-100 text-red-800 border-red-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case 'admin': return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'staff': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'user': return 'bg-green-100 text-green-800 border-green-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const handleToggleStatus = (id: number, newStatus: 'active' | 'inactive' | 'suspended') => {
+    setUsers(users.map(u => 
+      u.id === id ? { ...u, status: newStatus } : u
+    ));
+  };
+
+  const openEditModal = (user: User) => {
+    setEditUser(user);
+    setShowEdit(true);
+  };
+
+  const openViewModal = (user: User) => {
+    setViewUser(user);
+    setShowView(true);
   };
 
   const handleAddUser = (newUser: Omit<User, 'id'>) => {
@@ -135,67 +212,11 @@ const AdminUsers: React.FC = () => {
     }, 500);
   };
 
-  const handleToggleStatus = (id: number, newStatus: 'active' | 'inactive' | 'suspended') => {
-    setUsers(users.map(u => 
-      u.id === id ? { ...u, status: newStatus } : u
-    ));
-  };
-
-  const openEditModal = (user: User) => {
-    setEditUser(user);
-    setShowEdit(true);
-  };
-
-  const openViewModal = (user: User) => {
-    setViewUser(user);
-    setShowView(true);
-  };
-
-  const getSortIcon = (field: SortField) => {
-    if (sortField !== field) return '↕️';
-    return sortOrder === 'asc' ? '↑' : '↓';
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-green-100 text-green-800 border-green-200';
-      case 'inactive': return 'bg-gray-100 text-gray-800 border-gray-200';
-      case 'suspended': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case 'admin': return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'staff': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'user': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('vi-VN');
-  };
-
-  const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString('vi-VN');
-  };
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND'
-    }).format(price);
-  };
-
-  const totalUsers = users.length;
-  const activeUsers = users.filter(u => u.status === 'active').length;
-  const verifiedUsers = users.filter(u => u.isVerified).length;
-  const totalSpent = users.reduce((sum, u) => sum + u.totalSpent, 0);
-
   return (
-    <div className="space-y-6 bg-gray-50 min-h-screen transition-colors duration-300">
+    <div
+      className="space-y-6 min-h-screen transition-colors duration-300"
+      style={{ background: darkBg }}
+    >
       {/* Header */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
