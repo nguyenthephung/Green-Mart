@@ -46,17 +46,29 @@ const notifications = [
 ];
 
 const NotificationDropdown: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
+  const isDarkMode = document.documentElement.classList.contains('dark');
+  
   return (
     <div 
-      className="absolute right-0 mt-2 w-96 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl z-50 border border-gray-200 dark:border-gray-700 max-h-[70vh] overflow-hidden"
+      className="absolute right-0 mt-2 w-96 rounded-2xl shadow-2xl z-50 border max-h-[70vh] overflow-hidden"
+      style={{
+        backgroundColor: isDarkMode ? '#111827' : '#fff',
+        borderColor: isDarkMode ? '#4B5563' : '#E5E7EB'
+      }}
     >
-      <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+      <div 
+        className="flex justify-between items-center px-6 py-4 border-b"
+        style={{
+          backgroundColor: isDarkMode ? '#111827' : '#F9FAFB',
+          borderColor: isDarkMode ? '#4B5563' : '#E5E7EB'
+        }}
+      >
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
           <span 
             className="font-semibold"
             style={{ 
-              color: 'rgb(var(--color-text-primary))' 
+              color: isDarkMode ? '#fff' : '#111827'
             }}
           >
             Thông báo
@@ -71,7 +83,19 @@ const NotificationDropdown: React.FC<{ onClose?: () => void }> = ({ onClose }) =
           </button>
           {onClose && (
             <button 
-              className="ml-2 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 hover:text-gray-800 dark:hover:bg-red-900/20 text-gray-500 dark:text-gray-400 dark:hover:text-red-400 transition-all duration-200" 
+              className="ml-2 w-8 h-8 flex items-center justify-center rounded-full transition-all duration-200" 
+              style={{
+                backgroundColor: 'transparent',
+                color: isDarkMode ? '#D1D5DB' : '#6B7280'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = isDarkMode ? '#4B5563' : '#E5E7EB';
+                e.currentTarget.style.color = isDarkMode ? '#fff' : '#1F2937';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = isDarkMode ? '#D1D5DB' : '#6B7280';
+              }}
               onClick={onClose} 
               aria-label="Đóng thông báo"
             >
@@ -98,10 +122,17 @@ const NotificationDropdown: React.FC<{ onClose?: () => void }> = ({ onClose }) =
             {notifications.map((n, index) => (
               <div 
                 key={n.id} 
-                className="flex gap-4 px-6 py-4 hover:bg-gray-50 hover:text-gray-900 dark:hover:bg-gray-800/50 dark:hover:text-white transition-all duration-200 group cursor-pointer"
+                className="flex gap-4 px-6 py-4 transition-all duration-200 group cursor-pointer"
                 style={{
                   animationDelay: `${index * 50}ms`,
-                  animation: 'slideInRight 0.3s ease-out'
+                  animation: 'slideInRight 0.3s ease-out',
+                  backgroundColor: 'transparent'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = isDarkMode ? '#1F2937' : '#F9FAFB';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
                 }}
               >
                 <div className="relative flex-shrink-0">
@@ -129,14 +160,18 @@ const NotificationDropdown: React.FC<{ onClose?: () => void }> = ({ onClose }) =
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between mb-2">
                     <h4 
-                      className="font-semibold text-sm group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors"
-                      style={{ color: 'rgb(var(--color-text-primary))' }}
+                      className="font-semibold text-sm transition-colors"
+                    style={{ 
+                      color: isDarkMode ? '#fff' : '#111827'
+                    }}
                     >
                       {n.status}
                     </h4>
                     <span 
                       className="text-xs flex-shrink-0 ml-2"
-                      style={{ color: 'rgb(var(--color-text-muted))' }}
+                    style={{ 
+                      color: isDarkMode ? '#9CA3AF' : '#6B7280'
+                    }}
                     >
                       {n.time}
                     </span>
@@ -144,7 +179,9 @@ const NotificationDropdown: React.FC<{ onClose?: () => void }> = ({ onClose }) =
                   
                   <p 
                     className="text-xs leading-relaxed mb-3 line-clamp-2"
-                    style={{ color: 'rgb(var(--color-text-secondary))' }}
+                    style={{ 
+                      color: isDarkMode ? '#D1D5DB' : '#4B5563'
+                    }}
                   >
                     <span dangerouslySetInnerHTML={{
                       __html: n.desc
@@ -183,8 +220,25 @@ const NotificationDropdown: React.FC<{ onClose?: () => void }> = ({ onClose }) =
         )}
       </div>
       
-      <div className="px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-        <button className="w-full text-center text-sm font-medium text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 transition-colors">
+      <div 
+        className="px-6 py-3 border-t"
+        style={{
+          backgroundColor: isDarkMode ? '#111827' : '#F9FAFB',
+          borderColor: isDarkMode ? '#4B5563' : '#E5E7EB'
+        }}
+      >
+        <button 
+          className="w-full text-center text-sm font-medium transition-colors"
+          style={{
+            color: isDarkMode ? '#4ADE80' : '#16A34A'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = isDarkMode ? '#22C55E' : '#15803D';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = isDarkMode ? '#4ADE80' : '#16A34A';
+          }}
+        >
           Xem tất cả thông báo
         </button>
       </div>

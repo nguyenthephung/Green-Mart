@@ -5,7 +5,6 @@ import { WishlistProvider } from './reduxSlice/WishlistContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import ProfilerWrapper from './components/ProfilerWrapper';
 import { useINPMonitor } from './components/INPMonitor';
-import PerformanceDashboard from './components/PerformanceDashboard';
 
 const App = memo(() => {
   const checkAuthStatus = useUserStore(state => state.checkAuthStatus);
@@ -43,10 +42,11 @@ const App = memo(() => {
       <div className="animate-fadeIn">
         <ThemeProvider>
           <WishlistProvider>
+            {/* Xóa padding-top, header sticky sẽ tự xử lý */}
             <AppRouter />
           </WishlistProvider>
         </ThemeProvider>
-        {process.env.NODE_ENV === 'development' && <PerformanceDashboard />}
+        {/* Đã xóa PerformanceDashboard */}
       </div>
     </ProfilerWrapper>
   );

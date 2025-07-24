@@ -42,10 +42,11 @@ const NotificationDropdown: React.FC = () => {
         <div className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg z-50 max-h-96 overflow-y-auto">
           <div className="p-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100">Thông báo</h3>
+              <h3 className="font-semibold text-gray-900 dark:text-white">Thông báo</h3>
               <button
                 onClick={() => setShowNotifications(false)}
-                className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+                className="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded transition-colors"
+                style={{ color: 'rgb(var(--color-text-secondary))' }}
               >
                 ✕
               </button>
@@ -56,8 +57,8 @@ const NotificationDropdown: React.FC = () => {
             {notifications.map((notification) => (
               <div
                 key={notification.id}
-                className={`p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors ${
-                  !notification.isRead ? 'bg-blue-50' : ''
+                className={`p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
+                  !notification.isRead ? 'bg-blue-50 dark:bg-blue-900/20' : ''
                 }`}
               >
                 <div className="flex items-start gap-3">

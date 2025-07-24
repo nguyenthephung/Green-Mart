@@ -56,7 +56,7 @@ const Header: React.FC = memo(() => {
   };
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50 bg-app-header/70 backdrop-blur-sm border-b border-app-border">
+    <header className="sticky top-0 left-0 w-full z-50 bg-app-header/70 backdrop-blur-sm border-b border-app-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo Section */}
@@ -130,7 +130,7 @@ const Header: React.FC = memo(() => {
             {/* Home Button */}
             <button
               onClick={() => navigate('/home')}
-              className="p-3 text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700 rounded-xl group relative transition-colors duration-200"
+              className="p-3 text-app-secondary hover:text-app-primary hover:bg-app-secondary dark:hover:text-green-400 dark:hover:bg-green-900/20 rounded-xl group relative transition-colors duration-200"
               title="Trang chủ"
             >
               <Home size={20} />
@@ -143,7 +143,7 @@ const Header: React.FC = memo(() => {
               onMouseLeave={handleDropdownLeave}
             >
               <button
-                className="p-3 text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700 rounded-xl group relative transition-colors duration-200"
+                className="p-3 text-app-secondary hover:text-app-primary hover:bg-app-secondary dark:hover:text-green-400 dark:hover:bg-green-900/20 rounded-xl group relative transition-colors duration-200"
                 tabIndex={0}
                 aria-label="Xem thông báo"
                 type="button"
@@ -169,7 +169,7 @@ const Header: React.FC = memo(() => {
             {/* Cart Button - Fixed positioning */}
             <button
               onClick={() => navigate('/mycart')}
-              className="p-3 text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-green-400 dark:hover:bg-green-900/20 rounded-xl group relative transition-colors duration-200"
+              className="p-3 text-app-secondary hover:text-app-primary hover:bg-app-secondary dark:hover:text-green-400 dark:hover:bg-green-900/20 rounded-xl group relative transition-colors duration-200"
               title="Giỏ hàng"
             >
               <span id="cart-fly-icon" className="inline-block relative">
@@ -185,7 +185,7 @@ const Header: React.FC = memo(() => {
             {/* Wishlist Button - Fixed positioning */}
             <button
               onClick={() => navigate('/wishlist')}
-              className="p-3 text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-red-400 dark:hover:bg-red-900/20 rounded-xl group relative transition-colors duration-200"
+              className="p-3 text-app-secondary hover:text-app-primary hover:bg-app-secondary dark:hover:text-red-400 dark:hover:bg-red-900/20 rounded-xl group relative transition-colors duration-200"
               title="Danh sách yêu thích"
             >
               <Heart size={20} />

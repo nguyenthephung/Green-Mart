@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useUserStore } from '../../stores/useUserStore';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react';
 
@@ -10,6 +11,7 @@ interface LoginFormData {
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
+  const login = useUserStore(state => state.login);
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: '',
@@ -34,18 +36,17 @@ const LoginPage: React.FC = () => {
     setError('');
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Simple validation
-      if (formData.email === 'admin@greenmart.com' && formData.password === 'admin123') {
-        localStorage.setItem('user', JSON.stringify({ email: formData.email, role: 'admin' }));
-        navigate('/admin/dashboard');
-      } else if (formData.email && formData.password.length >= 6) {
-        localStorage.setItem('user', JSON.stringify({ email: formData.email, role: 'user' }));
-        navigate('/home');
+      // Gọi login từ zustand store
+      const result = await login(formData.email, formData.password);
+      if (result.success) {
+        // Điều hướng theo role
+        if (formData.email === 'admin@greenmart.com') {
+          navigate('/admin/dashboard');
+        } else {
+          navigate('/home');
+        }
       } else {
-        setError('Email hoặc mật khẩu không đúng');
+        setError(result.message || 'Email hoặc mật khẩu không đúng');
       }
     } catch (err) {
       setError('Đã có lỗi xảy ra. Vui lòng thử lại.');
