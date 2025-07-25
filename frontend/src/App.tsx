@@ -4,13 +4,12 @@ import { useUserStore } from './stores/useUserStore';
 import { WishlistProvider } from './reduxSlice/WishlistContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import ProfilerWrapper from './components/ProfilerWrapper';
-import { useINPMonitor } from './components/INPMonitor';
 
 const App = memo(() => {
   const checkAuthStatus = useUserStore(state => state.checkAuthStatus);
   
   // Enable INP monitoring
-  useINPMonitor(process.env.NODE_ENV === 'development');
+
 
   useEffect(() => {
     // Chạy auth check trong background với debounce

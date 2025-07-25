@@ -164,8 +164,21 @@ const AdminProducts: React.FC = () => {
     }).format(price);
   };
 
+  // Dark mode detection
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  React.useEffect(() => {
+    const checkDark = () => setIsDarkMode(document.documentElement.classList.contains('dark'));
+    checkDark();
+    const observer = new MutationObserver(checkDark);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <div
+      className="min-h-screen transition-colors duration-300"
+      style={{ background: isDarkMode ? '#18181b' : '#f9fafb' }}
+    >
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -320,59 +333,82 @@ const AdminProducts: React.FC = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead
+                style={{ background: isDarkMode ? '#23272f' : '#f3f4f6', borderBottom: isDarkMode ? '1px solid #23272f' : '1px solid #e5e7eb' }}
+              >
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th style={{ color: isDarkMode ? '#e5e7eb' : '#6b7280', background: isDarkMode ? '#23272f' : undefined }} className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">
                     Hình ảnh
                   </th>
-                  <th 
-                    className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                  <th
+                    style={{ color: isDarkMode ? '#e5e7eb' : '#6b7280', background: isDarkMode ? '#23272f' : undefined, cursor: 'pointer' }}
+                    className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider transition-colors"
                     onClick={() => handleSort('name')}
                   >
                     <div className="flex items-center gap-1">
                       Sản phẩm {getSortIcon('name')}
                     </div>
                   </th>
-                  <th 
-                    className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                  <th
+                    style={{ color: isDarkMode ? '#e5e7eb' : '#6b7280', background: isDarkMode ? '#23272f' : undefined, cursor: 'pointer' }}
+                    className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider transition-colors"
                     onClick={() => handleSort('category')}
                   >
                     <div className="flex items-center gap-1">
                       Danh mục {getSortIcon('category')}
                     </div>
                   </th>
-                  <th 
-                    className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                  <th
+                    style={{ color: isDarkMode ? '#e5e7eb' : '#6b7280', background: isDarkMode ? '#23272f' : undefined, cursor: 'pointer' }}
+                    className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider transition-colors"
                     onClick={() => handleSort('price')}
                   >
                     <div className="flex items-center gap-1">
                       Giá {getSortIcon('price')}
                     </div>
                   </th>
-                  <th 
-                    className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  <th
+                    style={{ color: isDarkMode ? '#e5e7eb' : '#6b7280', background: isDarkMode ? '#23272f' : undefined, cursor: 'pointer' }}
+                    className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider transition-colors"
                     onClick={() => handleSort('stock')}
                   >
                     <div className="flex items-center gap-1">
                       Tồn kho {getSortIcon('stock')}
                     </div>
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th style={{ color: isDarkMode ? '#e5e7eb' : '#6b7280', background: isDarkMode ? '#23272f' : undefined }} className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">
                     Trạng thái
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th style={{ color: isDarkMode ? '#e5e7eb' : '#6b7280', background: isDarkMode ? '#23272f' : undefined }} className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">
                     Khuyến mãi
                   </th>
-                  <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th style={{ color: isDarkMode ? '#e5e7eb' : '#6b7280', background: isDarkMode ? '#23272f' : undefined }} className="px-6 py-4 text-right text-xs font-medium uppercase tracking-wider">
                     Thao tác
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody
+                style={{ background: isDarkMode ? '#18181b' : '#fff' }}
+                className="divide-y divide-gray-200 dark:divide-gray-700"
+              >
                 {currentProducts.map((product) => {
                   const stockStatus = getStockStatus(product.stock);
                   return (
-                    <tr key={product.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <tr
+                      key={product.id}
+                      style={{
+                        transition: 'background 0.2s',
+                        background: isDarkMode ? undefined : undefined,
+                      }}
+                      className="transition-colors"
+                      onMouseEnter={e => {
+                        if (isDarkMode) e.currentTarget.style.background = '#23272f';
+                        else e.currentTarget.style.background = '#f3f4f6';
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.background = '';
+                      }}
+                    >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <img 
                           src={product.images?.[0] || product.image} 
@@ -464,8 +500,8 @@ const AdminProducts: React.FC = () => {
           {filteredAndSortedProducts.length === 0 && (
             <div className="text-center py-12">
               <div className="text-gray-400 text-6xl mb-4">📦</div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Không tìm thấy sản phẩm</h3>
-              <p className="text-gray-500">
+              <h3 style={{ color: isDarkMode ? '#e5e7eb' : '#111827' }} className="text-lg font-medium mb-2">Không tìm thấy sản phẩm</h3>
+              <p style={{ color: isDarkMode ? '#a1a1aa' : '#6b7280' }}>
                 {search ? 'Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc' : 'Chưa có sản phẩm nào'}
               </p>
             </div>

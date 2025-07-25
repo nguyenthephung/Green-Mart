@@ -385,7 +385,9 @@ const AdminUsers: React.FC = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead
+                style={{ background: isDarkMode ? '#23272f' : '#f9fafb', color: isDarkMode ? '#fff' : '#6b7280', borderBottom: isDarkMode ? '1px solid #23272f' : '1px solid #e5e7eb' }}
+              >
                 <tr>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Người dùng
@@ -433,9 +435,15 @@ const AdminUsers: React.FC = () => {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody style={{ background: isDarkMode ? '#23272f' : '#fff' }}>
                 {currentUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                  <tr
+                    key={user.id}
+                    className="transition-colors"
+                    style={{ background: isDarkMode ? '#23272f' : '#fff', cursor: 'pointer' }}
+                    onMouseEnter={e => { if (e.currentTarget) e.currentTarget.style.background = isDarkMode ? '#18181b' : '#f3f4f6'; }}
+                    onMouseLeave={e => { if (e.currentTarget) e.currentTarget.style.background = isDarkMode ? '#23272f' : '#fff'; }}
+                  >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="w-10 h-10 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center overflow-hidden">
