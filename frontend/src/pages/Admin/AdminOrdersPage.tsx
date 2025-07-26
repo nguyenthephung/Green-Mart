@@ -132,25 +132,6 @@ const AdminOrders: React.FC = () => {
     return sortOrder === 'asc' ? '↑' : '↓';
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'confirmed': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'shipping': return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'delivered': return 'bg-green-100 text-green-800 border-green-200';
-      case 'cancelled': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
-  const getPaymentColor = (status: string) => {
-    switch (status) {
-      case 'paid': return 'bg-green-100 text-green-800 border-green-200';
-      case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'failed': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
 
   const getStatusText = (status: string) => {
     switch (status) {
@@ -680,10 +661,17 @@ const ViewOrderModal: React.FC<{show: boolean, order: Order, isDarkMode: boolean
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
       <div
         className="rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto"
-        style={isDarkMode ? { backgroundColor: '#18181b', color: '#fff' } : { backgroundColor: '#fff' }}
+        style={{
+          ...(isDarkMode ? { backgroundColor: '#18181b', color: '#fff' } : { backgroundColor: '#fff' }),
+          position: 'fixed',
+          top: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          margin: '16px'
+        }}
       >
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">

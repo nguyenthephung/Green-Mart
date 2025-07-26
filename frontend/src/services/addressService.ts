@@ -4,7 +4,7 @@ const API_BASE_URL = 'http://localhost:5000/api';
 
 export interface AddressResponse {
   id: string; // MongoDB _id là string
-  userId: number;
+  userId: string;
   fullName: string;
   phone: string;
   district: string;
@@ -30,7 +30,7 @@ export interface ApiResponse<T> {
 
 export class AddressService {
   // Lấy tất cả địa chỉ của user
-  static async getUserAddresses(userId: number): Promise<AddressResponse[]> {
+  static async getUserAddresses(userId: string): Promise<AddressResponse[]> {
     try {
       const response = await fetch(`${API_BASE_URL}/users/${userId}/addresses`);
       const result: ApiResponse<AddressResponse[]> = await response.json();
@@ -47,7 +47,7 @@ export class AddressService {
   }
 
   // Tạo địa chỉ mới
-  static async createAddress(userId: number, addressData: UserAddress): Promise<AddressResponse> {
+  static async createAddress(userId: string, addressData: UserAddress): Promise<AddressResponse> {
     try {
       const response = await fetch(`${API_BASE_URL}/users/${userId}/addresses`, {
         method: 'POST',
@@ -71,7 +71,7 @@ export class AddressService {
   }
 
   // Cập nhật địa chỉ
-  static async updateAddress(userId: number, addressId: string, addressData: Partial<UserAddress>): Promise<AddressResponse> {
+  static async updateAddress(userId: string, addressId: string, addressData: Partial<UserAddress>): Promise<AddressResponse> {
     try {
       const response = await fetch(`${API_BASE_URL}/users/${userId}/addresses/${addressId}`, {
         method: 'PUT',
@@ -95,7 +95,7 @@ export class AddressService {
   }
 
   // Xóa địa chỉ
-  static async deleteAddress(userId: number, addressId: string): Promise<void> {
+  static async deleteAddress(userId: string, addressId: string): Promise<void> {
     try {
       const response = await fetch(`${API_BASE_URL}/users/${userId}/addresses/${addressId}`, {
         method: 'DELETE',
@@ -113,7 +113,7 @@ export class AddressService {
   }
 
   // Đặt làm địa chỉ mặc định
-  static async setDefaultAddress(userId: number, addressId: string): Promise<void> {
+  static async setDefaultAddress(userId: string, addressId: string): Promise<void> {
     try {
       const response = await fetch(`${API_BASE_URL}/users/${userId}/addresses/${addressId}/default`, {
         method: 'PATCH',

@@ -1,8 +1,8 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface Address {
-  id: number;
-  userId: number;
+  id: string; // MongoDB _id as string
+  userId: string; // ObjectId dạng string
   fullName: string;
   phone: string;
   district: string;
@@ -21,7 +21,7 @@ export interface Address {
 
 // Mongoose Document interface
 export interface AddressDocument extends Document {
-  userId: number;
+  userId: mongoose.Schema.Types.ObjectId;
   fullName: string;
   phone: string;
   district: string;
@@ -32,12 +32,14 @@ export interface AddressDocument extends Document {
   isDefaultSelected: boolean; // Changed name to avoid conflict
   createdAt: Date;
   updatedAt: Date;
+  id: string; // Add id for frontend compatibility
 }
 
 // Mongoose Schema
 const AddressSchema = new Schema<AddressDocument>({
   userId: {
-    type: Number,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
     required: true,
     index: true
   },
@@ -110,7 +112,7 @@ export interface UpdateAddressRequest {
 
 export interface AddressResponse {
   id: string; // MongoDB _id là string
-  userId: number;
+  userId: string;
   fullName: string;
   phone: string;
   district: string;

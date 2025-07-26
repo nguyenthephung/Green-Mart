@@ -63,7 +63,7 @@ const MyAddresses: React.FC = () => {
       try {
         setLoading(true);
         setError('');
-        const apiAddresses = await AddressService.getUserAddresses(parseInt(user.id));
+        const apiAddresses = await AddressService.getUserAddresses(user.id);
         const convertedAddresses = apiAddresses.map(convertToAddressInfo);
         setAddresses(convertedAddresses);
       } catch (err) {
@@ -85,12 +85,12 @@ const MyAddresses: React.FC = () => {
       setLoading(true);
       setError('');
       
-      const addressResponse = await AddressService.createAddress(parseInt(user.id), addressData.new);
+      const addressResponse = await AddressService.createAddress(user.id, addressData.new);
       const newAddressInfo = convertToAddressInfo(addressResponse);
       
       setAddresses([
-        ...addresses.map((a: AddressInfo) => ({ ...a, isSelected: false })),
-        newAddressInfo,
+        ...addresses.map((a: AddressInfo) => ({ ...a, isSelected: false, userId: user.id })),
+        { ...newAddressInfo, userId: user.id },
       ]);
       
       handleModalToggle('add', false);
@@ -111,8 +111,8 @@ const MyAddresses: React.FC = () => {
       setError('');
       
       const addressResponse = await AddressService.updateAddress(
-        parseInt(user.id), 
-        modals.editId.toString(), 
+        user.id,
+        modals.editId.toString(),
         addressData.edit
       );
       
@@ -141,7 +141,7 @@ const MyAddresses: React.FC = () => {
       setLoading(true);
       setError('');
       
-      await AddressService.setDefaultAddress(parseInt(user.id), id.toString());
+      await AddressService.setDefaultAddress(user.id, id.toString());
       
       setAddresses(
         addresses.map((address: AddressInfo) => ({
@@ -165,7 +165,7 @@ const MyAddresses: React.FC = () => {
       setLoading(true);
       setError('');
       
-      await AddressService.deleteAddress(parseInt(user.id), id.toString());
+      await AddressService.deleteAddress(user.id, id.toString());
       
       setAddresses(addresses.filter((address: AddressInfo) => address.id !== id));
     } catch (err) {

@@ -141,11 +141,6 @@ const AdminCategories: React.FC = () => {
     return sortOrder === 'asc' ? '↑' : '↓';
   };
 
-  const getStatusColor = (status: string) => {
-    return status === 'active'
-      ? 'bg-green-100 text-green-800 border-green-200' 
-      : 'bg-red-100 text-red-800 border-red-200';
-  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('vi-VN');
@@ -562,10 +557,17 @@ const AddCategoryModal: React.FC<{show: boolean, onAdd: (cat: Omit<Category, 'id
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
       <div
-        className="rounded-xl p-6 w-full max-w-md"
-        style={isDarkMode ? { backgroundColor: '#18181b', color: '#fff' } : { backgroundColor: '#fff' }}
+        className="rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
+        style={{
+          ...(isDarkMode ? { backgroundColor: '#18181b', color: '#fff' } : { backgroundColor: '#fff' }),
+          position: 'fixed',
+          top: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          margin: '16px'
+        }}
       >
         <h2 className="text-xl font-bold mb-4">Thêm danh mục mới</h2>
         <div className="space-y-4">
@@ -631,10 +633,17 @@ const EditCategoryModal: React.FC<{show: boolean, category: Category, onSave: (c
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
       <div
-        className="rounded-xl p-6 w-full max-w-md"
-        style={isDarkMode ? { backgroundColor: '#18181b', color: '#fff' } : { backgroundColor: '#fff' }}
+        className="rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
+        style={{
+          ...(isDarkMode ? { backgroundColor: '#18181b', color: '#fff' } : { backgroundColor: '#fff' }),
+          position: 'fixed',
+          top: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          margin: '16px'
+        }}
       >
         <h2 className="text-xl font-bold mb-4">Sửa danh mục</h2>
         <div className="space-y-4">
@@ -683,10 +692,17 @@ const ConfirmDeleteCategoryModal: React.FC<{show: boolean, categoryName: string,
   if (!show) return null;
   const isDarkMode = document.documentElement.classList.contains('dark');
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
       <div
         className="rounded-xl p-6 w-full max-w-sm"
-        style={isDarkMode ? { backgroundColor: '#18181b', color: '#fff' } : { backgroundColor: '#fff' }}
+        style={{
+          ...(isDarkMode ? { backgroundColor: '#18181b', color: '#fff' } : { backgroundColor: '#fff' }),
+          position: 'fixed',
+          top: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          margin: '16px'
+        }}
       >
         <h2 className="text-xl font-bold mb-4" style={{ color: '#ef4444' }}>Xác nhận xóa</h2>
         <p className="mb-6">Bạn có chắc chắn muốn xóa danh mục <strong>"{categoryName}"</strong> không?</p>

@@ -91,79 +91,144 @@ const ProductDetailPage: React.FC = () => {
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (imgRef.current) {
-      const img = imgRef.current;
-      const cartIcon = document.getElementById('cart-fly-icon');
-      if (cartIcon) {
-        const imgRect = img.getBoundingClientRect();
-        const cartRect = cartIcon.getBoundingClientRect();
-        const clone = img.cloneNode(true) as HTMLImageElement;
-        clone.style.position = 'fixed';
-        clone.style.left = imgRect.left + 'px';
-        clone.style.top = imgRect.top + 'px';
-        clone.style.width = imgRect.width + 'px';
-        clone.style.height = imgRect.height + 'px';
-        clone.style.zIndex = '9999';
-        clone.style.transition = 'all 3s cubic-bezier(.4,2,.6,1)';
-        document.body.appendChild(clone);
-        setTimeout(() => {
-          clone.style.left = cartRect.left + cartRect.width / 2 - imgRect.width / 4 + 'px';
-          clone.style.top = cartRect.top + cartRect.height / 2 - imgRect.height / 4 + 'px';
-          clone.style.width = imgRect.width / 2 + 'px';
-          clone.style.height = imgRect.height / 2 + 'px';
-          clone.style.opacity = '0.5';
-        }, 10);
-        setTimeout(() => {
-          document.body.removeChild(clone);
-        }, 3100);
-      }
-    }
+    
+    // Add to cart first
     addToCart({
       id: Number(product.id),
       name: product.name,
       price: parseInt((product.price || '').replace(/\D/g, '')) || 0,
       image: product.image
     });
+
+    // Create flying animation
+    if (imgRef.current) {
+      const clickedElement = imgRef.current;
+      const rect = clickedElement.getBoundingClientRect();
+      const cartIcon = document.getElementById('cart-fly-icon');
+      
+      if (!cartIcon) return;
+
+      const cartRect = cartIcon.getBoundingClientRect();
+      
+      // Create flying element with optimized properties
+      const flyingEl = document.createElement('div');
+      flyingEl.className = 'flying-item';
+      flyingEl.style.cssText = `
+        position: fixed;
+        left: ${rect.left + rect.width / 2}px;
+        top: ${rect.top + rect.height / 2}px;
+        transform: translate(-50%, -50%);
+        z-index: 9999;
+        transition: all 0.8s cubic-bezier(.4,1.6,.6,1);
+        pointer-events: none;
+        will-change: transform, opacity;
+      `;
+      
+      flyingEl.innerHTML = `
+        <div style="background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 4px; border: 2px solid #10b981;">
+          <img src="${product.image}" alt="${product.name}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; display: block;" />
+        </div>
+      `;
+      
+      document.body.appendChild(flyingEl);
+      
+      // Use RAF for smoother animation
+      requestAnimationFrame(() => {
+        flyingEl.style.left = `${cartRect.left + cartRect.width / 2}px`;
+        flyingEl.style.top = `${cartRect.top + cartRect.height / 2}px`;
+        flyingEl.style.transform = 'translate(-50%, -50%) scale(0.3)';
+        flyingEl.style.opacity = '0';
+      });
+      
+      // Remove element after animation
+      setTimeout(() => {
+        if (flyingEl.parentNode) {
+          flyingEl.parentNode.removeChild(flyingEl);
+        }
+      }, 800);
+    }
+
+    // Cart icon bounce effect
+    const cartIcon = document.getElementById('cart-fly-icon');
+    if (cartIcon) {
+      cartIcon.style.transform = 'scale(1.2)';
+      cartIcon.style.transition = 'transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+      
+      setTimeout(() => {
+        cartIcon.style.transform = 'scale(1)';
+      }, 300);
+    }
   };
 
   const handleAddToCartRelated = (e: React.MouseEvent, item: any) => {
     e.stopPropagation();
-    if (imgRefs.current[item.id]) {
-      const img = imgRefs.current[item.id].current;
-      const cartIcon = document.getElementById('cart-fly-icon');
-      if (cartIcon && img) {
-        const imgRect = img.getBoundingClientRect();
-        const cartRect = cartIcon.getBoundingClientRect();
-        const clone = img.cloneNode(true) as HTMLImageElement;
-        clone.style.position = 'fixed';
-        clone.style.left = imgRect.left + 'px';
-        clone.style.top = imgRect.top + 'px';
-        clone.style.width = imgRect.width + 'px';
-        clone.style.height = imgRect.height + 'px';
-        clone.style.zIndex = '9999';
-        clone.style.transition = 'all 2s cubic-bezier(.4,2,.6,1)';
-        clone.style.transform = 'scale(1) rotateY(0deg)';
-        document.body.appendChild(clone);
-        setTimeout(() => {
-          clone.style.left = cartRect.left + cartRect.width / 2 - imgRect.width / 4 + 'px';
-          clone.style.top = cartRect.top + cartRect.height / 2 - imgRect.height / 4 + 'px';
-          clone.style.width = imgRect.width / 2 + 'px';
-          clone.style.height = imgRect.height / 2 + 'px';
-          clone.style.opacity = '0.7';
-          clone.style.transform = 'scale(0.5) rotateY(360deg)';
-          clone.style.boxShadow = '0 8px 32px 0 rgba(34,197,94,0.4)';
-        }, 10);
-        setTimeout(() => {
-          document.body.removeChild(clone);
-        }, 2100);
-      }
-    }
+    
+    // Add to cart first
     addToCart({
       id: Number(item.id),
       name: item.name,
       price: parseInt((item.price || '').replace(/\D/g, '')) || 0,
       image: item.image
     });
+
+    // Create flying animation for related products
+    if (imgRefs.current[item.id]) {
+      const img = imgRefs.current[item.id].current;
+      const cartIcon = document.getElementById('cart-fly-icon');
+      
+      if (cartIcon && img) {
+        const imgRect = img.getBoundingClientRect();
+        const cartRect = cartIcon.getBoundingClientRect();
+        
+        // Create flying element
+        const flyingEl = document.createElement('div');
+        flyingEl.className = 'flying-item';
+        flyingEl.style.cssText = `
+          position: fixed;
+          left: ${imgRect.left + imgRect.width / 2}px;
+          top: ${imgRect.top + imgRect.height / 2}px;
+          transform: translate(-50%, -50%);
+          z-index: 9999;
+          transition: all 0.8s cubic-bezier(.4,1.6,.6,1);
+          pointer-events: none;
+          will-change: transform, opacity;
+        `;
+        
+        flyingEl.innerHTML = `
+          <div style="background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 4px; border: 2px solid #10b981;">
+            <img src="${item.image}" alt="${item.name}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; display: block;" />
+          </div>
+        `;
+        
+        document.body.appendChild(flyingEl);
+        
+        // Use RAF for smoother animation
+        requestAnimationFrame(() => {
+          flyingEl.style.left = `${cartRect.left + cartRect.width / 2}px`;
+          flyingEl.style.top = `${cartRect.top + cartRect.height / 2}px`;
+          flyingEl.style.transform = 'translate(-50%, -50%) scale(0.3)';
+          flyingEl.style.opacity = '0';
+        });
+        
+        // Remove element after animation
+        setTimeout(() => {
+          if (flyingEl.parentNode) {
+            flyingEl.parentNode.removeChild(flyingEl);
+          }
+        }, 800);
+      }
+    }
+
+    // Cart icon bounce effect
+    const cartIcon = document.getElementById('cart-fly-icon');
+    if (cartIcon) {
+      cartIcon.style.transform = 'scale(1.2)';
+      cartIcon.style.transition = 'transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+      
+      setTimeout(() => {
+        cartIcon.style.transform = 'scale(1)';
+      }, 300);
+    }
   };
 
   // Lọc comment theo sản phẩm và đồng bộ localStorage

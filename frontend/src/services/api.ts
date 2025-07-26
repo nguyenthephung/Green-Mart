@@ -156,7 +156,7 @@ export const authAPI = {
   // Cập nhật profile
   updateProfile: async (data: any): Promise<ApiResponse<User>> => {
     return apiClient<User>('/auth/profile', {
-      method: 'PUT',
+      method: 'PATCH',
       body: JSON.stringify(data),
     });
   },

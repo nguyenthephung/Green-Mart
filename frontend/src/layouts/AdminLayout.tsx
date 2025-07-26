@@ -170,7 +170,7 @@ const AdminLayout: React.FC = () => {
                     className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-4'} px-4 py-3 rounded-xl font-medium transition-all duration-200 relative overflow-hidden
                       ${isActive 
                         ? `bg-gradient-to-r ${item.color} text-white shadow-lg transform scale-105` 
-                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900 hover:scale-102'
+                        : 'text-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900 dark:hover:text-white hover:text-gray-900 hover:scale-102'
                       }`}
                   >
                     {isActive && (

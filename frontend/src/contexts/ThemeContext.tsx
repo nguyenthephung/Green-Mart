@@ -41,25 +41,19 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = memo(({ children }) =
   });
 
   useEffect(() => {
-    console.log('🎨 ThemeProvider useEffect triggered, theme:', theme);
     const root = window.document.documentElement;
     const body = window.document.body;
     
     // Remove existing theme classes
     root.classList.remove('light', 'dark');
     body.classList.remove('light', 'dark');
-    console.log('🗑️ Removed existing theme classes');
     
     // Add new theme class to both html and body
     root.classList.add(theme);
     body.classList.add(theme);
-    console.log('✅ Added theme class:', theme, 'to documentElement and body');
-    console.log('📋 Current documentElement classes:', root.className);
-    console.log('📋 Current body classes:', body.className);
     
     // Save to localStorage
     localStorage.setItem('greenmart-theme', theme);
-    console.log('💾 Saved theme to localStorage:', theme);
     
     // Update meta theme-color for mobile browsers
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
@@ -69,10 +63,8 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = memo(({ children }) =
   }, [theme]);
 
   const toggleTheme = () => {
-    console.log('toggleTheme called, current theme:', theme);
     setTheme(prevTheme => {
       const newTheme = prevTheme === 'light' ? 'dark' : 'light';
-      console.log('Setting new theme:', newTheme);
       return newTheme;
     });
   };

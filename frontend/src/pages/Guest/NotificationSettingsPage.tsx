@@ -65,14 +65,15 @@ const NotificationSettingsPage: React.FC = () => {
     },
   ];
 
-  const enabledCount = Object.values(settings).filter(Boolean).length;
+  const enabledCount = notificationTypes.filter(({ key }) => settings[key as keyof typeof settings]).length;
+  const disabledCount = notificationTypes.length - enabledCount;
 
   return (
     <DashboardLayout>
-      <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-8 rounded-3xl shadow-xl border border-green-100">
+      <div className="bg-white dark:bg-gray-950 p-8 rounded-3xl shadow-xl">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center justify-center gap-3">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-200 mb-2 flex items-center justify-center gap-3">
             <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -80,12 +81,12 @@ const NotificationSettingsPage: React.FC = () => {
             </div>
             Cài đặt thông báo
           </h1>
-          <p className="text-gray-600">Quản lý các loại thông báo bạn muốn nhận</p>
+          <p className="text-gray-600 dark:text-gray-400">Quản lý các loại thông báo bạn muốn nhận</p>
         </div>
 
         {/* Statistics */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+        <div className="bg-green-50 dark:bg-gray-950 rounded-2xl p-6 shadow-lg">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -98,7 +99,7 @@ const NotificationSettingsPage: React.FC = () => {
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+        <div className="bg-green-50 dark:bg-gray-950 rounded-2xl p-6 shadow-lg">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-gray-500 rounded-full flex items-center justify-center">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -106,12 +107,12 @@ const NotificationSettingsPage: React.FC = () => {
                 </svg>
               </div>
               <div>
-                <div className="text-2xl font-bold text-gray-900">{notificationTypes.length - enabledCount}</div>
+                <div className="text-2xl font-bold text-gray-900">{disabledCount}</div>
                 <div className="text-gray-600">Đã tắt</div>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+        <div className="bg-green-50 dark:bg-gray-950 rounded-2xl p-6 shadow-lg">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -126,27 +127,25 @@ const NotificationSettingsPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+        <div className="bg-white dark:bg-gray-950 rounded-2xl shadow-lg p-8">
           <div className="space-y-6">
             {notificationTypes.map(({ key, label, description, color, icon }) => {
               const isEnabled = settings[key as keyof typeof settings];
               return (
-                <div key={key} className={`p-6 rounded-2xl border-2 transition-all duration-300 ${
-                  isEnabled 
-                    ? `border-${color}-300 bg-gradient-to-r from-${color}-50 to-${color}-100` 
-                    : 'border-gray-200 bg-gray-50 hover:border-gray-300'
+                <div key={key} className={`p-6 rounded-2xl transition-all duration-300 ${
+                  key === 'order' ? 'bg-green-50 dark:bg-gray-950' : key === 'promotion' ? 'bg-orange-50 dark:bg-gray-950' : 'bg-blue-50 dark:bg-gray-950'
                 }`}>
                   <div className="flex items-center gap-6">
                     {icon}
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900">{label}</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-200">{label}</h3>
                         <button
                           type="button"
                           className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                             isEnabled 
-                              ? `bg-${color}-600 focus:ring-${color}-500` 
-                              : 'bg-gray-200 focus:ring-gray-500'
+                              ? `bg-${color}-600 dark:bg-gray-800 focus:ring-${color}-500 dark:focus:ring-gray-700` 
+                              : 'bg-gray-200 dark:bg-gray-800 focus:ring-gray-500 dark:focus:ring-gray-700'
                           }`}
                           onClick={() => handleChange(key as keyof typeof settings)}
                         >
@@ -157,12 +156,12 @@ const NotificationSettingsPage: React.FC = () => {
                           />
                         </button>
                       </div>
-                      <p className="text-gray-600">{description}</p>
+                      <p className="text-gray-600 dark:text-gray-400">{description}</p>
                       <div className="flex items-center gap-2 mt-3">
                         <div className={`w-2 h-2 rounded-full ${
                           isEnabled ? `bg-${color}-500` : 'bg-gray-400'
                         }`}></div>
-                        <span className="text-sm font-medium text-gray-600">
+                        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
                           {isEnabled ? 'Đã bật' : 'Đã tắt'}
                         </span>
                       </div>
@@ -173,13 +172,7 @@ const NotificationSettingsPage: React.FC = () => {
             })}
           </div>
 
-          <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-200">
-            <button
-              className="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-gray-300 transition-colors duration-200"
-              onClick={() => navigate(-1)}
-            >
-              Hủy
-            </button>
+          <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
             <button
               className={`px-8 py-3 rounded-xl font-semibold transition-all duration-200 ${
                 saving 

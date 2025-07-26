@@ -5,6 +5,49 @@ import { AuthRequest } from '@/middlewares/auth';
 import mongoose from 'mongoose';
 
 export class AuthController {
+  // Cập nhật thông tin user hiện tại
+  static updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+      const user = req.user;
+      const { name, phone, avatar } = req.body;
+
+      if (name !== undefined) user.name = name;
+      if (phone !== undefined) user.phone = phone;
+      if (avatar !== undefined) user.avatar = avatar;
+
+      await user.save();
+
+      const userData = {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        status: user.status,
+        isVerified: user.isVerified,
+        avatar: user.avatar,
+        address: user.address,
+        dateOfBirth: user.dateOfBirth,
+        gender: user.gender,
+        joinDate: user.joinDate,
+        lastLogin: user.lastLogin,
+        totalOrders: user.totalOrders,
+        totalSpent: user.totalSpent
+      };
+
+      res.status(200).json({
+        success: true,
+        message: 'Cập nhật thông tin thành công!',
+        data: userData
+      });
+    } catch (error) {
+      console.error('Update profile error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Lỗi server. Vui lòng thử lại.'
+      });
+    }
+  }
   // Đăng ký
   static register = async (req: Request, res: Response): Promise<void> => {
     try {

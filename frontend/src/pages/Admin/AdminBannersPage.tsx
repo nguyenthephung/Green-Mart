@@ -657,8 +657,17 @@ const AddBannerModal: React.FC<{show: boolean, onAdd: (banner: Omit<Banner, 'id'
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
+      <div 
+        className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto"
+        style={{
+          position: 'fixed',
+          top: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          margin: '16px'
+        }}
+      >
         <div className="p-6">
           <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Thêm banner mới</h2>
           <div className="space-y-4">
@@ -755,8 +764,17 @@ const EditBannerModal: React.FC<{show: boolean, banner: Banner, onSave: (banner:
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
+      <div 
+        className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto"
+        style={{
+          position: 'fixed',
+          top: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          margin: '16px'
+        }}
+      >
         <div className="p-6">
           <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Sửa banner</h2>
           <div className="space-y-4">
@@ -846,8 +864,17 @@ const ViewBannerModal: React.FC<{show: boolean, banner: Banner, onClose: () => v
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
+      <div 
+        className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+        style={{
+          position: 'fixed',
+          top: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          margin: '16px'
+        }}
+      >
         <div className="p-6">
           <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Chi tiết banner</h2>
           <div className="space-y-4">
@@ -906,8 +933,17 @@ const ConfirmDeleteBannerModal: React.FC<{show: boolean, bannerTitle: string, on
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-sm">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
+      <div 
+        className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-sm"
+        style={{
+          position: 'fixed',
+          top: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          margin: '16px'
+        }}
+      >
         <h2 className="text-xl font-bold mb-4 text-red-700 dark:text-red-400">Xác nhận xóa</h2>
         <p className="mb-6 text-gray-900 dark:text-white">Bạn có chắc chắn muốn xóa banner <strong>"{bannerTitle}"</strong> không?</p>
         <div className="flex gap-2">

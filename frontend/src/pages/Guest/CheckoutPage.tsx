@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '../../components/Guest/Header';
 // import Footer from '../../components/Guest/Footer'; // Remove Footer import
 import CheckoutMain from '../../components/Guest/checkout/CheckoutMain';
 import { useCartStore } from '../../stores/useCartStore';
@@ -81,13 +80,12 @@ const Checkout = () => {
 
   return (
     <div className="bg-gradient-app-main min-h-screen flex flex-col">
-      <Header />
       
       {/* Hero Section */}
-      <div className="pt-[104px] md:pt-[88px] lg:pt-[80px] pb-8">
+      <div className="pt-0 pb-2">
         <div className="max-w-7xl mx-auto px-8">
-          <div className="text-center py-8">
-            <h1 className="text-4xl font-bold text-app-primary mb-2">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold text-app-primary">
               💳 Thanh toán đơn hàng
             </h1>
             <p className="text-lg text-app-secondary">

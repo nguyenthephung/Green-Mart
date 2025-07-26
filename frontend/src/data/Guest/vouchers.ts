@@ -46,6 +46,7 @@ export const vouchers: Voucher[] = [
 // Danh sách voucher hệ thống dùng cho LuckyWheel
 export const luckyVouchers = [
   {
+    id: 101,
     code: 'LUCKY10K',
     label: 'Voucher 10K',
     discountType: 'amount',
@@ -54,6 +55,7 @@ export const luckyVouchers = [
     description: 'Giảm 10.000đ cho đơn bất kỳ.',
   },
   {
+    id: 102,
     code: 'LUCKY20K',
     label: 'Voucher 20K',
     discountType: 'amount',
@@ -62,6 +64,7 @@ export const luckyVouchers = [
     description: 'Giảm 20.000đ cho đơn bất kỳ.',
   },
   {
+    id: 103,
     code: 'LUCKY50K',
     label: 'Voucher 50K',
     discountType: 'amount',
@@ -70,6 +73,7 @@ export const luckyVouchers = [
     description: 'Giảm 50.000đ cho đơn bất kỳ.',
   },
   {
+    id: 104,
     code: 'LUCKY100K',
     label: 'Voucher 100K',
     discountType: 'amount',
@@ -78,6 +82,7 @@ export const luckyVouchers = [
     description: 'Giảm 100.000đ cho đơn bất kỳ.',
   },
   {
+    id: 105,
     code: 'LUCKY5P',
     label: 'Voucher 5%',
     discountType: 'percent',
@@ -86,6 +91,7 @@ export const luckyVouchers = [
     description: 'Giảm 5% cho đơn bất kỳ.',
   },
   {
+    id: 106,
     code: 'LUCKY10P',
     label: 'Voucher 10%',
     discountType: 'percent',
@@ -94,6 +100,7 @@ export const luckyVouchers = [
     description: 'Giảm 10% cho đơn bất kỳ.',
   },
   {
+    id: 107,
     code: 'LUCKY20P',
     label: 'Voucher 20%',
     discountType: 'percent',

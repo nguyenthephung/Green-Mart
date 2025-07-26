@@ -1,14 +1,12 @@
 import { useCartStore } from '../../stores/useCartStore';
 import { useUserStore } from '../../stores/useUserStore';
 import { useEffect, useState } from "react";
-import Header from '../../components/Guest/Header';
 import CartSummary from "../../components/Guest/cart/CartSummary";
 import MarketInfo from "../../components/Guest/cart/MarketInfo";
 import Recommendations from "../../components/Guest/cart/Recommendations";
 import CartList from "../../components/Guest/cart/CartList";
 import { products } from '../../data/Guest/Home';
 import { useNavigate } from 'react-router-dom';
-import { LoadingSpinner } from '../../components/Loading';
 import EmptyCart from '../../components/Guest/cart/EmptyCart';
 import { districts } from '../../data/Guest/hcm_districts_sample';
 import haversine from 'haversine-distance';
@@ -212,7 +210,6 @@ export default function CartPage() {
   if (cart.length === 0) {
     return (
       <>
-        <Header />
         <div className="bg-gradient-app-main min-h-screen pt-[104px] md:pt-[88px] lg:pt-[80px]">
           <EmptyCart />
         </div>
@@ -223,12 +220,11 @@ export default function CartPage() {
 
   return (
     <>
-    <Header />
     <div className="bg-gradient-app-main min-h-screen">
       {/* Hero Section */}
-      <div className="pt-[104px] md:pt-[88px] lg:pt-[80px] pb-8">
+      <div className="pt-0 pb-2">
         <div className="max-w-7xl mx-auto px-8">
-          <div className="text-center py-8">
+          <div className="text-center">
             <h1 className="text-4xl font-bold text-app-primary mb-2">
               🛒 Giỏ hàng của bạn
             </h1>

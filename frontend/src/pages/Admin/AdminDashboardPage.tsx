@@ -7,7 +7,7 @@ const AdminDashboard: React.FC = () => {
   // Theme state for reactive background fix
   const [isDarkMode, setIsDarkMode] = useState(document.documentElement.classList.contains('dark'));
   // Chế độ dark: true = nền đen, false = chữ đen
-  const [darkModeType, setDarkModeType] = useState<'background' | 'text'>('background');
+  const [darkModeType] = useState<'background' | 'text'>('background');
   useEffect(() => {
     const observer = new MutationObserver(() => {
       setIsDarkMode(document.documentElement.classList.contains('dark'));

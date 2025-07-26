@@ -38,7 +38,6 @@
   --color-bg-card: 31 41 55;
   --color-bg-input: 75 85 99;
   --color-bg-header: 31 41 55;
-  --color-bg-emerald: 17 24 39;
   --color-bg-green: 31 41 55;
   --color-bg-teal: 55 65 81;
   --color-bg-overlay: 0 0 0;
@@ -51,7 +50,6 @@
   --color-text-gray-800: 249 250 251;
   
   --color-border-default: 75 85 99;
-  --color-border-input: 107 114 128;
   
   /* Brand colors stay same */
   --color-green-primary: 16 185 129;
@@ -89,7 +87,6 @@
 
 .bg-brand-green { background-color: rgb(var(--color-green-primary)); }
 .text-brand-green { color: rgb(var(--color-green-primary)); }
-
 /* ====== GRADIENT BACKGROUNDS ====== */
 .bg-gradient-app-page {
   background: linear-gradient(to bottom right, 
@@ -99,9 +96,9 @@
 }
 
 .bg-gradient-app-main {
-  background: linear-gradient(to bottom right, 
-    rgb(var(--color-bg-emerald)), 
-    rgb(var(--color-bg-green)), 
+  background: linear-gradient(to bottom right,
+    rgb(var(--color-bg-emerald)),
+    rgb(var(--color-bg-green)),
     rgb(var(--color-bg-teal))
   );
 }
@@ -119,6 +116,14 @@
 .bg-emerald-50 { background-color: rgb(var(--color-bg-emerald)) !important; }
 .bg-green-50 { background-color: rgb(var(--color-bg-green)) !important; }
 .bg-teal-50 { background-color: rgb(var(--color-bg-teal)) !important; }
+.bg-blue-50 { background-color: rgb(var(--color-bg-green)) !important; }
+.bg-orange-50 { background-color: rgb(var(--color-bg-green)) !important; }
+.bg-gray-50 { background-color: rgb(var(--color-bg-green)) !important; }
+
+/* Fix sidebar hover in dark mode: force dark hover to be dark */
+.dark .hover\:bg-gray-50:hover {
+  background-color: rgb(var(--color-bg-secondary)) !important;
+}
 
 /* Text overrides */
 .text-gray-900 { color: rgb(var(--color-text-primary)) !important; }
@@ -1027,9 +1032,6 @@ html {
   scroll-behavior: smooth !important;
 }
 
-body {
-  transition: background-color 0.3s ease, color 0.3s ease !important;
-}
 
 /* Focus ring utility */
 .focus-ring {

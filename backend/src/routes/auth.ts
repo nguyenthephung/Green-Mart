@@ -14,6 +14,9 @@ router.post('/login', validateLogin, AuthController.login);
 // GET /api/auth/profile - Lấy thông tin profile (cần auth)
 router.get('/profile', authenticate, AuthController.getProfile);
 
+// PATCH /api/auth/profile - Chỉnh sửa thông tin profile (cần auth)
+router.patch('/profile', authenticate, AuthController.updateProfile);
+
 // POST /api/auth/logout - Đăng xuất (cần auth)
 router.post('/logout', authenticate, AuthController.logout);
 

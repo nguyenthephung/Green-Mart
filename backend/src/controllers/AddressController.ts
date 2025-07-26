@@ -5,12 +5,12 @@ export class AddressController {
   // Lấy tất cả địa chỉ của user
   static async getUserAddresses(req: Request, res: Response): Promise<void> {
     try {
-      const userId = parseInt(req.params.userId);
+      const userId = req.params.userId;
       const addresses = await AddressModel.find({ userId }).sort({ createdAt: -1 });
       
       const response: AddressResponse[] = addresses.map(addr => ({
         id: (addr._id as any).toString(),
-        userId: addr.userId,
+        userId: (addr.userId as any).toString(),
         fullName: addr.fullName,
         phone: addr.phone,
         district: addr.district,
@@ -44,7 +44,8 @@ export class AddressController {
   // Tạo địa chỉ mới
   static async createAddress(req: Request, res: Response): Promise<void> {
     try {
-      const userId = parseInt(req.params.userId);
+
+      const userId = req.params.userId;
       const addressData: CreateAddressRequest = req.body;
 
       // Validation
@@ -72,33 +73,38 @@ export class AddressController {
         isDefaultSelected: addressData.isSelected || false,
       });
 
-      const savedAddress = await newAddress.save();
+      try {
+        const savedAddress = await newAddress.save();
 
-      const response: AddressResponse = {
-        id: (savedAddress._id as any).toString(),
-        userId: savedAddress.userId,
-        fullName: savedAddress.fullName,
-        phone: savedAddress.phone,
-        district: savedAddress.district,
-        ward: savedAddress.ward,
-        street: savedAddress.street,
-        latitude: savedAddress.latitude,
-        longitude: savedAddress.longitude,
-        isSelected: savedAddress.isDefaultSelected,
-        label: `${savedAddress.street}, ${savedAddress.ward}, ${savedAddress.district}`,
-        address: `${savedAddress.street}, ${savedAddress.ward}, ${savedAddress.district}`,
-        wardName: savedAddress.ward,
-        districtName: savedAddress.district,
-        createdAt: savedAddress.createdAt.toISOString(),
-        updatedAt: savedAddress.updatedAt.toISOString(),
-      };
+        const response: AddressResponse = {
+          id: (savedAddress._id as any).toString(),
+          userId: (savedAddress.userId as any).toString(),
+          fullName: savedAddress.fullName,
+          phone: savedAddress.phone,
+          district: savedAddress.district,
+          ward: savedAddress.ward,
+          street: savedAddress.street,
+          latitude: savedAddress.latitude,
+          longitude: savedAddress.longitude,
+          isSelected: savedAddress.isDefaultSelected,
+          label: `${savedAddress.street}, ${savedAddress.ward}, ${savedAddress.district}`,
+          address: `${savedAddress.street}, ${savedAddress.ward}, ${savedAddress.district}`,
+          wardName: savedAddress.ward,
+          districtName: savedAddress.district,
+          createdAt: savedAddress.createdAt.toISOString(),
+          updatedAt: savedAddress.updatedAt.toISOString(),
+        };
 
-      res.status(201).json({
-        success: true,
-        data: response,
-        message: 'Tạo địa chỉ mới thành công'
-      });
+        res.status(201).json({
+          success: true,
+          data: response,
+          message: 'Tạo địa chỉ mới thành công'
+        });
+      } catch (err) {
+        throw err;
+      }
     } catch (error) {
+      console.log('Error in createAddress:', error);
       res.status(500).json({
         success: false,
         message: 'Lỗi server khi tạo địa chỉ mới',
@@ -110,7 +116,7 @@ export class AddressController {
   // Cập nhật địa chỉ
   static async updateAddress(req: Request, res: Response): Promise<void> {
     try {
-      const userId = parseInt(req.params.userId);
+      const userId = req.params.userId;
       const addressId = req.params.addressId;
       const updateData: UpdateAddressRequest = req.body;
 
@@ -148,7 +154,7 @@ export class AddressController {
 
       const response: AddressResponse = {
         id: (updatedAddress._id as any).toString(),
-        userId: updatedAddress.userId,
+        userId: (updatedAddress.userId as any).toString(),
         fullName: updatedAddress.fullName,
         phone: updatedAddress.phone,
         district: updatedAddress.district,
@@ -182,7 +188,7 @@ export class AddressController {
   // Xóa địa chỉ
   static async deleteAddress(req: Request, res: Response): Promise<void> {
     try {
-      const userId = parseInt(req.params.userId);
+      const userId = req.params.userId;
       const addressId = req.params.addressId;
 
       const address = await AddressModel.findOne({ _id: addressId, userId });
@@ -222,7 +228,7 @@ export class AddressController {
   // Đặt làm địa chỉ mặc định
   static async setDefaultAddress(req: Request, res: Response): Promise<void> {
     try {
-      const userId = parseInt(req.params.userId);
+      const userId = req.params.userId;
       const addressId = req.params.addressId;
 
       const address = await AddressModel.findOne({ _id: addressId, userId });

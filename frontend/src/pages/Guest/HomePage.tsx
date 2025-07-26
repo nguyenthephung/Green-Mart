@@ -249,7 +249,7 @@ const Home: React.FC = memo(() => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 scroll-optimized">
       {/* Hero Section */}
-      <div className="relative w-full h-[60vh] md:h-[80vh] overflow-hidden mb-16 carousel-container">
+      <div className="relative w-full h-[60vh] md:h-[80vh] overflow-hidden mb-16 carousel-container" style={{marginTop: 0, paddingTop: 0}}>
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/20 to-green-900/30 z-10"></div>
         
         {realSlides.map((slide, index) => (
