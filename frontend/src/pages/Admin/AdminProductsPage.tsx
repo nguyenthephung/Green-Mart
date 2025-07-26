@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from 'react-toastify';
-import type { AdminProduct } from '../../data/Admin/products';
+import type { AdminProduct } from '../../types/AdminProduct';
 import { useProductStore } from '../../stores/useProductStore';
 import AddProductModal from '../../components/Admin/AddProductModal';
 import EditProductModal from '../../components/Admin/EditProductModal';
@@ -182,15 +182,10 @@ const AdminProducts: React.FC = () => {
     }
   };
 
-  const openEditModal = (product: AdminProduct) => {
-    // Ensure id is a number for EditProductModal compatibility
-    const normalizedProduct = {
-      ...product,
-      id: typeof product.id === 'string' ? Number(product.id) : product.id
-    };
-    setEditProduct(normalizedProduct);
-    setShowEdit(true);
-  };
+const openEditModal = (product: AdminProduct) => {
+  setEditProduct(product);
+  setShowEdit(true);
+};
 
   const getSortIcon = (field: SortField) => {
     if (sortField !== field) return '↕️';
@@ -535,7 +530,7 @@ const AdminProducts: React.FC = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end gap-2">
                           <button
-                            onClick={() => openEditModal({ ...product, id: typeof product.id === 'string' ? Number(product.id) : product.id })}
+                            onClick={() => openEditModal({ ...product, id: typeof product.id === 'string' ? product.id : String(product.id) })}
                             className="text-blue-600 hover:text-blue-900 p-1 rounded transition-colors"
                             title="Chỉnh sửa"
                           >
@@ -639,7 +634,7 @@ const AdminProducts: React.FC = () => {
                   
                   <div className="flex gap-2">
                     <button
-                      onClick={() => openEditModal({ ...product, id: typeof product.id === 'string' ? Number(product.id) : product.id })}
+                      onClick={() => openEditModal({ ...product, id: typeof product.id === 'string' ? product.id : String(product.id) })}
                       className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
                     >
                       Sửa
@@ -713,13 +708,10 @@ const AdminProducts: React.FC = () => {
       {/* Modals */}
       {showAdd && (
         <AddProductModal
-          show={showAdd}
-          onAdd={(product) => {
-            // Đảm bảo id là string, không chuyển sang số
-            handleAddProduct({ ...product, id: typeof product.id === 'string' ? product.id : String(product.id) });
-          }}
-          onClose={() => setShowAdd(false)}
-        />
+  show={showAdd}
+  onAdd={handleAddProduct}
+  onClose={() => setShowAdd(false)}
+/>
       )}
 
       {showEdit && editProduct && (

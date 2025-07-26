@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import type { AdminProduct } from '../../types/AdminProduct';
+import { useCategoryStore } from '../../stores/useCategoryStore';
 
 type AddProductModalProps = {
   show: boolean;
@@ -7,16 +8,7 @@ type AddProductModalProps = {
   onAdd: (product: AdminProduct) => void;
 };
 
-const categories = [
-  { name: 'Rau củ', icon: '🥕' },
-  { name: 'Trái cây', icon: '🍎' },
-  { name: 'Thịt', icon: '🥩' },
-  { name: 'Sữa', icon: '🥛' },
-  { name: 'Đồ khô', icon: '🌾' },
-  { name: 'Gia vị', icon: '🧂' },
-  { name: 'Đồ uống', icon: '🥤' },
-  { name: 'Snack', icon: '🍿' }
-];
+// ...existing code...
 
 const defaultProduct: Partial<AdminProduct> = {
   name: '',
@@ -43,6 +35,8 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
   const [currentStep, setCurrentStep] = useState(1);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const multiFileInputRef = useRef<HTMLInputElement>(null);
+  // Lấy danh mục từ store
+  const { categories } = useCategoryStore();
 
   const resetForm = () => {
     setProduct(defaultProduct);
@@ -286,7 +280,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                   >
                     <option value="">Chọn danh mục...</option>
                     {categories.map(cat => (
-                      <option key={cat.name} value={cat.name}>
+                      <option key={cat.id} value={cat.name}>
                         {cat.icon} {cat.name}
                       </option>
                     ))}

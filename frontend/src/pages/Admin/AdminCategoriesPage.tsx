@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import { adminCategories } from '../../data/Admin/categories';
-import type { Category } from '../../data/Admin/categories';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useCategoryStore } from '../../stores/useCategoryStore';
+import type { Category } from '../../types/Category';
 import Pagination from '../../components/Admin/Pagination';
 
 
@@ -11,18 +13,30 @@ type ViewMode = 'table' | 'grid';
 type FilterStatus = 'all' | 'active' | 'inactive';
 
 const AdminCategories: React.FC = () => {
-  const [categories, setCategories] = useState<Category[]>(adminCategories);
+  // Store danh mục
+  const {
+    categories,
+    loading,
+    error,
+    fetchCategories,
+    add,
+    edit,
+    remove,
+    toggleStatus
+  } = useCategoryStore();
+  React.useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
   const [search, setSearch] = useState('');
   const [showAdd, setShowAdd] = useState(false);
   const [editCategory, setEditCategory] = useState<Category | null>(null);
   const [showEdit, setShowEdit] = useState(false);
-  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   const [viewMode, setViewMode] = useState<ViewMode>('table');
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
   const [showFilters, setShowFilters] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   // Dark mode state
   const [isDarkMode, setIsDarkMode] = useState(document.documentElement.classList.contains('dark'));
   React.useEffect(() => {
@@ -95,40 +109,50 @@ const AdminCategories: React.FC = () => {
     }
   };
 
-  const handleAddCategory = (newCategory: Omit<Category, 'id'>) => {
-    setIsLoading(true);
-    setTimeout(() => {
-      const id = Math.max(...categories.map(c => c.id)) + 1;
-      setCategories([...categories, { ...newCategory, id }]);
-      setShowAdd(false);
-      setIsLoading(false);
-    }, 800);
-  };
+  // Add category
+  const handleAddCategory = React.useCallback((newCategory: Omit<Category, 'id'>) => {
+    toast.loading('Đang thêm danh mục...', { toastId: 'add-category' });
+    add(newCategory)
+      .then(() => {
+        toast.update('add-category', { render: 'Thêm danh mục thành công!', type: 'success', isLoading: false, autoClose: 2000 });
+        setShowAdd(false);
+      })
+      .catch((err) => {
+        toast.update('add-category', { render: 'Thêm danh mục thất bại: ' + (err?.message || err), type: 'error', isLoading: false, autoClose: 4000 });
+      });
+  }, [add]);
 
-  const handleEditCategory = (updatedCategory: Category) => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setCategories(categories.map(c => c.id === updatedCategory.id ? updatedCategory : c));
-      setShowEdit(false);
-      setEditCategory(null);
-      setIsLoading(false);
-    }, 800);
-  };
+  // Edit category
+  const handleEditCategory = React.useCallback((updatedCategory: Category) => {
+    toast.loading('Đang cập nhật danh mục...', { toastId: 'edit-category' });
+    return edit(updatedCategory)
+      .then((res) => {
+        toast.update('edit-category', { render: 'Cập nhật danh mục thành công!', type: 'success', isLoading: false, autoClose: 2000 });
+        setShowEdit(false);
+        setEditCategory(null);
+      })
+      .catch((err) => {
+        toast.update('edit-category', { render: 'Cập nhật danh mục thất bại: ' + (err?.message || err), type: 'error', isLoading: false, autoClose: 4000 });
+      });
+  }, [edit]);
 
-  const handleDeleteCategory = () => {
-    if (!deleteId) return;
-    setIsLoading(true);
-    setTimeout(() => {
-      setCategories(categories.filter(c => c.id !== deleteId));
-      setDeleteId(null);
-      setIsLoading(false);
-    }, 500);
-  };
+  // Delete category
+  const handleDeleteCategory = React.useCallback(() => {
+    toast.loading('Đang xóa danh mục...', { toastId: 'delete-category' });
+    if (!deleteId) return Promise.resolve();
+    return remove(deleteId)
+      .then((res) => {
+        toast.update('delete-category', { render: 'Xóa danh mục thành công!', type: 'success', isLoading: false, autoClose: 2000 });
+        setDeleteId(null);
+      })
+      .catch((err) => {
+        toast.update('delete-category', { render: 'Xóa danh mục thất bại: ' + (err?.message || err), type: 'error', isLoading: false, autoClose: 4000 });
+      });
+  }, [deleteId, remove]);
 
-  const handleToggleStatus = (id: number) => {
-    setCategories(categories.map(c => 
-      c.id === id ? { ...c, status: c.status === 'active' ? 'inactive' : 'active', updatedAt: new Date().toISOString().split('T')[0] } : c
-    ));
+  // Toggle status
+  const handleToggleStatus = (id: string) => {
+    toggleStatus(id);
   };
 
   const openEditModal = (category: Category) => {
@@ -152,6 +176,7 @@ const AdminCategories: React.FC = () => {
 
   return (
     <div className="min-h-screen transition-colors duration-300" style={isDarkMode ? { backgroundColor: '#111827', color: '#fff' } : {}}>
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover aria-label={undefined} />
       {/* Header */}
       <div className="rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6" style={isDarkMode ? { backgroundColor: '#18181b' } : { backgroundColor: '#fff' }}>
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -374,9 +399,8 @@ const AdminCategories: React.FC = () => {
                           onClick={() => setDeleteId(category.id)}
                           className="text-red-600 hover:text-red-900 p-1 rounded transition-colors"
                           title="Xóa"
-                          disabled={category.productCount > 0}
                         >
-                          {category.productCount > 0 ? '🔒' : '🗑️'}
+                          🗑️
                         </button>
                       </div>
                     </td>
@@ -447,10 +471,9 @@ const AdminCategories: React.FC = () => {
                   </button>
                   <button
                     onClick={() => setDeleteId(category.id)}
-                    disabled={category.productCount > 0}
-                    className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
                   >
-                    {category.productCount > 0 ? '🔒' : 'Xóa'}
+                    Xóa
                   </button>
                 </div>
               </div>
@@ -486,13 +509,21 @@ const AdminCategories: React.FC = () => {
       )}
 
       {/* Loading indicator */}
-      {isLoading && (
+      {loading && (
         <div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 shadow-xl">
             <div className="flex items-center gap-3">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
               <span className="text-gray-700">Đang xử lý...</span>
             </div>
+          </div>
+        </div>
+      )}
+      {/* Error indicator */}
+      {error && (
+        <div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 shadow-xl">
+            <span className="text-red-600">{error}</span>
           </div>
         </div>
       )}
@@ -548,8 +579,8 @@ const AddCategoryModal: React.FC<{show: boolean, onAdd: (cat: Omit<Category, 'id
       description: description.trim(),
       productCount: 0,
       status: 'active',
-      createdAt: new Date().toISOString().split('T')[0],
-      updatedAt: new Date().toISOString().split('T')[0]
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     });
     setName('');
     setIcon('📁');
@@ -613,23 +644,26 @@ const AddCategoryModal: React.FC<{show: boolean, onAdd: (cat: Omit<Category, 'id
 };
 
 const EditCategoryModal: React.FC<{show: boolean, category: Category, onSave: (cat: Category) => void, onClose: () => void}> = ({ show, category, onSave, onClose }) => {
-  const [name, setName] = useState(category.name);
-  const [icon, setIcon] = useState(category.icon);
-  const [description, setDescription] = useState(category.description || '');
+  const [name, setName] = useState(category.name ?? '');
+  const [icon, setIcon] = useState(category.icon ?? '📁');
+  const [description, setDescription] = useState(category.description ?? '');
+  const [isSaving, setIsSaving] = useState(false);
   // Dark mode detection
   const isDarkMode = document.documentElement.classList.contains('dark');
 
   if (!show) return null;
 
   const handleSave = () => {
-    if (!name.trim()) return;
-    onSave({
+    if (!name.trim() || !category.id || isSaving) return;
+    setIsSaving(true);
+    Promise.resolve(onSave({
       ...category,
+      id: category.id,
       name: name.trim(),
       icon,
       description: description.trim(),
-      updatedAt: new Date().toISOString().split('T')[0]
-    });
+      updatedAt: new Date().toISOString()
+    })).finally(() => setIsSaving(false));
   };
 
   return (
@@ -676,12 +710,14 @@ const EditCategoryModal: React.FC<{show: boolean, category: Category, onSave: (c
             onClick={onClose}
             className="flex-1 px-4 py-2 border rounded-lg"
             style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
+            disabled={isSaving}
           >Hủy</button>
           <button
             onClick={handleSave}
             className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg"
             style={isDarkMode ? { backgroundColor: '#2563eb', color: '#fff' } : {}}
-          >Lưu</button>
+            disabled={!name.trim() || isSaving}
+          >{isSaving ? 'Đang lưu...' : 'Lưu'}</button>
         </div>
       </div>
     </div>
@@ -689,8 +725,14 @@ const EditCategoryModal: React.FC<{show: boolean, category: Category, onSave: (c
 };
 
 const ConfirmDeleteCategoryModal: React.FC<{show: boolean, categoryName: string, onConfirm: () => void, onCancel: () => void}> = ({ show, categoryName, onConfirm, onCancel }) => {
+  const [isDeleting, setIsDeleting] = useState(false);
   if (!show) return null;
   const isDarkMode = document.documentElement.classList.contains('dark');
+  const handleDelete = () => {
+    if (isDeleting) return;
+    setIsDeleting(true);
+    Promise.resolve(onConfirm()).finally(() => setIsDeleting(false));
+  };
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
       <div
@@ -711,12 +753,14 @@ const ConfirmDeleteCategoryModal: React.FC<{show: boolean, categoryName: string,
             onClick={onCancel}
             className="flex-1 px-4 py-2 border rounded-lg"
             style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
+            disabled={isDeleting}
           >Hủy</button>
           <button
-            onClick={onConfirm}
+            onClick={handleDelete}
             className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg"
             style={isDarkMode ? { backgroundColor: '#ef4444', color: '#fff' } : {}}
-          >Xóa</button>
+            disabled={isDeleting}
+          >{isDeleting ? 'Đang xóa...' : 'Xóa'}</button>
         </div>
       </div>
     </div>
