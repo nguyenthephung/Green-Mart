@@ -1,6 +1,6 @@
 // Mock data sản phẩm cho admin quản lý
 export interface AdminProduct {
-  id: number;
+  id: string;
   name: string;
   price: number;
   category: string;
@@ -18,7 +18,7 @@ export interface AdminProduct {
 
 export const adminProducts: AdminProduct[] = [
   {
-    id: 1,
+    id: '1',
     name: 'Táo Mỹ',
     price: 45000,
     salePrice: 35000,
@@ -37,7 +37,7 @@ export const adminProducts: AdminProduct[] = [
     unit: 'kg',
   },
   {
-    id: 2,
+    id: '2',
     name: 'Sữa tươi Vinamilk',
     price: 32000,
     category: 'Sữa',
@@ -50,7 +50,7 @@ export const adminProducts: AdminProduct[] = [
     unit: 'hộp',
   },
   {
-    id: 3,
+    id: '3',
     name: 'Thịt bò Úc',
     price: 220000,
     isSale: false,
@@ -64,7 +64,7 @@ export const adminProducts: AdminProduct[] = [
     unit: 'kg',
   },
   {
-    id: 4,
+    id: '4',
     name: 'Cà Rốt',
     price: 18000,
     salePrice: 13000,
@@ -80,7 +80,7 @@ export const adminProducts: AdminProduct[] = [
     unit: 'kg',
   },
   {
-    id: 5,
+    id: '5',
     name: 'Nước Suối Lavie',
     price: 5000,
     category: 'Đồ uống',
@@ -93,7 +93,7 @@ export const adminProducts: AdminProduct[] = [
     unit: 'chai',
   },
   {
-    id: 6,
+    id: '6',
     name: 'Bánh Oreo',
     price: 12000,
     salePrice: 9000,

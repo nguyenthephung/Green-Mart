@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import type { AdminProduct } from '../../data/Admin/products';
+import type { AdminProduct } from '../../types/AdminProduct';
 import { categories } from '../../data/Guest/Home';
 
 interface EditProductModalProps {
@@ -184,7 +184,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ show, product, onCl
           </div>
         </div>
         <button className="w-full bg-green-600 text-white py-2 rounded font-semibold hover:bg-green-700 mt-4 flex items-center justify-center gap-2" onClick={handleSave}>
-          <span className="material-icons">save</span>Lưu
+          <span className="material-icons">Lưu</span>
         </button>
       </div>
     </div>

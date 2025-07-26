@@ -65,12 +65,7 @@ export default function CategoryPage() {
 
   // Handle add to cart
   const handleAddToCart = (product: any) => {
-    addToCart({
-      id: Number(product.id),
-      name: product.name,
-      price: product.salePrice ? parseInt(product.salePrice.replace(/\D/g, '')) : parseInt(product.price.replace(/\D/g, '')),
-      image: product.image
-    });
+    addToCart(product.id, 1); // hoặc số lượng mong muốn
   };
 
   return (

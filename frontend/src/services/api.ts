@@ -48,7 +48,7 @@ export interface AuthResponse {
 }
 
 // HTTP client utility
-const apiClient = async <T>(
+export const apiClient = async <T>(
   endpoint: string, 
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> => {

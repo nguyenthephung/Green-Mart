@@ -1,11 +1,11 @@
 import React, { useRef, useState } from 'react';
-import type { AdminProduct } from '../../data/Admin/products';
+import type { AdminProduct } from '../../types/AdminProduct';
 
-interface AddProductModalProps {
+type AddProductModalProps = {
   show: boolean;
   onClose: () => void;
   onAdd: (product: AdminProduct) => void;
-}
+};
 
 const categories = [
   { name: 'Rau củ', icon: '🥕' },
@@ -142,11 +142,22 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
     setIsLoading(true);
     
     // Calculate sale price if needed
-    const newProduct = {
-      ...product,
-      id: Date.now(), // Will be overridden in parent component
+    const newProduct: AdminProduct = {
+      id: typeof product.id === 'string' && product.id ? product.id : `${Date.now()}`,
+      name: product.name || '',
+      price: product.price || 0,
+      category: product.category || '',
+      image: product.image || '',
+      images: product.images || [],
+      stock: product.stock || 0,
+      status: product.status || 'active',
+      description: product.description || '',
+      brand: product.brand || '',
+      unit: product.unit || '',
+      isSale: !!product.isSale,
+      discountAmount: product.discountAmount || 0,
       salePrice: product.isSale ? calculateSalePrice() : undefined
-    } as AdminProduct;
+    };
 
     // Simulate API call
     setTimeout(() => {

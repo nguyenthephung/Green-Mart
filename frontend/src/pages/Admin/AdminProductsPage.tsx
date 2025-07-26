@@ -1,6 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import { adminProducts } from '../../data/Admin/products';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 import type { AdminProduct } from '../../data/Admin/products';
+import { useProductStore } from '../../stores/useProductStore';
 import AddProductModal from '../../components/Admin/AddProductModal';
 import EditProductModal from '../../components/Admin/EditProductModal';
 import ConfirmDeleteModal from '../../components/Admin/ConfirmDeleteModal';
@@ -13,19 +16,24 @@ type FilterStatus = 'all' | 'active' | 'inactive';
 type FilterCategory = 'all' | 'Rau củ' | 'Trái cây' | 'Thịt' | 'Sữa' | 'Đồ khô' | 'Gia vị' | 'Đồ uống' | 'Snack';
 
 const AdminProducts: React.FC = () => {
-  const [products, setProducts] = useState<AdminProduct[]>(adminProducts);
+  const { products, loading, fetchAll, add, update, remove } = useProductStore();
+  const [actionLoading, setActionLoading] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+  React.useEffect(() => {
+    fetchAll();
+  }, []);
   const [search, setSearch] = useState('');
   const [showAdd, setShowAdd] = useState(false);
   const [editProduct, setEditProduct] = useState<AdminProduct | null>(null);
   const [showEdit, setShowEdit] = useState(false);
-  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   const [viewMode, setViewMode] = useState<ViewMode>('table');
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
   const [filterCategory, setFilterCategory] = useState<FilterCategory>('all');
   const [showFilters, setShowFilters] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const isLoading = loading;
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -99,44 +107,88 @@ const AdminProducts: React.FC = () => {
     }
   };
 
-  const handleAddProduct = (newProduct: AdminProduct) => {
-    setIsLoading(true);
-    setTimeout(() => {
-      const id = Math.max(...products.map(p => p.id)) + 1;
-      setProducts([...products, { ...newProduct, id }]);
-      setShowAdd(false);
-      setIsLoading(false);
-    }, 800);
+  const handleAddProduct = async (newProduct: AdminProduct) => {
+    setActionLoading(true);
+    setActionError(null);
+    try {
+      await add(newProduct);
+      await fetchAll();
+      toast.success('Thêm sản phẩm thành công!');
+      setShowAdd(false); // Chỉ đóng modal khi thành công
+    } catch (err: any) {
+      setActionError(err.message || 'Lỗi thêm sản phẩm');
+      toast.error('Thêm sản phẩm thất bại!');
+      // Không đóng modal, giữ lại thông tin nhập
+    } finally {
+      setActionLoading(false);
+    }
   };
 
-  const handleEditProduct = (updatedProduct: AdminProduct) => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setProducts(products.map(p => p.id === updatedProduct.id ? updatedProduct : p));
+  const handleEditProduct = async (updatedProduct: AdminProduct) => {
+    setActionLoading(true);
+    setActionError(null);
+    const id = updatedProduct.id ?? (updatedProduct as any)._id;
+    try {
+      await update(id, updatedProduct);
+      await fetchAll();
       setShowEdit(false);
       setEditProduct(null);
-      setIsLoading(false);
-    }, 800);
+      toast.success('Cập nhật sản phẩm thành công!');
+    } catch (err: any) {
+      setActionError(err.message || 'Lỗi cập nhật sản phẩm');
+      toast.error('Cập nhật sản phẩm thất bại!');
+    } finally {
+      setActionLoading(false);
+    }
   };
 
-  const handleDeleteProduct = () => {
-    if (!deleteId) return;
-    setIsLoading(true);
-    setTimeout(() => {
-      setProducts(products.filter(p => p.id !== deleteId));
+  const handleDeleteProduct = async () => {
+    if (!deleteId || typeof deleteId !== 'string' || !deleteId.trim()) {
+      setActionError('ID sản phẩm không hợp lệ');
+      toast.error('ID sản phẩm không hợp lệ!');
+      return;
+    }
+    setActionLoading(true);
+    setActionError(null);
+    try {
+      await remove(deleteId);
+      await fetchAll();
       setDeleteId(null);
-      setIsLoading(false);
-    }, 500);
+      toast.success('Xóa sản phẩm thành công!');
+    } catch (err: any) {
+      setActionError(err.message || 'Lỗi xóa sản phẩm');
+      toast.error('Xóa sản phẩm thất bại!');
+    } finally {
+      setActionLoading(false);
+    }
   };
 
-  const handleToggleStatus = (id: number) => {
-    setProducts(products.map(p => 
-      p.id === id ? { ...p, status: p.status === 'active' ? 'inactive' : 'active' } : p
-    ));
+  // Nếu muốn cập nhật trạng thái sản phẩm, hãy gọi update(id, { status: ... })
+  const handleToggleStatus = async (id: string) => {
+    const product = products.find(p => p.id === id);
+    if (!product) return;
+    setActionLoading(true);
+    setActionError(null);
+    const newStatus = product.status === 'active' ? 'inactive' : 'active';
+    try {
+      await update(id, { status: newStatus });
+      await fetchAll();
+      toast.success('Đổi trạng thái sản phẩm thành công!');
+    } catch (err: any) {
+      setActionError(err.message || 'Lỗi đổi trạng thái sản phẩm');
+      toast.error('Đổi trạng thái sản phẩm thất bại!');
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   const openEditModal = (product: AdminProduct) => {
-    setEditProduct(product);
+    // Ensure id is a number for EditProductModal compatibility
+    const normalizedProduct = {
+      ...product,
+      id: typeof product.id === 'string' ? Number(product.id) : product.id
+    };
+    setEditProduct(normalizedProduct);
     setShowEdit(true);
   };
 
@@ -391,11 +443,13 @@ const AdminProducts: React.FC = () => {
                 style={{ background: isDarkMode ? '#18181b' : '#fff' }}
                 className="divide-y divide-gray-200 dark:divide-gray-700"
               >
-                {currentProducts.map((product) => {
+                {currentProducts.map((product, idx) => {
                   const stockStatus = getStockStatus(product.stock);
+                  // Sử dụng product.id nếu có, nếu không thì dùng idx làm key phụ
+                  const key = product.id ?? idx;
                   return (
                     <tr
-                      key={product.id}
+                      key={key}
                       style={{
                         transition: 'background 0.2s',
                         background: isDarkMode ? undefined : undefined,
@@ -457,7 +511,13 @@ const AdminProducts: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <button
-                          onClick={() => handleToggleStatus(product.id)}
+                          onClick={() => {
+                            if (!product.id || typeof product.id !== 'string') {
+                              toast.error('ID sản phẩm không hợp lệ!');
+                              return;
+                            }
+                            handleToggleStatus(product.id);
+                          }}
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors ${getStatusColor(product.status)}`}
                         >
                           {product.status === 'active' ? 'Đang bán' : 'Ngừng bán'}
@@ -475,14 +535,20 @@ const AdminProducts: React.FC = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end gap-2">
                           <button
-                            onClick={() => openEditModal(product)}
+                            onClick={() => openEditModal({ ...product, id: typeof product.id === 'string' ? Number(product.id) : product.id })}
                             className="text-blue-600 hover:text-blue-900 p-1 rounded transition-colors"
                             title="Chỉnh sửa"
                           >
                             ✏️
                           </button>
                           <button
-                            onClick={() => setDeleteId(product.id)}
+                            onClick={() => {
+                              if (!product.id || typeof product.id !== 'string') {
+                                toast.error('ID sản phẩm không hợp lệ!');
+                                return;
+                              }
+                              setDeleteId(product.id);
+                            }}
                             className="text-red-600 hover:text-red-900 p-1 rounded transition-colors"
                             title="Xóa"
                           >
@@ -510,10 +576,12 @@ const AdminProducts: React.FC = () => {
       ) : (
         /* Grid View */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredAndSortedProducts.map((product) => {
+          {filteredAndSortedProducts.map((product, idx) => {
             const stockStatus = getStockStatus(product.stock);
+            // Sử dụng product.id nếu có, nếu không thì dùng idx làm key phụ
+            const key = product.id ?? idx;
             return (
-              <div key={product.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1">
+              <div key={key} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1">
                 <div className="relative">
                   <img 
                     src={product.images?.[0] || product.image} 
@@ -571,13 +639,19 @@ const AdminProducts: React.FC = () => {
                   
                   <div className="flex gap-2">
                     <button
-                      onClick={() => openEditModal(product)}
+                      onClick={() => openEditModal({ ...product, id: typeof product.id === 'string' ? Number(product.id) : product.id })}
                       className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
                     >
                       Sửa
                     </button>
                     <button
-                      onClick={() => setDeleteId(product.id)}
+                      onClick={() => {
+                        if (!product.id || typeof product.id !== 'string') {
+                          toast.error('ID sản phẩm không hợp lệ!');
+                          return;
+                        }
+                        setDeleteId(product.id);
+                      }}
                       className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
                     >
                       Xóa
@@ -617,7 +691,7 @@ const AdminProducts: React.FC = () => {
       )}
 
       {/* Loading indicator */}
-      {isLoading && (
+      {(isLoading || actionLoading) && (
         <div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 shadow-xl">
             <div className="flex items-center gap-3">
@@ -627,12 +701,23 @@ const AdminProducts: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Error notification */}
+      {actionError && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded shadow-lg">
+            {actionError}
+          </div>
+        </div>
+      )}
 
       {/* Modals */}
       {showAdd && (
         <AddProductModal
           show={showAdd}
-          onAdd={handleAddProduct}
+          onAdd={(product) => {
+            // Đảm bảo id là string, không chuyển sang số
+            handleAddProduct({ ...product, id: typeof product.id === 'string' ? product.id : String(product.id) });
+          }}
           onClose={() => setShowAdd(false)}
         />
       )}
@@ -656,6 +741,7 @@ const AdminProducts: React.FC = () => {
           onCancel={() => setDeleteId(null)}
         />
       )}
+    <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover aria-label="Thông báo hệ thống" />
     </div>
   );
 };

@@ -28,6 +28,11 @@ router.get('/:userId/wishlist/count', async (req, res) => {
   await WishlistController.getWishlistCount(req, res);
 });
 
+// GET /api/users/:userId/wishlist/check/:productId - Check if product is in wishlist
+router.get('/:userId/wishlist/check/:productId', async (req, res) => {
+  await WishlistController.checkInWishlist(req, res);
+});
+
 // PUT /api/users/:userId/wishlist/:productId - Update wishlist item
 router.put('/:userId/wishlist/:productId', async (req, res) => {
   await WishlistController.updateWishlistItem(req, res);
