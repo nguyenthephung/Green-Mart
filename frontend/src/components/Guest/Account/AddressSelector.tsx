@@ -2,14 +2,18 @@ import { useState } from "react";
 import { districts } from "../../../data/Guest/hcm_districts_sample";
 
 export interface UserAddress {
+  id?: number;
+  isSelected?: boolean;
+  label?: string;
+  address?: string;
+  wardName?: string;
+  phone: string;
+  fullName: string;
   district: string;
   ward: string;
   street: string;
   latitude: number;
   longitude: number;
-  // Thêm các trường mới
-  fullName: string;
-  phone: string;
 }
 
 interface Ward {

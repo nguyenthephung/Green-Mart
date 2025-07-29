@@ -77,14 +77,12 @@ export const useCartStore = create<CartState>((set, get) => ({
   addToCart: async (item: Omit<CartItem, 'quantity'> & { quantity: number; weight?: number; type?: 'count' | 'weight' }) => {
     set({ loading: true, error: undefined });
     try {
-      console.log('[useCartStore.addToCart] item:', item);
       let res;
       if (item.type === 'weight') {
         res = await apiAddToCart(String(item.id), undefined, item.unit, item.weight, 'weight');
       } else {
         res = await apiAddToCart(String(item.id), item.quantity, item.unit, undefined, 'count');
       }
-      console.log('[useCartStore.addToCart] apiAddToCart response:', res);
       if (res.success) {
         await get().fetchCart();
         set({ loading: false });
@@ -92,7 +90,6 @@ export const useCartStore = create<CartState>((set, get) => ({
         set({ error: res.message || 'Lỗi thêm sản phẩm', loading: false });
       }
     } catch (err: any) {
-      console.error('[useCartStore.addToCart] ERROR:', err);
       set({ error: err.message || 'Lỗi thêm sản phẩm', loading: false });
     }
   },
@@ -116,14 +113,10 @@ export const useCartStore = create<CartState>((set, get) => ({
   },
   removeFromCart: async (productId: string | number, unit?: string, type?: 'count' | 'weight') => {
     set({ loading: true, error: undefined });
-    console.log('[useCartStore] removeFromCart called:', { productId, unit, type });
     // Optimistically update UI
     set((state) => {
       const items = state.items.filter(item => {
         const match = String(item.id) === String(productId) && item.unit === unit && item.type === type;
-        if (match) {
-          console.log('[useCartStore] Removing item:', item);
-        }
         return !match;
       });
       const { totalItems, totalAmount } = calculateTotals(items);
@@ -131,16 +124,13 @@ export const useCartStore = create<CartState>((set, get) => ({
     });
     try {
       const res = await removeCartItem(String(productId), unit, type);
-      console.log('[useCartStore] removeCartItem API result:', res);
       if (res.success) {
         await get().fetchCart();
       } else {
         set({ error: res.message || 'Lỗi xóa sản phẩm', loading: false });
-        alert('Lỗi xóa sản phẩm: ' + (res.message || 'Unknown error'));
       }
     } catch (err: any) {
       set({ error: err.message || 'Lỗi xóa sản phẩm', loading: false });
-      alert('Lỗi xóa sản phẩm: ' + (err?.message || err));
     }
   },
   clearCart: () => {

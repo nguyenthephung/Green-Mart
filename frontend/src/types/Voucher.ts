@@ -3,7 +3,7 @@
 export type DiscountType = 'percent' | 'amount';
 
 export interface Voucher {
-  id: number;
+  _id: String;
   code: string;
   label: string;
   description: string;

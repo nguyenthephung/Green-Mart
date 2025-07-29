@@ -7,7 +7,7 @@ export interface IVoucher extends Document {
   minOrder: number;
   discountType: 'percent' | 'amount';
   discountValue: number;
-  expired: Date;
+  expired: string; // ISO date string
   usedPercent: number;
   maxUsage?: number;
   currentUsage: number;
@@ -50,7 +50,7 @@ const VoucherSchema: Schema = new Schema({
     min: 0
   },
   expired: {
-    type: Date,
+    type: String,
     required: true
   },
   usedPercent: {

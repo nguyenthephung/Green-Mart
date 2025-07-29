@@ -1,53 +1,117 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useVoucherStore } from '../../../stores/useVoucherStore';
+import { useUserStore } from '../../../stores/useUserStore';
+import { updateUserVouchers } from '../../../services/userService';
 import { X, Gift } from 'lucide-react';
 
-const prizes = [
-  'Voucher 10K',
-  'Voucher 20K', 
-  'Voucher 50K',
-  'Chúc bạn may mắn lần sau',
-  'Voucher 100K',
-  'Voucher 5%',
-  'Voucher 10%',
-  'Voucher 20%'
-];
+
+// Sử dụng voucher động từ store, thêm 1 ô "Chúc bạn may mắn lần sau"
+
 
 const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: () => void }> = ({ 
-
+  userId,
   isOpen, 
   onClose 
 }) => {
+  const vouchers = useVoucherStore(state => state.vouchers);
+  const fetchVouchers = useVoucherStore(state => state.fetchVouchers);
+  const { user, setUser, setVoucher } = useUserStore();
+  const [userVouchers, setUserVouchers] = useState<(string | number)[]>(user?.vouchers || []);
+  // Fetch vouchers nếu chưa có khi LuckyWheel mở
+  useEffect(() => {
+    if (isOpen && vouchers.length === 0) {
+      fetchVouchers();
+    }
+  }, [isOpen, vouchers.length, fetchVouchers]);
+  // Chỉ lấy các voucher còn hiệu lực
+  const validVouchers = vouchers.filter(v => v.isActive && v.usedPercent < 100);
+  const prizes = [
+    ...validVouchers.map(v => ({ ...v, id: String(v.id || v._id) })),
+    { code: '', label: '', description: '', minOrder: 0, discountType: 'amount', discountValue: 0, expired: '', usedPercent: 0, isActive: false, id: '-1', note: '', currentUsage: 0, maxUsage: 0, onlyOn: '', disabled: false }, // Chúc bạn may mắn lần sau
+  ];
   const [spinning, setSpinning] = useState(false);
-  const [result, setResult] = useState<string | null>(null);
+  const [result, setResult] = useState<any>(null);
   const [rotation, setRotation] = useState(0);
   const [showFireworks, setShowFireworks] = useState(false);
   const [showVoucherModal, setShowVoucherModal] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  const spin = () => {
-    if (spinning) return;
-    
+  const spin = async () => {
+    if (spinning || isUpdating) return;
     setSpinning(true);
     setResult(null);
     setShowFireworks(false);
     setShowVoucherModal(false);
-    
     // Random prize
-    const prizeIndex = Math.floor(Math.random() * prizes.length);
+    let prizeIndex = Math.floor(Math.random() * prizes.length);
+    let selectedPrize = prizes[prizeIndex];
+    // If user already owns the voucher, and it's not the 'try again' prize, spin again (up to 10 tries to avoid infinite loop)
+    let tries = 0;
+    while (
+      selectedPrize.id !== '-1' &&
+      userVouchers.includes(String(selectedPrize.id)) &&
+      tries < 10
+    ) {
+      prizeIndex = Math.floor(Math.random() * prizes.length);
+      selectedPrize = prizes[prizeIndex];
+      tries++;
+    }
     const prizeAngle = (360 / prizes.length) * prizeIndex;
     const spins = 8 + Math.floor(Math.random() * 5); // 8-12 vòng quay
     const extraRotation = Math.random() * 360; // Thêm góc ngẫu nhiên
     const finalRotation = 360 * spins + prizeAngle + extraRotation;
-    
     setRotation(prev => prev + finalRotation);
-    
-    // Stop spinning after animation
-    setTimeout(() => {
+    setTimeout(async () => {
       setSpinning(false);
-      setResult(prizes[prizeIndex]);
-      
-      // Kích hoạt hiệu ứng pháo hoa nếu trúng thưởng (không phải "Chúc bạn may mắn lần sau")
-      if (prizes[prizeIndex] !== 'Chúc bạn may mắn lần sau') {
+      setResult(selectedPrize);
+      // Nếu trúng voucher thật
+      if (String(selectedPrize.id) !== '-1') {
         setShowFireworks(true);
+        setIsUpdating(true);
+        try {
+          const voucherId = String(selectedPrize.id);
+          // Nếu user đã có voucher này rồi, không trao thưởng, cho quay lại
+          if (userVouchers.includes(voucherId)) {
+            setIsUpdating(false);
+            setTimeout(() => {
+              setShowFireworks(false);
+              setResult(null);
+              setShowVoucherModal(false);
+              // Cho phép quay lại ngay
+              alert('Bạn đã sở hữu voucher này rồi, hãy quay lại!');
+            }, 1200);
+            return;
+          }
+          // Gọi API cập nhật voucher cho user
+          await updateUserVouchers(userId, voucherId);
+          // Cập nhật lại user local
+          if (setUser && user) {
+            const updatedVouchers = user.vouchers ? [...user.vouchers, voucherId] : [voucherId];
+            setUser({
+              ...user,
+              vouchers: updatedVouchers
+            });
+            setUserVouchers(updatedVouchers);
+          }
+          // Nếu muốn set voucher vừa trúng là voucher đang chọn
+          if (setVoucher && selectedPrize.code) {
+            // Lấy voucher chuẩn từ store để đảm bảo đủ field
+            const v = vouchers.find(vv => String(vv.id || vv._id) === String(selectedPrize.id));
+            if (v) {
+              setVoucher({
+                ...v,
+                createdAt: (v as any).createdAt || '',
+                updatedAt: (v as any).updatedAt || '',
+                currentUsage: (v as any).currentUsage || 0,
+                isActive: (v as any).isActive ?? true,
+              });
+            }
+          }
+        } catch (err) {
+          alert('Có lỗi khi cập nhật voucher cho tài khoản!');
+        }
+        setIsUpdating(false);
+        // Hiện pháo hoa 2s, sau đó show modal trúng thưởng
         setTimeout(() => {
           setShowFireworks(false);
           setShowVoucherModal(true);
@@ -56,7 +120,8 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
     }, 4000);
   };
 
-  if (!isOpen) return null;
+
+  if (!isOpen && !showVoucherModal) return null;
 
   // Component hiệu ứng pháo hoa
   const Fireworks = () => (
@@ -118,9 +183,30 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
     </div>
   );
 
+  // Hiển thị danh sách voucher hiện có
+  // (Có thể bỏ qua nếu không muốn show ngoài vòng quay, nhưng theo yêu cầu sẽ show)
+  // Chỉ show các voucher hợp lệ
+  // Nếu muốn show tất cả, thay validVouchers thành vouchers
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl p-6 max-w-lg w-full mx-4 relative">
+        <div className="mb-4">
+          <h3 className="font-bold text-base mb-2 text-gray-700">Voucher hiện có:</h3>
+          <div className="flex flex-wrap gap-2">
+            {userVouchers.length === 0 && <span className="text-gray-400 text-sm">Không có voucher nào</span>}
+            {userVouchers.map((vid, idx) => {
+              const v = vouchers.find(vv => String(vv.id || vv._id) === String(vid));
+              if (!v) return null;
+              // Đảm bảo key luôn unique: kết hợp id và index
+              const key = `${v.id || v._id}_${idx}`;
+              return (
+                <div key={key} className="px-3 py-1 rounded-lg bg-gradient-to-r from-green-400 to-blue-400 text-white text-xs font-semibold shadow">
+                  {v.discountType === 'percent' ? `${v.discountValue}%` : `${(v.discountValue/1000).toFixed(0)}K`} - {v.code}
+                </div>
+              );
+            })}
+          </div>
+        </div>
         {/* Hiệu ứng pháo hoa */}
         {showFireworks && <Fireworks />}
         
@@ -147,16 +233,21 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
                 className="w-full h-full rounded-full relative transition-transform duration-[4000ms] ease-in-out"
                 style={{
                   transform: `rotate(${rotation}deg)`,
-                  background: `conic-gradient(
-                    #ef4444 0deg 45deg,
-                    #f97316 45deg 90deg,
-                    #eab308 90deg 135deg,
-                    #22c55e 135deg 180deg,
-                    #06b6d4 180deg 225deg,
-                    #3b82f6 225deg 270deg,
-                    #8b5cf6 270deg 315deg,
-                    #ec4899 315deg 360deg
-                  )`,
+                  background: (() => {
+                    const colors = [
+                      '#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899',
+                      '#f59e42', '#10b981', '#6366f1', '#f43f5e', '#fbbf24', '#14b8a6', '#a21caf', '#facc15'
+                    ];
+                    const n = prizes.length;
+                    let stops = [];
+                    for (let i = 0; i < n; i++) {
+                      const start = (360 / n) * i;
+                      const end = (360 / n) * (i + 1);
+                      const color = colors[i % colors.length];
+                      stops.push(`${color} ${start}deg ${end}deg`);
+                    }
+                    return `conic-gradient(${stops.join(',')})`;
+                  })(),
                   border: '2px solid white'
                 }}
               >
@@ -179,8 +270,13 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
                 
                 {prizes.map((prize, index) => {
                   const angle = (360 / prizes.length) * index;
-                  const isLongText = prize.length > 15;
-                  
+                  let label = '';
+                  if (String(prize.id) === '-1') label = 'Chúc bạn may mắn lần sau';
+                  else if (prize.label) label = prize.label;
+                  else if (prize.code) label = prize.code;
+                  else if (prize.discountType === 'percent') label = `Voucher ${prize.discountValue}%`;
+                  else label = `Voucher ${(prize.discountValue/1000).toFixed(0)}K`;
+                  const isLongText = label.length > 15;
                   return (
                     <div
                       key={index}
@@ -205,15 +301,7 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
                           fontWeight: '900'
                         }}
                       >
-                        {isLongText ? (
-                          prize.split(' ').map((word, wordIndex) => (
-                            <div key={wordIndex} className="leading-none mb-0.5">
-                              {word}
-                            </div>
-                          ))
-                        ) : (
-                          prize
-                        )}
+                        {label}
                       </div>
                     </div>
                   );
@@ -252,7 +340,13 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
           {result && !spinning && (
             <div className="mb-4 p-3 bg-green-50 rounded-lg border border-green-200">
               <p className="text-green-800 font-semibold text-sm">
-                🎉 Chúc mừng! Bạn đã nhận được: <span className="font-bold">{result}</span>
+                {result.id === '-1' ? (
+                  <>😢 Chúc bạn may mắn lần sau!</>
+                ) : (
+                  <>
+                    🎉 Chúc mừng! Bạn đã nhận được: <span className="font-bold">{result.discountType === 'percent' ? `Voucher ${result.discountValue}%` : `Voucher ${(result.discountValue/1000).toFixed(0)}K`}</span>
+                  </>
+                )}
               </p>
             </div>
           )}
@@ -277,7 +371,7 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
       </div>
       
       {/* Modal Voucher */}
-      {showVoucherModal && result && result !== 'Chúc bạn may mắn lần sau' && (
+      {showVoucherModal && result && result.id !== '-1' && (
         <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[60] p-4">
           <div 
             className="bg-gradient-to-br from-yellow-300 via-orange-400 to-red-400 rounded-3xl p-2 max-w-sm w-full mx-4 relative animate-pulse shadow-2xl"
@@ -306,7 +400,6 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
                   </div>
                 ))}
               </div>
-              
               {/* Hiệu ứng sáng chớp nền */}
               <div 
                 className="absolute inset-0 bg-gradient-radial from-yellow-200 via-transparent to-transparent animate-ping opacity-40"
@@ -314,7 +407,6 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
                   animationDuration: '1.5s'
                 }}
               />
-              
               <button
                 onClick={() => setShowVoucherModal(false)}
                 className="absolute top-3 right-3 p-1.5 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-all duration-200 z-20"
@@ -323,7 +415,6 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
               >
                 <X size={16} />
               </button>
-
               <div className="relative z-10">
                 <div 
                   className="text-8xl mb-4 animate-bounce"
@@ -343,7 +434,6 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
                   CHÚC MỪNG!
                 </h3>
                 <p className="text-gray-700 mb-4 font-semibold">Bạn đã trúng thưởng lớn!</p>
-                
                 <div 
                   className="bg-gradient-to-r from-green-400 via-emerald-500 to-teal-500 text-white rounded-2xl p-5 mb-4 transform hover:scale-105 transition-transform relative overflow-hidden"
                   style={{
@@ -359,16 +449,14 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
                     }}
                   />
                   <div className="relative z-10">
-                    <div className="text-xl font-bold mb-1">{result}</div>
-                    <div className="text-sm opacity-90 font-semibold">Mã: LUCKY{Date.now().toString().slice(-6)}</div>
+                    <div className="text-xl font-bold mb-1">{result.discountType === 'percent' ? `Voucher ${result.discountValue}%` : `Voucher ${(result.discountValue/1000).toFixed(0)}K`}</div>
+                    <div className="text-sm opacity-90 font-semibold">Mã: {result.code}</div>
                   </div>
                 </div>
-                
                 <div className="space-y-3">
                   <button
                     onClick={() => {
-                      // Logic sao chép mã voucher
-                      navigator.clipboard.writeText(`LUCKY${Date.now().toString().slice(-6)}`);
+                      navigator.clipboard.writeText(result.code);
                       alert('Đã sao chép mã voucher!');
                     }}
                     className="w-full py-3 px-4 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 text-white rounded-xl font-bold transition-all transform hover:scale-105 shadow-lg hover:shadow-xl"
@@ -378,7 +466,6 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
                   >
                     📋 Sao chép mã voucher
                   </button>
-                  
                   <button
                     onClick={() => {
                       setShowVoucherModal(false);

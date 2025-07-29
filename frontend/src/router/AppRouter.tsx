@@ -37,6 +37,7 @@ import AdminCategories from '../pages/Admin/AdminCategoriesPage';
 import AdminUsers from '../pages/Admin/AdminUsersPage';
 import AdminOrders from '../pages/Admin/AdminOrdersPage';
 import AdminBanners from '../pages/Admin/AdminBannersPage';
+import AdminVouchersPage from '../pages/Admin/AdminVouchersPage';
 
 const AppRouter = () => (
   <BrowserRouter>
@@ -114,6 +115,7 @@ const AppRouter = () => (
             <Route path="users" element={<AdminUsers />} />
             <Route path="orders" element={<AdminOrders />} />
             <Route path="banners" element={<AdminBanners />} />
+            <Route path="vouchers" element={<AdminVouchersPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

@@ -3,7 +3,7 @@ import { useUserStore } from '../../stores/useUserStore';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import AddressSelector, { type UserAddress } from '../../components/Guest/Account/AddressSelector';
 import { AddressService, type AddressResponse } from '../../services/addressService';
-import type { AddressInfo } from '../../reduxSlice/UserContext';
+import type { AddressInfo } from '../../types/User';
 
 const MyAddresses: React.FC = () => {
   const user = useUserStore(state => state.user);
@@ -89,8 +89,8 @@ const MyAddresses: React.FC = () => {
       const newAddressInfo = convertToAddressInfo(addressResponse);
       
       setAddresses([
-        ...addresses.map((a: AddressInfo) => ({ ...a, isSelected: false, userId: user.id })),
-        { ...newAddressInfo, userId: user.id },
+        ...addresses.map((a: AddressInfo) => ({ ...a, isSelected: false })),
+        { ...newAddressInfo },
       ]);
       
       handleModalToggle('add', false);
@@ -267,7 +267,24 @@ const MyAddresses: React.FC = () => {
                       className="flex items-center gap-2 text-brand-green hover:bg-brand-green/10 px-4 py-2 rounded-xl transition-all duration-200 font-medium"
                       onClick={() => {
                         handleModalToggle('edit', address.id);
-                        setAddressData(prev => ({ ...prev, edit: address as UserAddress }));
+                        // Chuyển đổi rõ ràng sang UserAddress để tránh lỗi type
+                        setAddressData(prev => ({
+                          ...prev,
+                          edit: {
+                            id: address.id,
+                            isSelected: address.isSelected,
+                            label: address.label,
+                            address: address.address,
+                            wardName: address.wardName,
+                            phone: address.phone,
+                            fullName: address.fullName,
+                            district: address.district || '',
+                            ward: address.ward || '',
+                            street: address.street || '',
+                            latitude: address.latitude || 0,
+                            longitude: address.longitude || 0,
+                          }
+                        }));
                       }}
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -582,10 +599,17 @@ const MyAddresses: React.FC = () => {
                     </h4>
                     
                     <AddressSelector 
-                      value={addressData.edit} 
+                      value={addressData.edit ? {
+                        ...addressData.edit,
+                        district: addressData.edit.district || '',
+                        ward: addressData.edit.ward || '',
+                        street: addressData.edit.street || '',
+                        latitude: addressData.edit.latitude || 0,
+                        longitude: addressData.edit.longitude || 0,
+                      } : undefined}
                       onChange={addr => setAddressData(prev => ({
                         ...prev,
-                        edit: { ...(prev.edit || {}), ...addr } as UserAddress
+                        edit: { ...(prev.edit || {}), ...addr }
                       }))} 
                     />
                   </div>

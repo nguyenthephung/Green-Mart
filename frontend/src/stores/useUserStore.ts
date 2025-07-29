@@ -3,8 +3,22 @@ import { persist } from 'zustand/middleware';
 import { authService } from '../services/authService';
 import type { User } from '../services/authService';
 import { tokenManager } from '../services/api';
-import type { Voucher } from '../types/Voucher';
-import type { UserInfo, AddressInfo, PaymentInfo } from '../reduxSlice/UserContext';
+
+import type { AddressInfo, Voucher } from '../types/User';
+
+// Define types locally (from CheckoutSummary/CheckoutMain)
+export interface UserInfo {
+  fullName: string;
+  phone: string;
+  email?: string;
+}
+
+
+
+export interface PaymentInfo {
+  method: string;
+  isSelected: boolean;
+}
 
 interface UserState {
   user: User | null;

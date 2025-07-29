@@ -138,20 +138,20 @@ const Home: React.FC = memo(() => {
 
   // Enhanced handleAddToCart with optimized flying animation
   const handleAddToCart = useCallback((product: any, event?: React.MouseEvent) => {
-    // Lấy price và unit từ product hoặc product.units[0]
-    const price = typeof product.price === 'number'
-      ? product.price
-      : (product.units && product.units.length > 0 && typeof product.units[0].price === 'number')
-        ? product.units[0].price
-        : 0;
-    const unit = product.unit || (product.units && product.units.length > 0 ? product.units[0].type : undefined);
+    // Chuẩn hóa dữ liệu giống CategoryPage
+    const id = String(product._id || product.id);
+    const type = product.type || (product.units && product.units[0]?.type) || 'count';
+    const price = typeof product.salePrice === 'number' ? product.salePrice : (typeof product.price === 'number' ? product.price : (product.units && product.units[0]?.price) || 0);
+    const unit = product.unit || (product.units && product.units[0]?.type) || '';
     addToCart({
-      id: Number(product.id),
+      id,
       name: product.name,
       price,
       image: product.image,
       unit,
-      quantity: 1
+      quantity: type === 'weight' ? 0 : 1,
+      type,
+      weight: type === 'weight' ? 1 : undefined
     });
     if (event) {
       createFlyingEffect(event, product);

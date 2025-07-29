@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { WishlistController } from '../controllers/WishlistController';
-
+import UserController from '../controllers/UserController';
 const router = Router();
 
 // GET /api/users/:userId/wishlist - Get user's wishlist

@@ -33,6 +33,7 @@ export interface User {
   lastLogin?: string;
   totalOrders: number;
   totalSpent: number;
+  vouchers?: (string | number)[];
 }
 
 export interface ApiResponse<T> {
@@ -53,7 +54,7 @@ export const apiClient = async <T>(
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> => {
   const url = `${API_BASE_URL}${endpoint}`;
-  
+
   const config: RequestInit = {
     headers: {
       'Content-Type': 'application/json',
@@ -73,11 +74,9 @@ export const apiClient = async <T>(
 
   try {
     const response = await fetch(url, config);
-    
     // Kiểm tra xem response có content không
     const contentType = response.headers.get('content-type');
     let data;
-    
     // Nếu response có content-type là JSON và có body
     if (contentType && contentType.includes('application/json')) {
       const text = await response.text();
@@ -100,11 +99,9 @@ export const apiClient = async <T>(
         data: null
       };
     }
-    
     if (!response.ok) {
       throw new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
     }
-    
     return data;
   } catch (error: any) {
     console.error('API Error:', {
@@ -113,12 +110,10 @@ export const apiClient = async <T>(
       error: error.message,
       stack: error.stack
     });
-    
     // Tạo response lỗi chuẩn
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
       throw new Error('Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng.');
     }
-    
     throw error;
   }
 };

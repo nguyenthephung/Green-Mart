@@ -1,3 +1,4 @@
+
 import { useCartStore } from '../../stores/useCartStore';
 import { useUserStore } from '../../stores/useUserStore';
 import { useEffect, useState } from "react";
@@ -12,8 +13,22 @@ import { useNavigate } from 'react-router-dom';
 import EmptyCart from '../../components/Guest/cart/EmptyCart';
 import { districts } from '../../data/Guest/hcm_districts_sample';
 import haversine from 'haversine-distance';
-import { vouchers } from '../../data/Guest/vouchers';
+import { useVoucherStore } from '../../stores/useVoucherStore';
 import ShopeeVoucherModal from '../../components/Guest/cart/ShopeeVoucherModal';
+
+// Extend AddressInfo locally to match actual usage
+type AddressInfo = {
+  address: string;
+  district?: string;
+  ward?: string;
+  wardName?: string;
+  city?: string;
+  latitude?: number;
+  longitude?: number;
+  isSelected?: boolean;
+  fullName?: string;
+  phone?: string;
+};
 
 // Tạm thời comment error handling trong quá trình phát triển
 // import { useCartErrorHandling } from '../../components/Error/ErrorHandling';
@@ -26,21 +41,20 @@ export default function CartPage() {
   const products = useProductStore(state => state.products) as any[];
   const updateQuantity = useCartStore(state => state.updateQuantity);
   const removeFromCart = useCartStore(state => state.removeFromCart);
-  const addresses = useUserStore(state => state.addresses);
+  const addresses = useUserStore(state => state.addresses as AddressInfo[]);
   const voucher = useUserStore(state => state.voucher);
   const setVoucher = useUserStore(state => state.setVoucher);
+  const vouchers = useVoucherStore(state => state.vouchers);
+  const fetchVouchers = useVoucherStore(state => state.fetchVouchers);
   const navigate = useNavigate();
   const [showVoucherModal, setShowVoucherModal] = useState(false);
   
   // Cuộn lên đầu trang khi component được mount
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    fetchCart().then(() => {
-      console.log('[CartPage] fetchCart done, items:', useCartStore.getState().items);
-    }).catch((err) => {
-      console.error('[CartPage] fetchCart error:', err);
-    });
-  }, [fetchCart]);
+    fetchCart();
+    fetchVouchers();
+  }, [fetchCart, fetchVouchers]);
   
 
 
@@ -77,20 +91,9 @@ export default function CartPage() {
   }, []);
 
   // DEBUG LOG: log mỗi khi cart thay đổi
-  useEffect(() => {
-    console.log('Cart context:', cart);
-    const cartListItems = cart.map(item => {
-      const product = products.find(p => p.id === item.id);
-      const priceNumber = parseInt((typeof item.price === 'string' ? item.price : String(item.price)).replace(/\D/g, '')) || 0;
-      const originalPrice = product ? parseInt((typeof product.price === 'string' ? product.price : String(product.price)).replace(/\D/g, '')) || priceNumber : priceNumber;
-      return {
-        ...item,
-        price: priceNumber,
-        originalPrice,
-      };
-    });
-    console.log('CartListItems:', cartListItems);
-  }, [cart]);
+  // useEffect(() => {
+  //   // Debug: log cart context
+  // }, [cart]);
 
   // Map cart context sang CartList type
   const cartListItems = cart.map(item => {
@@ -121,7 +124,6 @@ export default function CartPage() {
   });
 
   // DEBUG: Log all cartListItems and their id/unit/type values
-  console.log('[CartPage] cartListItems for rendering:', cartListItems.map(i => ({ id: i.id, unit: i.unit, type: i.type })));
 
   const subtotal = cartListItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -133,11 +135,12 @@ export default function CartPage() {
   if (voucher && subtotal >= voucher.minOrder) {
     if (voucher.discountType === 'percent') {
       voucherDiscount = Math.round(subtotal * voucher.discountValue / 100);
+      // Không cho giảm quá tổng tiền hàng
+      if (voucherDiscount > subtotal) voucherDiscount = subtotal;
     } else {
-      voucherDiscount = voucher.discountValue;
+      // discountValue là số tiền giảm, nhưng không vượt quá subtotal
+      voucherDiscount = Math.min(voucher.discountValue, subtotal);
     }
-    // Không cho giảm quá tổng tiền hàng
-    if (voucherDiscount > subtotal) voucherDiscount = subtotal;
   }
 
   // Random các sản phẩm không nằm trong giỏ hàng
@@ -287,7 +290,19 @@ export default function CartPage() {
             open={showVoucherModal}
             vouchers={vouchers}
             selectedVoucher={voucher}
-            onSelect={(v) => { setVoucher(v); setShowVoucherModal(false); }}
+            onSelect={(v) => {
+              if (!v) { setVoucher(null); setShowVoucherModal(false); return; }
+              // Remove id field if present to match User.Voucher type
+              const { id, ...rest } = v as any;
+              setVoucher({
+                ...rest,
+                createdAt: (v as any).createdAt || '',
+                updatedAt: (v as any).updatedAt || '',
+                currentUsage: (v as any).currentUsage || 0,
+                isActive: (v as any).isActive ?? true,
+              });
+              setShowVoucherModal(false);
+            }}
             onClose={() => setShowVoucherModal(false)}
           />
 
@@ -299,10 +314,10 @@ export default function CartPage() {
             voucher={voucher}
             onRemoveVoucher={() => setVoucher(null)}
             address={selectedAddress ? {
-              district: selectedAddress?.district,
-              ward: selectedAddress?.wardName,
-              fullName: selectedAddress?.fullName,
-              phone: typeof selectedAddress?.phone === 'string' ? selectedAddress.phone : '',
+              district: selectedAddress.district || '',
+              ward: selectedAddress.wardName || selectedAddress.ward || '',
+              fullName: selectedAddress.fullName,
+              phone: typeof selectedAddress.phone === 'string' ? selectedAddress.phone : '',
             } : undefined}
           />
 

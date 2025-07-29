@@ -1,11 +1,37 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { useUserStore } from '../../stores/useUserStore';
-import { vouchers } from '../../data/Guest/vouchers';
+import { useVoucherStore } from '../../stores/useVoucherStore';
+import type { Voucher } from '../../types/User';
+import { useEffect } from 'react';
 
 const MyVoucherPage: React.FC = () => {
-  const voucher = useUserStore(state => state.voucher);
+  // Use voucher store for all vouchers
+  // Map store vouchers to User.Voucher type for type safety
+  const rawVouchers = useVoucherStore(state => state.vouchers);
+  const vouchers: Voucher[] = useMemo(() =>
+    rawVouchers.map(v => ({
+      ...v,
+      createdAt: (v as any).createdAt || '',
+      updatedAt: (v as any).updatedAt || '',
+      currentUsage: (v as any).currentUsage || 0,
+      isActive: (v as any).isActive ?? true,
+    })),
+    [rawVouchers]
+  );
+  const loading = useVoucherStore(state => state.loading);
+  const error = useVoucherStore(state => state.error);
+  const fetchAllVouchers = useVoucherStore(state => state.fetchAllVouchers);
+
+  // Use user store for current selected voucher
+  const voucher: Voucher | null = useUserStore(state => state.voucher);
   const setVoucher = useUserStore(state => state.setVoucher);
+  const user = useUserStore(state => state.user);
+
+  useEffect(() => {
+    if (!user || !user.id) return;
+    fetchAllVouchers();
+  }, [fetchAllVouchers, user]);
 
   const getVoucherIcon = (discountType: string) => {
     if (discountType === 'percent') {
@@ -22,6 +48,13 @@ const MyVoucherPage: React.FC = () => {
       );
     }
   };
+
+  if (loading) {
+    return <div className="text-center py-16">Đang tải voucher...</div>;
+  }
+  if (error) {
+    return <div className="text-center py-16 text-red-500">{error}</div>;
+  }
 
   return (
     <DashboardLayout>
@@ -95,72 +128,74 @@ const MyVoucherPage: React.FC = () => {
             </div>
           ) : (
             <div className="space-y-6">
-              {vouchers.map(v => (
-                <div key={v.id} className={`relative overflow-hidden rounded-2xl border-2 transition-all duration-300 ${voucher && voucher.id === v.id ? 'border-brand-green bg-brand-green/5 shadow-lg shadow-green-200/50' : 'border-app-border bg-app-card hover:border-brand-green/50 hover:shadow-lg'}`}>
-                  <div className="flex">
-                    {/* Left side - Discount */}
-                    <div className={`flex items-center justify-center w-32 ${voucher && voucher.id === v.id ? 'bg-green-600' : 'bg-gradient-to-br from-orange-500 to-red-500'}`}>
-                      <div className="text-center text-white">
-                        <div className="text-2xl font-bold">
-                          {v.discountType === 'percent' ? `${v.discountValue}%` : `${(v.discountValue / 1000).toFixed(0)}K`}
+              {vouchers.map(v => {
+                const active = voucher && voucher._id === v._id;
+                return (
+                  <div key={v._id} className={`relative overflow-hidden rounded-2xl border-2 transition-all duration-300 ${active ? 'border-brand-green bg-brand-green/5 shadow-lg shadow-green-200/50' : 'border-app-border bg-app-card hover:border-brand-green/50 hover:shadow-lg'}`}>
+                    <div className="flex">
+                      {/* Left side - Discount */}
+                      <div className={`flex items-center justify-center w-32 ${active ? 'bg-green-600' : 'bg-gradient-to-br from-orange-500 to-red-500'}`}>
+                        <div className="text-center text-white">
+                          <div className="text-2xl font-bold">
+                            {v.discountType === 'percent' ? `${v.discountValue}%` : `${(v.discountValue / 1000).toFixed(0)}K`}
+                          </div>
+                          <div className="text-xs">GIẢM</div>
                         </div>
-                        <div className="text-xs">GIẢM</div>
+                      </div>
+
+                      {/* Right side - Details */}
+                      <div className="flex-1 p-6">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              {getVoucherIcon(v.discountType)}
+                              <div>
+                                <div className="font-bold text-lg text-gray-900">{v.code}</div>
+                                <div className="text-gray-600">{v.label}</div>
+                              </div>
+                            </div>
+                            <div className="text-app-primary mb-2">{v.description}</div>
+                            <div className="text-sm text-app-secondary mb-2">
+                              Đơn tối thiểu: <span className="font-semibold text-brand-green">{v.minOrder.toLocaleString()}₫</span>
+                            </div>
+                            <div className="flex items-center gap-4 text-xs text-app-muted">
+                              <span>HSD: {v.expired}</span>
+                              <span>Đã dùng {v.usedPercent}%</span>
+                            </div>
+                            {v.note && (
+                              <div className="mt-2 text-xs text-red-500 bg-red-50/50 px-3 py-1 rounded-full inline-block">
+                                {v.note}
+                              </div>
+                            )}
+                          </div>
+                          <button
+                            className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
+                              active 
+                                ? 'bg-gray-400 text-white cursor-not-allowed' 
+                                : 'btn-primary'
+                            }`}
+                            onClick={() => setVoucher(active ? null : (v as Voucher))}
+                            disabled={!!active}
+                          >
+                            {active ? 'Đang áp dụng' : 'Áp dụng'}
+                          </button>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Right side - Details */}
-                    <div className="flex-1 p-6">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            {getVoucherIcon(v.discountType)}
-                            <div>
-                              <div className="font-bold text-lg text-gray-900">{v.code}</div>
-                              <div className="text-gray-600">{v.label}</div>
-                            </div>
-                          </div>
-                          <div className="text-app-primary mb-2">{v.description}</div>
-                          <div className="text-sm text-app-secondary mb-2">
-                            Đơn tối thiểu: <span className="font-semibold text-brand-green">{v.minOrder.toLocaleString()}₫</span>
-                          </div>
-                          <div className="flex items-center gap-4 text-xs text-app-muted">
-                            <span>HSD: {v.expired}</span>
-                            <span>Đã dùng {v.usedPercent}%</span>
-                          </div>
-                          {v.note && (
-                            <div className="mt-2 text-xs text-red-500 bg-red-50/50 px-3 py-1 rounded-full inline-block">
-                              {v.note}
-                            </div>
-                          )}
+                    {/* Active voucher indicator */}
+                    {active && (
+                      <div className="absolute top-4 right-4">
+                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
                         </div>
-                        
-                        <button
-                          className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
-                            voucher && voucher.id === v.id 
-                              ? 'bg-gray-400 text-white cursor-not-allowed' 
-                              : 'btn-primary'
-                          }`}
-                          onClick={() => setVoucher(voucher && voucher.id === v.id ? null : v)}
-                          disabled={!!(voucher && voucher.id === v.id)}
-                        >
-                          {voucher && voucher.id === v.id ? 'Đang áp dụng' : 'Áp dụng'}
-                        </button>
                       </div>
-                    </div>
+                    )}
                   </div>
-
-                  {/* Active voucher indicator */}
-                  {voucher && voucher.id === v.id && (
-                    <div className="absolute top-4 right-4">
-                      <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
 

@@ -24,10 +24,6 @@ const AdminUsers: React.FC = () => {
 
   // Helper for dark mode style
   const darkBg = isDarkMode ? '#18181b' : '#f9fafb';
-  const cardBg = isDarkMode ? '#23272f' : '#fff';
-  const borderCol = isDarkMode ? '#23272f' : '#e5e7eb';
-  const textCol = isDarkMode ? '#fff' : '#111827';
-  const subTextCol = isDarkMode ? '#a1a1aa' : '#4b5563';
   const [users, setUsers] = useState<User[]>(adminUsers);
   const [search, setSearch] = useState('');
   const [showAdd, setShowAdd] = useState(false);

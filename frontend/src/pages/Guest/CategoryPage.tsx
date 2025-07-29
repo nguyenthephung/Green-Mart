@@ -3,6 +3,19 @@ import type { Product } from '../../types/Product';
 import { useProductStore } from '../../stores/useProductStore';
 import { useCategoryStore } from '../../stores/useCategoryStore';
 import { useUserStore } from '../../stores/useUserStore';
+
+// Extend AddressInfo locally to match actual usage
+type AddressInfo = {
+  address: string;
+  district?: string;
+  ward?: string;
+  wardName?: string;
+  city?: string;
+  latitude?: number;
+  longitude?: number;
+  isSelected?: boolean;
+  fullName?: string;
+};
 import { useState, useMemo } from 'react';
 import { useCartStore } from '../../stores/useCartStore';
 import { StarIcon, FireIcon } from '@heroicons/react/24/solid';
@@ -12,7 +25,7 @@ import ProductCard from '../../components/Guest/home/ProductCard';
 export default function CategoryPage() {
   // Lấy user và addresses từ store
   const user = useUserStore(state => state.user);
-  const addresses = useUserStore(state => state.addresses);
+  const addresses = useUserStore(state => state.addresses as AddressInfo[]);
   const { category } = useParams<{ category: string }>();
   const addToCart = useCartStore(state => state.addToCart);
   const categories = useCategoryStore(state => state.categories);
