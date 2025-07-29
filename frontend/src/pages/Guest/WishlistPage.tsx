@@ -1,11 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, ShoppingCart, Trash2, Package } from 'lucide-react';
-import { useWishlist } from '../../reduxSlice/WishlistContext';
+// import { useWishlist } from '../../reduxSlice/WishlistContext';
 import { useCartStore } from '../../stores/useCartStore';
+import { useWishlistStore } from '../../stores/useWishlistStore';
 
 const WishlistPage: React.FC = () => {
-  const { items, removeFromWishlist, clearWishlist, isLoading } = useWishlist();
+  const { items, removeFromWishlist, clearWishlist, isLoading } = useWishlistStore();
   const addToCart = useCartStore(state => state.addToCart);
 
   const handleAddToCart = (item: any) => {

@@ -2,7 +2,6 @@ import AppRouter from './router/AppRouter';
 import { useEffect, memo } from 'react';
 import { useUserStore } from './stores/useUserStore';
 import { useProductStore } from './stores/useProductStore';
-import { WishlistProvider } from './reduxSlice/WishlistContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import ProfilerWrapper from './components/ProfilerWrapper';
 import { useCategoryStore } from './stores/useCategoryStore';
@@ -56,10 +55,8 @@ const App = memo(() => {
     <ProfilerWrapper id="App">
       <div className="animate-fadeIn">
         <ThemeProvider>
-          <WishlistProvider>
-            {/* Xóa padding-top, header sticky sẽ tự xử lý */}
-            <AppRouter />
-          </WishlistProvider>
+          {/* Xóa padding-top, header sticky sẽ tự xử lý */}
+          <AppRouter />
         </ThemeProvider>
         {/* Đã xóa PerformanceDashboard */}
       </div>

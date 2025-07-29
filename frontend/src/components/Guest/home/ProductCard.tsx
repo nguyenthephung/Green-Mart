@@ -2,7 +2,7 @@ import React, { useRef, memo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { FaShoppingCart } from 'react-icons/fa';
 import { Heart } from 'lucide-react';
-import { useWishlist } from '../../../reduxSlice/WishlistContext';
+import { useWishlistStore } from '../../../stores/useWishlistStore';
 import { useUserStore } from '../../../stores/useUserStore';
 
 export interface Product {
@@ -29,24 +29,9 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = memo(({ product, onAddToCart, showSaleBadge = true, quantity = 1, onQuantityChange }) => {
   const imgRef = useRef<HTMLImageElement>(null);
   
-  // Safe wishlist hooks with error handling
-  let wishlistHooks = null;
-  let userHooks = null;
-  
-  try {
-    wishlistHooks = useWishlist();
-    userHooks = useUserStore();
-  } catch (error) {
-    console.warn('Wishlist context not available:', error);
-  }
-  
-  const { addToWishlist, removeFromWishlist, isInWishlist } = wishlistHooks || {
-    addToWishlist: async () => {},
-    removeFromWishlist: async () => {},
-    isInWishlist: () => false
-  };
-  
-  const { user } = userHooks || { user: null };
+  // Wishlist store hooks
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlistStore();
+  const user = useUserStore(state => state.user);
 
   // Memoize cart handler with animation effect
   const handleAddToCart = useCallback((e: React.MouseEvent) => {
@@ -105,7 +90,6 @@ const ProductCard: React.FC<ProductCardProps> = memo(({ product, onAddToCart, sh
         const priceStr = product.salePrice || product.price;
         const priceNumber = parseFloat(priceStr.replace(/[^\d]/g, ''));
         const originalPriceNumber = product.isSale ? parseFloat(product.price.replace(/[^\d]/g, '')) : undefined;
-        
         await addToWishlist({
           id: product.id,
           name: product.name,

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ShoppingCart, Search, User, Home, Bell, LogOut, Heart } from 'lucide-react';
 import { useCartStore } from '../../stores/useCartStore';
 import { useUserStore } from '../../stores/useUserStore';
-import { useWishlist } from '../../reduxSlice/WishlistContext';
+import { useWishlistStore } from '../../stores/useWishlistStore';
 import NotificationDropdown from './NotificationDropdown';
 import ThemeToggle from '../ui/ThemeToggle';
 
@@ -22,7 +22,7 @@ const Header: React.FC = memo(() => {
     fetchCart();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const { getWishlistCount } = useWishlist();
+  const getWishlistCount = useWishlistStore(state => state.getWishlistCount);
   const user = useUserStore(state => state.user);
   const logout = useUserStore(state => state.logout);
 
