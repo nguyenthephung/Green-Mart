@@ -11,31 +11,56 @@ export const getCategories = async (req: Request, res: Response) => {
   }
 };
 
-// POST /api/categories
-export const addCategory = async (req: Request, res: Response) => {
+// Thêm mới hoặc cập nhật danh mục
+export const createOrUpdateCategory = async (req: Request, res: Response) => {
   try {
-    const category = new Category(req.body);
-    await category.save();
-    res.status(201).json(category);
-  } catch (err) {
-    res.status(500).json({ error: 'Lỗi khi thêm danh mục' });
-  }
-};
-
-// PUT /api/categories/:id
-export const editCategory = async (req: Request, res: Response) => {
-  try {
-    const updated = await Category.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updated) return res.status(404).json({ error: 'Không tìm thấy danh mục' });
-    res.json(updated);
-  } catch (err) {
-    res.status(500).json({ error: 'Lỗi khi sửa danh mục' });
+    const { id, name, subs, icon, description, productCount, status } = req.body;
+    if (id) {
+      // Nếu có id, update danh mục cha (thêm danh mục con vào subs)
+      const category = await Category.findById(id);
+      if (!category) return res.status(404).json({ message: 'Không tìm thấy danh mục cha' });
+      category.name = name || category.name;
+      category.icon = icon || category.icon;
+      category.description = description || category.description;
+      category.productCount = productCount || category.productCount;
+      category.status = status || category.status;
+      if (Array.isArray(subs) && subs.every(s => typeof s === 'string')) (category as any).subs = subs;
+      await category.save();
+      return res.status(200).json(category);
+    } else {
+      // Tạo mới danh mục cha
+      const category = new Category({
+        name,
+        subs: subs || [],
+        icon,
+        description,
+        productCount,
+        status
+      });
+      await category.save();
+      return res.status(201).json(category);
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    res.status(500).json({ message: errorMessage });
   }
 };
 
 // DELETE /api/categories/:id
 export const deleteCategory = async (req: Request, res: Response) => {
   try {
+    // Xóa tất cả sản phẩm thuộc category này
+    const category = await Category.findById(req.params.id);
+    if (!category) return res.status(404).json({ error: 'Không tìm thấy danh mục' });
+    const categoryName = category.name;
+    // Xóa sản phẩm thuộc category
+    const Product = require('../models/Product').default;
+    await Product.deleteMany({ category: categoryName });
+    // Xóa category khỏi subs của các category khác
+    await Category.updateMany(
+      { subs: categoryName },
+      { $pull: { subs: categoryName } }
+    );
     await Category.findByIdAndDelete(req.params.id);
     res.status(204).end();
   } catch (err) {

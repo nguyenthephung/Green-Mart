@@ -1,18 +1,21 @@
 import CartItem from "./CartItem";
 
 interface CartItemType {
-  id: number;
+  id: string;
   name: string;
   price: number;
   originalPrice: number;
   image: string;
   quantity: number;
+  unit?: string;
+  type?: 'count' | 'weight';
+  weight?: number;
 }
 
 interface CartListProps {
   items: CartItemType[];
-  onQuantityChange: (id: number, quantity: number) => void;
-  onRemove: (id: number) => void;
+  onQuantityChange: (id: string, quantity: number, unit?: string, type?: 'count' | 'weight') => void;
+  onRemove: (id: string, unit?: string, type?: 'count' | 'weight') => void;
 }
 
 export default function CartList({ items, onQuantityChange, onRemove }: CartListProps) {
@@ -25,19 +28,21 @@ export default function CartList({ items, onQuantityChange, onRemove }: CartList
         </h2>
         {items.length > 0 && (
           <div className="text-sm text-gray-500">
-            Tổng: {items.reduce((sum, item) => sum + item.price * item.quantity, 0).toLocaleString()} ₫
+            Tổng: {items.reduce((sum, item) => sum + (item.type === 'weight' ? (item.price * (item.weight || 0)) : (item.price * item.quantity)), 0).toLocaleString()} ₫
           </div>
         )}
       </div>
-      
       {items.length > 0 ? (
         <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
           {items.map(item => (
             <CartItem
               key={item.id}
               item={item}
-              onQuantityChange={onQuantityChange}
-              onRemove={onRemove}
+              onQuantityChange={(id, value) => onQuantityChange(id, value, item.unit, item.type)}
+              onRemove={(id) => {
+                console.log('[CartList] onRemove called with:', { id, item, unit: item.unit, type: item.type });
+                onRemove(id, item.unit, item.type);
+              }}
             />
           ))}
         </div>

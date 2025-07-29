@@ -9,7 +9,6 @@ interface CategorySectionProps {
   products: Product[];
   onAddToCart: (product: Product) => void;
   viewMoreLink: string;
-  heroImage: string;
   productCount: number;
   titleClass?: string;
 }
@@ -19,7 +18,6 @@ const CategorySection: React.FC<CategorySectionProps> = ({
   products,
   onAddToCart,
   viewMoreLink,
-  heroImage,
   productCount,
   titleClass = '',
 }) => {
@@ -29,11 +27,7 @@ const CategorySection: React.FC<CategorySectionProps> = ({
         <div
           className={`relative px-4 py-3 rounded-xl shadow-xl border-l-8 border-green-500 bg-white/90 dark:bg-gray-800/90 flex items-center gap-3 w-fit max-w-full transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 hover:bg-green-50 dark:hover:bg-gray-700 ${titleClass}`}
         >
-          <img
-            src={heroImage}
-            alt={title}
-            className="w-12 h-12 object-cover rounded-lg border-2 border-green-200 bg-white"
-          />
+       
           <span className="text-2xl md:text-3xl font-extrabold text-green-800 dark:text-green-300 tracking-wide drop-shadow-sm">
             {title}
           </span>

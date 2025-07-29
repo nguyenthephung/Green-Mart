@@ -16,6 +16,12 @@ const Header: React.FC = memo(() => {
   const navigate = useNavigate();
   // Use cartCount selector so Header re-renders when cart changes
   const cartCount = useCartStore(state => state.totalItems);
+  const fetchCart = useCartStore(state => state.fetchCart);
+  // Fetch cart on mount to ensure cart count is up-to-date after reload
+  useEffect(() => {
+    fetchCart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const { getWishlistCount } = useWishlist();
   const user = useUserStore(state => state.user);
   const logout = useUserStore(state => state.logout);
@@ -189,12 +195,14 @@ const Header: React.FC = memo(() => {
               className="p-3 text-app-secondary hover:text-app-primary hover:bg-app-secondary dark:hover:text-red-400 dark:hover:bg-red-900/20 rounded-xl group relative transition-colors duration-200"
               title="Danh sách yêu thích"
             >
-              <Heart size={20} />
-              {user && getWishlistCount() > 0 && (
-                <span className="absolute top-0 left-0 -translate-x-[80%] -translate-y-1/3 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center shadow-lg border-2 border-white dark:border-gray-800 font-bold min-w-[20px]">
-                  {getWishlistCount()}
-                </span>
-              )}
+              <span className="inline-block relative">
+                <Heart size={20} />
+                {user && getWishlistCount() > 0 && (
+                  <span className="absolute top-0 right-0 translate-x-[60%] -translate-y-2/3 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center shadow-lg border-2 border-white dark:border-gray-800 font-bold min-w-[20px]">
+                    {getWishlistCount()}
+                  </span>
+                )}
+              </span>
             </button>
 
             {/* Account Button */}

@@ -5,7 +5,10 @@ export interface ICartItem {
   name: string;
   price: number;
   image: string;
-  quantity: number;
+  type: 'count' | 'weight';
+  quantity?: number; // chỉ dùng cho sản phẩm đếm số lượng
+  weight?: number;   // chỉ dùng cho sản phẩm cân ký
+  unit: string;
 }
 
 export interface ICart extends Document {
@@ -35,10 +38,25 @@ const CartItemSchema: Schema = new Schema({
     type: String,
     required: true
   },
+  type: {
+    type: String,
+    enum: ['count', 'weight'],
+    required: true
+  },
   quantity: {
     type: Number,
-    required: true,
+    required: false,
     min: 1
+  },
+  weight: {
+    type: Number,
+    required: false,
+    min: 0
+  },
+  unit: {
+    type: String,
+    required: true,
+    trim: true
   }
 });
 
@@ -64,8 +82,20 @@ const CartSchema: Schema = new Schema({
 
 // Calculate totals before save
 CartSchema.pre('save', function(this: ICart, next) {
-  this.totalItems = this.items.reduce((total: number, item: ICartItem) => total + item.quantity, 0);
-  this.totalAmount = this.items.reduce((total: number, item: ICartItem) => total + (item.price * item.quantity), 0);
+  this.totalItems = this.items.reduce((total: number, item: ICartItem) => {
+    if (item.type === 'weight') {
+      return total + (item.weight || 0);
+    } else {
+      return total + (item.quantity || 0);
+    }
+  }, 0);
+  this.totalAmount = this.items.reduce((total: number, item: ICartItem) => {
+    if (item.type === 'weight') {
+      return total + (item.price * (item.weight || 0));
+    } else {
+      return total + (item.price * (item.quantity || 0));
+    }
+  }, 0);
   next();
 });
 

@@ -8,15 +8,19 @@ const CartController = {
     try {
       const userId = req.user?._id;
       if (!userId) {
-        return res.status(401).json({ success: false, message: 'Chưa xác thực người dùng', data: null });
+        res.status(401).json({ success: false, message: 'Chưa xác thực người dùng', data: null });
+        return;
       }
+      
       const cart = await Cart.findOne({ userId });
       if (!cart) {
-        return res.json({ success: true, message: 'Giỏ hàng trống', data: { items: [] } });
+        res.json({ success: true, message: 'Giỏ hàng trống', data: { items: [] } });
+        return;
       }
-      return res.json({ success: true, message: 'Lấy giỏ hàng thành công', data: cart });
+      
+      res.json({ success: true, message: 'Lấy giỏ hàng thành công', data: cart });
     } catch (err) {
-      return res.status(500).json({ success: false, message: 'Không lấy được giỏ hàng', data: null });
+      res.status(500).json({ success: false, message: 'Không lấy được giỏ hàng', data: null });
     }
   },
 
@@ -25,33 +29,59 @@ const CartController = {
     try {
       const userId = req.user?._id;
       if (!userId) {
-        return res.status(401).json({ success: false, message: 'Chưa xác thực người dùng', data: null });
+        res.status(401).json({ success: false, message: 'Chưa xác thực người dùng', data: null });
+        return;
       }
-      const { productId, quantity } = req.body;
+      const { productId, quantity, weight, unit } = req.body;
       let cart = await Cart.findOne({ userId });
       if (!cart) {
         cart = new Cart({ userId, items: [] });
       }
-      const itemIndex = cart.items.findIndex((item: any) => item.productId.toString() === productId);
-      if (itemIndex > -1) {
-        cart.items[itemIndex].quantity += quantity;
+      const product = await Product.findById(productId);
+      if (!product) {
+        res.status(404).json({ success: false, message: 'Không tìm thấy sản phẩm', data: null });
+        return;
+      }
+      // Tìm item trùng theo loại sản phẩm, productId, unit
+      let itemIndex = -1;
+      if (product.type === 'weight') {
+        itemIndex = cart.items.findIndex((item: any) => item.productId.toString() === productId && item.unit === unit && item.type === 'weight');
       } else {
-        const product = await Product.findById(productId);
-        if (!product) {
-          return res.status(404).json({ success: false, message: 'Không tìm thấy sản phẩm', data: null });
+        itemIndex = cart.items.findIndex((item: any) => item.productId.toString() === productId && item.unit === unit && item.type === 'count');
+      }
+      if (itemIndex > -1) {
+        if (product.type === 'weight') {
+          cart.items[itemIndex].weight = (cart.items[itemIndex].weight || 0) + (weight || 0);
+        } else {
+          cart.items[itemIndex].quantity = (cart.items[itemIndex].quantity || 0) + (quantity || 0);
         }
-        cart.items.push({ 
-          productId, 
-          name: product.name, 
-          price: product.price, 
-          image: product.image, 
-          quantity 
-        });
+      } else {
+        if (product.type === 'weight') {
+          cart.items.push({
+            productId,
+            name: product.name,
+            price: product.price,
+            image: product.image,
+            type: 'weight',
+            weight: weight || 0,
+            unit
+          });
+        } else {
+          cart.items.push({
+            productId,
+            name: product.name,
+            price: product.price,
+            image: product.image,
+            type: 'count',
+            quantity: quantity || 1,
+            unit
+          });
+        }
       }
       await cart.save();
-      return res.json({ success: true, message: 'Thêm sản phẩm thành công', data: cart });
+      res.json({ success: true, message: 'Thêm sản phẩm thành công', data: cart });
     } catch (err) {
-      return res.status(500).json({ success: false, message: 'Không thêm được sản phẩm vào giỏ hàng', data: null });
+      res.status(500).json({ success: false, message: 'Không thêm được sản phẩm vào giỏ hàng', data: null });
     }
   },
 
@@ -60,22 +90,32 @@ const CartController = {
     try {
       const userId = req.user?._id;
       if (!userId) {
-        return res.status(401).json({ success: false, message: 'Chưa xác thực người dùng', data: null });
+        res.status(401).json({ success: false, message: 'Chưa xác thực người dùng', data: null });
+        return;
       }
-      const { productId, quantity } = req.body;
+      
+      const { productId, quantity, weight, unit, type } = req.body;
       const cart = await Cart.findOne({ userId });
+      
       if (!cart) {
-        return res.status(404).json({ success: false, message: 'Không tìm thấy giỏ hàng', data: null });
+        res.status(404).json({ success: false, message: 'Không tìm thấy giỏ hàng', data: null });
+        return;
       }
-      const item = cart.items.find((item: any) => item.productId.toString() === productId);
+      // Match by productId, unit, and type
+      const item = cart.items.find((item: any) => item.productId.toString() === productId && item.unit === unit && item.type === type);
       if (!item) {
-        return res.status(404).json({ success: false, message: 'Không tìm thấy sản phẩm trong giỏ hàng', data: null });
+        res.status(404).json({ success: false, message: 'Không tìm thấy sản phẩm trong giỏ hàng', data: null });
+        return;
       }
-      item.quantity = quantity;
+      if (type === 'weight') {
+        item.weight = weight;
+      } else {
+        item.quantity = quantity;
+      }
       await cart.save();
-      return res.json({ success: true, message: 'Cập nhật số lượng thành công', data: cart });
+      res.json({ success: true, message: 'Cập nhật số lượng thành công', data: cart });
     } catch (err) {
-      return res.status(500).json({ success: false, message: 'Không cập nhật được số lượng', data: null });
+      res.status(500).json({ success: false, message: 'Không cập nhật được số lượng', data: null });
     }
   },
 
@@ -84,18 +124,38 @@ const CartController = {
     try {
       const userId = req.user?._id;
       if (!userId) {
-        return res.status(401).json({ success: false, message: 'Chưa xác thực người dùng', data: null });
+        res.status(401).json({ success: false, message: 'Chưa xác thực người dùng', data: null });
+        return;
       }
-      const { productId } = req.body;
+      
+      const { productId, unit, type } = req.body;
       const cart = await Cart.findOne({ userId });
       if (!cart) {
-        return res.status(404).json({ success: false, message: 'Không tìm thấy giỏ hàng', data: null });
+        res.status(404).json({ success: false, message: 'Không tìm thấy giỏ hàng', data: null });
+        return;
       }
-      cart.items = cart.items.filter((item: any) => item.productId.toString() !== productId);
+      console.log('[CartController] removeFromCart - INPUT:', { productId, unit, type });
+      console.log('[CartController] removeFromCart - BEFORE:', cart.items.map(i => ({
+        productId: i.productId.toString(), unit: i.unit, type: i.type
+      })));
+      const beforeCount = cart.items.length;
+      cart.items = cart.items.filter((item) => {
+        const match = item.productId.toString() === productId && item.unit === unit && item.type === type;
+        if (match) {
+          console.log('[CartController] removeFromCart - REMOVING:', {
+            productId: item.productId.toString(), unit: item.unit, type: item.type
+          });
+        }
+        return !match;
+      });
+      const afterCount = cart.items.length;
+      console.log('[CartController] removeFromCart - AFTER:', cart.items.map(i => ({
+        productId: i.productId.toString(), unit: i.unit, type: i.type
+      })), 'Removed:', beforeCount - afterCount);
       await cart.save();
-      return res.json({ success: true, message: 'Xóa sản phẩm thành công', data: cart });
+      res.json({ success: true, message: 'Xóa sản phẩm thành công', data: cart });
     } catch (err) {
-      return res.status(500).json({ success: false, message: 'Không xóa được sản phẩm khỏi giỏ hàng', data: null });
+      res.status(500).json({ success: false, message: 'Không xóa được sản phẩm khỏi giỏ hàng', data: null });
     }
   },
 
@@ -104,17 +164,21 @@ const CartController = {
     try {
       const userId = req.user?._id;
       if (!userId) {
-        return res.status(401).json({ success: false, message: 'Chưa xác thực người dùng', data: null });
+        res.status(401).json({ success: false, message: 'Chưa xác thực người dùng', data: null });
+        return;
       }
+      
       const cart = await Cart.findOne({ userId });
       if (!cart) {
-        return res.status(404).json({ success: false, message: 'Không tìm thấy giỏ hàng', data: null });
+        res.status(404).json({ success: false, message: 'Không tìm thấy giỏ hàng', data: null });
+        return;
       }
+      
       cart.items = [];
       await cart.save();
-      return res.json({ success: true, message: 'Xóa toàn bộ giỏ hàng thành công', data: cart });
+      res.json({ success: true, message: 'Xóa toàn bộ giỏ hàng thành công', data: cart });
     } catch (err) {
-      return res.status(500).json({ success: false, message: 'Không xóa được giỏ hàng', data: null });
+      res.status(500).json({ success: false, message: 'Không xóa được giỏ hàng', data: null });
     }
   },
 };

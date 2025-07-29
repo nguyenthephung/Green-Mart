@@ -1,9 +1,9 @@
 // src/routes/categoryRoutes.ts
 import { Router } from 'express';
+import express from 'express';
 import {
   getCategories,
-  addCategory,
-  editCategory,
+  createOrUpdateCategory,
   deleteCategory,
   toggleCategoryStatus
 } from '../controllers/CategoryController';
@@ -11,9 +11,9 @@ import {
 const router = Router();
 
 router.get('/categories', getCategories);
-router.post('/categories', addCategory);
-router.put('/categories/:id', editCategory);
+router.post('/categories', createOrUpdateCategory as express.RequestHandler);
+router.put('/categories/:id', createOrUpdateCategory as express.RequestHandler);
 router.delete('/categories/:id', deleteCategory);
-router.patch('/categories/:id/toggle-status', toggleCategoryStatus);
+router.patch('/categories/:id/toggle-status', toggleCategoryStatus as express.RequestHandler);
 
 export default router;

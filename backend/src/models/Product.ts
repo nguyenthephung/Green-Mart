@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IProduct extends Document {
+  type: 'count' | 'weight';
   name: string;
   price: number;
   salePrice?: number;
@@ -20,6 +21,13 @@ export interface IProduct extends Document {
 }
 
 const ProductSchema: Schema = new Schema({
+  type: {
+    type: String,
+    enum: ['count', 'weight'],
+    required: true,
+    default: 'count',
+    description: 'Loại sản phẩm: count (đếm số lượng), weight (cân ký)'
+  },
   name: {
     type: String,
     required: true,

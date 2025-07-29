@@ -4,6 +4,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { toast } from 'react-toastify';
 import type { AdminProduct } from '../../types/AdminProduct';
 import { useProductStore } from '../../stores/useProductStore';
+import { useCategoryStore } from '../../stores/useCategoryStore';
 import AddProductModal from '../../components/Admin/AddProductModal';
 import EditProductModal from '../../components/Admin/EditProductModal';
 import ConfirmDeleteModal from '../../components/Admin/ConfirmDeleteModal';
@@ -13,14 +14,17 @@ type SortField = 'name' | 'category' | 'price' | 'stock' | 'brand';
 type SortOrder = 'asc' | 'desc';
 type ViewMode = 'table' | 'grid';
 type FilterStatus = 'all' | 'active' | 'inactive';
-type FilterCategory = 'all' | 'Rau củ' | 'Trái cây' | 'Thịt' | 'Sữa' | 'Đồ khô' | 'Gia vị' | 'Đồ uống' | 'Snack';
+// FilterCategory chỉ cần là string vì dropdown lấy từ store
+
 
 const AdminProducts: React.FC = () => {
   const { products, loading, fetchAll, add, update, remove } = useProductStore();
+  const { categories, fetchCategories, loading: loadingCat } = useCategoryStore();
   const [actionLoading, setActionLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   React.useEffect(() => {
     fetchAll();
+    fetchCategories();
   }, []);
   const [search, setSearch] = useState('');
   const [showAdd, setShowAdd] = useState(false);
@@ -31,7 +35,8 @@ const AdminProducts: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   const [viewMode, setViewMode] = useState<ViewMode>('table');
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
-  const [filterCategory, setFilterCategory] = useState<FilterCategory>('all');
+  const [filterParentCategory, setFilterParentCategory] = useState<string>('all');
+  const [filterSubCategory, setFilterSubCategory] = useState<string>('all');
   const [showFilters, setShowFilters] = useState(false);
   const isLoading = loading;
 
@@ -43,15 +48,28 @@ const AdminProducts: React.FC = () => {
   const filteredAndSortedProducts = useMemo(() => {
     let filtered = products.filter(product => {
       const matchesSearch = product.name.toLowerCase().includes(search.toLowerCase()) ||
-                          product.category.toLowerCase().includes(search.toLowerCase()) ||
-                          (product.brand?.toLowerCase() || '').includes(search.toLowerCase());
-      
-      const matchesStatus = filterStatus === 'all' || 
-                           (filterStatus === 'active' && product.status === 'active') ||
-                           (filterStatus === 'inactive' && product.status === 'inactive');
-      
-      const matchesCategory = filterCategory === 'all' || product.category === filterCategory;
-      
+        product.category.toLowerCase().includes(search.toLowerCase()) ||
+        (product.brand?.toLowerCase() || '').includes(search.toLowerCase());
+
+      const matchesStatus = filterStatus === 'all' ||
+        (filterStatus === 'active' && product.status === 'active') ||
+        (filterStatus === 'inactive' && product.status === 'inactive');
+
+      // New logic: filter by parent and sub
+      let matchesCategory = true;
+      if (filterParentCategory !== 'all') {
+        const parentCat = categories.find(cat => cat.id === filterParentCategory);
+        if (parentCat) {
+          if (filterSubCategory !== 'all') {
+            matchesCategory = product.category === filterSubCategory;
+          } else {
+            matchesCategory = parentCat.subs.includes(product.category);
+          }
+        } else {
+          matchesCategory = false;
+        }
+      }
+
       return matchesSearch && matchesStatus && matchesCategory;
     });
 
@@ -89,7 +107,7 @@ const AdminProducts: React.FC = () => {
     });
 
     return filtered;
-  }, [products, search, sortField, sortOrder, filterStatus, filterCategory]);
+  }, [products, search, sortField, sortOrder, filterStatus, filterParentCategory, filterSubCategory]);
 
   // Pagination calculations
   const totalItems = filteredAndSortedProducts.length;
@@ -296,7 +314,8 @@ const openEditModal = (product: AdminProduct) => {
               onClick={() => {
                 setSearch('');
                 setFilterStatus('all');
-                setFilterCategory('all');
+                setFilterParentCategory('all');
+                setFilterSubCategory('all');
                 setSortField('name');
                 setSortOrder('asc');
               }}
@@ -332,22 +351,45 @@ const openEditModal = (product: AdminProduct) => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Danh mục</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Danh mục cha</label>
               <select
-                value={filterCategory}
-                onChange={(e) => setFilterCategory(e.target.value as FilterCategory)}
+                value={filterParentCategory}
+                onChange={e => {
+                  setFilterParentCategory(e.target.value);
+                  setFilterSubCategory('all');
+                }}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                disabled={loadingCat}
               >
-                <option value="all">Tất cả danh mục</option>
-                <option value="Rau củ">🥕 Rau củ</option>
-                <option value="Trái cây">🍎 Trái cây</option>
-                <option value="Thịt">🥩 Thịt</option>
-                <option value="Sữa">🥛 Sữa</option>
-                <option value="Đồ khô">🌾 Đồ khô</option>
-                <option value="Gia vị">🧂 Gia vị</option>
-                <option value="Đồ uống">🥤 Đồ uống</option>
-                <option value="Snack">🍿 Snack</option>
+                <option value="all">Tất cả danh mục cha</option>
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.icon ? `${cat.icon} ` : ''}{cat.name}</option>
+                ))}
               </select>
+              {filterParentCategory !== 'all' && (
+                <div className="mt-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Danh mục con</label>
+                  {(() => {
+                    const parentCat = categories.find(cat => cat.id === filterParentCategory);
+                    if (!parentCat) return <div className="text-sm text-red-500">Không tìm thấy danh mục cha này.</div>;
+                    if (!parentCat.subs || parentCat.subs.length === 0) {
+                      return <div className="text-sm text-gray-500">Danh mục này chưa có danh mục con.</div>;
+                    }
+                    return (
+                      <select
+                        value={filterSubCategory}
+                        onChange={e => setFilterSubCategory(e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                      >
+                        <option value="all">Tất cả danh mục con</option>
+                        {parentCat.subs.map((sub, idx) => (
+                          <option key={sub + '-' + idx} value={sub}>{sub}</option>
+                        ))}
+                      </select>
+                    );
+                  })()}
+                </div>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Sắp xếp theo</label>
@@ -460,7 +502,7 @@ const openEditModal = (product: AdminProduct) => {
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <img 
-                          src={product.images?.[0] || product.image} 
+                          src={product.image} 
                           alt={product.name}
                           className="w-12 h-12 rounded-lg object-cover shadow-sm"
                         />
@@ -579,7 +621,7 @@ const openEditModal = (product: AdminProduct) => {
               <div key={key} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1">
                 <div className="relative">
                   <img 
-                    src={product.images?.[0] || product.image} 
+                    src={product.image} 
                     alt={product.name}
                     className="w-full h-48 object-cover"
                   />
@@ -592,20 +634,16 @@ const openEditModal = (product: AdminProduct) => {
                     {product.status === 'active' ? '✅' : '❌'}
                   </div>
                 </div>
-                
                 <div className="p-4">
                   <div className="mb-2">
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                       {product.category}
                     </span>
                   </div>
-                  
                   <h3 className="text-lg font-semibold text-gray-900 mb-1 line-clamp-2">
                     {product.name}
                   </h3>
-                  
                   <p className="text-sm text-gray-600 mb-3">{product.brand}</p>
-                  
                   <div className="mb-3">
                     {product.isSale ? (
                       <div className="flex items-center gap-2">
@@ -622,7 +660,6 @@ const openEditModal = (product: AdminProduct) => {
                       </span>
                     )}
                   </div>
-                  
                   <div className="flex items-center justify-between mb-4">
                     <div className={`text-sm font-medium ${stockStatus.color}`}>
                       {product.stock} {product.unit}
@@ -631,7 +668,6 @@ const openEditModal = (product: AdminProduct) => {
                       {stockStatus.label}
                     </div>
                   </div>
-                  
                   <div className="flex gap-2">
                     <button
                       onClick={() => openEditModal({ ...product, id: typeof product.id === 'string' ? product.id : String(product.id) })}

@@ -28,6 +28,8 @@ const defaultProduct: Partial<AdminProduct> = {
 
 const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd }) => {
   const [product, setProduct] = useState<Partial<AdminProduct>>(defaultProduct);
+  const [parentCategory, setParentCategory] = useState<string>('');
+  const [subCategory, setSubCategory] = useState<string>('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [imagePreview, setImagePreview] = useState<string>('');
   const [imagesPreview, setImagesPreview] = useState<string[]>([]);
@@ -85,10 +87,6 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
   const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      if (files.length > 5) {
-        setErrors(prev => ({ ...prev, images: 'Chỉ được chọn tối đa 5 ảnh mô tả' }));
-        return;
-      }
 
       const arr: string[] = [];
       let loadedCount = 0;
@@ -150,7 +148,9 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
       unit: product.unit || '',
       isSale: !!product.isSale,
       discountAmount: product.discountAmount || 0,
-      salePrice: product.isSale ? calculateSalePrice() : undefined
+      salePrice: product.isSale ? calculateSalePrice() : undefined,
+      descriptionImages: typeof product.descriptionImages === 'function' ? product.descriptionImages : () => {},
+      _id: undefined
     };
 
     // Simulate API call
@@ -269,22 +269,46 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Danh mục <span className="text-red-500">*</span>
+                    Danh mục cha <span className="text-red-500">*</span>
                   </label>
                   <select
-                    value={product.category || ''}
-                    onChange={e => setProduct(prev => ({ ...prev, category: e.target.value }))}
+                    value={parentCategory}
+                    onChange={e => {
+                      setParentCategory(e.target.value);
+                      setSubCategory('');
+                      setProduct(prev => ({ ...prev, category: '' }));
+                    }}
                     className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
                       errors.category ? 'border-red-500 bg-red-50' : 'border-gray-300'
                     }`}
                   >
-                    <option value="">Chọn danh mục...</option>
+                    <option value="">Chọn danh mục cha...</option>
                     {categories.map(cat => (
-                      <option key={cat.id} value={cat.name}>
+                      <option key={cat.id} value={cat.id}>
                         {cat.icon} {cat.name}
                       </option>
                     ))}
                   </select>
+                  {parentCategory && !!categories.find(cat => cat.id === parentCategory) && Array.isArray(categories.find(cat => cat.id === parentCategory)?.subs) && categories.find(cat => cat.id === parentCategory)!.subs.length > 0 && (
+                    <div className="mt-2">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Danh mục con <span className="text-red-500">*</span></label>
+                      <select
+                        value={subCategory}
+                        onChange={e => {
+                          setSubCategory(e.target.value);
+                          setProduct(prev => ({ ...prev, category: e.target.value }));
+                        }}
+                        className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+                          errors.category ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                        }`}
+                      >
+                        <option value="">Chọn danh mục con...</option>
+                        {categories.find(cat => cat.id === parentCategory)?.subs.map((sub, idx) => (
+                          <option key={sub + '-' + idx} value={sub}>{sub}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                   {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category}</p>}
                 </div>
 
@@ -340,14 +364,45 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Đơn vị</label>
-                    <input
-                      type="text"
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Loại sản phẩm <span className="text-red-500">*</span></label>
+                    <select
+                      value={product.type || 'count'}
+                      onChange={e => {
+                        const type = e.target.value as 'count' | 'weight';
+                        let unit = '';
+                        if (type === 'weight') unit = 'kg';
+                        if (type === 'count') unit = 'hộp';
+                        setProduct(prev => ({ ...prev, type, unit }));
+                      }}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                    >
+                      <option value="count">Đếm số lượng (hộp, chai, cái...)</option>
+                      <option value="weight">Cân ký (kg, g...)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Đơn vị <span className="text-red-500">*</span></label>
+                    <select
                       value={product.unit || ''}
                       onChange={e => setProduct(prev => ({ ...prev, unit: e.target.value }))}
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
-                      placeholder="kg, hộp, chai..."
-                    />
+                      disabled={!product.type}
+                    >
+                      <option value="">Chọn đơn vị...</option>
+                      {product.type === 'weight' ? (
+                        <>
+                          <option value="kg">kg</option>
+                          <option value="g">g</option>
+                        </>
+                      ) : (
+                        <>
+                          <option value="hộp">hộp</option>
+                          <option value="chai">chai</option>
+                          <option value="cái">cái</option>
+                          <option value="bịch">bịch</option>
+                        </>
+                      )}
+                    </select>
                   </div>
                 </div>
 
@@ -363,9 +418,10 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                   </select>
                 </div>
 
-                {/* Sale section */}
-                <div className="bg-gradient-to-br from-red-50 to-orange-50 p-4 rounded-xl border border-red-200">
-                  <div className="flex items-center gap-3 mb-3">
+                {/* Sale & Featured section */}
+                <div className="flex flex-col md:flex-row gap-4">
+                  <div className="flex-1 bg-gradient-to-br from-red-50 to-orange-50 p-4 rounded-xl border border-red-200">
+                    <div className="flex items-center gap-3 mb-3">
                     <input
                       type="checkbox"
                       id="isSale"
@@ -388,7 +444,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                     </label>
                   </div>
 
-                  {product.isSale && (
+                    {product.isSale && (
                     <div className="space-y-3">
                       <div>
                         <label className="block text-sm font-semibold text-red-700 mb-2">
@@ -419,6 +475,22 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                       </div>
                     </div>
                   )}
+                  </div>
+                  <div className="flex-1 bg-gradient-to-br from-yellow-50 to-green-50 p-4 rounded-xl border border-yellow-200 flex flex-col justify-center">
+                    <div className="flex items-center gap-3 mb-3">
+                      <input
+                        type="checkbox"
+                        id="isFeatured"
+                        checked={!!product.isFeatured}
+                        onChange={e => setProduct(prev => ({ ...prev, isFeatured: e.target.checked }))}
+                        className="w-5 h-5 text-yellow-600 rounded focus:ring-2 focus:ring-yellow-500"
+                      />
+                      <label htmlFor="isFeatured" className="text-lg font-semibold text-yellow-700 cursor-pointer">
+                        ⭐ Sản phẩm nổi bật
+                      </label>
+                    </div>
+                    <div className="text-xs text-gray-500">Đánh dấu để sản phẩm xuất hiện ở mục nổi bật trên trang chủ.</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -467,7 +539,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Ảnh mô tả (tối đa 5 ảnh)
+                    Ảnh mô tả
                   </label>
                   <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 hover:border-green-400 transition-colors">
                     <div className="grid grid-cols-3 gap-3 mb-3">
@@ -485,15 +557,13 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                       ))}
                     </div>
                     
-                    {imagesPreview.length < 5 && (
-                      <button
-                        type="button"
-                        onClick={() => multiFileInputRef.current?.click()}
-                        className="w-full border-2 border-dashed border-gray-300 rounded-lg py-4 text-gray-500 hover:border-green-400 hover:text-green-600 transition-colors"
-                      >
-                        + Thêm ảnh mô tả
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      onClick={() => multiFileInputRef.current?.click()}
+                      className="w-full border-2 border-dashed border-gray-300 rounded-lg py-4 text-gray-500 hover:border-green-400 hover:text-green-600 transition-colors"
+                    >
+                      + Thêm ảnh mô tả
+                    </button>
                     
                     <input
                       type="file"

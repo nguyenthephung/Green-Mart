@@ -2,6 +2,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface ICategory extends Document {
   name: string;
+  subCategory?: string;
   icon: string;
   description?: string;
   productCount: number;
@@ -14,6 +15,10 @@ const CategorySchema: Schema = new Schema({
     required: true,
     trim: true,
     unique: true
+  },
+  subs: {
+    type: [String],
+    default: [] // mảng tên danh mục con
   },
   icon: {
     type: String,

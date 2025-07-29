@@ -9,13 +9,16 @@ const WishlistPage: React.FC = () => {
   const addToCart = useCartStore(state => state.addToCart);
 
   const handleAddToCart = (item: any) => {
+    // Chuẩn hóa dữ liệu addToCart giống CategoryPage, thêm unit nếu có
     const cartItem = {
-      id: item.productId,
-      name: item.productName,
-      price: item.productPrice,
-      image: item.productImage,
+      id: item.productId ?? item.id,
+      name: item.productName ?? item.name,
+      price: item.productPrice ?? item.price,
+      image: item.productImage ?? item.image,
       inStock: item.inStock,
-      category: item.category
+      category: item.category,
+      unit: item.unit ?? 'kg',
+      quantity: 1,
     };
     addToCart(cartItem);
   };
@@ -107,7 +110,7 @@ const WishlistPage: React.FC = () => {
         {/* Wishlist Items */}
         <div className="grid gap-4">
           {items.map((item) => (
-            <div key={item.id} className="bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition-shadow">
+            <div key={item.productId ?? item.id} className="bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-6">
                 {/* Product Image */}
                 <div className="flex-shrink-0">

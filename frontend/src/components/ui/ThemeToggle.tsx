@@ -15,7 +15,7 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({
 }) => {
   const { theme, toggleTheme } = useTheme();
   
-  console.log('ThemeToggle render:', { theme }); // Debug log
+
 
   const sizeClasses = {
     sm: 'w-8 h-8 p-1',
@@ -39,9 +39,9 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({
       
       <button
         onClick={() => {
-          console.log('Theme toggle clicked, current theme:', theme);
+ 
           toggleTheme();
-          console.log('Toggle function called');
+
         }}
         className={`
           ${sizeClasses[size]}

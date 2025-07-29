@@ -38,8 +38,9 @@
   --color-bg-card: 31 41 55;
   --color-bg-input: 75 85 99;
   --color-bg-header: 31 41 55;
-  --color-bg-green: 31 41 55;
-  --color-bg-teal: 55 65 81;
+  --color-bg-emerald: 6 78 59;   /* xanh đậm (emerald dark) */
+  --color-bg-green: 2 44 34;     /* xanh lá đậm gần đen */
+  --color-bg-teal: 30 64 175;    /* xanh biển đậm */
   --color-bg-overlay: 0 0 0;
   
   --color-text-primary: 249 250 251;
@@ -229,6 +230,7 @@ h2.text-transparent {
 }
 
 /* ====== BODY AND ROOT BACKGROUNDS ====== */
+
 body {
   background-color: rgb(249 250 251) !important;
 }
@@ -245,19 +247,7 @@ body {
   background-color: rgb(31 41 55) !important;
 }
 
-.min-h-screen {
-  background: rgb(249 250 251) !important;
-}
-
-/* ====== BODY AND ROOT BACKGROUNDS ====== */
-body {
-  background-color: rgb(var(--color-bg-secondary)) !important;
-}
-
-#root {
-  background-color: rgb(var(--color-bg-secondary)) !important;
-}
-
+/* .min-h-screen gradient chỉ giữ lại 1 lần, dùng biến màu đã chuẩn hóa */
 .min-h-screen {
   background: linear-gradient(to bottom right, 
     rgb(var(--color-bg-emerald)), 

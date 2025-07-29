@@ -5,7 +5,9 @@ import CartSummary from "../../components/Guest/cart/CartSummary";
 import MarketInfo from "../../components/Guest/cart/MarketInfo";
 import Recommendations from "../../components/Guest/cart/Recommendations";
 import CartList from "../../components/Guest/cart/CartList";
-import { products } from '../../data/Guest/Home';
+import { useProductStore } from '../../stores/useProductStore';
+import type { RecommendationItem } from '../../types/RecommendationItem';
+import type { CartItem } from '../../types/CartItem';
 import { useNavigate } from 'react-router-dom';
 import EmptyCart from '../../components/Guest/cart/EmptyCart';
 import { districts } from '../../data/Guest/hcm_districts_sample';
@@ -18,7 +20,10 @@ import ShopeeVoucherModal from '../../components/Guest/cart/ShopeeVoucherModal';
 
 
 export default function CartPage() {
-  const cart = useCartStore(state => state.items);
+  const cart = useCartStore(state => state.items) as CartItem[];
+  const loading = useCartStore(state => state.loading);
+  const fetchCart = useCartStore(state => state.fetchCart);
+  const products = useProductStore(state => state.products) as any[];
   const updateQuantity = useCartStore(state => state.updateQuantity);
   const removeFromCart = useCartStore(state => state.removeFromCart);
   const addresses = useUserStore(state => state.addresses);
@@ -30,46 +35,14 @@ export default function CartPage() {
   // Cuộn lên đầu trang khi component được mount
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
+    fetchCart().then(() => {
+      console.log('[CartPage] fetchCart done, items:', useCartStore.getState().items);
+    }).catch((err) => {
+      console.error('[CartPage] fetchCart error:', err);
+    });
+  }, [fetchCart]);
   
-  // Tạm thời vô hiệu hóa error handling và loading states
-  // const [isLoading, setIsLoading] = useState(true);
-  
-  // Tạm thời comment error handling
-  /*
-  // Error handling
-  const { 
-    handleNetworkError,
-    handleLoadingFailed,
-    ErrorComponent 
-  } = useCartErrorHandling();
 
-  // Simulate loading and potential errors (remove in production)
-  useEffect(() => {
-    const loadCartData = async () => {
-      try {
-        // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Random error simulation (remove in production)
-        if (Math.random() < 0.1) { // 10% chance
-          handleLoadingFailed("Không thể tải dữ liệu giỏ hàng");
-          return;
-        }
-        if (Math.random() < 0.05) { // 5% chance  
-          handleNetworkError("Lỗi kết nối mạng");
-          return;
-        }
-        
-        setIsLoading(false);
-      } catch (err) {
-        handleNetworkError("Lỗi tải dữ liệu giỏ hàng");
-      }
-    };
-    
-    loadCartData();
-  }, [handleNetworkError, handleLoadingFailed]);
-  */
 
   // Lấy địa chỉ đang chọn
   const selectedAddress = addresses.find(a => a.isSelected) || addresses[0];
@@ -121,18 +94,34 @@ export default function CartPage() {
 
   // Map cart context sang CartList type
   const cartListItems = cart.map(item => {
-    // Tìm sản phẩm gốc để lấy giá gốc nếu muốn
-    const product = products.find(p => p.id === item.id);
-    // Chuyển price từ string sang number
-    const priceNumber = parseInt((typeof item.price === 'string' ? item.price : String(item.price)).replace(/\D/g, '')) || 0;
-    // Nếu có originalPrice thì lấy, không thì lấy price
-    const originalPrice = product ? parseInt((typeof product.price === 'string' ? product.price : String(product.price)).replace(/\D/g, '')) || priceNumber : priceNumber;
+    // Lấy id đúng: ưu tiên productId nếu có, fallback sang id
+    const id = String(item.productId || item.id);
+    const product = products.find(p => String(p.id) === id);
+    let priceNumber = item.price;
+    let originalPrice = item.price;
+    if (product) {
+      if (Array.isArray(product.units)) {
+        const mainUnit = product.units.find((u: any) => u.type === item.unit) || product.units[0];
+        priceNumber = mainUnit.price;
+        originalPrice = mainUnit.price;
+      } else if (typeof product.price === 'number') {
+        priceNumber = product.price;
+        originalPrice = product.price;
+      }
+    }
+    // Always include id, unit, and type from the original item
     return {
       ...item,
+      id, // luôn là string, đúng productId
+      unit: item.unit,
+      type: item.type,
       price: priceNumber,
       originalPrice,
     };
   });
+
+  // DEBUG: Log all cartListItems and their id/unit/type values
+  console.log('[CartPage] cartListItems for rendering:', cartListItems.map(i => ({ id: i.id, unit: i.unit, type: i.type })));
 
   const subtotal = cartListItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -154,13 +143,18 @@ export default function CartPage() {
   // Random các sản phẩm không nằm trong giỏ hàng
   function getRandomRelatedProducts(count = 8) {
     // Loại bỏ sản phẩm đã có trong giỏ hàng
-    const cartIds = cart.map(i => i.id);
-    const available = products.filter(p => !cartIds.includes(p.id));
+    const cartIds = cart.map(i => Number(i.id));
+    const available = products.filter(p => !cartIds.includes(Number(p.id)));
     // Map về đúng định dạng RecommendationItem
-    const mapped = available.map(p => {
-      const price = parseInt((p.price || '').replace(/\D/g, '')) || 0;
+    const mapped: RecommendationItem[] = available.map(p => {
+      let price = 0;
+      if (Array.isArray(p.units)) {
+        price = p.units[0]?.price || 0;
+      } else if (typeof p.price === 'number') {
+        price = p.price;
+      }
       return {
-        id: p.id,
+        id: Number(p.id),
         name: p.name,
         image: p.image,
         price,
@@ -177,36 +171,19 @@ export default function CartPage() {
   }
   const relatedItems = getRandomRelatedProducts(8);
 
-  // Tạm thời vô hiệu hóa error và loading states
-  /*
-  // Show error component if there's an error
-  if (ErrorComponent) {
+  if (loading) {
     return (
-      <>
-        <Header />
-        <div className="bg-app-secondary min-h-screen pt-[104px] md:pt-[88px] lg:pt-[80px]">
-          {ErrorComponent}
+      <div className="bg-gradient-app-main min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <svg className="animate-spin h-10 w-10 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+          </svg>
+          <span className="text-green-700 font-semibold text-lg">Đang tải giỏ hàng...</span>
         </div>
-      </>
+      </div>
     );
   }
-
-  // Show loading state
-  if (isLoading) {
-    return (
-      <>
-        <Header />
-        <div className="bg-app-secondary min-h-screen pt-[104px] md:pt-[88px] lg:pt-[80px]">
-          <LoadingSpinner
-            size="xl"
-            text="Đang tải giỏ hàng..."
-          />
-        </div>
-      </>
-    );
-  }
-  */
-
   if (cart.length === 0) {
     return (
       <>
@@ -240,8 +217,25 @@ export default function CartPage() {
           <MarketInfo />
           <CartList
             items={cartListItems}
-            onQuantityChange={updateQuantity}
-            onRemove={removeFromCart}
+            onQuantityChange={(id, value, unit, type) => {
+              updateQuantity(String(id), value, unit, type);
+            }}
+            onRemove={(id, unit, type) => {
+              if (!id || id === 'undefined') {
+                console.warn('[CartPage] Tried to remove cart item with undefined id:', { id, unit, type });
+                alert('Không thể xóa sản phẩm: ID không hợp lệ.');
+                return;
+              }
+              console.log('[CartPage] removeFromCart called:', { id, unit, type });
+              removeFromCart(String(id), unit, type)
+                .then(() => {
+                  console.log('[CartPage] removeFromCart success');
+                })
+                .catch((err) => {
+                  console.error('[CartPage] removeFromCart error:', err);
+                  alert('Lỗi xóa sản phẩm: ' + (err?.message || err));
+                });
+            }}
           />
           <Recommendations items={relatedItems} />
         </div>

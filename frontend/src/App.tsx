@@ -1,12 +1,28 @@
 import AppRouter from './router/AppRouter';
 import { useEffect, memo } from 'react';
 import { useUserStore } from './stores/useUserStore';
+import { useProductStore } from './stores/useProductStore';
 import { WishlistProvider } from './reduxSlice/WishlistContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import ProfilerWrapper from './components/ProfilerWrapper';
+import { useCategoryStore } from './stores/useCategoryStore';
 
 const App = memo(() => {
   const checkAuthStatus = useUserStore(state => state.checkAuthStatus);
+  const fetchAll = useProductStore(state => state.fetchAll);
+  const products = useProductStore(state => state.products);
+  const fetchCategories = useCategoryStore(state => state.fetchCategories);
+  const categories = useCategoryStore(state => state.categories);
+
+  // Fetch sản phẩm và category một lần khi app khởi động
+  useEffect(() => {
+    if (!products || products.length === 0) {
+      fetchAll && fetchAll();
+    }
+    if (!categories || categories.length === 0) {
+      fetchCategories && fetchCategories();
+    }
+  }, [products, fetchAll, categories, fetchCategories]);
   
   // Enable INP monitoring
 

@@ -2,7 +2,18 @@ import React, { useState, useMemo } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useCategoryStore } from '../../stores/useCategoryStore';
-import type { Category } from '../../types/Category';
+// Category mới: name (tên cha), subs (mảng tên con), icon, description, ...
+type Category = {
+  id: string;
+  name: string;
+  subs: string[];
+  icon: string;
+  description?: string;
+  productCount: number;
+  status: 'active' | 'inactive';
+  createdAt: string;
+  updatedAt: string;
+};
 import Pagination from '../../components/Admin/Pagination';
 
 
@@ -126,7 +137,7 @@ const AdminCategories: React.FC = () => {
   const handleEditCategory = React.useCallback((updatedCategory: Category) => {
     toast.loading('Đang cập nhật danh mục...', { toastId: 'edit-category' });
     return edit(updatedCategory)
-      .then((res) => {
+      .then(() => {
         toast.update('edit-category', { render: 'Cập nhật danh mục thành công!', type: 'success', isLoading: false, autoClose: 2000 });
         setShowEdit(false);
         setEditCategory(null);
@@ -141,7 +152,7 @@ const AdminCategories: React.FC = () => {
     toast.loading('Đang xóa danh mục...', { toastId: 'delete-category' });
     if (!deleteId) return Promise.resolve();
     return remove(deleteId)
-      .then((res) => {
+      .then(() => {
         toast.update('delete-category', { render: 'Xóa danh mục thành công!', type: 'success', isLoading: false, autoClose: 2000 });
         setDeleteId(null);
       })
@@ -562,29 +573,54 @@ const AdminCategories: React.FC = () => {
 };
 
 // Modal components (simplified for now)
+
+
 const AddCategoryModal: React.FC<{show: boolean, onAdd: (cat: Omit<Category, 'id'>) => void, onClose: () => void}> = ({ show, onAdd, onClose }) => {
-  const [name, setName] = useState('');
+  const { categories, fetchCategories } = useCategoryStore();
+  const [type, setType] = useState<'parent' | 'child'>('child');
+  const [name, setName] = useState(''); // tên cha
+  const [subName, setSubName] = useState(''); // tên con
+  const [parentId, setParentId] = useState(''); // id cha để thêm con
   const [icon, setIcon] = useState('📁');
   const [description, setDescription] = useState('');
-  // Dark mode detection
   const isDarkMode = document.documentElement.classList.contains('dark');
 
   if (!show) return null;
 
-  const handleAdd = () => {
+  // Thêm danh mục cha
+  const handleAddParent = async () => {
     if (!name.trim()) return;
-    onAdd({
+    await Promise.resolve(onAdd({
       name: name.trim(),
+      subs: [],
       icon,
       description: description.trim(),
       productCount: 0,
       status: 'active',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
-    });
+    }));
+    await fetchCategories();
     setName('');
     setIcon('📁');
     setDescription('');
+  };
+
+  // Thêm danh mục con vào cha
+  const handleAddChild = async () => {
+    if (!subName.trim() || !parentId) return;
+    // Tìm cha, thêm con vào subs
+    const parent = categories.find(c => c.id === parentId);
+    if (!parent) return;
+    const updatedParent: Category = {
+      ...parent,
+      subs: [...parent.subs, subName.trim()],
+      updatedAt: new Date().toISOString()
+    };
+    await Promise.resolve(onAdd(updatedParent));
+    await fetchCategories();
+    setSubName('');
+    setParentId('');
   };
 
   return (
@@ -602,41 +638,77 @@ const AddCategoryModal: React.FC<{show: boolean, onAdd: (cat: Omit<Category, 'id
       >
         <h2 className="text-xl font-bold mb-4">Thêm danh mục mới</h2>
         <div className="space-y-4">
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Tên danh mục"
-            className="w-full px-4 py-2 border rounded-lg"
-            style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
-          />
-          <input
-            type="text"
-            value={icon}
-            onChange={(e) => setIcon(e.target.value)}
-            placeholder="Icon (emoji)"
-            className="w-full px-4 py-2 border rounded-lg"
-            style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
-          />
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Mô tả danh mục"
-            className="w-full px-4 py-2 border rounded-lg h-20"
-            style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
-          />
+          <div>
+            <label className="block font-medium mb-2">Loại danh mục:</label>
+            <select value={type} onChange={e => setType(e.target.value as 'parent' | 'child')} className="w-full px-4 py-2 border rounded-lg">
+              <option value="parent">Danh mục cha</option>
+              <option value="child">Thêm danh mục con vào cha</option>
+            </select>
+          </div>
+          {type === 'parent' && (
+            <>
+              <input
+                type="text"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                placeholder="Tên danh mục cha"
+                className="w-full px-4 py-2 border rounded-lg"
+                style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
+              />
+              <input
+                type="text"
+                value={icon}
+                onChange={e => setIcon(e.target.value)}
+                placeholder="Icon (emoji)"
+                className="w-full px-4 py-2 border rounded-lg"
+                style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
+              />
+              <textarea
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                placeholder="Mô tả danh mục"
+                className="w-full px-4 py-2 border rounded-lg h-20"
+                style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
+              />
+              <button
+                onClick={handleAddParent}
+                className="w-full px-4 py-2 bg-green-600 text-white rounded-lg mt-2"
+                style={isDarkMode ? { backgroundColor: '#22c55e', color: '#fff' } : {}}
+              >Thêm danh mục cha</button>
+            </>
+          )}
+          {type === 'child' && (
+            <>
+              <select value={parentId} onChange={e => setParentId(e.target.value)} className="w-full px-4 py-2 border rounded-lg">
+                <option value="">-- Chọn danh mục cha --</option>
+                {categories.map((cat, idx) => (
+                  <option key={cat.id + '-' + idx} value={cat.id}>
+                    {cat.icon ? `${cat.icon} ` : ''}{cat.name}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="text"
+                value={subName}
+                onChange={e => setSubName(e.target.value)}
+                placeholder="Tên danh mục con"
+                className="w-full px-4 py-2 border rounded-lg mt-2"
+                style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
+              />
+              <button
+                onClick={handleAddChild}
+                className="w-full px-4 py-2 bg-green-600 text-white rounded-lg mt-2"
+                style={isDarkMode ? { backgroundColor: '#22c55e', color: '#fff' } : {}}
+              >Thêm danh mục con</button>
+            </>
+          )}
         </div>
         <div className="flex gap-2 mt-6">
           <button
             onClick={onClose}
             className="flex-1 px-4 py-2 border rounded-lg"
             style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
-          >Hủy</button>
-          <button
-            onClick={handleAdd}
-            className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg"
-            style={isDarkMode ? { backgroundColor: '#22c55e', color: '#fff' } : {}}
-          >Thêm</button>
+          >Đóng</button>
         </div>
       </div>
     </div>
@@ -645,6 +717,7 @@ const AddCategoryModal: React.FC<{show: boolean, onAdd: (cat: Omit<Category, 'id
 
 const EditCategoryModal: React.FC<{show: boolean, category: Category, onSave: (cat: Category) => void, onClose: () => void}> = ({ show, category, onSave, onClose }) => {
   const [name, setName] = useState(category.name ?? '');
+  const [subs, setSubs] = useState<string[]>(category.subs ?? []);
   const [icon, setIcon] = useState(category.icon ?? '📁');
   const [description, setDescription] = useState(category.description ?? '');
   const [isSaving, setIsSaving] = useState(false);
@@ -660,6 +733,7 @@ const EditCategoryModal: React.FC<{show: boolean, category: Category, onSave: (c
       ...category,
       id: category.id,
       name: name.trim(),
+      subs,
       icon,
       description: description.trim(),
       updatedAt: new Date().toISOString()
@@ -689,6 +763,17 @@ const EditCategoryModal: React.FC<{show: boolean, category: Category, onSave: (c
             className="w-full px-4 py-2 border rounded-lg"
             style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
           />
+          <div>
+            <label className="block mb-2">Danh mục con (cách nhau bởi dấu phẩy):</label>
+            <input
+              type="text"
+              value={subs.join(', ')}
+              onChange={(e) => setSubs(e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
+              placeholder="Tên các danh mục con, cách nhau bởi dấu phẩy"
+              className="w-full px-4 py-2 border rounded-lg"
+              style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
+            />
+          </div>
           <input
             type="text"
             value={icon}

@@ -1,84 +1,106 @@
-import { useParams, useSearchParams } from 'react-router-dom';
-import { products } from '../../data/Guest/Home';
+import { useParams} from 'react-router-dom';
+import type { Product } from '../../types/Product';
+import { useProductStore } from '../../stores/useProductStore';
+import { useCategoryStore } from '../../stores/useCategoryStore';
+import { useUserStore } from '../../stores/useUserStore';
 import { useState, useMemo } from 'react';
 import { useCartStore } from '../../stores/useCartStore';
 import { StarIcon, FireIcon } from '@heroicons/react/24/solid';
 import ProductCard from '../../components/Guest/home/ProductCard';
 
-const categoryNames: Record<string, string> = {
-  meat: 'Thịt - Cá - Trứng - Sữa',
-  vegetables: 'Rau Củ Quả',
-  fruits: 'Trái Cây',
-  dryfood: 'Thực Phẩm Khô',
-  spices: 'Gia Vị',
-  drink: 'Đồ Uống Các Loại',
-  snack: 'Bánh Kẹo',
-  milk: 'Sữa Các Loại',
-};
-
-const allCategories = Object.keys(categoryNames);
 
 export default function CategoryPage() {
+  // Lấy user và addresses từ store
+  const user = useUserStore(state => state.user);
+  const addresses = useUserStore(state => state.addresses);
   const { category } = useParams<{ category: string }>();
-  const [searchParams] = useSearchParams();
   const addToCart = useCartStore(state => state.addToCart);
-  
+  const categories = useCategoryStore(state => state.categories);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState('default');
   const [filterType, setFilterType] = useState<'all' | 'sale' | 'featured'>('all');
 
   // Check URL params for special filters
-  const saleFromUrl = searchParams.get('sale') === 'true';
-  const featuredFromUrl = searchParams.get('featured') === 'true';
+  
 
-  // Set initial filter based on URL params
-  useState(() => {
-    if (saleFromUrl) setFilterType('sale');
-    else if (featuredFromUrl) setFilterType('featured');
-  });
+
+  // Use admin product store
+  const products = useProductStore(state => state.products);
 
   // Memoize filtered products for performance
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
-      const categoryMatch = !category || p.category === category;
-      const searchMatch = p.name.toLowerCase().includes(search.toLowerCase());
-      
+      if (p.status !== 'active') return false;
+      let categoryMatch = true;
+      if (category) {
+        // Tìm category cha có subs chứa p.category
+        const parentCat = categories.find(cat => Array.isArray(cat.subs) && cat.subs.includes(p.category));
+        categoryMatch = !!parentCat && category === p.category;
+      }
+      const searchMatch = p.name?.toLowerCase().includes(search.toLowerCase());
       let typeMatch = true;
-      if (filterType === 'sale') typeMatch = p.isSale;
-      else if (filterType === 'featured') typeMatch = p.isFeatured;
-      
+      if (filterType === 'sale') typeMatch = !!p.isSale;
+      else if (filterType === 'featured') typeMatch = !!(p as any).isFeatured;
       return categoryMatch && searchMatch && typeMatch;
     }).sort((a, b) => {
+      const priceA = typeof (a as any).salePrice === 'number' ? (a as any).salePrice : (a as any).price;
+      const priceB = typeof (b as any).salePrice === 'number' ? (b as any).salePrice : (b as any).price;
       if (sort === 'price-asc') {
-        const priceA = parseInt((a.salePrice || a.price).replace(/\D/g, ''));
-        const priceB = parseInt((b.salePrice || b.price).replace(/\D/g, ''));
         return priceA - priceB;
       }
       if (sort === 'price-desc') {
-        const priceA = parseInt((a.salePrice || a.price).replace(/\D/g, ''));
-        const priceB = parseInt((b.salePrice || b.price).replace(/\D/g, ''));
         return priceB - priceA;
       }
       return 0;
     });
-  }, [category, search, filterType, sort]);
+  }, [products, category, search, filterType, sort, categories]);
 
   // Handle add to cart
-  const handleAddToCart = (product: any) => {
-    addToCart(product.id, 1); // hoặc số lượng mong muốn
+  // Thêm vào giỏ hàng luôn với số lượng mặc định 1
+  const handleAddToCart = (item: Product) => {
+    addToCart({
+      id: String(item._id),
+      name: item.name,
+      price: typeof item.salePrice === 'number' ? item.salePrice : item.price,
+      image: item.image,
+      unit: item.unit,
+      quantity: item.type === 'weight' ? 0 : 1,
+      type: item.type,
+      weight: item.type === 'weight' ? 1 : undefined
+    });
   };
+
+  // Lấy địa chỉ đang chọn (nếu có)
+  const selectedAddress = addresses && addresses.length > 0 ? (addresses.find(a => a.isSelected) || addresses[0]) : null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Page Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4">
-            {category ? categoryNames[category] : 'Tất Cả Sản Phẩm'}
+            {category
+              ? categories.find(cat => Array.isArray(cat.subs) && cat.subs.includes(category))?.name || category
+              : 'Tất Cả Sản Phẩm'}
           </h1>
           <p className="text-gray-600 text-lg">
             Khám phá bộ sưu tập tươi ngon chất lượng cao
           </p>
+          {/* Hiển thị tên user và địa chỉ giao hàng nếu có */}
+          {user && (
+            <div className="mt-2 text-base text-gray-500">
+              Xin chào, <span className="font-semibold text-emerald-700">{user.name || user.email}</span>
+              {selectedAddress && (
+                <>
+                  {' '}• Giao đến: <span className="font-semibold text-green-700">
+                    {selectedAddress.fullName ? selectedAddress.fullName : ''}
+                    {selectedAddress.wardName || selectedAddress.ward ? `, ${selectedAddress.wardName || selectedAddress.ward}` : ''}
+                    {selectedAddress.district ? `, ${selectedAddress.district}` : ''}
+                  </span>
+                </>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Filter Section */}
@@ -131,18 +153,20 @@ export default function CategoryPage() {
             >
               Tất Cả
             </a>
-            {allCategories.map((cat) => (
-              <a
-                key={cat}
-                href={`/category/${cat}`}
-                className={`px-4 py-2 rounded-full font-semibold text-sm transition-all duration-200 ${
-                  cat === category
-                    ? 'bg-emerald-600 text-white border-emerald-700 shadow-lg'
-                    : 'text-gray-700 border border-gray-300 bg-white hover:bg-emerald-50 hover:text-emerald-700'
-                }`}
-              >
-                {categoryNames[cat]}
-              </a>
+            {categories.map(cat => (
+              cat.subs.map(sub => (
+                <a
+                  key={sub}
+                  href={`/category/${sub}`}
+                  className={`px-4 py-2 rounded-full font-semibold text-sm transition-all duration-200 ${
+                    sub === category
+                      ? 'bg-emerald-600 text-white border-emerald-700 shadow-lg'
+                      : 'text-gray-700 border border-gray-300 bg-white hover:bg-emerald-50 hover:text-emerald-700'
+                  }`}
+                >
+                  {cat.icon ? `${cat.icon} ` : ''}{sub}
+                </a>
+              ))
             ))}
           </div>
 
@@ -198,14 +222,28 @@ export default function CategoryPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
-            {filteredProducts.map(product => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onAddToCart={handleAddToCart}
-                showSaleBadge={true}
-              />
-            ))}
+            {filteredProducts.map(product => {
+              // Ensure _id is string and remove descriptionImages function for handleAddToCart
+              const { descriptionImages, ...rest } = product;
+              const productForCart = { ...rest, _id: String(product._id), unit: product.unit || "" };
+              return (
+                <ProductCard
+                  key={String(product._id)}
+                  product={{
+                    id: product.id,
+                    name: product.name,
+                    price: String(typeof product.salePrice === 'number' ? product.salePrice : product.price),
+                    image: product.image,
+                    category: product.category,
+                    unit: product.unit,
+                    salePrice: typeof product.salePrice === 'number' ? String(product.salePrice) : product.salePrice
+                  }}
+                  quantity={1}
+                  onAddToCart={() => handleAddToCart(productForCart)}
+                  showSaleBadge={true}
+                />
+              );
+            })}
           </div>
         )}
       </div>

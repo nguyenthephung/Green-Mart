@@ -39,6 +39,14 @@ const ProductController = {
     try {
       const deleted = await Product.findByIdAndDelete(req.params.id);
       if (!deleted) return res.status(404).json({ success: false, message: 'Không tìm thấy sản phẩm', data: null });
+      // Giảm productCount của category nếu cần
+      const Category = require('../models/Category').default;
+      if (deleted.category) {
+        await Category.updateOne(
+          { name: deleted.category },
+          { $inc: { productCount: -1 } }
+        );
+      }
       res.json({ success: true, data: deleted });
     } catch (err) {
       res.status(500).json({ success: false, message: 'Lỗi xóa sản phẩm', data: null });
