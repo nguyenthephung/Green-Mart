@@ -321,12 +321,52 @@ const AdminVouchersPage: React.FC = () => {
                 <div className="space-y-4">
                   <h3 className="font-semibold text-green-600 dark:text-green-300 mb-2">Điều kiện & Giá trị</h3>
                   <input name="minOrder" type="number" value={form.minOrder} onChange={handleInput} placeholder="Đơn tối thiểu" className="w-full p-3 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border-gray-300 dark:border-gray-700" />
+                  {form.minOrder !== '' &&
+                    <input
+                      type="text"
+                      value={Number(form.minOrder).toLocaleString('vi-VN') + '₫'}
+                      readOnly
+                      tabIndex={-1}
+                      className="w-full p-3 border rounded bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 mt-1 cursor-default"
+                      style={{ pointerEvents: 'none' }}
+                    />
+                  }
                   <div className="flex gap-2">
                     <select name="discountType" value={form.discountType} onChange={handleInput} className="w-1/2 p-3 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700">
                       <option value="percent">Phần trăm (%)</option>
                       <option value="amount">Số tiền (₫)</option>
                     </select>
                     <input name="discountValue" type="number" value={form.discountValue} onChange={handleInput} placeholder="Giá trị giảm" className="w-1/2 p-3 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border-gray-300 dark:border-gray-700" />
+                  {form.discountValue !== '' && form.discountType === 'amount' &&
+                    <input
+                      type="text"
+                      value={Number(form.discountValue).toLocaleString('vi-VN') + '₫'}
+                      readOnly
+                      tabIndex={-1}
+                      className="w-1/2 p-3 border rounded bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 mt-1 cursor-default"
+                      style={{ pointerEvents: 'none' }}
+                    />
+                  }
+                  {form.minOrder !== '' &&
+                    <input
+                      type="text"
+                      value={Number(form.minOrder).toLocaleString('vi-VN') + '₫'}
+                      readOnly
+                      tabIndex={-1}
+                      className="w-full p-3 border rounded bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 mt-1 cursor-default"
+                      style={{ pointerEvents: 'none' }}
+                    />
+                  }
+                  {form.discountValue !== '' && form.discountType === 'amount' &&
+                    <input
+                      type="text"
+                      value={Number(form.discountValue).toLocaleString('vi-VN') + '₫'}
+                      readOnly
+                      tabIndex={-1}
+                      className="w-1/2 p-3 border rounded bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 mt-1 cursor-default"
+                      style={{ pointerEvents: 'none' }}
+                    />
+                  }
                   </div>
                   <div className="relative">
                     <input
