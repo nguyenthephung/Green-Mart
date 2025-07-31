@@ -37,18 +37,18 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
     setResult(null);
     setShowFireworks(false);
     setShowVoucherModal(false);
-    // Random prize
+    // Random prize index, ensure the selected index is used for both UI and logic
     let prizeIndex = Math.floor(Math.random() * prizes.length);
-    let selectedPrize = prizes[prizeIndex];
-    // If user already owns the voucher, and it's not the 'try again' prize, spin again (up to 10 tries to avoid infinite loop)
+    // Only skip voucher if user already owns it and there is at least one other voucher to win
     let tries = 0;
+    const availableVoucherCount = prizes.filter(p => p.id !== '-1' && !userVouchers.includes(String(p.id))).length;
     while (
-      selectedPrize.id !== '-1' &&
-      userVouchers.includes(String(selectedPrize.id)) &&
-      tries < 10
+      prizes[prizeIndex].id !== '-1' &&
+      userVouchers.includes(String(prizes[prizeIndex].id)) &&
+      tries < 10 &&
+      availableVoucherCount > 0
     ) {
       prizeIndex = Math.floor(Math.random() * prizes.length);
-      selectedPrize = prizes[prizeIndex];
       tries++;
     }
     const prizeAngle = (360 / prizes.length) * prizeIndex;
@@ -56,6 +56,8 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
     const extraRotation = Math.random() * 360; // Thêm góc ngẫu nhiên
     const finalRotation = 360 * spins + prizeAngle + extraRotation;
     setRotation(prev => prev + finalRotation);
+    // Save the selected prize for use in the async block
+    const selectedPrize = prizes[prizeIndex];
     setTimeout(async () => {
       setSpinning(false);
       setResult(selectedPrize);
