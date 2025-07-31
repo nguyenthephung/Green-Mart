@@ -44,6 +44,8 @@ const AdminVouchersPage: React.FC = () => {
   const [form, setForm] = useState<VoucherForm>(defaultForm);
   const [actionLoading, setActionLoading] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  // State for date picker in Add Modal
+  const [showDateInput, setShowDateInput] = useState(false);
 
   // Fetch vouchers khi vào trang admin
   useEffect(() => {
@@ -259,8 +261,8 @@ const AdminVouchersPage: React.FC = () => {
                     <td className="px-6 py-4 font-semibold text-green-900 dark:text-green-200 align-middle">{v.label}</td>
                     <td className="px-6 py-4 font-mono dark:text-gray-200 align-middle">{v.code}</td>
                     <td className="px-6 py-4 max-w-xs truncate dark:text-gray-200 align-middle" title={v.description}>{v.description}</td>
-                    <td className="px-6 py-4 dark:text-gray-200 align-middle">{v.minOrder?.toLocaleString()}₫</td>
-                    <td className="px-6 py-4 dark:text-gray-200 align-middle">{v.discountType === 'percent' ? `${v.discountValue}%` : `${v.discountValue?.toLocaleString()}₫`}</td>
+                    <td className="px-6 py-4 dark:text-gray-200 align-middle">{typeof v.minOrder === 'number' ? v.minOrder.toLocaleString('vi-VN') : v.minOrder}₫</td>
+                    <td className="px-6 py-4 dark:text-gray-200 align-middle">{v.discountType === 'percent' ? `${v.discountValue}%` : (typeof v.discountValue === 'number' ? v.discountValue.toLocaleString('vi-VN') : v.discountValue) + '₫'}</td>
                     <td className="px-6 py-4 dark:text-gray-200 align-middle">{formatDate(v.expired)}</td>
                     <td className="px-6 py-4 align-middle">
                       {isExpired ? (
@@ -329,55 +331,11 @@ const AdminVouchersPage: React.FC = () => {
                   <div className="relative">
                     <input
                       name="expired"
-                      type="text"
+                      type="date"
                       value={form.expired}
                       onChange={handleInput}
                       placeholder="Chọn ngày hết hạn"
                       className="w-full p-3 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700 pr-12"
-                      readOnly
-                      onFocus={e => {
-                        // Tạm thời bỏ readonly để showPicker không lỗi
-                        const input = e.target as HTMLInputElement;
-                        input.readOnly = false;
-                        input.type = 'date';
-                        if (input.showPicker) input.showPicker();
-                        setTimeout(() => {
-                          input.type = 'text';
-                          input.readOnly = true;
-                        }, 200);
-                      }}
-                    />
-                    <button
-                      type="button"
-                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-green-600 hover:bg-green-700 focus:outline-none"
-                      tabIndex={-1}
-                      aria-label="Chọn ngày hết hạn"
-                      onClick={e => {
-                        const input = (e.currentTarget.parentElement?.querySelector('input[name=expired]')) as HTMLInputElement;
-                        if (input) {
-                          input.readOnly = false;
-                          input.type = 'date';
-                          if (input.showPicker) input.showPicker();
-                          setTimeout(() => {
-                            input.type = 'text';
-                            input.readOnly = true;
-                          }, 200);
-                        }
-                      }}
-                    >
-                      {/* Calendar Icon */}
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-white">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3.75 7.5h16.5M4.5 21h15a.75.75 0 00.75-.75V6.75a.75.75 0 00-.75-.75h-15a.75.75 0 00-.75.75v13.5c0 .414.336.75.75.75z" />
-                      </svg>
-                    </button>
-                    {/* Hidden native date input for fallback/manual entry */}
-                    <input
-                      type="date"
-                      className="absolute left-0 top-0 w-full h-full opacity-0 cursor-pointer"
-                      tabIndex={-1}
-                      value={form.expired}
-                      onChange={e => setForm(f => ({ ...f, expired: e.target.value }))}
-                      style={{ pointerEvents: 'none' }}
                     />
                   </div>
                   <h3 className="font-semibold text-green-600 dark:text-green-300 mb-2 mt-4">Khác</h3>
