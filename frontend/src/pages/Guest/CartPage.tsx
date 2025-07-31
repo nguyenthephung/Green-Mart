@@ -102,6 +102,7 @@ export default function CartPage() {
     const product = products.find(p => String(p.id) === id);
     let priceNumber = item.price;
     let originalPrice = item.price;
+    let category = '';
     if (product) {
       if (Array.isArray(product.units)) {
         const mainUnit = product.units.find((u: any) => u.type === item.unit) || product.units[0];
@@ -111,6 +112,7 @@ export default function CartPage() {
         priceNumber = product.price;
         originalPrice = product.price;
       }
+      if (typeof product.category === 'string') category = product.category;
     }
     // Always include id, unit, and type from the original item
     return {
@@ -120,6 +122,7 @@ export default function CartPage() {
       type: item.type,
       price: priceNumber,
       originalPrice,
+      category,
     };
   });
 
@@ -130,9 +133,26 @@ export default function CartPage() {
     0
   );
 
-  // Tính giảm giá voucher
+  // Tính giảm giá voucher với kiểm tra onlyOn (loại bỏ dấu tiếng Việt, trim, lowercase)
+  function normalizeString(str: string) {
+    return str
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase();
+  }
   let voucherDiscount = 0;
-  if (voucher && subtotal >= voucher.minOrder) {
+  let voucherApplicable = true;
+  if (voucher && voucher.onlyOn && typeof voucher.onlyOn === 'string' && voucher.onlyOn.trim() !== '') {
+    const onlyOn = normalizeString(voucher.onlyOn);
+    voucherApplicable = cartListItems.some(item => {
+      if (item.category && typeof item.category === 'string' && normalizeString(item.category) === onlyOn) return true;
+      if (item.name && typeof item.name === 'string' && normalizeString(item.name) === onlyOn) return true;
+      return false;
+    });
+  }
+  if (voucher && subtotal >= voucher.minOrder && voucherApplicable) {
     if (voucher.discountType === 'percent') {
       voucherDiscount = Math.round(subtotal * voucher.discountValue / 100);
       // Không cho giảm quá tổng tiền hàng

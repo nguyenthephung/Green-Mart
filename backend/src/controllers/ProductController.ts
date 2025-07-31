@@ -17,6 +17,19 @@ const ProductController = {
     try {
       const product = new Product(req.body);
       await product.save();
+      // Tăng productCount của category nếu có
+      if (product.category) {
+        try {
+          const Category = require('../models/Category').default;
+          await Category.updateOne(
+            { name: product.category },
+            { $inc: { productCount: 1 } }
+          );
+        } catch (catErr) {
+          // Không throw lỗi nếu update category thất bại, chỉ log
+          console.error('Lỗi cập nhật productCount cho category:', catErr);
+        }
+      }
       res.json({ success: true, data: product });
     } catch (err) {
       res.status(500).json({ success: false, message: 'Lỗi thêm sản phẩm', data: null });

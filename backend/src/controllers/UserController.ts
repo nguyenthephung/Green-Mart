@@ -32,7 +32,18 @@ const getUserVouchers = async (req: Request, res: Response) => {
     const userId = req.params.id;
     const user = await User.findById(userId).populate('vouchers');
     if (!user) return res.status(404).json({ message: 'User not found' });
-    res.json({ vouchers: user.vouchers });
+
+    // Lọc các voucher còn tồn tại
+    const allVoucherIds = (await Voucher.find({}, '_id')).map(v => String(v._id));
+    const validVouchers = (user.vouchers || []).filter((v: any) => allVoucherIds.includes(String(v._id || v)));
+
+    // Nếu có voucher không hợp lệ thì cập nhật lại user.vouchers
+    if (validVouchers.length !== (user.vouchers || []).length) {
+      user.vouchers = validVouchers.map((v: any) => v._id || v);
+      await user.save();
+    }
+
+    res.json({ vouchers: validVouchers });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err });
   }

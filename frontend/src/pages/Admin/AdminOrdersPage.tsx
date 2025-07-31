@@ -175,7 +175,7 @@ const AdminOrders: React.FC = () => {
 
   return (
     <div
-      className="min-h-screen transition-colors duration-300"
+      className="min-h-screen"
       style={isDarkMode ? { backgroundColor: '#111827', color: '#fff' } : { backgroundColor: '#f9fafb' }}
     >
       {/* Header */}
@@ -373,7 +373,8 @@ const AdminOrders: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-gray-200" style={isDarkMode ? { backgroundColor: '#18181b' } : { backgroundColor: '#fff' }}>
                 {currentOrders.map((order) => (
-                  <tr key={order.id} className="transition-colors" style={isDarkMode ? { backgroundColor: '#18181b' } : { backgroundColor: '#fff' }}
+                  <tr key={order.id}
+                    style={{ ...isDarkMode ? { backgroundColor: '#18181b' } : { backgroundColor: '#fff' }, transition: 'none' }}
                     onMouseEnter={e => { if (isDarkMode) e.currentTarget.style.backgroundColor = '#23272f'; else e.currentTarget.style.backgroundColor = '#f3f4f6'; }}
                     onMouseLeave={e => { if (isDarkMode) e.currentTarget.style.backgroundColor = '#18181b'; else e.currentTarget.style.backgroundColor = '#fff'; }}>
                     <td className="px-6 py-4 whitespace-nowrap">

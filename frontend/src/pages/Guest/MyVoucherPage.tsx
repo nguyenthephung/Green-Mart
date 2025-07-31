@@ -9,16 +9,23 @@ const MyVoucherPage: React.FC = () => {
   // Use voucher store for all vouchers
   // Map store vouchers to User.Voucher type for type safety
   const rawVouchers = useVoucherStore(state => state.vouchers);
-  const vouchers: Voucher[] = useMemo(() =>
-    rawVouchers.map(v => ({
-      ...v,
-      createdAt: (v as any).createdAt || '',
-      updatedAt: (v as any).updatedAt || '',
-      currentUsage: (v as any).currentUsage || 0,
-      isActive: (v as any).isActive ?? true,
-    })),
-    [rawVouchers]
-  );
+  // Chỉ lấy voucher thuộc tài khoản này
+  const user = useUserStore(state => state.user);
+  const vouchers: Voucher[] = useMemo(() => {
+    // Nếu user không có vouchers, trả về []
+    if (!user || !user.vouchers || !Array.isArray(user.vouchers)) return [];
+    // Lọc rawVouchers theo user.vouchers (giả sử là mảng id)
+    const userVoucherIds = user.vouchers.map((v: any) => (typeof v === 'string' ? v : v._id));
+    return rawVouchers
+      .filter(v => userVoucherIds.includes(v._id))
+      .map(v => ({
+        ...v,
+        createdAt: (v as any).createdAt || '',
+        updatedAt: (v as any).updatedAt || '',
+        currentUsage: (v as any).currentUsage || 0,
+        isActive: (v as any).isActive ?? true,
+      }));
+  }, [rawVouchers, user]);
   const loading = useVoucherStore(state => state.loading);
   const error = useVoucherStore(state => state.error);
   const fetchAllVouchers = useVoucherStore(state => state.fetchAllVouchers);
@@ -26,7 +33,7 @@ const MyVoucherPage: React.FC = () => {
   // Use user store for current selected voucher
   const voucher: Voucher | null = useUserStore(state => state.voucher);
   const setVoucher = useUserStore(state => state.setVoucher);
-  const user = useUserStore(state => state.user);
+  // ...existing code...
 
   useEffect(() => {
     if (!user || !user.id) return;
@@ -162,6 +169,11 @@ const MyVoucherPage: React.FC = () => {
                               <span>HSD: {v.expired}</span>
                               <span>Đã dùng {v.usedPercent}%</span>
                             </div>
+                            {v.onlyOn && (
+                              <div className="text-xs text-blue-600 bg-blue-50 rounded px-2 py-1 inline-block mt-1">
+                                * Chỉ dùng cho các sản phẩm hoặc danh mục: <b>{v.onlyOn}</b>
+                              </div>
+                            )}
                             {v.note && (
                               <div className="mt-2 text-xs text-red-500 bg-red-50/50 px-3 py-1 rounded-full inline-block">
                                 {v.note}

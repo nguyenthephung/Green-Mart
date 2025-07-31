@@ -210,7 +210,7 @@ const AdminUsers: React.FC = () => {
 
   return (
     <div
-      className="space-y-6 min-h-screen transition-colors duration-300"
+      className="space-y-6 min-h-screen"
       style={{ background: darkBg }}
     >
       {/* Header */}
@@ -435,8 +435,8 @@ const AdminUsers: React.FC = () => {
                 {currentUsers.map((user) => (
                   <tr
                     key={user.id}
-                    className="transition-colors"
-                    style={{ background: isDarkMode ? '#23272f' : '#fff', cursor: 'pointer' }}
+                    // ...existing code...
+                    style={{ background: isDarkMode ? '#23272f' : '#fff', cursor: 'pointer', transition: 'none' }}
                     onMouseEnter={e => { if (e.currentTarget) e.currentTarget.style.background = isDarkMode ? '#18181b' : '#f3f4f6'; }}
                     onMouseLeave={e => { if (e.currentTarget) e.currentTarget.style.background = isDarkMode ? '#23272f' : '#fff'; }}
                   >
@@ -472,7 +472,14 @@ const AdminUsers: React.FC = () => {
                       <select
                         value={user.status}
                         onChange={(e) => handleToggleStatus(user.id, e.target.value as any)}
-                        className={`text-xs font-medium border rounded-full px-2.5 py-0.5 ${getStatusColor(user.status)}`}
+                        className={`text-xs font-medium border rounded-full px-2.5 py-0.5 ${getStatusColor(user.status)} ` +
+                          (user.status === 'inactive'
+                            ? 'custom-inactive-status'
+                            : user.status === 'suspended'
+                              ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 border-red-200 dark:border-red-700'
+                              : 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700')
+                        }
+                        style={{ minWidth: 120 }}
                       >
                         <option value="active">Hoạt động</option>
                         <option value="inactive">Không hoạt động</option>
@@ -492,7 +499,7 @@ const AdminUsers: React.FC = () => {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => openViewModal(user)}
-                          className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 p-1 rounded transition-colors"
+                          className="text-black hover:text-gray-900 p-1 rounded transition-colors"
                           title="Xem chi tiết"
                         >
                           👁️
@@ -581,7 +588,7 @@ const AdminUsers: React.FC = () => {
                 <div className="flex gap-1">
                   <button
                     onClick={() => openViewModal(user)}
-                    className="flex-1 px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-xs"
+                    className="flex-1 px-2 py-1 bg-gray-100 dark:bg-gray-700 text-black rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-xs"
                   >
                     Xem
                   </button>
@@ -720,7 +727,7 @@ const AddUserModal: React.FC<{show: boolean, onAdd: (user: Omit<User, 'id'>) => 
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-start pt-10 z-50">
       <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md">
         <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Thêm người dùng mới</h2>
         <div className="space-y-4">
@@ -782,7 +789,7 @@ const EditUserModal: React.FC<{show: boolean, user: User, onSave: (user: User) =
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-start pt-10 z-50">
       <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md">
         <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Sửa thông tin người dùng</h2>
         <div className="space-y-4">
@@ -846,7 +853,7 @@ const ViewUserModal: React.FC<{show: boolean, user: User, onClose: () => void}> 
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-start pt-10 z-50">
       <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-lg">
         <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Chi tiết người dùng</h2>
         <div className="space-y-4">

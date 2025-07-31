@@ -36,6 +36,19 @@ export const useVoucherStore = create<VoucherStoreState>((set, get) => ({
   loading: false,
   error: null,
   fetchVouchers: async () => {
+    set({ loading: true, error: null });
+    try {
+      const res: any = await voucherService.getAll();
+      let vouchers: any[] = [];
+      if (Array.isArray(res)) {
+        vouchers = res.map((v: any) => ({ ...v, id: v.id || v._id }));
+      } else if (Array.isArray(res?.data)) {
+        vouchers = res.data.map((v: any) => ({ ...v, id: v.id || v._id }));
+      }
+      set({ vouchers, loading: false });
+    } catch (error: any) {
+      set({ error: error.message || 'Không thể tải voucher', loading: false });
+    }
   },
  fetchAllVouchers: async () => {
    set({ loading: true, error: null });

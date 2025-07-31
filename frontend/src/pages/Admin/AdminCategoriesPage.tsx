@@ -27,7 +27,6 @@ const AdminCategories: React.FC = () => {
   // Store danh mục
   const {
     categories,
-    loading,
     error,
     fetchCategories,
     add,
@@ -35,9 +34,21 @@ const AdminCategories: React.FC = () => {
     remove,
     toggleStatus
   } = useCategoryStore();
+  // Loading states for each action
+  const [fetchLoading, setFetchLoading] = useState(false);
+  const [addLoading, setAddLoading] = useState(false);
+  const [editLoading, setEditLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [fetchTried, setFetchTried] = useState(false);
   React.useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
+    if (!fetchTried) {
+      setFetchLoading(true);
+      fetchCategories().finally(() => {
+        setFetchLoading(false);
+        setFetchTried(true);
+      });
+    }
+  }, [fetchCategories, fetchTried]);
   const [search, setSearch] = useState('');
   const [showAdd, setShowAdd] = useState(false);
   const [editCategory, setEditCategory] = useState<Category | null>(null);
@@ -60,6 +71,9 @@ const AdminCategories: React.FC = () => {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  // If fetch failed, stop showing loading spinner
+  const showLoading = (fetchLoading || addLoading || editLoading || deleteLoading) && !error;
 
   // Filter and sort logic
   const filteredAndSortedCategories = useMemo(() => {
@@ -122,6 +136,7 @@ const AdminCategories: React.FC = () => {
 
   // Add category
   const handleAddCategory = React.useCallback((newCategory: Omit<Category, 'id'>) => {
+    setAddLoading(true);
     toast.loading('Đang thêm danh mục...', { toastId: 'add-category' });
     add(newCategory)
       .then(() => {
@@ -130,11 +145,13 @@ const AdminCategories: React.FC = () => {
       })
       .catch((err) => {
         toast.update('add-category', { render: 'Thêm danh mục thất bại: ' + (err?.message || err), type: 'error', isLoading: false, autoClose: 4000 });
-      });
+      })
+      .finally(() => setAddLoading(false));
   }, [add]);
 
   // Edit category
   const handleEditCategory = React.useCallback((updatedCategory: Category) => {
+    setEditLoading(true);
     toast.loading('Đang cập nhật danh mục...', { toastId: 'edit-category' });
     return edit(updatedCategory)
       .then(() => {
@@ -144,21 +161,32 @@ const AdminCategories: React.FC = () => {
       })
       .catch((err) => {
         toast.update('edit-category', { render: 'Cập nhật danh mục thất bại: ' + (err?.message || err), type: 'error', isLoading: false, autoClose: 4000 });
-      });
+      })
+      .finally(() => setEditLoading(false));
   }, [edit]);
 
   // Delete category
   const handleDeleteCategory = React.useCallback(() => {
+    setDeleteLoading(true);
     toast.loading('Đang xóa danh mục...', { toastId: 'delete-category' });
-    if (!deleteId) return Promise.resolve();
+    if (!deleteId) {
+      setDeleteLoading(false);
+      return Promise.resolve();
+    }
     return remove(deleteId)
       .then(() => {
         toast.update('delete-category', { render: 'Xóa danh mục thành công!', type: 'success', isLoading: false, autoClose: 2000 });
         setDeleteId(null);
+        // Force loading to false after deletion to prevent spinner flicker
+        setTimeout(() => {
+          const loadingElem = document.querySelector('.fixed.inset-0.bg-black.bg-opacity-20.flex.items-center.justify-center.z-50');
+          if (loadingElem) loadingElem.remove();
+        }, 500);
       })
       .catch((err) => {
         toast.update('delete-category', { render: 'Xóa danh mục thất bại: ' + (err?.message || err), type: 'error', isLoading: false, autoClose: 4000 });
-      });
+      })
+      .finally(() => setDeleteLoading(false));
   }, [deleteId, remove]);
 
   // Toggle status
@@ -186,7 +214,7 @@ const AdminCategories: React.FC = () => {
   const totalProducts = categories.reduce((sum, c) => sum + c.productCount, 0);
 
   return (
-    <div className="min-h-screen transition-colors duration-300" style={isDarkMode ? { backgroundColor: '#111827', color: '#fff' } : {}}>
+    <div className="min-h-screen" style={isDarkMode ? { backgroundColor: '#111827', color: '#fff' } : {}}>
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover aria-label={undefined} />
       {/* Header */}
       <div className="rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6" style={isDarkMode ? { backgroundColor: '#18181b' } : { backgroundColor: '#fff' }}>
@@ -357,7 +385,8 @@ const AdminCategories: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-gray-200" style={isDarkMode ? { backgroundColor: '#18181b' } : { backgroundColor: '#fff' }}>
                 {currentCategories.map((category) => (
-                  <tr key={category.id} className="transition-colors" style={isDarkMode ? { backgroundColor: '#18181b' } : { backgroundColor: '#fff' }}
+                  <tr key={category.id}
+                    style={{ ...isDarkMode ? { backgroundColor: '#18181b' } : { backgroundColor: '#fff' }, transition: 'none' }}
                     onMouseEnter={e => { if (isDarkMode) e.currentTarget.style.backgroundColor = '#23272f'; else e.currentTarget.style.backgroundColor = '#f3f4f6'; }}
                     onMouseLeave={e => { if (isDarkMode) e.currentTarget.style.backgroundColor = '#18181b'; else e.currentTarget.style.backgroundColor = '#fff'; }}>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -520,7 +549,7 @@ const AdminCategories: React.FC = () => {
       )}
 
       {/* Loading indicator */}
-      {loading && (
+      {showLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 shadow-xl">
             <div className="flex items-center gap-3">

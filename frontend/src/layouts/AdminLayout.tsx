@@ -62,9 +62,9 @@ const NotificationDropdown: React.FC = () => {
                 }`}
               >
                 <div className="flex items-start gap-3">
-                  <span className="text-lg">{getNotificationIcon(notification.type)}</span>
+                  <span className="text-lg text-gray-900" style={{color: '#1a202c'}}>{getNotificationIcon(notification.type)}</span>
                   <div className="flex-1">
-                    <h4 className={`text-sm font-medium ${!notification.isRead ? 'text-gray-900' : 'text-gray-700'}`}>
+                    <h4 className={`text-sm font-medium`} style={{color: '#1a202c'}}>
                       {notification.title}
                     </h4>
                     <p className="text-xs text-gray-600 mt-1">{notification.message}</p>
@@ -303,10 +303,6 @@ const AdminLayout: React.FC = () => {
               <div className="flex items-center gap-2">
                 <ThemeToggle size="sm" />
                 <NotificationDropdown />
-                <button className="p-2 rounded-lg bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-colors" title="Cài đặt">
-                  ⚙️
-                </button>
-
               </div>
               
               {/* Current Time */}

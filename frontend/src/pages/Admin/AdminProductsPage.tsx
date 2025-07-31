@@ -18,14 +18,28 @@ type FilterStatus = 'all' | 'active' | 'inactive';
 
 
 const AdminProducts: React.FC = () => {
-  const { products, loading, fetchAll, add, update, remove } = useProductStore();
-  const { categories, fetchCategories, loading: loadingCat } = useCategoryStore();
-  const [actionLoading, setActionLoading] = useState(false);
+  const { products, fetchAll, add, update, remove } = useProductStore();
+  const { categories, fetchCategories } = useCategoryStore();
+  // Loading states for each action
+  const [fetchLoading, setFetchLoading] = useState(false);
+  const [addLoading, setAddLoading] = useState(false);
+  const [editLoading, setEditLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [fetchTried, setFetchTried] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   React.useEffect(() => {
-    fetchAll();
-    fetchCategories();
-  }, []);
+    if (!fetchTried) {
+      setFetchLoading(true);
+      Promise.all([
+        fetchAll().catch((err: any) => setFetchError(err?.message || 'Lỗi tải sản phẩm')),
+        fetchCategories().catch(() => {})
+      ]).finally(() => {
+        setFetchLoading(false);
+        setFetchTried(true);
+      });
+    }
+  }, [fetchTried, fetchAll, fetchCategories]);
   const [search, setSearch] = useState('');
   const [showAdd, setShowAdd] = useState(false);
   const [editProduct, setEditProduct] = useState<AdminProduct | null>(null);
@@ -38,7 +52,7 @@ const AdminProducts: React.FC = () => {
   const [filterParentCategory, setFilterParentCategory] = useState<string>('all');
   const [filterSubCategory, setFilterSubCategory] = useState<string>('all');
   const [showFilters, setShowFilters] = useState(false);
-  const isLoading = loading;
+  const isLoading = (fetchLoading || addLoading || editLoading || deleteLoading) && !fetchError;
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -126,7 +140,7 @@ const AdminProducts: React.FC = () => {
   };
 
   const handleAddProduct = async (newProduct: AdminProduct) => {
-    setActionLoading(true);
+    setAddLoading(true);
     setActionError(null);
     try {
       await add(newProduct);
@@ -138,12 +152,12 @@ const AdminProducts: React.FC = () => {
       toast.error('Thêm sản phẩm thất bại!');
       // Không đóng modal, giữ lại thông tin nhập
     } finally {
-      setActionLoading(false);
+      setAddLoading(false);
     }
   };
 
   const handleEditProduct = async (updatedProduct: AdminProduct) => {
-    setActionLoading(true);
+    setEditLoading(true);
     setActionError(null);
     const id = updatedProduct.id ?? (updatedProduct as any)._id;
     try {
@@ -156,7 +170,7 @@ const AdminProducts: React.FC = () => {
       setActionError(err.message || 'Lỗi cập nhật sản phẩm');
       toast.error('Cập nhật sản phẩm thất bại!');
     } finally {
-      setActionLoading(false);
+      setEditLoading(false);
     }
   };
 
@@ -166,7 +180,7 @@ const AdminProducts: React.FC = () => {
       toast.error('ID sản phẩm không hợp lệ!');
       return;
     }
-    setActionLoading(true);
+    setDeleteLoading(true);
     setActionError(null);
     try {
       await remove(deleteId);
@@ -177,7 +191,7 @@ const AdminProducts: React.FC = () => {
       setActionError(err.message || 'Lỗi xóa sản phẩm');
       toast.error('Xóa sản phẩm thất bại!');
     } finally {
-      setActionLoading(false);
+      setDeleteLoading(false);
     }
   };
 
@@ -185,7 +199,7 @@ const AdminProducts: React.FC = () => {
   const handleToggleStatus = async (id: string) => {
     const product = products.find(p => p.id === id);
     if (!product) return;
-    setActionLoading(true);
+    setEditLoading(true);
     setActionError(null);
     const newStatus = product.status === 'active' ? 'inactive' : 'active';
     try {
@@ -196,7 +210,7 @@ const AdminProducts: React.FC = () => {
       setActionError(err.message || 'Lỗi đổi trạng thái sản phẩm');
       toast.error('Đổi trạng thái sản phẩm thất bại!');
     } finally {
-      setActionLoading(false);
+      setEditLoading(false);
     }
   };
 
@@ -241,7 +255,7 @@ const openEditModal = (product: AdminProduct) => {
 
   return (
     <div
-      className="min-h-screen transition-colors duration-300"
+      className="min-h-screen"
       style={{ background: isDarkMode ? '#18181b' : '#f9fafb' }}
     >
       {/* Header */}
@@ -359,7 +373,7 @@ const openEditModal = (product: AdminProduct) => {
                   setFilterSubCategory('all');
                 }}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
-                disabled={loadingCat}
+                // disabled={loadingCat}
               >
                 <option value="all">Tất cả danh mục cha</option>
                 {categories.map(cat => (
@@ -487,11 +501,7 @@ const openEditModal = (product: AdminProduct) => {
                   return (
                     <tr
                       key={key}
-                      style={{
-                        transition: 'background 0.2s',
-                        background: isDarkMode ? undefined : undefined,
-                      }}
-                      className="transition-colors"
+                      style={{ transition: 'none' }}
                       onMouseEnter={e => {
                         if (isDarkMode) e.currentTarget.style.background = '#23272f';
                         else e.currentTarget.style.background = '#f3f4f6';
@@ -722,13 +732,20 @@ const openEditModal = (product: AdminProduct) => {
       )}
 
       {/* Loading indicator */}
-      {(isLoading || actionLoading) && (
+      {isLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 shadow-xl">
             <div className="flex items-center gap-3">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
               <span className="text-gray-700">Đang xử lý...</span>
             </div>
+          </div>
+        </div>
+      )}
+      {fetchError && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded shadow-lg">
+            {fetchError}
           </div>
         </div>
       )}
@@ -767,6 +784,7 @@ const openEditModal = (product: AdminProduct) => {
           show={!!deleteId}
           onConfirm={handleDeleteProduct}
           onCancel={() => setDeleteId(null)}
+          textClassName="text-gray-900 dark:text-gray-100"
         />
       )}
     <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover aria-label="Thông báo hệ thống" />

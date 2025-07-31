@@ -7,9 +7,9 @@ interface VoucherForm {
   code: string;
   label: string;
   description: string;
-  minOrder: number;
+  minOrder: string | number;
   discountType: 'percent' | 'amount';
-  discountValue: number;
+  discountValue: string | number;
   expired: string;
   onlyOn?: string;
   note?: string;
@@ -19,9 +19,9 @@ const defaultForm: VoucherForm = {
   code: '',
   label: '',
   description: '',
-  minOrder: 0,
+  minOrder: '',
   discountType: 'percent',
-  discountValue: 0,
+  discountValue: '',
   expired: '',
   onlyOn: '',
   note: '',
@@ -52,13 +52,24 @@ const AdminVouchersPage: React.FC = () => {
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setForm(f => ({ ...f, [name]: name === 'minOrder' || name === 'discountValue' ? Number(value) : value }));
+    // Allow empty string for number fields so user can clear 0 and type new number
+    if (name === 'minOrder' || name === 'discountValue') {
+      setForm(f => ({ ...f, [name]: value === '' ? '' : value }));
+    } else {
+      setForm(f => ({ ...f, [name]: value }));
+    }
   };
 
   const handleAdd = async () => {
     setActionLoading(true);
     try {
-      await import('../../services/voucherService').then(s => s.voucherService.create(form));
+      // Convert minOrder and discountValue to number before submit
+      const submitForm = {
+        ...form,
+        minOrder: form.minOrder === '' ? 0 : Number(form.minOrder),
+        discountValue: form.discountValue === '' ? 0 : Number(form.discountValue),
+      };
+      await import('../../services/voucherService').then(s => s.voucherService.create(submitForm));
       await fetchAllVouchers();
       toast.success('Thêm voucher thành công!');
       setShowAdd(false);
@@ -74,7 +85,13 @@ const AdminVouchersPage: React.FC = () => {
     if (!editVoucher) return;
     setActionLoading(true);
     try {
-      await import('../../services/voucherService').then(s => s.voucherService.update(editVoucher.id, form));
+      // Convert minOrder and discountValue to number before submit
+      const submitForm = {
+        ...form,
+        minOrder: form.minOrder === '' ? 0 : Number(form.minOrder),
+        discountValue: form.discountValue === '' ? 0 : Number(form.discountValue),
+      };
+      await import('../../services/voucherService').then(s => s.voucherService.update(editVoucher.id, submitForm));
       await fetchAllVouchers();
       toast.success('Cập nhật voucher thành công!');
       setShowEdit(false);
@@ -162,17 +179,18 @@ const AdminVouchersPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen transition-colors duration-300 bg-gradient-to-br from-green-50 to-emerald-100 p-6">
+    <div className="min-h-screen transition-colors duration-300 bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800 p-6">
+      {/* ToastContainer chỉ để 1 cái ở đầu file để tránh lặp thông báo */}
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover aria-label="Thông báo hệ thống" />
       {/* Header */}
-      <div className="rounded-xl shadow-sm border border-green-100 p-6 mb-6 bg-white">
+      <div className="rounded-xl shadow-sm border border-green-100 dark:border-gray-700 p-6 mb-6 bg-white dark:bg-gray-900">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-green-700 mb-2">Quản lý Voucher</h1>
-            <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-              <span>Tổng: <span className="font-semibold text-blue-600">{totalVouchers}</span> voucher</span>
-              <span>Hoạt động: <span className="font-semibold text-green-600">{activeVouchers}</span></span>
-              <span>Tổng lượt sử dụng: <span className="font-semibold text-purple-600">{totalUsage}</span></span>
+            <h1 className="text-3xl font-bold text-green-700 dark:text-green-300 mb-2">Quản lý Voucher</h1>
+            <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-300">
+              <span>Tổng: <span className="font-semibold text-blue-600 dark:text-blue-400">{totalVouchers}</span> voucher</span>
+              <span>Hoạt động: <span className="font-semibold text-green-600 dark:text-green-400">{activeVouchers}</span></span>
+              <span>Tổng lượt sử dụng: <span className="font-semibold text-purple-600 dark:text-purple-400">{totalUsage}</span></span>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
@@ -182,12 +200,12 @@ const AdminVouchersPage: React.FC = () => {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Tìm kiếm mã, tên, mô tả..."
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
               />
               <select
                 value={filterStatus}
                 onChange={e => setFilterStatus(e.target.value as any)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               >
                 <option value="all">Tất cả</option>
                 <option value="active">Đang hoạt động</option>
@@ -195,7 +213,7 @@ const AdminVouchersPage: React.FC = () => {
               </select>
             </div>
             <button
-              className="px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all font-semibold shadow-lg"
+              className="px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-700 dark:to-emerald-700 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all font-semibold shadow-lg"
               onClick={() => { setShowAdd(true); setForm(defaultForm); }}
             >
               + Thêm voucher
@@ -205,30 +223,30 @@ const AdminVouchersPage: React.FC = () => {
       </div>
 
       {/* Table */}
-      <div className="rounded-xl shadow-sm border border-green-100 overflow-hidden bg-white">
+      <div className="rounded-xl shadow-sm border border-green-100 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-900">
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="border-b border-green-100 bg-green-50">
+          <table className="w-full text-sm text-gray-900 dark:text-gray-100">
+            <thead className="border-b border-green-100 dark:border-gray-700 bg-green-50 dark:bg-gray-800">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-medium text-green-800 uppercase tracking-wider cursor-pointer hover:bg-green-100 transition-colors" onClick={() => { setSortField('label'); setSortOrder(sortField === 'label' && sortOrder === 'asc' ? 'desc' : 'asc'); }}>
+                <th className="px-6 py-4 text-left text-xs font-medium text-green-800 dark:text-green-200 uppercase tracking-wider cursor-pointer hover:bg-green-100 dark:hover:bg-gray-700 transition-colors" onClick={() => { setSortField('label'); setSortOrder(sortField === 'label' && sortOrder === 'asc' ? 'desc' : 'asc'); }}>
                   <div className="flex items-center gap-1">Tên {getSortIcon('label')}</div>
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-green-800 uppercase tracking-wider">Mã</th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-green-800 uppercase tracking-wider">Mô tả</th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-green-800 uppercase tracking-wider">Đơn tối thiểu</th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-green-800 uppercase tracking-wider cursor-pointer hover:bg-green-100 transition-colors" onClick={() => { setSortField('discountValue'); setSortOrder(sortField === 'discountValue' && sortOrder === 'asc' ? 'desc' : 'asc'); }}>
+                <th className="px-6 py-4 text-left text-xs font-medium text-green-800 dark:text-green-200 uppercase tracking-wider">Mã</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-green-800 dark:text-green-200 uppercase tracking-wider">Mô tả</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-green-800 dark:text-green-200 uppercase tracking-wider">Đơn tối thiểu</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-green-800 dark:text-green-200 uppercase tracking-wider cursor-pointer hover:bg-green-100 dark:hover:bg-gray-700 transition-colors" onClick={() => { setSortField('discountValue'); setSortOrder(sortField === 'discountValue' && sortOrder === 'asc' ? 'desc' : 'asc'); }}>
                   <div className="flex items-center gap-1">Giá trị {getSortIcon('discountValue')}</div>
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-green-800 uppercase tracking-wider cursor-pointer hover:bg-green-100 transition-colors" onClick={() => { setSortField('expired'); setSortOrder(sortField === 'expired' && sortOrder === 'asc' ? 'desc' : 'asc'); }}>
+                <th className="px-6 py-4 text-left text-xs font-medium text-green-800 dark:text-green-200 uppercase tracking-wider cursor-pointer hover:bg-green-100 dark:hover:bg-gray-700 transition-colors" onClick={() => { setSortField('expired'); setSortOrder(sortField === 'expired' && sortOrder === 'asc' ? 'desc' : 'asc'); }}>
                   <div className="flex items-center gap-1">HSD {getSortIcon('expired')}</div>
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-green-800 uppercase tracking-wider cursor-pointer hover:bg-green-100 transition-colors" onClick={() => { setSortField('isActive'); setSortOrder(sortField === 'isActive' && sortOrder === 'asc' ? 'desc' : 'asc'); }}>
+                <th className="px-6 py-4 text-left text-xs font-medium text-green-800 dark:text-green-200 uppercase tracking-wider cursor-pointer hover:bg-green-100 dark:hover:bg-gray-700 transition-colors" onClick={() => { setSortField('isActive'); setSortOrder(sortField === 'isActive' && sortOrder === 'asc' ? 'desc' : 'asc'); }}>
                   <div className="flex items-center gap-1">Trạng thái {getSortIcon('isActive')}</div>
                 </th>
-                <th className="px-6 py-4 text-right text-xs font-medium text-green-800 uppercase tracking-wider">Thao tác</th>
+                <th className="px-6 py-4 text-right text-xs font-medium text-green-800 dark:text-green-200 uppercase tracking-wider">Thao tác</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-green-100 bg-white">
+            <tbody className="divide-y divide-green-100 dark:divide-gray-700 bg-white dark:bg-gray-900">
               {loading ? (
                 <tr><td colSpan={8} className="text-center py-8">Đang tải...</td></tr>
               ) : sortedVouchers.length === 0 ? (
@@ -237,39 +255,43 @@ const AdminVouchersPage: React.FC = () => {
                 const now = new Date();
                 const isExpired = new Date(v.expired) < now;
                 return (
-                  <tr key={v.id || index} className="transition-colors hover:bg-green-50">
-                    <td className="px-6 py-4 font-semibold text-green-900">{v.label}</td>
-                    <td className="px-6 py-4 font-mono">{v.code}</td>
-                    <td className="px-6 py-4 max-w-xs truncate" title={v.description}>{v.description}</td>
-                    <td className="px-6 py-4">{v.minOrder?.toLocaleString()}₫</td>
-                    <td className="px-6 py-4">{v.discountType === 'percent' ? `${v.discountValue}%` : `${v.discountValue?.toLocaleString()}₫`}</td>
-                    <td className="px-6 py-4">{formatDate(v.expired)}</td>
-                    <td className="px-6 py-4">
+                  <tr key={v.id || index} className="transition-colors bg-white dark:bg-gray-900 hover:bg-green-50 dark:hover:bg-gray-800 border-b border-green-100 dark:border-gray-800">
+                    <td className="px-6 py-4 font-semibold text-green-900 dark:text-green-200 align-middle">{v.label}</td>
+                    <td className="px-6 py-4 font-mono dark:text-gray-200 align-middle">{v.code}</td>
+                    <td className="px-6 py-4 max-w-xs truncate dark:text-gray-200 align-middle" title={v.description}>{v.description}</td>
+                    <td className="px-6 py-4 dark:text-gray-200 align-middle">{v.minOrder?.toLocaleString()}₫</td>
+                    <td className="px-6 py-4 dark:text-gray-200 align-middle">{v.discountType === 'percent' ? `${v.discountValue}%` : `${v.discountValue?.toLocaleString()}₫`}</td>
+                    <td className="px-6 py-4 dark:text-gray-200 align-middle">{formatDate(v.expired)}</td>
+                    <td className="px-6 py-4 align-middle">
                       {isExpired ? (
-                        <span className="inline-block px-2 py-1 rounded bg-gray-200 text-gray-500 text-xs">Hết hạn</span>
+                        <span className="inline-block px-2 py-1 rounded bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-xs">Hết hạn</span>
                       ) : v.isActive ? (
-                        <span className="inline-block px-2 py-1 rounded bg-green-100 text-green-700 text-xs">Đang hoạt động</span>
+                        <span className="inline-block px-2 py-1 rounded bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 text-xs">Đang hoạt động</span>
                       ) : (
-                        <span className="inline-block px-2 py-1 rounded bg-red-100 text-red-700 text-xs">Tạm ngưng</span>
+                        <span className="inline-block px-2 py-1 rounded bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 text-xs">Tạm ngưng</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-6 py-4 text-right align-middle">
                       <div className="flex gap-2 justify-end">
                         <button
-                          className="flex items-center gap-1 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors shadow-sm font-medium"
+                          className="flex items-center gap-1 px-3 py-1 bg-blue-600 dark:bg-blue-700 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors shadow-sm font-medium"
                           title="Chỉnh sửa"
                           onClick={() => openEdit(v)}
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 13l6-6m2 2l-6 6m-2 2h6" /></svg>
-                          Sửa
+                          {/* Heroicons Pencil Square */}
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-4 w-4">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 3.487a2.25 2.25 0 113.182 3.182L7.5 19.213l-4 1 1-4L16.862 3.487z" />
+                          </svg>
                         </button>
                         <button
-                          className="flex items-center gap-1 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors shadow-sm font-medium"
+                          className="flex items-center gap-1 px-3 py-1 bg-red-600 dark:bg-red-700 text-white rounded hover:bg-red-700 dark:hover:bg-red-800 transition-colors shadow-sm font-medium"
                           title="Xóa"
                           onClick={() => setDeleteId(v.id)}
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                          Xóa
+                          {/* Heroicons Trash */}
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-4 w-4">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 7.5V19.125A2.625 2.625 0 008.625 21.75h6.75A2.625 2.625 0 0018 19.125V7.5M4.5 7.5h15m-10.125 0V5.625A1.125 1.125 0 019.75 4.5h4.5a1.125 1.125 0 011.125 1.125V7.5" />
+                          </svg>
                         </button>
                       </div>
                     </td>
@@ -283,38 +305,92 @@ const AdminVouchersPage: React.FC = () => {
 
       {/* Add Modal */}
       {showAdd && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-2xl">
-            <h2 className="text-2xl font-bold mb-4 text-green-700">Thêm voucher mới</h2>
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-start justify-center z-50">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-8 w-full max-w-2xl mt-12" style={{ position: 'relative', top: 0, transform: 'translateY(0)' }}>
+            <h2 className="text-2xl font-bold mb-4 text-green-700 dark:text-green-300">Thêm voucher mới</h2>
             <form onSubmit={e => { e.preventDefault(); handleAdd(); }}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <h3 className="font-semibold text-green-600 mb-2">Thông tin cơ bản</h3>
-                  <input name="code" value={form.code} onChange={handleInput} placeholder="Mã voucher" className="w-full p-3 border rounded" />
-                  <input name="label" value={form.label} onChange={handleInput} placeholder="Tên voucher" className="w-full p-3 border rounded" />
-                  <textarea name="description" value={form.description} onChange={handleInput} placeholder="Mô tả" className="w-full p-3 border rounded min-h-[80px]" />
+                  <h3 className="font-semibold text-green-600 dark:text-green-300 mb-2">Thông tin cơ bản</h3>
+                  <input name="code" value={form.code} onChange={handleInput} placeholder="Mã voucher" className="w-full p-3 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border-gray-300 dark:border-gray-700" />
+                  <input name="label" value={form.label} onChange={handleInput} placeholder="Tên voucher" className="w-full p-3 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border-gray-300 dark:border-gray-700" />
+                  <textarea name="description" value={form.description} onChange={handleInput} placeholder="Mô tả" className="w-full p-3 border rounded min-h-[80px] bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border-gray-300 dark:border-gray-700" />
                 </div>
                 <div className="space-y-4">
-                  <h3 className="font-semibold text-green-600 mb-2">Điều kiện & Giá trị</h3>
-                  <input name="minOrder" type="number" value={form.minOrder} onChange={handleInput} placeholder="Đơn tối thiểu" className="w-full p-3 border rounded" />
+                  <h3 className="font-semibold text-green-600 dark:text-green-300 mb-2">Điều kiện & Giá trị</h3>
+                  <input name="minOrder" type="number" value={form.minOrder} onChange={handleInput} placeholder="Đơn tối thiểu" className="w-full p-3 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border-gray-300 dark:border-gray-700" />
                   <div className="flex gap-2">
-                    <select name="discountType" value={form.discountType} onChange={handleInput} className="w-1/2 p-3 border rounded">
+                    <select name="discountType" value={form.discountType} onChange={handleInput} className="w-1/2 p-3 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700">
                       <option value="percent">Phần trăm (%)</option>
                       <option value="amount">Số tiền (₫)</option>
                     </select>
-                    <input name="discountValue" type="number" value={form.discountValue} onChange={handleInput} placeholder="Giá trị giảm" className="w-1/2 p-3 border rounded" />
+                    <input name="discountValue" type="number" value={form.discountValue} onChange={handleInput} placeholder="Giá trị giảm" className="w-1/2 p-3 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border-gray-300 dark:border-gray-700" />
                   </div>
-                  <input name="expired" type="date" value={form.expired} onChange={handleInput} className="w-full p-3 border rounded" />
-                  <h3 className="font-semibold text-green-600 mb-2 mt-4">Khác</h3>
-                  <input name="onlyOn" value={form.onlyOn} onChange={handleInput} placeholder="Chỉ áp dụng cho (nếu có)" className="w-full p-3 border rounded" />
-                  <input name="note" value={form.note} onChange={handleInput} placeholder="Ghi chú (nếu có)" className="w-full p-3 border rounded" />
+                  <div className="relative">
+                    <input
+                      name="expired"
+                      type="text"
+                      value={form.expired}
+                      onChange={handleInput}
+                      placeholder="Chọn ngày hết hạn"
+                      className="w-full p-3 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700 pr-12"
+                      readOnly
+                      onFocus={e => {
+                        // Tạm thời bỏ readonly để showPicker không lỗi
+                        const input = e.target as HTMLInputElement;
+                        input.readOnly = false;
+                        input.type = 'date';
+                        if (input.showPicker) input.showPicker();
+                        setTimeout(() => {
+                          input.type = 'text';
+                          input.readOnly = true;
+                        }, 200);
+                      }}
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-green-600 hover:bg-green-700 focus:outline-none"
+                      tabIndex={-1}
+                      aria-label="Chọn ngày hết hạn"
+                      onClick={e => {
+                        const input = (e.currentTarget.parentElement?.querySelector('input[name=expired]')) as HTMLInputElement;
+                        if (input) {
+                          input.readOnly = false;
+                          input.type = 'date';
+                          if (input.showPicker) input.showPicker();
+                          setTimeout(() => {
+                            input.type = 'text';
+                            input.readOnly = true;
+                          }, 200);
+                        }
+                      }}
+                    >
+                      {/* Calendar Icon */}
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-white">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3.75 7.5h16.5M4.5 21h15a.75.75 0 00.75-.75V6.75a.75.75 0 00-.75-.75h-15a.75.75 0 00-.75.75v13.5c0 .414.336.75.75.75z" />
+                      </svg>
+                    </button>
+                    {/* Hidden native date input for fallback/manual entry */}
+                    <input
+                      type="date"
+                      className="absolute left-0 top-0 w-full h-full opacity-0 cursor-pointer"
+                      tabIndex={-1}
+                      value={form.expired}
+                      onChange={e => setForm(f => ({ ...f, expired: e.target.value }))}
+                      style={{ pointerEvents: 'none' }}
+                    />
+                  </div>
+                  <h3 className="font-semibold text-green-600 dark:text-green-300 mb-2 mt-4">Khác</h3>
+                  <input name="onlyOn" value={form.onlyOn} onChange={handleInput} placeholder="Chỉ áp dụng cho (nếu có)" className="w-full p-3 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border-gray-300 dark:border-gray-700" />
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-1">* "Chỉ áp dụng cho" là <b>tên danh mục</b> hoặc <b>tên sản phẩm</b> (ví dụ: "Rau củ" hoặc "Cà chua")</p>
+                  <input name="note" value={form.note} onChange={handleInput} placeholder="Ghi chú (nếu có)" className="w-full p-3 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border-gray-300 dark:border-gray-700" />
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-8">
-                <button type="button" className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300" onClick={() => { setShowAdd(false); setForm(defaultForm); }}>Hủy</button>
+                <button type="button" className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onClick={() => { setShowAdd(false); setForm(defaultForm); }}>Hủy</button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 font-semibold"
+                  className="px-6 py-2 bg-green-600 dark:bg-green-700 text-white rounded hover:bg-green-700 dark:hover:bg-green-800 font-semibold"
                   disabled={actionLoading}
                 >
                   {actionLoading ? 'Đang lưu...' : 'Lưu'}
@@ -327,38 +403,38 @@ const AdminVouchersPage: React.FC = () => {
 
       {/* Edit Modal */}
       {showEdit && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-2xl">
-            <h2 className="text-2xl font-bold mb-4 text-blue-700">Chỉnh sửa voucher</h2>
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-start justify-center z-50">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-8 w-full max-w-2xl mt-12" style={{ position: 'relative', top: 0, transform: 'translateY(0)' }}>
+            <h2 className="text-2xl font-bold mb-4 text-blue-700 dark:text-blue-300">Chỉnh sửa voucher</h2>
             <form onSubmit={e => { e.preventDefault(); handleEdit(); }}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <h3 className="font-semibold text-blue-600 mb-2">Thông tin cơ bản</h3>
-                  <input name="code" value={form.code} onChange={handleInput} placeholder="Mã voucher" className="w-full p-3 border rounded" />
-                  <input name="label" value={form.label} onChange={handleInput} placeholder="Tên voucher" className="w-full p-3 border rounded" />
-                  <textarea name="description" value={form.description} onChange={handleInput} placeholder="Mô tả" className="w-full p-3 border rounded min-h-[80px]" />
+                  <h3 className="font-semibold text-blue-600 dark:text-blue-300 mb-2">Thông tin cơ bản</h3>
+                  <input name="code" value={form.code} onChange={handleInput} placeholder="Mã voucher" className="w-full p-3 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border-gray-300 dark:border-gray-700" />
+                  <input name="label" value={form.label} onChange={handleInput} placeholder="Tên voucher" className="w-full p-3 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border-gray-300 dark:border-gray-700" />
+                  <textarea name="description" value={form.description} onChange={handleInput} placeholder="Mô tả" className="w-full p-3 border rounded min-h-[80px] bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border-gray-300 dark:border-gray-700" />
                 </div>
                 <div className="space-y-4">
-                  <h3 className="font-semibold text-blue-600 mb-2">Điều kiện & Giá trị</h3>
-                  <input name="minOrder" type="number" value={form.minOrder} onChange={handleInput} placeholder="Đơn tối thiểu" className="w-full p-3 border rounded" />
+                  <h3 className="font-semibold text-blue-600 dark:text-blue-300 mb-2">Điều kiện & Giá trị</h3>
+                  <input name="minOrder" type="number" value={form.minOrder} onChange={handleInput} placeholder="Đơn tối thiểu" className="w-full p-3 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border-gray-300 dark:border-gray-700" />
                   <div className="flex gap-2">
-                    <select name="discountType" value={form.discountType} onChange={handleInput} className="w-1/2 p-3 border rounded">
+                    <select name="discountType" value={form.discountType} onChange={handleInput} className="w-1/2 p-3 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700">
                       <option value="percent">Phần trăm (%)</option>
                       <option value="amount">Số tiền (₫)</option>
                     </select>
-                    <input name="discountValue" type="number" value={form.discountValue} onChange={handleInput} placeholder="Giá trị giảm" className="w-1/2 p-3 border rounded" />
+                    <input name="discountValue" type="number" value={form.discountValue} onChange={handleInput} placeholder="Giá trị giảm" className="w-1/2 p-3 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border-gray-300 dark:border-gray-700" />
                   </div>
-                  <input name="expired" type="date" value={form.expired} onChange={handleInput} className="w-full p-3 border rounded" />
-                  <h3 className="font-semibold text-blue-600 mb-2 mt-4">Khác</h3>
-                  <input name="onlyOn" value={form.onlyOn} onChange={handleInput} placeholder="Chỉ áp dụng cho (nếu có)" className="w-full p-3 border rounded" />
-                  <input name="note" value={form.note} onChange={handleInput} placeholder="Ghi chú (nếu có)" className="w-full p-3 border rounded" />
+                  <input name="expired" type="date" value={form.expired} onChange={handleInput} className="w-full p-3 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700" />
+                  <h3 className="font-semibold text-blue-600 dark:text-blue-300 mb-2 mt-4">Khác</h3>
+                  <input name="onlyOn" value={form.onlyOn} onChange={handleInput} placeholder="Chỉ áp dụng cho (nếu có)" className="w-full p-3 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border-gray-300 dark:border-gray-700" />
+                  <input name="note" value={form.note} onChange={handleInput} placeholder="Ghi chú (nếu có)" className="w-full p-3 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border-gray-300 dark:border-gray-700" />
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-8">
-                <button type="button" className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300" onClick={() => { setShowEdit(false); setEditVoucher(null); setForm(defaultForm); }}>Hủy</button>
+                <button type="button" className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onClick={() => { setShowEdit(false); setEditVoucher(null); setForm(defaultForm); }}>Hủy</button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-semibold"
+                  className="px-6 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-800 font-semibold"
                   disabled={actionLoading}
                 >
                   {actionLoading ? 'Đang lưu...' : 'Lưu'}
@@ -372,21 +448,21 @@ const AdminVouchersPage: React.FC = () => {
       {/* Delete Modal */}
       {deleteId !== null && (
         <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md text-center">
-            <h2 className="text-xl font-bold mb-4 text-red-700">Xác nhận xóa voucher?</h2>
-            <p className="mb-6">Bạn có chắc chắn muốn xóa voucher này không?</p>
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-8 w-full max-w-md text-center">
+            <h2 className="text-xl font-bold mb-4 text-red-700 dark:text-red-300">Xác nhận xóa voucher?</h2>
+            <p className="mb-6 dark:text-gray-200">Bạn có chắc chắn muốn xóa voucher này không?</p>
             <div className="flex justify-center gap-4">
-              <button className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300" onClick={() => setDeleteId(null)}>Hủy</button>
-              <button className="px-6 py-2 bg-red-600 text-white rounded hover:bg-red-700 font-semibold" onClick={() => handleDelete(deleteId!)} disabled={actionLoading}>
+              <button className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onClick={() => setDeleteId(null)}>Hủy</button>
+              <button className="px-6 py-2 bg-red-600 dark:bg-red-700 text-white rounded hover:bg-red-700 dark:hover:bg-red-800 font-semibold" onClick={() => handleDelete(deleteId!)} disabled={actionLoading}>
                 {actionLoading ? 'Đang xóa...' : 'Xóa'}
               </button>
             </div>
           </div>
         </div>
       )}
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover aria-label="Thông báo hệ thống" />
     </div>
   );
 };
 
 export default AdminVouchersPage;
+

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useVoucherStore } from '../../../stores/useVoucherStore';
 import { useUserStore } from '../../../stores/useUserStore';
 import { updateUserVouchers } from '../../../services/userService';
@@ -14,15 +14,10 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
   onClose 
 }) => {
   const vouchers = useVoucherStore(state => state.vouchers);
-  const fetchVouchers = useVoucherStore(state => state.fetchVouchers);
+  const voucherLoading = useVoucherStore(state => state.loading || false);
   const { user, setUser, setVoucher } = useUserStore();
   const [userVouchers, setUserVouchers] = useState<(string | number)[]>(user?.vouchers || []);
-  // Fetch vouchers nếu chưa có khi LuckyWheel mở
-  useEffect(() => {
-    if (isOpen && vouchers.length === 0) {
-      fetchVouchers();
-    }
-  }, [isOpen, vouchers.length, fetchVouchers]);
+  // Đã fetch voucher ở App.tsx, không cần fetch lại ở đây
   // Chỉ lấy các voucher còn hiệu lực
   const validVouchers = vouchers.filter(v => v.isActive && v.usedPercent < 100);
   const prizes = [
@@ -189,6 +184,18 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
   // Nếu muốn show tất cả, thay validVouchers thành vouchers
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+      {/* Overlay loading spinner */}
+      {(isUpdating || voucherLoading) && (
+        <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="flex flex-col items-center gap-2">
+            <svg className="animate-spin h-10 w-10 text-green-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+            </svg>
+            <span className="text-green-200 font-semibold text-base">Đang tải...</span>
+          </div>
+        </div>
+      )}
       <div className="bg-white rounded-2xl p-6 max-w-lg w-full mx-4 relative">
         <div className="mb-4">
           <h3 className="font-bold text-base mb-2 text-gray-700">Voucher hiện có:</h3>

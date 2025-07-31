@@ -412,11 +412,11 @@ const AdminBanners: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <button
                         onClick={() => handleToggleStatus(banner.id)}
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors ${
-                          banner.isActive 
-                            ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200' 
-                            : 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200'
-                        }`}
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors ` +
+                          (banner.isActive
+                            ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200'
+                            : 'custom-inactive-status hover:bg-yellow-200 dark:hover:bg-yellow-800')
+                        }
                       >
                         {banner.isActive ? '✅ Hoạt động' : '⏸️ Tạm dừng'}
                       </button>
@@ -516,7 +516,7 @@ const AdminBanners: React.FC = () => {
                 <div className="flex gap-2">
                   <button
                     onClick={() => openViewModal(banner)}
-                    className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+                    className="flex-1 px-3 py-2 bg-gray-100 text-black rounded-lg hover:bg-gray-200 transition-colors text-sm"
                   >
                     Xem
                   </button>

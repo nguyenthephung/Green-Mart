@@ -1,0 +1,10 @@
+.custom-inactive-status {
+  color: #1f2937 !important; /* text-gray-800 */
+  background-color: #fef9c3 !important; /* yellow-100 */
+  border-color: #fde68a !important; /* yellow-300 */
+}
+.dark .custom-inactive-status {
+  color: #fef9c3 !important; /* text-yellow-100 */
+  background-color: #a16207 !important; /* yellow-700 */
+  border-color: #ca8a04 !important; /* yellow-600 */
+}

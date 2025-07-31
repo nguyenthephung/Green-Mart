@@ -20,13 +20,23 @@ const defaultProduct: Partial<AdminProduct> = {
   status: 'active',
   description: '',
   brand: '',
-  unit: '',
+  unit: 'hộp', // Đơn vị mặc định cho count
+  type: 'count', // Loại sản phẩm mặc định
   isSale: false,
   discountAmount: 0,
   salePrice: 0
 };
 
 const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd }) => {
+  // Dark mode state (must be inside the component)
+  const [isDarkMode, setIsDarkMode] = useState(document.documentElement.classList.contains('dark'));
+  React.useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
   const [product, setProduct] = useState<Partial<AdminProduct>>(defaultProduct);
   const [parentCategory, setParentCategory] = useState<string>('');
   const [subCategory, setSubCategory] = useState<string>('');
@@ -156,8 +166,8 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
     // Simulate API call
     setTimeout(() => {
       onAdd(newProduct);
-      resetForm();
       setIsLoading(false);
+      resetForm();
     }, 1000);
   };
 
@@ -195,13 +205,13 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
       <div 
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden"
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[95vh] overflow-hidden"
         style={{
           position: 'fixed',
-          top: '20px',
+          top: '32px',
           left: '50%',
           transform: 'translateX(-50%)',
-          margin: '16px'
+          margin: '24px'
         }}
       >
         {/* Header */}
@@ -247,7 +257,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+        <div className="p-8 overflow-y-auto max-h-[calc(95vh-220px)]">
           {currentStep === 1 ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="space-y-4">
@@ -263,6 +273,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                       errors.name ? 'border-red-500 bg-red-50' : 'border-gray-300'
                     }`}
                     placeholder="Nhập tên sản phẩm..."
+                    style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
                   />
                   {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
                 </div>
@@ -281,6 +292,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                     className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
                       errors.category ? 'border-red-500 bg-red-50' : 'border-gray-300'
                     }`}
+                    style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
                   >
                     <option value="">Chọn danh mục cha...</option>
                     {categories.map(cat => (
@@ -301,6 +313,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                         className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
                           errors.category ? 'border-red-500 bg-red-50' : 'border-gray-300'
                         }`}
+                        style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
                       >
                         <option value="">Chọn danh mục con...</option>
                         {categories.find(cat => cat.id === parentCategory)?.subs.map((sub, idx) => (
@@ -326,6 +339,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                           errors.price ? 'border-red-500 bg-red-50' : 'border-gray-300'
                         }`}
                         placeholder="0"
+                        style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
                       />
                       <span className="absolute right-3 top-3 text-gray-500">đ</span>
                     </div>
@@ -344,6 +358,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                         errors.stock ? 'border-red-500 bg-red-50' : 'border-gray-300'
                       }`}
                       placeholder="0"
+                      style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
                     />
                     {errors.stock && <p className="text-red-500 text-sm mt-1">{errors.stock}</p>}
                   </div>
@@ -360,6 +375,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                       onChange={e => setProduct(prev => ({ ...prev, brand: e.target.value }))}
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
                       placeholder="Nhập thương hiệu..."
+                      style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
                     />
                   </div>
 
@@ -375,6 +391,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                         setProduct(prev => ({ ...prev, type, unit }));
                       }}
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                      style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
                     >
                       <option value="count">Đếm số lượng (hộp, chai, cái...)</option>
                       <option value="weight">Cân ký (kg, g...)</option>
@@ -386,7 +403,9 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                       value={product.unit || ''}
                       onChange={e => setProduct(prev => ({ ...prev, unit: e.target.value }))}
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
-                      disabled={!product.type}
+                      // Luôn cho chọn đơn vị nếu đã có type (kể cả mặc định)
+                      disabled={false}
+                      style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
                     >
                       <option value="">Chọn đơn vị...</option>
                       {product.type === 'weight' ? (
@@ -412,6 +431,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                     value={product.status || 'active'}
                     onChange={e => setProduct(prev => ({ ...prev, status: e.target.value as 'active' | 'inactive' }))}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                    style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
                   >
                     <option value="active">✅ Đang bán</option>
                     <option value="inactive">❌ Ngừng bán</option>
@@ -459,6 +479,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                               errors.discountAmount ? 'border-red-500 bg-red-50' : 'border-red-300'
                             }`}
                             placeholder="0"
+                            style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
                           />
                           <span className="absolute right-3 top-3 text-red-500">đ</span>
                         </div>
@@ -586,6 +607,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                   rows={12}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors resize-none"
                   placeholder="Nhập mô tả chi tiết về sản phẩm..."
+                  style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
                 />
               </div>
             </div>

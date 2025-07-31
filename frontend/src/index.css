@@ -1,3 +1,8 @@
+ .text-gray-900 { color: rgb(var(--color-text-primary)) !important; }
+ .text-gray-800 { color: rgb(var(--color-text-gray-800)) !important; }
+ .text-gray-700 { color: rgb(var(--color-text-gray-700)) !important; }
+ .text-gray-600 { color: rgb(var(--color-text-gray-600)) !important; }
+ .text-gray-500 { color: rgb(var(--color-text-muted)) !important; }
 @import "tailwindcss";
 
 /* ====== CSS VARIABLES APPROACH ====== */
@@ -127,11 +132,6 @@
 }
 
 /* Text overrides */
-.text-gray-900 { color: rgb(var(--color-text-primary)) !important; }
-.text-gray-800 { color: rgb(var(--color-text-gray-800)) !important; }
-.text-gray-700 { color: rgb(var(--color-text-gray-700)) !important; }
-.text-gray-600 { color: rgb(var(--color-text-gray-600)) !important; }
-.text-gray-500 { color: rgb(var(--color-text-muted)) !important; }
 
 /* Header specific */
 .bg-white\/95 { background-color: rgba(var(--color-bg-header), 0.9) !important; }
@@ -1018,8 +1018,18 @@ body {
 }
 
 /* Global settings */
+
 html {
   scroll-behavior: smooth !important;
+  transition: none !important;
+}
+
+body, #root, .min-h-screen, .bg-white, .bg-gray-50, .bg-app-primary, .bg-app-secondary, .bg-app-card, .bg-app-header, .bg-app-emerald, .bg-app-green, .bg-app-teal, .bg-gradient-app-page, .bg-gradient-app-main, .bg-gradient-app-testimonials,
+.text-gray-900, .text-gray-800, .text-gray-700, .text-gray-600, .text-gray-500,
+.text-app-primary, .text-app-secondary, .text-app-muted, .text-app-gray-600, .text-app-gray-700, .text-app-gray-800,
+.text-brand-green, .text-white, .text-black, .text-blue-600, .text-blue-400, .text-purple-600, .text-purple-400, .text-red-600, .text-green-600, .text-green-500, .text-orange-600, .text-yellow-600, .text-indigo-600, .text-pink-600, .text-gray-400, .text-gray-300, .text-gray-200, .text-gray-100, .text-gray-50
+{
+  transition: none !important;
 }
 
 

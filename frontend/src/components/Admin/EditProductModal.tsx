@@ -10,6 +10,15 @@ interface EditProductModalProps {
 }
 
 const EditProductModal: React.FC<EditProductModalProps> = ({ show, product, onClose, onSave }) => {
+  // Dark mode state
+  const [isDarkMode, setIsDarkMode] = useState(document.documentElement.classList.contains('dark'));
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
   const [editProduct, setEditProduct] = useState<AdminProduct | null>(product);
   const [parentCategory, setParentCategory] = useState<string>('');
   const [subCategory, setSubCategory] = useState<string>('');
@@ -119,10 +128,11 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ show, product, onCl
         }}
       >
         <button className="absolute top-2 right-2 text-gray-400 hover:text-red-500 text-xl" onClick={onClose}>&times;</button>
-        <h2 className="text-xl font-bold mb-4 text-green-700 flex items-center gap-2">Sửa sản phẩm</h2>
+        <h2 className="text-xl font-bold mb-4 flex items-center gap-2" style={isDarkMode ? { color: '#fff' } : { color: '#15803d' }}>Sửa sản phẩm</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-3">
-            <input className={`w-full border px-3 py-2 rounded ${errors.name ? 'border-red-400' : ''}`} placeholder="Tên sản phẩm" value={editProduct.name} onChange={e => setEditProduct(prev => prev ? { ...prev, name: e.target.value } : null)} />
+            <input className={`w-full border px-3 py-2 rounded ${errors.name ? 'border-red-400' : ''}`} placeholder="Tên sản phẩm" value={editProduct.name} onChange={e => setEditProduct(prev => prev ? { ...prev, name: e.target.value } : null)}
+              style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}} />
             {errors.name && <div className="text-red-500 text-xs">{errors.name}</div>}
             <label className="block text-sm font-semibold text-gray-700 mb-2">Danh mục cha <span className="text-red-500">*</span></label>
             <select
@@ -134,6 +144,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ show, product, onCl
                 setEditProduct(prev => prev ? { ...prev, category: '' } : null);
               }}
               disabled={!Array.isArray(categories) || categories.length === 0}
+              style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
             >
               <option value="">Chọn danh mục cha...</option>
               {Array.isArray(categories) && categories.map((cat: any) => (
@@ -154,6 +165,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ show, product, onCl
                         setEditProduct(prev => prev ? { ...prev, category: e.target.value } : null);
                       }}
                       disabled={!Array.isArray(categories) || categories.length === 0}
+                      style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
                     >
                       <option value="">Chọn danh mục con...</option>
                       {parentCat.subs.map((sub: string, idx: number) => (
@@ -166,9 +178,11 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ show, product, onCl
               return null;
             })()}
             {errors.category && <div className="text-red-500 text-xs">{errors.category}</div>}
-            <input className={`w-full border px-3 py-2 rounded ${errors.price ? 'border-red-400' : ''}`} placeholder="Giá" type="number" value={editProduct.price} onChange={e => setEditProduct(prev => prev ? { ...prev, price: Number(e.target.value) } : null)} />
+            <input className={`w-full border px-3 py-2 rounded ${errors.price ? 'border-red-400' : ''}`} placeholder="Giá" type="number" value={editProduct.price} onChange={e => setEditProduct(prev => prev ? { ...prev, price: Number(e.target.value) } : null)}
+              style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}} />
             {errors.price && <div className="text-red-500 text-xs">{errors.price}</div>}
-            <input className={`w-full border px-3 py-2 rounded ${errors.stock ? 'border-red-400' : ''}`} placeholder="Tồn kho" type="number" value={editProduct.stock} onChange={e => setEditProduct(prev => prev ? { ...prev, stock: Number(e.target.value) } : null)} />
+            <input className={`w-full border px-3 py-2 rounded ${errors.stock ? 'border-red-400' : ''}`} placeholder="Tồn kho" type="number" value={editProduct.stock} onChange={e => setEditProduct(prev => prev ? { ...prev, stock: Number(e.target.value) } : null)}
+              style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}} />
             {errors.stock && <div className="text-red-500 text-xs">{errors.stock}</div>}
             <label className="block text-sm font-semibold text-gray-700 mb-2">Loại sản phẩm <span className="text-red-500">*</span></label>
             <select
@@ -181,6 +195,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ show, product, onCl
                 if (type === 'count') unit = 'hộp';
                 setEditProduct(prev => prev ? { ...prev, type, unit } : null);
               }}
+              style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
             >
               <option value="count">Đếm số lượng (hộp, chai, cái...)</option>
               <option value="weight">Cân ký (kg, g...)</option>
@@ -191,6 +206,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ show, product, onCl
               value={editProduct.unit || ''}
               onChange={e => setEditProduct(prev => prev ? { ...prev, unit: e.target.value } : null)}
               disabled={!editProduct.type}
+              style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
             >
               <option value="">Chọn đơn vị...</option>
               {editProduct.type === 'weight' ? (
@@ -207,29 +223,41 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ show, product, onCl
                 </>
               )}
             </select>
-            <input className="w-full border px-3 py-2 rounded" placeholder="Thương hiệu" value={editProduct.brand || ''} onChange={e => setEditProduct(prev => prev ? { ...prev, brand: e.target.value } : null)} />
+            <input className="w-full border px-3 py-2 rounded" placeholder="Thương hiệu" value={editProduct.brand || ''} onChange={e => setEditProduct(prev => prev ? { ...prev, brand: e.target.value } : null)}
+              style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}} />
           </div>
           <div className="space-y-3">
             <div>
-              <label className="block text-sm font-medium mb-1">Ảnh đại diện <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-medium mb-1" style={isDarkMode ? { color: '#fff' } : {}}>Ảnh đại diện <span className="text-red-500">*</span></label>
               <div className="flex items-center gap-2">
                 <input type="file" accept="image/*" className="hidden" ref={editFileInputRef} onChange={handleEditImageChange} />
-                <button type="button" className="border px-3 py-1 rounded bg-gray-50 hover:bg-gray-100 text-sm" onClick={() => editFileInputRef.current?.click()}>Chọn ảnh</button>
+                <button
+                  type="button"
+                  className="border px-3 py-1 rounded text-sm"
+                  style={isDarkMode ? { backgroundColor: '#f3f4f6', color: '#23272f', borderColor: '#e5e7eb' } : {}}
+                  onClick={() => editFileInputRef.current?.click()}
+                >Chọn ảnh</button>
                 {editImagePreview && <img src={editImagePreview} alt="avatar" className="w-12 h-12 object-cover rounded border" />}
               </div>
               {errors.image && <div className="text-red-500 text-xs">{errors.image}</div>}
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Ảnh mô tả (có thể chọn nhiều)</label>
+              <label className="block text-sm font-medium mb-1" style={isDarkMode ? { color: '#fff' } : {}}>Ảnh mô tả (có thể chọn nhiều)</label>
               <div className="flex items-center gap-2">
                 <input type="file" accept="image/*" multiple className="hidden" ref={editMultiFileInputRef} onChange={handleEditImagesChange} />
-                <button type="button" className="border px-3 py-1 rounded bg-gray-50 hover:bg-gray-100 text-sm" onClick={() => editMultiFileInputRef.current?.click()}>Chọn ảnh</button>
+                <button
+                  type="button"
+                  className="border px-3 py-1 rounded text-sm"
+                  style={isDarkMode ? { backgroundColor: '#f3f4f6', color: '#23272f', borderColor: '#e5e7eb' } : {}}
+                  onClick={() => editMultiFileInputRef.current?.click()}
+                >Chọn ảnh</button>
                 <div className="flex gap-1 overflow-x-auto">
                   {editImagesPreview.map((img, idx) => <img key={idx} src={img} alt="mô tả" className="w-10 h-10 object-cover rounded border" />)}
                 </div>
               </div>
             </div>
-            <textarea className="w-full border px-3 py-2 rounded min-h-[80px]" placeholder="Mô tả sản phẩm" value={editProduct.description || ''} onChange={e => setEditProduct(prev => prev ? { ...prev, description: e.target.value } : null)} />
+            <textarea className="w-full border px-3 py-2 rounded min-h-[80px]" placeholder="Mô tả sản phẩm" value={editProduct.description || ''} onChange={e => setEditProduct(prev => prev ? { ...prev, description: e.target.value } : null)}
+              style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}} />
             
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
@@ -245,20 +273,21 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ show, product, onCl
                     } : null)} 
                     className="w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500"
                   />
-                  <label htmlFor="isSale" className="text-sm font-medium text-gray-900 cursor-pointer">
+                  <label htmlFor="isSale" className="text-sm font-medium cursor-pointer" style={{ color: '#111' }}>
                     🏷️ Sản phẩm khuyến mãi
                   </label>
                 </div>
                 {editProduct.isSale && (
                   <div className="space-y-2">
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">Số tiền giảm giá (đ)</label>
+                      <label className="block text-xs font-medium mb-1" style={{ color: '#111' }}>Số tiền giảm giá (đ)</label>
                       <input 
                         className="w-full border border-gray-300 px-2 py-1 rounded text-sm" 
                         type="number" 
                         placeholder="Nhập số tiền giảm..." 
                         value={editProduct.discountAmount || ''} 
                         onChange={e => setEditProduct(prev => prev ? { ...prev, discountAmount: Number(e.target.value) } : null)} 
+                        style={isDarkMode ? { color: '#111' } : {}} 
                       />
                     </div>
                     {editProduct.discountAmount && editProduct.discountAmount > 0 && (
@@ -290,7 +319,8 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ show, product, onCl
               </div>
             </div>
             
-            <select className="w-full border px-3 py-2 rounded" value={editProduct.status} onChange={e => setEditProduct(prev => prev ? { ...prev, status: e.target.value as 'active' | 'inactive' } : null)}>
+            <select className="w-full border px-3 py-2 rounded" value={editProduct.status} onChange={e => setEditProduct(prev => prev ? { ...prev, status: e.target.value as 'active' | 'inactive' } : null)}
+              style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}>
               <option value="active">✅ Đang bán</option>
               <option value="inactive">❌ Ẩn</option>
             </select>

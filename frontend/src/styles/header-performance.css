@@ -1,0 +1,124 @@
+/* Header Performance Optimizations */
+
+/* GPU Acceleration for all header elements */
+.header-optimized {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Instant theme transitions */
+.theme-toggle-instant {
+  transition: none !important;
+}
+
+.theme-toggle-instant * {
+  transition: none !important;
+}
+
+/* Optimized fade animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateZ(0) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateZ(0) translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateZ(0) translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateZ(0) translateY(0);
+  }
+}
+
+@keyframes fadeOutUp {
+  from {
+    opacity: 1;
+    transform: translateZ(0) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateZ(0) translateY(-15px);
+  }
+}
+
+/* Optimized button hover states */
+.header-button-optimized {
+  will-change: background-color, color;
+  transform: translateZ(0);
+  transition: background-color 0.1s ease, color 0.1s ease;
+}
+
+.header-button-optimized:hover {
+  transform: translateZ(0);
+}
+
+/* Prevent layout shifts */
+.header-container {
+  contain: layout style paint;
+}
+
+/* Optimize text rendering */
+.header-text-optimized {
+  text-rendering: optimizeSpeed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Logo optimization */
+.logo-optimized {
+  will-change: transform;
+  transform: translateZ(0);
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+/* Search input optimization */
+.search-optimized {
+  will-change: transform;
+  transform: translateZ(0);
+  contain: layout style;
+}
+
+/* Badge numbers optimization */
+.badge-optimized {
+  will-change: transform;
+  transform: translateZ(0);
+  contain: layout;
+}
+
+/* Dropdown optimization */
+.dropdown-optimized {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  contain: layout style paint;
+}
+
+/* Dark mode instant switch */
+.dark-mode-instant * {
+  transition: none !important;
+}
+
+/* Force hardware acceleration */
+.gpu-accelerated {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Optimize scroll performance */
+.header-scroll-optimized {
+  position: fixed;
+  will-change: transform;
+  transform: translateZ(0);
+  contain: layout style paint;
+}

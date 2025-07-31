@@ -11,13 +11,27 @@ const CartController = {
         res.status(401).json({ success: false, message: 'Chưa xác thực người dùng', data: null });
         return;
       }
-      
+
       const cart = await Cart.findOne({ userId });
       if (!cart) {
         res.json({ success: true, message: 'Giỏ hàng trống', data: { items: [] } });
         return;
       }
-      
+
+      // Kiểm tra sản phẩm trong giỏ hàng có còn tồn tại không
+      const validItems = [];
+      for (const item of cart.items) {
+        const product = await Product.findById(item.productId);
+        if (product) {
+          validItems.push(item);
+        }
+      }
+      // Nếu có sản phẩm đã bị xóa, cập nhật lại cart.items
+      if (validItems.length !== cart.items.length) {
+        cart.items = validItems;
+        await cart.save();
+      }
+
       res.json({ success: true, message: 'Lấy giỏ hàng thành công', data: cart });
     } catch (err) {
       res.status(500).json({ success: false, message: 'Không lấy được giỏ hàng', data: null });
