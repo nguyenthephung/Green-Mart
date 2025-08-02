@@ -74,23 +74,18 @@ export const apiClient = async <T>(
 
   try {
     const response = await fetch(url, config);
-    console.log('API Response status:', response.status, response.statusText);
-    console.log('API Response headers:', response.headers);
     
     // Kiểm tra xem response có content không
     const contentType = response.headers.get('content-type');
-    console.log('Content-Type:', contentType);
     
     let data;
     // Nếu response có content-type là JSON và có body
     if (contentType && contentType.includes('application/json')) {
       const text = await response.text();
-      console.log('Raw response text:', text);
       
       if (text) {
         try {
           data = JSON.parse(text);
-          console.log('Parsed JSON data:', data);
         } catch (parseError) {
           console.error('JSON Parse Error:', parseError);
           throw new Error('Server trả về dữ liệu không hợp lệ');
@@ -112,12 +107,6 @@ export const apiClient = async <T>(
     }
     return data;
   } catch (error: any) {
-    console.error('API Error:', {
-      url,
-      method: config.method || 'GET',
-      error: error.message,
-      stack: error.stack
-    });
     // Tạo response lỗi chuẩn
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
       throw new Error('Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng.');

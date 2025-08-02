@@ -41,17 +41,14 @@ class OrderController {
       const userId = user?._id;
       const { items, shippingAddress, paymentMethod, voucherCode, notes }: CreateOrderRequest = req.body;
 
-      // Tạm thời bỏ authentication check cho createOrder
-      // if (!userId) {
-      //   res.status(401).json({
-      //     success: false,
-      //     message: 'User not authenticated'
-      //   });
-      //   return;
-      // }
-
-      // Sử dụng userId mặc định nếu không có user đăng nhập
-      const defaultUserId = userId || new Types.ObjectId('000000000000000000000000');
+      // Require authentication for creating orders
+      if (!userId) {
+        res.status(401).json({
+          success: false,
+          message: 'User not authenticated - please login to create an order'
+        });
+        return;
+      }
 
       // Validate products and calculate amounts
       let subtotal = 0;
@@ -135,9 +132,9 @@ class OrderController {
       // Create order
       const order = new Order({
         orderNumber,
-        userId: new Types.ObjectId(defaultUserId), // Sử dụng defaultUserId
+        userId: new Types.ObjectId(userId), // Sử dụng userId thực của user đã đăng nhập
         customerName: shippingAddress.fullName,
-        customerEmail: user?.email || 'guest@greenmart.com', // Email mặc định cho guest
+        customerEmail: user.email, // Sử dụng email thực của user
         customerPhone: shippingAddress.phone,
         customerAddress: `${shippingAddress.address}, ${shippingAddress.ward}, ${shippingAddress.district}, ${shippingAddress.province}`,
         items: validatedItems.map(item => ({
@@ -155,7 +152,8 @@ class OrderController {
         totalAmount,
         paymentMethod,
         paymentStatus: 'unpaid',
-        status: 'pending',
+        // Trạng thái order phụ thuộc vào phương thức thanh toán
+        status: paymentMethod === 'momo' || paymentMethod === 'credit_card' ? 'pending' : 'pending', // Tất cả đều bắt đầu từ pending
         orderDate: new Date(),
         notes: notes || undefined
       });
@@ -357,17 +355,27 @@ class OrderController {
       // Note: You might want to add proper admin role checking here
       // For now, we'll allow any authenticated user to update orders (admin behavior)
       
-      // Validate status transition
+      // Validate status transition - Allow more flexible transitions for admin
       const validTransitions: Record<string, string[]> = {
         'pending': ['confirmed', 'cancelled'],
-        'confirmed': ['preparing', 'cancelled'],
-        'preparing': ['shipping', 'cancelled'],
+        'confirmed': ['preparing', 'shipping', 'delivered', 'cancelled'], // Allow direct delivery
+        'preparing': ['shipping', 'delivered', 'cancelled'], // Allow direct delivery
         'shipping': ['delivered', 'cancelled'],
-        'delivered': ['completed'],
-        'cancelled': [],
-        'completed': [],
+        'delivered': ['completed'], // Delivered orders can only be marked as completed
+        'cancelled': [], // Cancelled orders cannot be changed
+        'completed': [], // Completed orders cannot be changed
         'returned': []
       };
+
+      // Don't allow changing from final states (delivered, cancelled, completed, returned)
+      if (['delivered', 'cancelled', 'completed', 'returned'].includes(order.status) && 
+          order.status !== status) {
+        res.status(400).json({
+          success: false,
+          message: `Cannot change status from ${order.status} to ${status}. Final states cannot be modified.`
+        });
+        return;
+      }
 
       if (!validTransitions[order.status].includes(status)) {
         res.status(400).json({
@@ -383,6 +391,26 @@ class OrderController {
       if (status === 'delivered') {
         order.deliveryDate = new Date();
       }
+
+      // Update payment status based on payment method and new status
+      if (status === 'delivered' && order.paymentMethod === 'cod') {
+        // COD: payment is received when order is delivered
+        order.paymentStatus = 'paid';
+      } else if (status === 'confirmed') {
+        // When confirming orders:
+        if (order.paymentMethod === 'bank_transfer') {
+          // Bank Transfer: payment is confirmed when admin confirms the order
+          order.paymentStatus = 'paid';
+        } else if (order.paymentMethod === 'momo') {
+          // MoMo: If order is confirmed, it means payment was successful
+          // (payment would have been processed during checkout)
+          order.paymentStatus = 'paid';
+        }
+        // COD: payment status remains 'pending' until delivery
+        // credit_card: usually auto-confirmed during payment processing
+      }
+      // Note: MoMo payments are processed immediately during checkout,
+      // so confirming the order means payment was successful
 
       await order.save();
 
@@ -480,11 +508,12 @@ class OrderController {
   // Admin: Get all orders
   async getAllOrders(req: Request, res: Response): Promise<void> {
     try {
-      const { page = 1, limit = 20, status, paymentStatus, startDate, endDate } = req.query;
+      const { page = 1, limit = 20, status, paymentStatus, paymentMethod, startDate, endDate } = req.query;
 
       const query: any = {};
       if (status) query.status = status;
       if (paymentStatus) query.paymentStatus = paymentStatus;
+      if (paymentMethod) query.paymentMethod = paymentMethod;
       if (startDate || endDate) {
         query.createdAt = {};
         if (startDate) query.createdAt.$gte = new Date(startDate as string);
@@ -513,6 +542,48 @@ class OrderController {
 
     } catch (error) {
       console.error('Get all orders error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error'
+      });
+    }
+  }
+
+  // Admin: Get orders pending confirmation
+  async getPendingOrders(req: Request, res: Response): Promise<void> {
+    try {
+      const { page = 1, limit = 20 } = req.query;
+
+      // Get orders that need admin confirmation (pending status with COD or bank_transfer)
+      const query = {
+        status: 'pending',
+        paymentMethod: { $in: ['cod', 'bank_transfer'] }
+      };
+
+      const orders = await Order.find(query)
+        .populate('userId', 'name email phone')
+        .sort({ createdAt: -1 })
+        .limit(Number(limit))
+        .skip((Number(page) - 1) * Number(limit));
+
+      const total = await Order.countDocuments(query);
+
+      res.json({
+        success: true,
+        message: 'Pending orders retrieved successfully',
+        data: {
+          orders,
+          pagination: {
+            page: Number(page),
+            limit: Number(limit),
+            total,
+            pages: Math.ceil(total / Number(limit))
+          }
+        }
+      });
+
+    } catch (error) {
+      console.error('Get pending orders error:', error);
       res.status(500).json({
         success: false,
         message: 'Internal server error'

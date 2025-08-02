@@ -19,7 +19,7 @@ export interface Order {
   discount?: number;
   totalAmount: number;
   status: 'pending' | 'confirmed' | 'shipping' | 'delivered' | 'cancelled';
-  paymentMethod: 'cod' | 'banking' | 'wallet';
+  paymentMethod: 'cod' | 'momo' | 'bank_transfer' | 'credit_card';
   paymentStatus: 'pending' | 'paid' | 'failed';
   orderDate: string;
   deliveryDate?: string;
@@ -63,7 +63,7 @@ export const adminOrders: Order[] = [
     ],
     totalAmount: 265000,
     status: 'confirmed',
-    paymentMethod: 'banking',
+    paymentMethod: 'bank_transfer',
     paymentStatus: 'paid',
     orderDate: '2024-03-20T10:15:00',
     trackingCode: 'GM202403200001'
@@ -80,7 +80,7 @@ export const adminOrders: Order[] = [
     ],
     totalAmount: 210000,
     status: 'shipping',
-    paymentMethod: 'wallet',
+    paymentMethod: 'momo',
     paymentStatus: 'paid',
     orderDate: '2024-03-19T16:45:00',
     trackingCode: 'GM202403190002',

@@ -5,7 +5,7 @@ const PaymentTestPage = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
 
-  const testPaymentGateway = async (method: 'vnpay' | 'momo' | 'zalopay') => {
+  const testPaymentGateway = async (method: 'vnpay' | 'momo' | 'zalopay' | 'bank_transfer' | 'credit_card') => {
     setLoading(true);
     setResult(null);
 

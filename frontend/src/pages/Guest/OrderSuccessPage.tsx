@@ -121,7 +121,7 @@ const OrderSuccessPage: React.FC = () => {
             Tiếp tục mua sắm
           </Link>
           <Link
-            to="myorder"
+            to="/myorder"
             className="bg-white text-green-600 border border-green-600 px-6 py-3 rounded-lg hover:bg-green-50 transition-colors text-center"
           >
             Xem đơn hàng của tôi

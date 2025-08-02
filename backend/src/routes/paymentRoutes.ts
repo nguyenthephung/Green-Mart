@@ -63,6 +63,18 @@ router.put('/bank-transfer/:paymentId/confirm', authenticate, async (req, res) =
   }
 });
 
+// Admin confirm COD payment
+router.put('/cod/:paymentId/confirm', authenticate, async (req, res) => {
+  try {
+    await paymentController.confirmCOD(req, res);
+  } catch (error) {
+    console.error('Confirm COD error:', error);
+    if (!res.headersSent) {
+      res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+  }
+});
+
 // Get payment details by ID
 router.get('/:paymentId', authenticate, async (req, res) => {
   try {

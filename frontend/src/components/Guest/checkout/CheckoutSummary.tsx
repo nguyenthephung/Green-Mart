@@ -20,8 +20,10 @@ interface AddressInfo {
 }
 
 interface PaymentInfo {
+  id: number;
   method: string;
   isSelected: boolean;
+  expiry?: string;
 }
 
 // Define VoucherInfo type if not imported from elsewhere
@@ -114,20 +116,12 @@ const CheckoutSummary = ({
   // Khi payments thay đổi, đồng bộ lại localPayment
   useEffect(() => {
     let payment = payments.find(p => p.isSelected) || null;
-    if (!payment && payments.length > 0) {
-      payment = payments.find(p => p.method === 'cod') || payments.find(p => p.method === 'vnpay') || payments[0];
-    }
+    // Không tự động chọn payment nào, để user tự chọn
     setLocalPayment(payment);
   }, [payments]);
 
   const handlePaymentSelect = (method: string) => {
-    // Update local state
-    const newPayment = payments.find(p => p.method === method);
-    if (newPayment) {
-      setLocalPayment(newPayment);
-    }
-    
-    // Call parent handler
+    // Immediately call parent handler to update global state
     if (onPaymentSelect) {
       onPaymentSelect(method);
     }
@@ -209,7 +203,9 @@ const CheckoutSummary = ({
                 {payments.map((payment) => (
                   <button
                     key={payment.method}
-                    onClick={() => handlePaymentSelect(payment.method)}
+                    onClick={() => {
+                      handlePaymentSelect(payment.method);
+                    }}
                     className={`flex items-center gap-3 p-3 rounded-lg border transition-all text-left ${
                       localPayment?.method === payment.method
                         ? 'border-green-500 bg-green-50 text-green-700'

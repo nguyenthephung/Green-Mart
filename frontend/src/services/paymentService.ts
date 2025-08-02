@@ -240,34 +240,10 @@ class PaymentService {
         processingTime: 'Ngay lập tức'
       },
       {
-        id: 'zalopay',
-        name: 'Ví điện tử ZaloPay',
-        description: 'Thanh toán qua ứng dụng ZaloPay',
-        icon: '🔵',
-        isOnline: true,
-        processingTime: 'Ngay lập tức'
-      },
-      {
-        id: 'vnpay',
-        name: 'VNPay',
-        description: 'Thanh toán qua cổng VNPay (ATM/Internet Banking)',
-        icon: '🇻🇳',
-        isOnline: true,
-        processingTime: 'Ngay lập tức'
-      },
-      {
         id: 'credit_card',
         name: 'Thẻ tín dụng/ghi nợ',
         description: 'Thanh toán bằng thẻ Visa, Mastercard, JCB',
         icon: '💳',
-        isOnline: true,
-        processingTime: 'Ngay lập tức'
-      },
-      {
-        id: 'shopeepay',
-        name: 'ShopeePay',
-        description: 'Thanh toán qua ví điện tử ShopeePay',
-        icon: '🟠',
         isOnline: true,
         processingTime: 'Ngay lập tức'
       }

@@ -14,6 +14,7 @@ import paymentService from '../../services/paymentService';
 const Checkout = () => {
   const navigate = useNavigate();
   const cart = useCartStore(state => state.items);
+  const cartLoading = useCartStore(state => state.loading);
   const user = useUserStore(state => state.user);
   const isAuthenticated = useUserStore(state => state.isAuthenticated);
   const userInfo = useUserStore(state => state.userInfo);
@@ -31,23 +32,18 @@ const Checkout = () => {
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
     fetchVouchers();
     
+    // Fetch cart data when entering checkout
+    useCartStore.getState().fetchCart();
+    
     // Clean invalid items from cart on page load
     useCartStore.getState().cleanInvalidItems();
-    
-    // Nếu chưa có payment nào được chọn, mặc định chọn COD (nếu có)
+  }, []); // Only run once on mount
+
+  // Separate effect for payments
+  useEffect(() => {
+    // Nếu chưa có payment nào được chọn, để user tự chọn
     if (payments && payments.length > 0 && !payments.some(p => p.isSelected)) {
-      console.log('Setting default payment method');
-      const cod = payments.find(p => p.method === 'cod');
-      const momo = payments.find(p => p.method === 'momo');
-      const vnpay = payments.find(p => p.method === 'vnpay');
-      
-      // Ưu tiên: COD -> MoMo -> VNPay -> payment đầu tiên
-      const defaultPayment = cod || momo || vnpay || payments[0];
-      
-      if (defaultPayment && setPayments) {
-        console.log('Setting default payment to:', defaultPayment.method);
-        setPayments(payments.map(p => ({ ...p, isSelected: p.method === defaultPayment.method })));
-      }
+      // Không tự động chọn payment method nào cả
     }
   }, [payments]);
 
@@ -74,12 +70,15 @@ const Checkout = () => {
   // Hàm nhận payment method từ CheckoutMain
   const handlePaymentChange = (method: string) => {
     if (setPayments && payments && payments.length > 0) {
-      setPayments(payments.map(p => ({ ...p, isSelected: p.method === method })));
+      const updatedPayments = payments.map(p => ({ 
+        ...p, 
+        isSelected: p.method === method 
+      }));
+      setPayments(updatedPayments);
     }
   };
 
   const handlePaymentSelect = (method: string) => {
-    console.log('Payment method selected:', method);
     handlePaymentChange(method);
   };
 
@@ -102,19 +101,14 @@ const Checkout = () => {
 
   // Hàm xử lý đặt hàng và thanh toán
   const handleCheckout = async () => {
-    console.log('=== CHECKOUT DEBUG ===');
-    console.log('User:', user);
-    console.log('IsAuthenticated:', isAuthenticated);
-    console.log('Token:', localStorage.getItem('token'));
-    console.log('Payments:', payments);
-    
     if (!canCheckout || !selectedAddress || !userDisplayInfo) {
       alert('Vui lòng kiểm tra lại thông tin đặt hàng');
       return;
     }
 
-    const selectedPayment = payments.find(p => p.isSelected);
-    console.log('Selected payment:', selectedPayment);
+    // Use fresh state from store instead of stale state
+    const freshPayments = useUserStore.getState().payments;
+    const selectedPayment = freshPayments.find(p => p.isSelected);
     
     if (!selectedPayment) {
       alert('Vui lòng chọn phương thức thanh toán');
@@ -129,9 +123,6 @@ const Checkout = () => {
     setIsProcessingOrder(true);
 
     try {
-      // Debug cart items
-      console.log('Cart items before validation:', cart);
-      
       // Validate cart items - kiểm tra kỹ hơn
       const validItems = cart.filter(item => {
         const hasId = item.id && item.id !== '' && item.id !== 'undefined';
@@ -142,19 +133,6 @@ const Checkout = () => {
         // Additional validation for MongoDB ObjectId (should be 24 hex characters)
         const idString = String(item.id).trim();
         const isValidObjectId = /^[a-fA-F0-9]{24}$/.test(idString);
-        
-        if (!hasId || !isValidObjectId) {
-          console.error('Item missing valid ID or invalid ObjectId format:', item);
-        }
-        if (!hasName) {
-          console.error('Item missing name:', item);
-        }
-        if (!hasQuantity) {
-          console.error('Item missing quantity:', item);
-        }
-        if (!hasPrice) {
-          console.error('Item missing price:', item);
-        }
         
         return hasId && isValidObjectId && hasName && hasQuantity && hasPrice;
       });
@@ -221,8 +199,8 @@ const Checkout = () => {
         console.log('Order created successfully:', { orderId, orderNumber, totalAmount, paymentMethod });
         
         // Handle payment processing based on payment method
-        if (paymentMethod !== 'cod' && paymentMethod !== 'bank_transfer') {
-          // For online payment methods (vnpay, momo, zalopay), create payment and redirect
+        if (paymentMethod === 'momo' || paymentMethod === 'credit_card') {
+          // For online payment methods (momo, credit_card), create payment and redirect
           try {
             console.log('Creating payment for online method:', paymentMethod);
             
@@ -233,69 +211,76 @@ const Checkout = () => {
               returnUrl: `${window.location.origin}/payment-result?method=${paymentMethod}`
             });
 
-            console.log('===== FRONTEND PAYMENT RESPONSE DEBUG =====');
             console.log('Payment response:', paymentResponse);
-            console.log('Response structure:', JSON.stringify(paymentResponse, null, 2));
-            console.log('Response type:', typeof paymentResponse);
-            console.log('Response success:', paymentResponse.success);
-            console.log('Full payment response:', JSON.stringify(paymentResponse, null, 2));
-            console.log('Response data:', paymentResponse.data);
-            console.log('Data redirectUrl:', paymentResponse.data?.redirectUrl);
-            console.log('Top-level redirectUrl:', paymentResponse.redirectUrl);
 
-            // Check for different possible redirect URL field names - kiểm tra tất cả các trường hợp
+            // Check for different possible redirect URL field names
             const redirectUrl = paymentResponse.data?.redirectUrl || 
                               paymentResponse.data?.payUrl ||
                               paymentResponse.redirectUrl ||
                               paymentResponse.payUrl ||
-                              // Kiểm tra response trực tiếp (flat structure)
                               (paymentResponse as any).redirectUrl ||
                               (paymentResponse as any).payUrl;
 
             console.log('Final redirect URL found:', redirectUrl);
-            console.log('Payment success check:', paymentResponse.success);
 
             if (paymentResponse.success && redirectUrl) {
-              // Redirect to payment gateway KHÔNG clear cart
+              // Redirect to payment gateway - cart will be cleared after successful payment
               console.log('Redirecting to payment gateway:', redirectUrl);
               window.location.href = redirectUrl;
               return; // Don't proceed to success page yet
             } else {
               console.error('Payment creation failed - missing redirect URL');
-              console.error('Response structure:', JSON.stringify(paymentResponse, null, 2));
-              // ❌ KHÔNG TỰ ĐỘNG FALLBACK SANG COD - để user tự chọn
               alert(`Không thể tạo link thanh toán ${paymentMethod.toUpperCase()}. Vui lòng thử lại hoặc chọn phương thức thanh toán khác.`);
               setIsProcessingOrder(false);
               return;
             }
           } catch (paymentError) {
             console.error('Payment creation failed:', paymentError);
-            
-            // ❌ KHÔNG TỰ ĐỘNG FALLBACK SANG COD - để user tự chọn  
             alert(`Thanh toán ${paymentMethod.toUpperCase()} thất bại: ${paymentError instanceof Error ? paymentError.message : 'Lỗi không xác định'}. Vui lòng thử lại hoặc chọn phương thức thanh toán khác.`);
             setIsProcessingOrder(false);
             return;
           }
         }
         
-        // For COD and bank transfer - proceed to success page directly
-        console.log('Processing offline payment method:', paymentMethod);
-        
-        // Clear cart for COD since payment is immediate
-        try {
-          console.log('Attempting to clear cart for COD payment...');
-          await useCartStore.getState().clearCart();
-          console.log('Cart cleared successfully for COD');
-        } catch (clearError) {
-          console.error('Error clearing cart:', clearError);
-          // Continue even if cart clear fails
+        // For COD and Bank Transfer - create payment record and proceed to success page
+        if (paymentMethod === 'cod' || paymentMethod === 'bank_transfer') {
+          try {
+            console.log('Creating payment record for:', paymentMethod);
+            
+            const paymentResponse = await paymentService.createPayment({
+              orderId: orderId,
+              paymentMethod: paymentMethod,
+              amount: totalAmount
+            });
+
+            console.log('Payment record created:', paymentResponse);
+
+            if (paymentResponse.success) {
+              // Clear cart for both COD and Bank Transfer after successful order creation
+              await useCartStore.getState().clearCart();
+              console.log('Cart cleared successfully');
+            } else {
+              console.error('Payment record creation failed:', paymentResponse);
+              alert(`Không thể tạo bản ghi thanh toán. Đơn hàng đã được tạo nhưng có thể cần liên hệ admin.`);
+            }
+          } catch (paymentError) {
+            console.error('Payment record creation failed:', paymentError);
+            // Still proceed since order was created, but log the error
+            console.warn('Order created but payment record failed. This may need manual admin intervention.');
+            
+            // Clear cart anyway since order was created
+            try {
+              await useCartStore.getState().clearCart();
+            } catch (clearError) {
+              console.error('Error clearing cart:', clearError);
+            }
+          }
         }
         
         // Show success alert
         alert(`Đặt hàng thành công! Mã đơn hàng: ${orderNumber}`);
         
         // Navigate to success page
-        console.log('Navigating to success page...');
         navigate(`/order-success?orderId=${orderId}&orderNumber=${orderNumber}`, { replace: true });
       } else {
         // Order creation failed
@@ -349,11 +334,23 @@ const Checkout = () => {
             <h1 className="text-4xl font-bold text-app-primary">
               💳 Thanh toán đơn hàng
             </h1>
+            
             <p className="text-lg text-app-secondary break-words">
-              {cart.length} sản phẩm • Tổng tiền: <span className="font-semibold break-all">{subtotal.toLocaleString()}</span> ₫
-              {!isAuthenticated && (
-                <span className="block text-orange-600 text-base mt-2">
-                  ⚠️ Vui lòng đăng nhập để hoàn tất đặt hàng
+              {cartLoading ? (
+                <span>🔄 Đang tải giỏ hàng...</span>
+              ) : (
+                <>
+                  {cart.length} sản phẩm • Tổng tiền: <span className="font-semibold break-all">{subtotal.toLocaleString()}</span> ₫
+                  {!isAuthenticated && (
+                    <span className="block text-orange-600 text-base mt-2">
+                      ⚠️ Vui lòng đăng nhập để hoàn tất đặt hàng
+                    </span>
+                  )}
+                </>
+              )}
+              {!cartLoading && cart.length === 0 && (
+                <span className="block text-red-600 text-base mt-2">
+                  ⚠️ Giỏ hàng trống - vui lòng thêm sản phẩm trước khi checkout
                 </span>
               )}
               {isAuthenticated && addresses.length === 0 && (

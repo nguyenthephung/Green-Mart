@@ -51,8 +51,8 @@ export interface AddressInfo {
 }
 
 export interface PaymentInfo {
+  id: number;
   method: string;
   isSelected: boolean;
   expiry?: string;
-  id?: number;
 }

@@ -8,6 +8,7 @@ type SortOrder = 'asc' | 'desc';
 type ViewMode = 'table' | 'grid';
 type FilterStatus = 'all' | 'pending' | 'confirmed' | 'shipping' | 'delivered' | 'cancelled';
 type FilterPayment = 'all' | 'pending' | 'paid' | 'failed';
+type FilterPaymentMethod = 'all' | 'cod' | 'momo' | 'bank_transfer' | 'credit_card';
 
 // Helper function to map API status to UI status
 const mapOrderStatus = (apiStatus: string): 'pending' | 'confirmed' | 'shipping' | 'delivered' | 'cancelled' => {
@@ -33,6 +34,7 @@ const AdminOrders: React.FC = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('table');
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
   const [filterPayment, setFilterPayment] = useState<FilterPayment>('all');
+  const [filterPaymentMethod, setFilterPaymentMethod] = useState<FilterPaymentMethod>('all');
   const [showFilters, setShowFilters] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -73,7 +75,7 @@ const AdminOrders: React.FC = () => {
             shippingFee: order.deliveryFee || 0,
             discount: order.voucherDiscount || 0,
             totalAmount: order.totalAmount,
-            paymentMethod: order.paymentMethod as 'cod' | 'banking' | 'wallet',
+            paymentMethod: order.paymentMethod as 'cod' | 'momo' | 'bank_transfer' | 'credit_card',
             paymentStatus: order.paymentStatus as 'pending' | 'paid' | 'failed',
             status: mapOrderStatus(order.status),
             notes: order.notes || '',
@@ -122,8 +124,9 @@ const AdminOrders: React.FC = () => {
       
       const matchesStatus = filterStatus === 'all' || order.status === filterStatus;
       const matchesPayment = filterPayment === 'all' || order.paymentStatus === filterPayment;
+      const matchesPaymentMethod = filterPaymentMethod === 'all' || order.paymentMethod === filterPaymentMethod;
       
-      return matchesSearch && matchesStatus && matchesPayment;
+      return matchesSearch && matchesStatus && matchesPayment && matchesPaymentMethod;
     });
 
     filtered.sort((a: Order, b: Order) => {
@@ -160,7 +163,7 @@ const AdminOrders: React.FC = () => {
     });
 
     return filtered;
-  }, [orders, search, sortField, sortOrder, filterStatus, filterPayment]);
+  }, [orders, search, sortField, sortOrder, filterStatus, filterPayment, filterPaymentMethod]);
 
   // Pagination calculations
   const totalItems = filteredAndSortedOrders.length;
@@ -172,7 +175,7 @@ const AdminOrders: React.FC = () => {
   // Reset to first page when filters change
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [search, filterStatus, filterPayment, sortField, sortOrder]);
+  }, [search, filterStatus, filterPayment, filterPaymentMethod, sortField, sortOrder]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -196,19 +199,8 @@ const AdminOrders: React.FC = () => {
       
       await orderService.updateOrderStatus(orderToUpdate.orderNumber, newStatus);
       
-      // Update local state
-      setOrders(prevOrders => 
-        prevOrders.map((order: Order) => 
-          order.id === orderId ? { 
-            ...order, 
-            status: newStatus,
-            trackingCode: newStatus === 'confirmed' && !order.trackingCode 
-              ? `GM${new Date().toISOString().slice(0,10).replace(/-/g, '')}${orderId.toString().padStart(4, '0')}`
-              : order.trackingCode,
-            lastUpdated: new Date().toISOString()
-          } : order
-        )
-      );
+      // Refresh data from server instead of updating local state
+      await refreshData();
       
       setError(null);
     } catch (err: any) {
@@ -358,7 +350,7 @@ const AdminOrders: React.FC = () => {
             shippingFee: order.deliveryFee || 0,
             discount: order.voucherDiscount || 0,
             totalAmount: order.totalAmount,
-            paymentMethod: order.paymentMethod as 'cod' | 'banking' | 'wallet',
+            paymentMethod: order.paymentMethod as 'cod' | 'momo' | 'bank_transfer' | 'credit_card',
             paymentStatus: order.paymentStatus as 'pending' | 'paid' | 'failed',
             status: mapOrderStatus(order.status),
             notes: order.notes || '',
@@ -369,10 +361,12 @@ const AdminOrders: React.FC = () => {
               estimatedDelivery: order.deliveryDate || new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
               courier: 'GreenMart Express'
             }
-          }));        setOrders(convertedOrders);
-        setLastRefresh(new Date());
-        setError(null);
-      }
+          }));
+          
+          setOrders(convertedOrders);
+          setLastRefresh(new Date());
+          setError(null);
+        }
     } catch (err: any) {
       setError(`Không thể làm mới dữ liệu: ${err.message}`);
     } finally {
@@ -408,6 +402,36 @@ const AdminOrders: React.FC = () => {
       case 'pending': return 'Chờ thanh toán';
       case 'failed': return 'Thanh toán thất bại';
       default: return status;
+    }
+  };
+
+  const getPaymentMethodText = (method: Order['paymentMethod']) => {
+    switch (method) {
+      case 'cod': return 'Thanh toán khi nhận hàng';
+      case 'momo': return 'Ví MoMo';
+      case 'bank_transfer': return 'Chuyển khoản ngân hàng';
+      case 'credit_card': return 'Thẻ tín dụng';
+      default: return method;
+    }
+  };
+
+  const getPaymentMethodIcon = (method: Order['paymentMethod']) => {
+    switch (method) {
+      case 'cod': return '💰';
+      case 'momo': return '🔶';
+      case 'bank_transfer': return '🏦';
+      case 'credit_card': return '💳';
+      default: return '💳';
+    }
+  };
+
+  const getPaymentMethodColor = (method: Order['paymentMethod']) => {
+    switch (method) {
+      case 'cod': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'momo': return 'bg-pink-100 text-pink-800 border-pink-200';
+      case 'bank_transfer': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'credit_card': return 'bg-green-100 text-green-800 border-green-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
@@ -529,6 +553,7 @@ const AdminOrders: React.FC = () => {
                 setSearch('');
                 setFilterStatus('all');
                 setFilterPayment('all');
+                setFilterPaymentMethod('all');
                 setSortField('orderDate');
                 setSortOrder('desc');
               }}
@@ -581,6 +606,21 @@ const AdminOrders: React.FC = () => {
                 <option value="paid">💰 Đã thanh toán</option>
                 <option value="pending">⏳ Chờ thanh toán</option>
                 <option value="failed">❌ Thất bại</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>Phương thức thanh toán</label>
+              <select
+                value={filterPaymentMethod}
+                onChange={(e) => setFilterPaymentMethod(e.target.value as FilterPaymentMethod)}
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
+              >
+                <option value="all">Tất cả phương thức</option>
+                <option value="cod">💰 COD - Thanh toán khi nhận hàng</option>
+                <option value="momo">📱 MoMo - Ví điện tử</option>
+                <option value="bank_transfer">🏦 Chuyển khoản ngân hàng</option>
+                <option value="credit_card">💳 Thẻ tín dụng/ghi nợ</option>
               </select>
             </div>
             <div>
@@ -797,19 +837,25 @@ const AdminOrders: React.FC = () => {
                       </select>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border`}
-                        style={isDarkMode
-                          ? order.paymentStatus === 'paid'
-                            ? { backgroundColor: '#23272f', color: '#4ade80', borderColor: '#4ade80' }
-                            : order.paymentStatus === 'pending'
-                              ? { backgroundColor: '#23272f', color: '#fde68a', borderColor: '#fde68a' }
-                              : order.paymentStatus === 'failed'
-                                ? { backgroundColor: '#23272f', color: '#f87171', borderColor: '#f87171' }
-                                : { backgroundColor: '#23272f', color: '#e5e7eb', borderColor: '#e5e7eb' }
-                          : undefined}
-                      >
-                        {getPaymentText(order.paymentStatus)}
-                      </span>
+                      <div className="space-y-1">
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getPaymentMethodColor(order.paymentMethod)}`}>
+                          <span className="mr-1">{getPaymentMethodIcon(order.paymentMethod)}</span>
+                          {getPaymentMethodText(order.paymentMethod)}
+                        </span>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border`}
+                          style={isDarkMode
+                            ? order.paymentStatus === 'paid'
+                              ? { backgroundColor: '#23272f', color: '#4ade80', borderColor: '#4ade80' }
+                              : order.paymentStatus === 'pending'
+                                ? { backgroundColor: '#23272f', color: '#fde68a', borderColor: '#fde68a' }
+                                : order.paymentStatus === 'failed'
+                                  ? { backgroundColor: '#23272f', color: '#f87171', borderColor: '#f87171' }
+                                  : { backgroundColor: '#23272f', color: '#e5e7eb', borderColor: '#e5e7eb' }
+                            : undefined}
+                        >
+                          {getPaymentText(order.paymentStatus)}
+                        </span>
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>
                       {formatDateTime(order.orderDate)}
@@ -1139,10 +1185,31 @@ const ViewOrderModal: React.FC<{show: boolean, order: Order, isDarkMode: boolean
 
   const getPaymentMethodText = (method: string) => {
     switch (method) {
-      case 'cod': return 'Thanh toán khi nhận hàng';
-      case 'banking': return 'Chuyển khoản ngân hàng';
-      case 'wallet': return 'Ví điện tử';
+      case 'cod': return 'COD - Thanh toán khi nhận hàng';
+      case 'momo': return 'MoMo - Ví điện tử';
+      case 'bank_transfer': return 'Chuyển khoản ngân hàng';
+      case 'credit_card': return 'Thẻ tín dụng/ghi nợ';
       default: return method;
+    }
+  };
+
+  const getPaymentMethodIcon = (method: string) => {
+    switch (method) {
+      case 'cod': return '💰';
+      case 'momo': return '📱';
+      case 'bank_transfer': return '🏦';
+      case 'credit_card': return '💳';
+      default: return '💵';
+    }
+  };
+
+  const getPaymentMethodColor = (method: string) => {
+    switch (method) {
+      case 'cod': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'momo': return 'bg-pink-100 text-pink-800 border-pink-200';
+      case 'bank_transfer': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'credit_card': return 'bg-purple-100 text-purple-800 border-purple-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
@@ -1206,7 +1273,12 @@ const ViewOrderModal: React.FC<{show: boolean, order: Order, isDarkMode: boolean
                   </div>
                   <div className="flex justify-between">
                     <span style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>Thanh toán:</span>
-                    <span>{getPaymentMethodText(order.paymentMethod)}</span>
+                    <div className="flex items-center space-x-2">
+                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getPaymentMethodColor(order.paymentMethod)}`}>
+                        <span className="mr-1">{getPaymentMethodIcon(order.paymentMethod)}</span>
+                        {getPaymentMethodText(order.paymentMethod)}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>

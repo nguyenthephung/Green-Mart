@@ -54,10 +54,20 @@ export class PaymentController {
         case 'banktransfer':
           paymentResult = await this.processBankTransfer(order, amount);
           break;
+        case 'credit_card':
+        case 'card':
+          if (!returnUrl) {
+            return res.status(400).json({
+              success: false,
+              message: 'Return URL required for Credit Card payment'
+            });
+          }
+          paymentResult = await this.processCreditCard(order, amount, returnUrl);
+          break;
         default:
           return res.status(400).json({
             success: false,
-            message: 'Unsupported payment method. Supported methods: cod, momo, bank_transfer'
+            message: 'Unsupported payment method. Supported methods: cod, momo, bank_transfer, credit_card'
           });
       }
 
@@ -75,30 +85,32 @@ export class PaymentController {
   // Xử lý thanh toán COD
   private async processCOD(order: any, amount: number) {
     try {
-      // Tạo payment record
+      // Tạo payment record với trạng thái pending - chờ admin xác nhận
       const payment = new Payment({
         orderId: order._id,
         userId: order.userId,
         paymentMethod: 'cod',
         amount: amount,
-        status: 'completed',
+        status: 'pending', // Chờ admin xác nhận khi giao hàng
         transactionId: `COD_${order._id}_${Date.now()}`
       });
 
       await payment.save();
 
-      // Cập nhật trạng thái order
-      order.paymentStatus = 'paid';
+      // Cập nhật trạng thái order - chờ xác nhận
+      order.paymentStatus = 'unpaid';
       order.paymentMethod = 'cod';
+      order.status = 'pending'; // Chờ admin xác nhận
       await order.save();
 
       return {
         success: true,
-        message: 'COD payment processed successfully',
+        message: 'COD order created successfully - waiting for admin confirmation',
         paymentId: payment._id,
         paymentMethod: 'COD',
-        status: 'completed',
-        transactionId: payment.transactionId
+        status: 'pending',
+        transactionId: payment.transactionId,
+        note: 'Đơn hàng đã được tạo và đang chờ xác nhận từ admin'
       };
     } catch (error) {
       console.error('COD processing error:', error);
@@ -166,13 +178,13 @@ export class PaymentController {
         amount: amount
       });
 
-      // Tạo payment record
+      // Tạo payment record với trạng thái pending - chờ admin xác nhận
       const payment = new Payment({
         orderId: order._id,
         userId: order.userId,
         paymentMethod: 'bank_transfer',
         amount: amount,
-        status: 'pending',
+        status: 'pending', // Chờ admin xác nhận chuyển khoản
         transactionId: bankTransferResult.transactionId,
         metadata: {
           bankInfo: bankTransferResult.bankInfo,
@@ -182,25 +194,81 @@ export class PaymentController {
 
       await payment.save();
 
-      // Cập nhật order
+      // Cập nhật order - chờ xác nhận
       order.paymentStatus = 'unpaid';
       order.paymentMethod = 'bank_transfer';
+      order.status = 'pending'; // Chờ admin xác nhận
       await order.save();
 
       return {
         success: true,
-        message: 'Bank transfer payment created successfully',
+        message: 'Bank transfer payment created - waiting for admin confirmation',
         paymentId: payment._id,
         paymentMethod: 'Bank Transfer',
         status: 'pending',
         bankInfo: bankTransferResult.bankInfo,
         transferContent: bankTransferResult.transferContent,
         instructions: bankTransferResult.instructions,
-        transactionId: bankTransferResult.transactionId
+        transactionId: bankTransferResult.transactionId,
+        note: 'Vui lòng chuyển khoản theo thông tin trên và chờ admin xác nhận'
       };
     } catch (error) {
       console.error('Bank transfer processing error:', error);
       throw new Error('Failed to process bank transfer payment');
+    }
+  }
+
+  // Xử lý thanh toán thẻ tín dụng (qua MoMo gateway)
+  private async processCreditCard(order: any, amount: number, returnUrl: string) {
+    try {
+      // Sử dụng MoMo gateway cho thẻ tín dụng
+      const paymentRequest = {
+        orderId: order._id.toString(),
+        amount: amount,
+        orderInfo: `Credit Card payment for order ${order._id}`,
+        returnUrl: returnUrl,
+        notifyUrl: `${process.env.BASE_URL}/api/payments/momo/callback`
+      };
+
+      const momoResponse = await this.momoService.createPayment(paymentRequest);
+
+      if (momoResponse.resultCode === 0) {
+        // Tạo payment record với trạng thái pending
+        const payment = new Payment({
+          orderId: order._id,
+          userId: order.userId,
+          paymentMethod: 'credit_card',
+          amount: amount,
+          status: 'pending',
+          transactionId: momoResponse.requestId,
+          metadata: {
+            gatewayTransactionId: momoResponse.requestId,
+            gateway: 'momo'
+          }
+        });
+
+        await payment.save();
+
+        // Cập nhật order
+        order.paymentStatus = 'unpaid';
+        order.paymentMethod = 'credit_card';
+        await order.save();
+
+        return {
+          success: true,
+          message: 'Credit Card payment created successfully',
+          paymentId: payment._id,
+          paymentMethod: 'Credit Card',
+          status: 'pending',
+          redirectUrl: momoResponse.payUrl,
+          transactionId: momoResponse.requestId
+        };
+      } else {
+        throw new Error(`Credit Card payment creation failed: ${momoResponse.message}`);
+      }
+    } catch (error) {
+      console.error('Credit Card processing error:', error);
+      throw new Error('Failed to process Credit Card payment');
     }
   }
 
@@ -212,7 +280,7 @@ export class PaymentController {
 
       const { orderId, requestId, resultCode, message } = callbackData;
 
-      // Tìm payment record
+      // Tìm payment record (có thể là momo hoặc credit_card)
       const payment = await Payment.findOne({ 
         transactionId: requestId 
       });
@@ -229,16 +297,19 @@ export class PaymentController {
         payment.status = 'completed';
         await payment.save();
 
-        // Cập nhật order
+        // Cập nhật order - MoMo thanh toán thành công = tự động xác nhận đơn hàng
         const order = await Order.findById(payment.orderId);
         if (order) {
           order.paymentStatus = 'paid';
+          order.status = 'confirmed'; // Tự động xác nhận đơn hàng khi MoMo thanh toán thành công
           await order.save();
+          
+          console.log(`Order ${order._id} automatically confirmed after successful MoMo/CreditCard payment`);
         }
 
         return res.json({
           success: true,
-          message: 'Payment completed successfully'
+          message: 'Payment completed and order confirmed automatically'
         });
       } else {
         payment.status = 'failed';
@@ -271,7 +342,7 @@ export class PaymentController {
   async confirmBankTransfer(req: Request, res: Response) {
     try {
       const { paymentId } = req.params;
-      const { status, adminNote } = req.body;
+      const { status, adminNote } = req.body; // status: 'confirmed' hoặc 'rejected'
 
       const payment = await Payment.findById(paymentId);
       if (!payment) {
@@ -284,39 +355,99 @@ export class PaymentController {
       if (payment.paymentMethod !== 'bank_transfer') {
         return res.status(400).json({
           success: false,
-          message: 'This is not a bank transfer payment'
+          message: 'This function is only for bank transfer payments'
         });
       }
 
-      // Cập nhật payment
-      payment.status = status; // 'completed' hoặc 'failed'
-      payment.metadata = {
-        ...payment.metadata,
-        adminNote: adminNote,
-        confirmedAt: new Date(),
-        confirmedBy: req.user?.userId || req.user?._id
-      };
-      await payment.save();
-
-      // Cập nhật order
-      const order = await Order.findById(payment.orderId);
-      if (order) {
-        order.paymentStatus = status === 'completed' ? 'paid' : 'unpaid';
-        await order.save();
+      // Chỉ cập nhật payment, không cập nhật order (để OrderController xử lý)
+      if (status === 'confirmed') {
+        payment.status = 'completed';
+        payment.adminNote = adminNote || 'Bank transfer confirmed by admin';
+        
+        // Cập nhật paymentStatus của order
+        const order = await Order.findById(payment.orderId);
+        if (order) {
+          order.paymentStatus = 'paid';
+          await order.save();
+        }
+      } else if (status === 'rejected') {
+        payment.status = 'failed';
+        payment.failureReason = adminNote || 'Bank transfer rejected by admin';
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid status. Use "confirmed" or "rejected"'
+        });
       }
 
-      res.json({
+      await payment.save();
+
+      return res.json({
         success: true,
         message: `Bank transfer ${status} successfully`,
         payment: {
           id: payment._id,
           status: payment.status,
-          adminNote: payment.metadata?.adminNote,
-          confirmedAt: payment.metadata?.confirmedAt
+          orderId: payment.orderId
         }
       });
     } catch (error) {
       console.error('Confirm bank transfer error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error'
+      });
+    }
+  }
+
+  // Xác nhận đơn hàng COD (Admin)
+  async confirmCOD(req: Request, res: Response) {
+    try {
+      const { paymentId } = req.params;
+      const { status, adminNote } = req.body; // status: 'confirmed' hoặc 'rejected'
+
+      const payment = await Payment.findById(paymentId);
+      if (!payment) {
+        return res.status(404).json({
+          success: false,
+          message: 'Payment not found'
+        });
+      }
+
+      if (payment.paymentMethod !== 'cod') {
+        return res.status(400).json({
+          success: false,
+          message: 'This function is only for COD payments'
+        });
+      }
+
+      // Chỉ cập nhật payment, không cập nhật order status (để OrderController xử lý)
+      if (status === 'confirmed') {
+        payment.status = 'pending'; // COD vẫn pending cho đến khi giao hàng thành công
+        payment.adminNote = adminNote || 'COD order confirmed by admin';
+      } else if (status === 'rejected') {
+        payment.status = 'failed';
+        payment.failureReason = adminNote || 'COD order rejected by admin';
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid status. Use "confirmed" or "rejected"'
+        });
+      }
+
+      await payment.save();
+
+      return res.json({
+        success: true,
+        message: `COD order ${status} successfully`,
+        payment: {
+          id: payment._id,
+          status: payment.status,
+          orderId: payment.orderId
+        }
+      });
+    } catch (error) {
+      console.error('Confirm COD error:', error);
       res.status(500).json({
         success: false,
         message: 'Internal server error'
@@ -386,6 +517,13 @@ export class PaymentController {
           description: 'Chuyển khoản ngân hàng thủ công',
           enabled: true,
           icon: 'bank'
+        },
+        {
+          id: 'credit_card',
+          name: 'Credit/Debit Card',
+          description: 'Thanh toán bằng thẻ tín dụng/ghi nợ',
+          enabled: true,
+          icon: 'card'
         }
       ];
 
