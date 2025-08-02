@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { fetchCart, addToCart as apiAddToCart, updateCartItem, removeCartItem } from '../services/cartService';
+import { fetchCart, addToCart as apiAddToCart, updateCartItem, removeCartItem, clearCart as apiClearCart } from '../services/cartService';
 
 
 export interface CartItem {
@@ -23,7 +23,8 @@ interface CartState {
   addToCart: (item: Omit<CartItem, 'quantity'> & { quantity: number }) => Promise<void>;
   updateQuantity: (productId: string | number, value: number, unit?: string, type?: 'count' | 'weight') => Promise<void>;
   removeFromCart: (productId: string | number, unit?: string, type?: 'count' | 'weight') => Promise<void>;
-  clearCart: () => void;
+  clearCart: () => Promise<void>;
+  cleanInvalidItems: () => Promise<void>;
   getCartCount: () => number;
   getItemQuantity: (id: string | number) => number;
 }
@@ -61,7 +62,18 @@ export const useCartStore = create<CartState>((set, get) => ({
       if (res.success && res.data) {
         // Always use res.data.items if present (backend always returns { items: [...] })
         if (res.data && typeof res.data === 'object' && 'items' in res.data) {
-          items = (res.data as { items: CartItem[] }).items || [];
+          const rawItems = (res.data as { items: any[] }).items || [];
+          // Map backend cart items to frontend format
+          items = rawItems.map((item: any) => ({
+            id: item.productId || item.id, // Map productId to id for consistency
+            name: item.name,
+            price: item.price,
+            image: item.image,
+            unit: item.unit,
+            quantity: item.quantity || 0,
+            type: item.type || 'count',
+            weight: item.weight || 0
+          }));
         } else if (Array.isArray(res.data)) {
           items = res.data as CartItem[];
         }
@@ -133,9 +145,46 @@ export const useCartStore = create<CartState>((set, get) => ({
       set({ error: err.message || 'Lỗi xóa sản phẩm', loading: false });
     }
   },
-  clearCart: () => {
-    // Only clear items, not the cart object
-    set({ items: [], totalItems: 0, totalAmount: 0 });
+  clearCart: async () => {
+    try {
+      set({ loading: true, error: undefined });
+      
+      // Call API to clear cart in database
+      const res = await apiClearCart();
+      
+      if (res.success) {
+        // Clear items from state
+        set({ items: [], totalItems: 0, totalAmount: 0, loading: false });
+      } else {
+        set({ error: res.message || 'Lỗi xóa giỏ hàng', loading: false });
+      }
+    } catch (err: any) {
+      console.error('Clear cart error:', err);
+      // Even if API fails, clear local state
+      set({ items: [], totalItems: 0, totalAmount: 0, error: err.message || 'Lỗi xóa giỏ hàng', loading: false });
+    }
+  },
+  cleanInvalidItems: async () => {
+    set({ loading: true, error: undefined });
+    try {
+      const currentItems = get().items;
+      const validItems = currentItems.filter(item => {
+        const hasId = item.id && item.id !== '' && item.id !== 'undefined';
+        const idString = String(item.id).trim();
+        const isValidObjectId = /^[a-fA-F0-9]{24}$/.test(idString);
+        return hasId && isValidObjectId && item.name && item.quantity > 0 && item.price > 0;
+      });
+      
+      if (validItems.length !== currentItems.length) {
+        const { totalItems, totalAmount } = calculateTotals(validItems);
+        set({ items: validItems, totalItems, totalAmount, loading: false });
+        console.log(`Removed ${currentItems.length - validItems.length} invalid items from cart`);
+      } else {
+        set({ loading: false });
+      }
+    } catch (err: any) {
+      set({ error: err.message || 'Lỗi dọn dẹp giỏ hàng', loading: false });
+    }
   },
   getCartCount: () => get().totalItems,
   getItemQuantity: (id: string | number) => {

@@ -5,10 +5,10 @@ import { toast } from 'react-toastify';
 import type { AdminProduct } from '../../types/AdminProduct';
 import { useProductStore } from '../../stores/useProductStore';
 import { useCategoryStore } from '../../stores/useCategoryStore';
-import AddProductModal from '../../components/Admin/AddProductModal';
-import EditProductModal from '../../components/Admin/EditProductModal';
-import ConfirmDeleteModal from '../../components/Admin/ConfirmDeleteModal';
-import Pagination from '../../components/Admin/Pagination';
+import AddProductModal from '../../components/Admin/Product/AddProductModal';
+import EditProductModal from '../../components/Admin/Product/EditProductModal';
+import ConfirmDeleteModal from '../../components/Admin/Product/ConfirmDeleteModal';
+import Pagination from '../../components/Admin/Product/Pagination';
 
 type SortField = 'name' | 'category' | 'price' | 'stock' | 'brand';
 type SortOrder = 'asc' | 'desc';

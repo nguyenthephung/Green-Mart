@@ -18,7 +18,7 @@ interface CartItemProps {
 
 export default function CartItem({ item, onQuantityChange, onRemove }: CartItemProps) {
   // Log item props on render
-  console.log('[CartItem] render with item:', item);
+
   // Handler cho sản phẩm đếm số lượng
   const handleDecrease = () => {
     if (item.type === 'weight') return;
@@ -43,11 +43,11 @@ export default function CartItem({ item, onQuantityChange, onRemove }: CartItemP
     <div className="flex items-center justify-between py-4 border-b border-app-border">
       <div className="flex items-center gap-4">
         <img src={item.image} alt={item.name} className="w-16 h-16 object-contain" />
-        <div>
-          <h3 className="font-medium text-app-primary">{item.name}</h3>
-          <div className="text-sm text-app-muted line-through">{item.originalPrice.toLocaleString()} ₫</div>
-          <div className="text-green-700 font-bold">{item.price.toLocaleString()} ₫</div>
-          {item.unit && <div className="text-xs text-gray-500">Đơn vị: {item.unit}</div>}
+        <div className="min-w-0">
+          <h3 className="font-medium text-app-primary break-words">{item.name}</h3>
+          <div className="text-sm text-app-muted line-through break-all">{item.originalPrice.toLocaleString()} ₫</div>
+          <div className="text-green-700 font-bold break-all">{item.price.toLocaleString()} ₫</div>
+          {item.unit && <div className="text-xs text-gray-500 break-words">Đơn vị: {item.unit}</div>}
         </div>
       </div>
       <div className="flex items-center gap-8">
@@ -63,7 +63,7 @@ export default function CartItem({ item, onQuantityChange, onRemove }: CartItemP
             />
             <span className="text-xs text-gray-500">{item.unit || 'kg'}</span>
             <button onClick={() => {
-              console.log('[CartItem] onRemove clicked:', { id: item.id, item });
+             
               onRemove(item.id, item.unit, item.type);
             }} className="text-green-700 font-bold hover:underline text-sm ml-2">Xoá</button>
           </div>
@@ -72,7 +72,7 @@ export default function CartItem({ item, onQuantityChange, onRemove }: CartItemP
             {item.quantity === 1 ? (
               <button
                 onClick={() => {
-                  console.log('[CartItem] onRemove clicked:', { id: item.id, item });
+                 
                   onRemove(item.id, item.unit, item.type);
                 }}
                 className="w-8 h-8 flex items-center justify-center rounded-full bg-app-card text-app-primary hover:bg-app-secondary"
@@ -98,13 +98,13 @@ export default function CartItem({ item, onQuantityChange, onRemove }: CartItemP
               <Plus className="w-5 h-5" />
             </button>
             <button onClick={() => {
-              console.log('[CartItem] onRemove clicked:', { id: item.id, item });
+             
               onRemove(item.id, item.unit, item.type);
             }} className="text-green-700 font-bold hover:underline text-sm ml-2">Xoá</button>
           </div>
         )}
         {/* Tổng giá */}
-        <div className="w-25 text-right font-medium text-app-primary">
+        <div className="w-25 text-right font-medium text-app-primary break-all">
           {item.type === 'weight'
             ? ((item.price * (item.weight || 0)).toLocaleString())
             : ((item.price * item.quantity).toLocaleString())

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import type { Voucher } from '../../../types/Voucher';
 
 interface ShopeeVoucherModalProps {
@@ -10,7 +10,6 @@ interface ShopeeVoucherModalProps {
 }
 
 const ShopeeVoucherModal: React.FC<ShopeeVoucherModalProps> = ({ open, vouchers, selectedVoucher, onSelect, onClose }) => {
-  const [search, setSearch] = useState('');
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-[120] flex justify-center items-start pt-[120px]">
@@ -33,13 +32,13 @@ const ShopeeVoucherModal: React.FC<ShopeeVoucherModalProps> = ({ open, vouchers,
               <div className="flex flex-col gap-4 w-full">
                 {vouchers.map((voucher) => (
                   <button
-                    key={voucher.id}
-                    className={`flex flex-col items-start p-4 rounded-xl border-2 transition-all duration-150 w-full text-left ${selectedVoucher?.id === voucher.id ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white hover:border-green-400 hover:bg-green-50'}`}
+                    key={String(voucher._id)}
+                    className={`flex flex-col items-start p-4 rounded-xl border-2 transition-all duration-150 w-full text-left ${selectedVoucher?._id === voucher._id ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white hover:border-green-400 hover:bg-green-50'}`}
                     onClick={() => onSelect(voucher)}
                   >
-                    <span className="font-semibold text-green-700 text-lg">{voucher.code}</span>
-                    <span className="text-sm text-gray-600">{voucher.description}</span>
-                    <span className="text-xs text-gray-400 mt-1">Đơn tối thiểu: {voucher.minOrder.toLocaleString()} ₫</span>
+                    <span className="font-semibold text-green-700 text-lg break-words">{voucher.code}</span>
+                    <span className="text-sm text-gray-600 break-words">{voucher.description}</span>
+                    <span className="text-xs text-gray-400 mt-1 break-all">Đơn tối thiểu: {voucher.minOrder.toLocaleString()} ₫</span>
                   </button>
                 ))}
               </div>

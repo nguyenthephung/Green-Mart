@@ -7,6 +7,8 @@ import productRoutes from './productRoutes';
 import categoryRoutes from './categoryRoutes';
 import voucherRoutes from './voucherRoutes';
 import userRoutes from './userRoutes';
+import paymentRoutes from './paymentRoutes';
+import orderRoutes from './orderRoutes';
 
 const router = Router();
 
@@ -30,6 +32,12 @@ router.use('/products', productRoutes);
 
 // Voucher routes
 router.use('/vouchers', voucherRoutes);
+
+// Payment routes
+router.use('/payments', paymentRoutes);
+
+// Order routes
+router.use('/orders', orderRoutes);
 
 // Category routes
 router.use(categoryRoutes);

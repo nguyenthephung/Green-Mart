@@ -28,6 +28,9 @@ import MyVoucher from '../pages/Guest/MyVoucherPage';
 import NotificationSettingsPage from '../pages/Guest/NotificationSettingsPage';
 import NotificationListPage from '../pages/Guest/NotificationListPage';
 import WishlistPage from '../pages/Guest/WishlistPage';
+import OrderSuccessPage from '../pages/Guest/OrderSuccessPage';
+import PaymentResultPage from '../pages/Guest/PaymentResultPage';
+import PaymentTestPage from '../pages/Guest/PaymentTestPage';
 import UnauthorizedPage from '../pages/Guest/UnauthorizedPage';
 
 // Admin pages
@@ -53,6 +56,9 @@ const AppRouter = () => (
             <Route path="category/:category?" element={<CategoryPage />} />
             <Route path="mycart" element={<CartPage />} />
             <Route path="checkout" element={<Checkout />} />
+            <Route path="order-success" element={<OrderSuccessPage />} />
+            <Route path="payment-result" element={<PaymentResultPage />} />
+            <Route path="payment-test" element={<PaymentTestPage />} />
           </Route>
           <Route path="accountdetail" element={
             <ProtectedRoute>

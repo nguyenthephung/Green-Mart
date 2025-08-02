@@ -14,7 +14,7 @@ type Category = {
   createdAt: string;
   updatedAt: string;
 };
-import Pagination from '../../components/Admin/Pagination';
+import Pagination from '../../components/Admin/Product/Pagination';
 
 
 

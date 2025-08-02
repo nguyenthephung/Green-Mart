@@ -114,6 +114,7 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
           setShowVoucherModal(true);
         }, 2000);
       }
+      // Nếu trúng "Chúc bạn may mắn lần sau" (id = '-1') thì không làm gì thêm
     }, 4000);
   };
 

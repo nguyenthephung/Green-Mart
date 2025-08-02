@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
-import type { AdminProduct } from '../../types/AdminProduct';
-import { useCategoryStore } from '../../stores/useCategoryStore';
+import type { AdminProduct } from '../../../types/AdminProduct';
+import { useCategoryStore } from '../../../stores/useCategoryStore';
 
 interface EditProductModalProps {
   show: boolean;

@@ -32,7 +32,7 @@ const AdminVouchersPage: React.FC = () => {
 
   const vouchers = useVoucherStore(state => state.vouchers);
   const loading = useVoucherStore(state => state.loading);
-  const fetchAllVouchers = useVoucherStore(state => state.fetchAllVouchers);
+  const fetchVouchers = useVoucherStore(state => state.fetchVouchers);
 
 
 
@@ -45,12 +45,12 @@ const AdminVouchersPage: React.FC = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   // State for date picker in Add Modal
-  const [showDateInput, setShowDateInput] = useState(false);
+
 
   // Fetch vouchers khi vào trang admin
   useEffect(() => {
-    fetchAllVouchers();
-  }, [fetchAllVouchers]);
+    fetchVouchers();
+  }, [fetchVouchers]);
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -72,7 +72,7 @@ const AdminVouchersPage: React.FC = () => {
         discountValue: form.discountValue === '' ? 0 : Number(form.discountValue),
       };
       await import('../../services/voucherService').then(s => s.voucherService.create(submitForm));
-      await fetchAllVouchers();
+      await fetchVouchers();
       toast.success('Thêm voucher thành công!');
       setShowAdd(false);
       setForm(defaultForm);
@@ -94,7 +94,7 @@ const AdminVouchersPage: React.FC = () => {
         discountValue: form.discountValue === '' ? 0 : Number(form.discountValue),
       };
       await import('../../services/voucherService').then(s => s.voucherService.update(editVoucher.id, submitForm));
-      await fetchAllVouchers();
+      await fetchVouchers();
       toast.success('Cập nhật voucher thành công!');
       setShowEdit(false);
       setEditVoucher(null);
@@ -112,7 +112,7 @@ const AdminVouchersPage: React.FC = () => {
       await import('../../services/voucherService').then(s => s.voucherService.delete(id));
       toast.success('Xóa voucher thành công!');
       setDeleteId(null);
-      await fetchAllVouchers();
+      await fetchVouchers();
     } catch (err: any) {
       toast.error('Xóa voucher thất bại!');
     } finally {

@@ -42,6 +42,9 @@ interface CheckoutSummaryProps {
   voucher?: VoucherInfo | null;
   onRemoveVoucher?: () => void;
   onShowVoucherModal?: () => void;
+  onCheckout?: () => void;
+  onPaymentSelect?: (method: string) => void; // Add payment selection handler
+  isProcessing?: boolean;
 }
 
 const STORE_LOCATION = {
@@ -69,9 +72,41 @@ function calculateShippingFee(
   return 35000;
 }
 
-const CheckoutSummary = ({ cart, address, payments, userInfo, voucherDiscount = 0, voucher, onRemoveVoucher, onShowVoucherModal }: CheckoutSummaryProps) => {
+function getPaymentMethodLabel(method: string): string {
+  switch (method) {
+    case 'cod':
+      return 'COD - Thanh toán khi nhận hàng';
+    case 'bank_transfer':
+      return 'Chuyển khoản ngân hàng';
+    case 'momo':
+      return 'Ví MoMo';
+    case 'zalopay':
+      return 'Ví ZaloPay';
+    case 'vnpay':
+      return 'VNPay - Thanh toán online';
+    case 'credit_card':
+      return 'Thẻ tín dụng/Ghi nợ';
+    case 'shopeepay':
+      return 'Ví ShopeePay';
+    default:
+      return 'Phương thức khác';
+  }
+}
+
+const CheckoutSummary = ({ 
+  cart, 
+  address, 
+  payments, 
+  userInfo, 
+  voucherDiscount = 0, 
+  voucher, 
+  onRemoveVoucher, 
+  onShowVoucherModal,
+  onCheckout,
+  onPaymentSelect,
+  isProcessing = false
+}: CheckoutSummaryProps) => {
   const [selectedTip, setSelectedTip] = useState<number | null>(null);
-  const [orderPlaced, setOrderPlaced] = useState(false);
   const [localPayment, setLocalPayment] = useState<PaymentInfo | null>(null);
   const deliveryFee = 15000;
   const serviceFee = 25000;
@@ -85,10 +120,23 @@ const CheckoutSummary = ({ cart, address, payments, userInfo, voucherDiscount = 
     setLocalPayment(payment);
   }, [payments]);
 
+  const handlePaymentSelect = (method: string) => {
+    // Update local state
+    const newPayment = payments.find(p => p.method === method);
+    if (newPayment) {
+      setLocalPayment(newPayment);
+    }
+    
+    // Call parent handler
+    if (onPaymentSelect) {
+      onPaymentSelect(method);
+    }
+  };
+
   const itemsTotal = useMemo(
     () =>
       cart.reduce((sum, item) => {
-        const price = typeof item.price === 'string' ? parseInt(item.price.replace(/\D/g, "")) : item.price || 0;
+        const price = item.price || 0;
         return sum + price * item.quantity;
       }, 0),
     [cart]
@@ -123,38 +171,12 @@ const CheckoutSummary = ({ cart, address, payments, userInfo, voucherDiscount = 
     value.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
 
   const handlePlaceOrder = () => {
-    if (localPayment?.method === 'vnpay') {
-      // Redirect đến sandbox VNPay (giả lập)
-      // Thông thường sẽ gọi API backend để lấy link, ở đây demo redirect trực tiếp
-      const vnpaySandboxUrl =
-        'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html?vnp_Amount=1000000&vnp_OrderInfo=GreenMart+Demo&vnp_TmnCode=2QXUI4J4&vnp_ReturnUrl=https://greenmart.local/checkout-success';
-      window.location.href = vnpaySandboxUrl;
-      return;
+    if (onCheckout) {
+      onCheckout();
+    } else {
+      // Fallback behavior if onCheckout is not provided
+      alert('Chức năng đặt hàng chưa được kết nối');
     }
-    // Tạo đơn hàng mới
-    const newOrder = {
-      id: `ORD-${Date.now()}`,
-      status: "Đang xử lý",
-      date: new Date().toLocaleString('vi-VN'),
-      items: cart.map(item => ({
-        name: item.name,
-        price: typeof item.price === 'string' ? parseInt(item.price.replace(/\D/g, "")) : item.price || 0,
-        oldPrice: typeof item.price === 'string' ? parseInt(item.price.replace(/\D/g, "")) : item.price || 0,
-        quantity: item.quantity,
-        image: item.image,
-      })),
-      deliveryFee: deliveryFee,
-      payWith: localPayment ? localPayment.method : "",
-      deliveryAddress: address ? address.address : "",
-    };
-    // Lưu vào localStorage
-    const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-    orders.unshift(newOrder);
-    localStorage.setItem('orders', JSON.stringify(orders));
-    // Xóa cart
-    localStorage.setItem('cart', '[]');
-    setOrderPlaced(true);
-    window.location.href = '/myorder';
   };
 
   return (
@@ -173,28 +195,55 @@ const CheckoutSummary = ({ cart, address, payments, userInfo, voucherDiscount = 
         </h3>
         <div className="space-y-2 text-sm text-app-secondary">
           <div className="flex items-center gap-2">
-            <span className="font-medium">Khách hàng:</span>
-            <span>{userInfo?.fullName || 'Chưa đăng nhập'} - {userInfo?.phone || 'Chưa có SĐT'}</span>
+            <span className="font-medium flex-shrink-0">Khách hàng:</span>
+            <span className="break-words">{userInfo?.fullName || 'Chưa đăng nhập'} - {userInfo?.phone || 'Chưa có SĐT'}</span>
           </div>
           <div className="flex items-start gap-2">
-            <span className="font-medium">Địa chỉ:</span>
-            <span className="flex-1">{address ? address.address : "Chưa chọn"}</span>
+            <span className="font-medium flex-shrink-0">Địa chỉ:</span>
+            <span className="flex-1 break-words">{address ? address.address : "Chưa chọn"}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="font-medium">Thanh toán:</span>
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-              localPayment?.method === 'cod' 
-                ? 'bg-orange-100 text-orange-700' 
-                : localPayment?.method === 'vnpay'
-                ? 'bg-blue-100 text-blue-700'
-                : 'bg-app-input text-app-secondary'
-            }`}>
-              {localPayment && (localPayment.method === 'cod' || localPayment.method === 'vnpay')
-                ? (localPayment.method === 'cod'
-                    ? 'COD - Thanh toán khi nhận hàng'
-                    : 'VNPay - Thanh toán online')
-                : 'Chưa chọn phương thức'}
-            </span>
+          <div className="flex items-start gap-2">
+            <span className="font-medium flex-shrink-0 mt-1">Thanh toán:</span>
+            <div className="flex-1">
+              <div className="grid grid-cols-1 gap-2">
+                {payments.map((payment) => (
+                  <button
+                    key={payment.method}
+                    onClick={() => handlePaymentSelect(payment.method)}
+                    className={`flex items-center gap-3 p-3 rounded-lg border transition-all text-left ${
+                      localPayment?.method === payment.method
+                        ? 'border-green-500 bg-green-50 text-green-700'
+                        : 'border-gray-200 bg-white hover:border-gray-300 text-gray-700'
+                    }`}
+                  >
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                      localPayment?.method === payment.method
+                        ? 'border-green-500 bg-green-500'
+                        : 'border-gray-300'
+                    }`}>
+                      {localPayment?.method === payment.method && (
+                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-lg ${
+                        payment.method === 'cod' ? '💵' :
+                        payment.method === 'vnpay' ? '🏛️' :
+                        payment.method === 'momo' ? '📱' :
+                        payment.method === 'zalopay' ? '💜' :
+                        payment.method === 'bank_transfer' ? '🏦' :
+                        payment.method === 'credit_card' ? '💳' :
+                        '💳'
+                      }`}>
+                      </span>
+                      <span className="text-sm font-medium">
+                        {getPaymentMethodLabel(payment.method)}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -203,22 +252,22 @@ const CheckoutSummary = ({ cart, address, payments, userInfo, voucherDiscount = 
       <div className="space-y-3 mb-6">
         <div className="flex justify-between items-center py-2">
           <span className="text-app-secondary">Tạm tính</span>
-          <span className="font-medium text-app-primary">{formatVND(itemsTotal)}</span>
+          <span className="font-medium text-app-primary break-all">{formatVND(itemsTotal)}</span>
         </div>
         
         <div className="flex justify-between items-center py-2">
           <span className="text-app-secondary flex items-center gap-2">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             Phí giao hàng
           </span>
-          <span className="font-medium text-app-primary">{formatVND(dynamicDeliveryFee)}</span>
+          <span className="font-medium text-app-primary break-all">{formatVND(dynamicDeliveryFee)}</span>
         </div>
 
         <div className="flex justify-between items-center py-2">
           <span className="text-app-secondary">Phí dịch vụ</span>
-          <span className="font-medium text-app-primary">{formatVND(serviceFee)}</span>
+          <span className="font-medium text-app-primary break-all">{formatVND(serviceFee)}</span>
         </div>
 
         {voucher && voucherDiscount > 0 ? (
@@ -235,7 +284,7 @@ const CheckoutSummary = ({ cart, address, payments, userInfo, voucherDiscount = 
                 ✕
               </button>
             </span>
-            <span className="font-medium">-{formatVND(voucherDiscount)}</span>
+            <span className="font-medium break-all">-{formatVND(voucherDiscount)}</span>
           </div>
         ) : (
           <div className="flex justify-between items-center py-2">
@@ -300,7 +349,7 @@ const CheckoutSummary = ({ cart, address, payments, userInfo, voucherDiscount = 
       <div className="border-t border-gray-200 pt-4 mb-6">
         <div className="flex justify-between items-center">
           <span className="text-xl font-bold text-gray-900">Tổng cộng</span>
-          <span className="text-2xl font-bold text-green-600">{formatVND(total)}</span>
+          <span className="text-2xl font-bold text-green-600 break-all">{formatVND(total)}</span>
         </div>
       </div>
 
@@ -317,9 +366,9 @@ const CheckoutSummary = ({ cart, address, payments, userInfo, voucherDiscount = 
         <button
           className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-4 px-6 rounded-2xl font-semibold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           onClick={handlePlaceOrder}
-          disabled={orderPlaced}
+          disabled={isProcessing}
         >
-          {orderPlaced ? (
+          {isProcessing ? (
             <>
               <svg className="w-6 h-6 animate-spin" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -332,7 +381,7 @@ const CheckoutSummary = ({ cart, address, payments, userInfo, voucherDiscount = 
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
               </svg>
               Đặt hàng ngay
-              <span className="bg-white/20 px-3 py-1 rounded-full text-sm">
+              <span className="bg-white/20 px-3 py-1 rounded-full text-sm break-all">
                 {formatVND(total)}
               </span>
             </>

@@ -25,7 +25,6 @@ interface VoucherStoreState {
   loading: boolean;
   error: string | null;
   fetchVouchers: () => Promise<void>;
-  fetchAllVouchers: () => Promise<void>;
   addVoucher: (voucher: Voucher) => void;
   setVouchers: (vouchers: Voucher[]) => void;
   getRandomVoucher: () => Voucher | null;
@@ -50,21 +49,6 @@ export const useVoucherStore = create<VoucherStoreState>((set, get) => ({
       set({ error: error.message || 'Không thể tải voucher', loading: false });
     }
   },
- fetchAllVouchers: async () => {
-   set({ loading: true, error: null });
-   try {
-     const res: any = await voucherService.getAll();
-     let vouchers: any[] = [];
-     if (Array.isArray(res)) {
-       vouchers = res.map((v: any) => ({ ...v, id: v.id || v._id }));
-     } else if (Array.isArray(res?.data)) {
-       vouchers = res.data.map((v: any) => ({ ...v, id: v.id || v._id }));
-     }
-     set({ vouchers, loading: false });
-   } catch (error: any) {
-     set({ error: error.message || 'Không thể tải voucher', loading: false });
-   }
- },
   addVoucher: (voucher) => set(state => ({ vouchers: [voucher, ...state.vouchers] })),
   setVouchers: (vouchers) => set({ vouchers }),
   getRandomVoucher: () => {

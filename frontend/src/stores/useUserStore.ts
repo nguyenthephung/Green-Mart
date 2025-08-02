@@ -52,8 +52,12 @@ export const useUserStore = create<UserState>()(
       addresses: [],
       payments: [
         { id: 1, method: 'cod', expiry: '', isSelected: true },
-        { id: 2, method: 'bank', expiry: '', isSelected: false },
+        { id: 2, method: 'bank_transfer', expiry: '', isSelected: false },
         { id: 3, method: 'momo', expiry: '', isSelected: false },
+        { id: 4, method: 'zalopay', expiry: '', isSelected: false },
+        { id: 5, method: 'vnpay', expiry: '', isSelected: false },
+        { id: 6, method: 'credit_card', expiry: '', isSelected: false },
+        { id: 7, method: 'shopeepay', expiry: '', isSelected: false },
       ],
       voucher: null,
 

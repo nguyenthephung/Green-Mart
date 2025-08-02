@@ -1,0 +1,598 @@
+import { Request, Response } from 'express';
+import Order, { IOrder } from '../models/Order';
+import Payment from '../models/Payment';
+import Product from '../models/Product';
+import Voucher from '../models/Voucher';
+import { Types } from 'mongoose';
+
+interface OrderItem {
+  productId: string;
+  quantity: number;
+  price: number;
+  name: string;
+  image?: string;
+}
+
+interface CreateOrderRequest {
+  items: OrderItem[];
+  shippingAddress: {
+    fullName: string;
+    phone: string;
+    address: string;
+    ward: string;
+    district: string;
+    province: string;
+  };
+  paymentMethod: string;
+  voucherCode?: string;
+  notes?: string;
+}
+
+class OrderController {
+  // Create a new order
+  async createOrder(req: Request, res: Response): Promise<void> {
+    try {
+      interface AuthUser {
+        _id: string;
+        email?: string;
+        // add other user properties if needed
+      }
+      const user = req.user as AuthUser | undefined;
+      const userId = user?._id;
+      const { items, shippingAddress, paymentMethod, voucherCode, notes }: CreateOrderRequest = req.body;
+
+      // Tạm thời bỏ authentication check cho createOrder
+      // if (!userId) {
+      //   res.status(401).json({
+      //     success: false,
+      //     message: 'User not authenticated'
+      //   });
+      //   return;
+      // }
+
+      // Sử dụng userId mặc định nếu không có user đăng nhập
+      const defaultUserId = userId || new Types.ObjectId('000000000000000000000000');
+
+      // Validate products and calculate amounts
+      let subtotal = 0;
+      const validatedItems = [];
+
+      for (const item of items) {
+        const product = await Product.findById(item.productId);
+        if (!product) {
+          res.status(400).json({
+            success: false,
+            message: `Product ${item.productId} not found`
+          });
+          return;
+        }
+
+        if (product.stock < item.quantity) {
+          res.status(400).json({
+            success: false,
+            message: `Insufficient stock for product ${product.name}`
+          });
+          return;
+        }
+
+        const itemTotal = product.price * item.quantity;
+        subtotal += itemTotal;
+
+        validatedItems.push({
+          productId: new Types.ObjectId(item.productId),
+          quantity: item.quantity,
+          price: product.price,
+          name: product.name,
+          image: product.images?.[0]
+        });
+      }
+
+      // Apply voucher if provided
+      let discount = 0;
+      let voucherId = null;
+
+      if (voucherCode) {
+        const voucher = await Voucher.findOne({ 
+          code: voucherCode, 
+          isActive: true,
+          expired: { $gte: new Date().toISOString().split('T')[0] } // Check if not expired (yyyy-mm-dd format)
+        });
+
+        if (!voucher) {
+          res.status(400).json({
+            success: false,
+            message: 'Invalid or expired voucher'
+          });
+          return;
+        }
+
+        if (subtotal < voucher.minOrder) {
+          res.status(400).json({
+            success: false,
+            message: `Minimum order value for this voucher is ${voucher.minOrder}`
+          });
+          return;
+        }
+
+        // Calculate discount
+        if (voucher.discountType === 'percent') {
+          discount = Math.min((subtotal * voucher.discountValue) / 100, voucher.discountValue || Infinity);
+        } else {
+          discount = Math.min(voucher.discountValue, subtotal);
+        }
+
+        voucherId = voucher._id;
+      }
+
+      // Calculate shipping (simple flat rate for demo)
+      const shippingFee = subtotal >= 500000 ? 0 : 30000; // Free shipping for orders >= 500k VND
+
+      const totalAmount = subtotal - discount + shippingFee;
+
+      // Generate order number
+      const orderNumber = await this.generateOrderNumber();
+
+      // Create order
+      const order = new Order({
+        orderNumber,
+        userId: new Types.ObjectId(defaultUserId), // Sử dụng defaultUserId
+        customerName: shippingAddress.fullName,
+        customerEmail: user?.email || 'guest@greenmart.com', // Email mặc định cho guest
+        customerPhone: shippingAddress.phone,
+        customerAddress: `${shippingAddress.address}, ${shippingAddress.ward}, ${shippingAddress.district}, ${shippingAddress.province}`,
+        items: validatedItems.map(item => ({
+          productId: item.productId,
+          productName: item.name, // Map name to productName
+          quantity: item.quantity,
+          price: item.price,
+          image: item.image
+        })),
+        subtotal,
+        deliveryFee: shippingFee,
+        serviceFee: 0, // Add if needed
+        voucherDiscount: discount,
+        voucherCode: voucherCode || undefined,
+        totalAmount,
+        paymentMethod,
+        paymentStatus: 'unpaid',
+        status: 'pending',
+        orderDate: new Date(),
+        notes: notes || undefined
+      });
+
+      await order.save();
+
+      // Update product stock
+      for (const item of validatedItems) {
+        await Product.findByIdAndUpdate(
+          item.productId,
+          { $inc: { stock: -item.quantity } }
+        );
+      }
+
+      res.status(201).json({
+        success: true,
+        message: 'Order created successfully',
+        data: {
+          orderId: order._id,
+          orderNumber: order.orderNumber,
+          totalAmount: order.totalAmount,
+          paymentMethod: order.paymentMethod
+        }
+      });
+
+    } catch (error) {
+      console.error('Create order error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error'
+      });
+    }
+  }
+
+  // Public order tracking (no authentication required)
+  async trackOrder(req: Request, res: Response): Promise<void> {
+    try {
+      const { orderId } = req.params;
+      
+      console.log('Tracking order (public):', orderId);
+
+      if (!orderId) {
+        res.status(400).json({
+          success: false,
+          message: 'Order ID is required'
+        });
+        return;
+      }
+
+      const order = await Order.findById(orderId)
+        .select('-__v -updatedAt')
+        .lean();
+
+      if (!order) {
+        console.log('Order not found:', orderId);
+        res.status(404).json({
+          success: false,
+          message: 'Order not found'
+        });
+        return;
+      }
+
+      console.log('Order found for tracking, sending response');
+      res.json({
+        success: true,
+        data: order
+      });
+
+    } catch (error) {
+      console.error('Track order error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+
+  // Get order details (authenticated)
+  async getOrder(req: Request, res: Response): Promise<void> {
+    try {
+      const { orderId } = req.params;
+      const userId = req.user?._id;
+
+      console.log('Getting order:', orderId, 'for user:', userId);
+
+      // First, find the order without populate to avoid errors
+      const order = await Order.findById(orderId);
+
+      if (!order) {
+        console.log('Order not found:', orderId);
+        res.status(404).json({
+          success: false,
+          message: 'Order not found'
+        });
+        return;
+      }
+
+      // Check if order belongs to user
+      if (order.userId.toString() !== userId) {
+        console.log('Unauthorized access - Order userId:', order.userId, 'Request userId:', userId);
+        res.status(403).json({
+          success: false,
+          message: 'Unauthorized access to order'
+        });
+        return;
+      }
+
+      console.log('Order found and authorized, sending response');
+      res.json({
+        success: true,
+        data: order
+      });
+
+    } catch (error) {
+      console.error('Get order error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+
+  // Get user's order history
+  async getOrderHistory(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = req.user?._id;
+      const { page = 1, limit = 20, status, paymentStatus } = req.query;
+
+      console.log('Getting order history for user:', userId);
+
+      if (!userId) {
+        res.status(401).json({
+          success: false,
+          message: 'User not authenticated'
+        });
+        return;
+      }
+
+      const query: any = { userId };
+      if (status) query.status = status;
+      if (paymentStatus) query.paymentStatus = paymentStatus;
+
+      console.log('Order query:', query);
+
+      // First, get orders without populate to avoid errors
+      const orders = await Order.find(query)
+        .sort({ createdAt: -1 })
+        .limit(Number(limit))
+        .skip((Number(page) - 1) * Number(limit));
+
+      console.log('Found orders count:', orders.length);
+
+      const total = await Order.countDocuments(query);
+
+      res.json({
+        success: true,
+        data: {
+          orders,
+          pagination: {
+            page: Number(page),
+            limit: Number(limit),
+            total,
+            pages: Math.ceil(total / Number(limit))
+          }
+        }
+      });
+
+    } catch (error) {
+      console.error('Get order history error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+
+  // Update order status
+  async updateOrderStatus(req: Request, res: Response): Promise<void> {
+    try {
+      const { orderId } = req.params;
+      const { status } = req.body;
+      const userId = req.user?._id;
+
+      const order = await Order.findById(orderId);
+      if (!order) {
+        res.status(404).json({
+          success: false,
+          message: 'Order not found'
+        });
+        return;
+      }
+
+      // For admin, skip ownership check - admin can update any order
+      // For regular users, check if they own the order
+      const isOwner = order.userId.toString() === userId;
+      // Note: You might want to add proper admin role checking here
+      // For now, we'll allow any authenticated user to update orders (admin behavior)
+      
+      // Validate status transition
+      const validTransitions: Record<string, string[]> = {
+        'pending': ['confirmed', 'cancelled'],
+        'confirmed': ['preparing', 'cancelled'],
+        'preparing': ['shipping', 'cancelled'],
+        'shipping': ['delivered', 'cancelled'],
+        'delivered': ['completed'],
+        'cancelled': [],
+        'completed': [],
+        'returned': []
+      };
+
+      if (!validTransitions[order.status].includes(status)) {
+        res.status(400).json({
+          success: false,
+          message: `Cannot change status from ${order.status} to ${status}`
+        });
+        return;
+      }
+
+      order.status = status;
+      
+      // Set delivery date if delivered
+      if (status === 'delivered') {
+        order.deliveryDate = new Date();
+      }
+
+      await order.save();
+
+      res.json({
+        success: true,
+        message: 'Order status updated successfully',
+        data: { orderId: order._id, status: order.status }
+      });
+
+    } catch (error) {
+      console.error('Update order status error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error'
+      });
+    }
+  }
+
+  // Cancel order
+  async cancelOrder(req: Request, res: Response): Promise<void> {
+    try {
+      const { orderId } = req.params;
+      const { reason } = req.body;
+      const userId = req.user?._id;
+
+      const order = await Order.findById(orderId);
+      if (!order) {
+        res.status(404).json({
+          success: false,
+          message: 'Order not found'
+        });
+        return;
+      }
+
+      // Check permission
+      if (order.userId.toString() !== userId) {
+        res.status(403).json({
+          success: false,
+          message: 'Unauthorized access to order'
+        });
+        return;
+      }
+
+      // Check if order can be cancelled
+      if (!['pending', 'confirmed', 'preparing'].includes(order.status)) {
+        res.status(400).json({
+          success: false,
+          message: 'Order cannot be cancelled at this stage'
+        });
+        return;
+      }
+
+      // Update order status
+      order.status = 'cancelled';
+      order.notes = (order.notes || '') + `\nCancelled: ${reason || 'No reason provided'}`;
+      await order.save();
+
+      // Restore product stock
+      for (const item of order.items) {
+        await Product.findByIdAndUpdate(
+          item.productId,
+          { $inc: { stock: item.quantity } }
+        );
+      }
+
+      // Handle payment refund if paid
+      if (order.paymentStatus === 'paid' && order.paymentId) {
+        const payment = await Payment.findById(order.paymentId);
+        if (payment && payment.status === 'completed') {
+          // This would trigger a refund process
+          // For now, just update the payment status
+          payment.status = 'refunded';
+          await payment.save();
+          
+          order.paymentStatus = 'refunded';
+          await order.save();
+        }
+      }
+
+      res.json({
+        success: true,
+        message: 'Order cancelled successfully',
+        data: { orderId: order._id, status: order.status }
+      });
+
+    } catch (error) {
+      console.error('Cancel order error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error'
+      });
+    }
+  }
+
+  // Admin: Get all orders
+  async getAllOrders(req: Request, res: Response): Promise<void> {
+    try {
+      const { page = 1, limit = 20, status, paymentStatus, startDate, endDate } = req.query;
+
+      const query: any = {};
+      if (status) query.status = status;
+      if (paymentStatus) query.paymentStatus = paymentStatus;
+      if (startDate || endDate) {
+        query.createdAt = {};
+        if (startDate) query.createdAt.$gte = new Date(startDate as string);
+        if (endDate) query.createdAt.$lte = new Date(endDate as string);
+      }
+
+      const orders = await Order.find(query)
+        .populate('userId', 'name email phone')
+        .populate('items.productId', 'name images price')
+        .sort({ createdAt: -1 })
+        .limit(Number(limit))
+        .skip((Number(page) - 1) * Number(limit));
+
+      const total = await Order.countDocuments(query);
+
+      res.json({
+        success: true,
+        orders,
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total,
+          pages: Math.ceil(total / Number(limit))
+        }
+      });
+
+    } catch (error) {
+      console.error('Get all orders error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error'
+      });
+    }
+  }
+
+  // Generate unique order number
+  private async generateOrderNumber(): Promise<string> {
+    const prefix = 'GM';
+    const timestamp = Date.now().toString().slice(-8);
+    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    
+    let orderNumber = `${prefix}${timestamp}${random}`;
+    
+    // Ensure uniqueness
+    let exists = await Order.findOne({ orderNumber });
+    while (exists) {
+      const newRandom = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+      orderNumber = `${prefix}${timestamp}${newRandom}`;
+      exists = await Order.findOne({ orderNumber });
+    }
+    
+    return orderNumber;
+  }
+
+  // Get order statistics (for admin dashboard)
+  async getOrderStats(req: Request, res: Response): Promise<void> {
+    try {
+      const { period = '30d' } = req.query;
+      
+      let startDate = new Date();
+      if (period === '7d') {
+        startDate.setDate(startDate.getDate() - 7);
+      } else if (period === '30d') {
+        startDate.setDate(startDate.getDate() - 30);
+      } else if (period === '90d') {
+        startDate.setDate(startDate.getDate() - 90);
+      }
+
+      const [
+        totalOrders,
+        completedOrders,
+        pendingOrders,
+        cancelledOrders,
+        totalRevenue,
+        ordersInPeriod
+      ] = await Promise.all([
+        Order.countDocuments(),
+        Order.countDocuments({ status: 'completed' }),
+        Order.countDocuments({ status: { $in: ['pending', 'confirmed', 'processing', 'shipping'] } }),
+        Order.countDocuments({ status: 'cancelled' }),
+        Order.aggregate([
+          { $match: { status: 'completed' } },
+          { $group: { _id: null, total: { $sum: '$totalAmount' } } }
+        ]),
+        Order.countDocuments({ createdAt: { $gte: startDate } })
+      ]);
+
+      res.json({
+        success: true,
+        data: {
+          totalOrders,
+          completedOrders,
+          pendingOrders,
+          cancelledOrders,
+          totalRevenue: totalRevenue[0]?.total || 0,
+          ordersInPeriod,
+          period
+        }
+      });
+
+    } catch (error) {
+      console.error('Get order stats error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error'
+      });
+    }
+  }
+}
+
+export default new OrderController();

@@ -1,18 +1,31 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import Voucher from '../models/Voucher';
 
 export const getAllVouchers = async (req: Request, res: Response) => {
   try {
     const now = new Date();
-    // Lấy tất cả voucher chưa hết hạn hoặc chưa có expired
-    const vouchers = await Voucher.find();
-    const validVouchers = vouchers.filter(v => {
-      if (!v.expired) return true;
-      // v.expired là string yyyy-mm-dd
-      const exp = new Date(v.expired);
-      return exp >= now;
+    
+    // Kiểm tra kết nối MongoDB trước khi thực hiện query
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ message: 'Database not connected' });
+    }
+    
+    // Tự động xóa voucher hết hạn khỏi database
+    const expiredResult = await Voucher.deleteMany({
+      expired: { $exists: true, $ne: null },
+      $expr: {
+        $lt: [
+          { $dateFromString: { dateString: "$expired" } },
+          now
+        ]
+      }
     });
-    res.json(validVouchers);
+    
+    // Lấy tất cả voucher còn lại (đã tự động loại bỏ hết hạn)
+    const vouchers = await Voucher.find();
+    
+    res.json(vouchers);
   } catch (error) {
     res.status(500).json({ message: 'Lỗi khi lấy danh sách voucher', error });
   }

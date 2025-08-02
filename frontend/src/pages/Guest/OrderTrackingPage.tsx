@@ -3,6 +3,8 @@ import OrderSummary from "../../components/Guest/myOrder/OrderSummary";
 import OrderItems from "../../components/Guest/myOrder/OrderItems";
 import { Link, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import orderService from '../../services/orderService';
+import { tokenManager } from '../../services/api';
 
 interface OrderItem {
   name: string;
@@ -25,21 +27,169 @@ interface Order {
 
 export default function OrderTrackingPage() {
   const { orderId } = useParams();
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [order, setOrder] = useState<Order | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem('orders');
-    setOrders(stored ? JSON.parse(stored) : []);
-  }, []);
+    const fetchOrder = async () => {
+      if (!orderId) {
+        setError('Không tìm thấy mã đơn hàng');
+        setLoading(false);
+        return;
+      }
 
-  const currentOrder = orderId
-    ? orders.find(order => order.id === orderId) || orders[0]
-    : orders[0];
+      try {
+        setLoading(true);
+        
+        // Check if user is logged in
+        if (!tokenManager.exists()) {
+          console.log('No auth token, checking localStorage for order');
+          // Try localStorage first for non-authenticated users
+          const stored = localStorage.getItem('orders');
+          if (stored) {
+            const orders = JSON.parse(stored);
+            const foundOrder = orders.find((o: Order) => o.id === orderId);
+            if (foundOrder) {
+              setOrder(foundOrder);
+              setLoading(false);
+              return;
+            }
+          }
+          setError('Đơn hàng không tồn tại hoặc bạn cần đăng nhập để xem chi tiết');
+          setLoading(false);
+          return;
+        }
 
-  if (!currentOrder) return <div className="p-4">Không tìm thấy đơn hàng.</div>;
+        const orderData = await orderService.getOrder(orderId);
+        
+        // Convert to legacy format using any type to handle backend data structure
+        const convertedOrder: Order = {
+          id: orderData._id,
+          status: getStatusText(orderData.status),
+          date: new Date(orderData.createdAt).toLocaleDateString('vi-VN'),
+          items: orderData.items.map((item: any) => ({
+            name: item.productName || item.name || 'Sản phẩm',
+            price: item.price,
+            oldPrice: item.price,
+            quantity: item.quantity,
+            image: item.image || '',
+            variant: ''
+          })),
+          deliveryFee: (orderData as any).deliveryFee || 0,
+          payWith: getPaymentMethodText(orderData.paymentMethod),
+          deliveryAddress: (orderData as any).customerAddress || 'Chưa có địa chỉ'
+        };
+        
+        setOrder(convertedOrder);
+      } catch (err: any) {
+        console.error('Failed to fetch order:', err);
+        
+        // Handle authentication errors specially
+        if (err.message && err.message.includes('Unauthorized')) {
+          setError('Bạn cần đăng nhập để xem chi tiết đơn hàng');
+          
+          // Try localStorage as fallback
+          const stored = localStorage.getItem('orders');
+          if (stored) {
+            const orders = JSON.parse(stored);
+            const foundOrder = orders.find((o: Order) => o.id === orderId);
+            if (foundOrder) {
+              setOrder(foundOrder);
+              setError(null);
+              setLoading(false);
+              return;
+            }
+          }
+        } else {
+          setError('Không thể tải thông tin đơn hàng');
+          
+          // Fallback to localStorage
+          const stored = localStorage.getItem('orders');
+          if (stored) {
+            const orders = JSON.parse(stored);
+            const foundOrder = orders.find((o: Order) => o.id === orderId);
+            if (foundOrder) {
+              setOrder(foundOrder);
+              setError(null);
+            }
+          }
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const { id, status, date, items, deliveryFee, payWith, deliveryAddress } = currentOrder;
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0) + deliveryFee;
+    fetchOrder();
+  }, [orderId]);
+
+  const getStatusText = (status: string) => {
+    const statusMap: { [key: string]: string } = {
+      pending: 'Chờ xác nhận',
+      confirmed: 'Chờ giao hàng', 
+      preparing: 'Chờ giao hàng',
+      shipping: 'Chờ giao hàng',
+      delivered: 'Hoàn thành',
+      cancelled: 'Đã hủy',
+      returned: 'Đã hủy'
+    };
+    return statusMap[status] || status;
+  };
+
+  const getPaymentMethodText = (method: string) => {
+    const methodMap: { [key: string]: string } = {
+      cod: 'Tiền mặt',
+      bank_transfer: 'Chuyển khoản',
+      momo: 'MoMo',
+      zalopay: 'ZaloPay',
+      vnpay: 'VNPay',
+      credit_card: 'Thẻ tín dụng',
+      shopeepay: 'ShopeePay'
+    };
+    return methodMap[method] || method;
+  };
+
+  if (loading) {
+    return (
+      <div className="p-4 max-w-5xl mx-auto">
+        <div className="text-center py-16">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Đang tải thông tin đơn hàng...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !order) {
+    return (
+      <div className="p-4 max-w-5xl mx-auto">
+        <div className="text-center py-16">
+          <div className="text-red-500 text-6xl mb-4">❌</div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">Không tìm thấy đơn hàng</h3>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link 
+              to="/myorder" 
+              className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition-colors"
+            >
+              Quay lại danh sách đơn hàng
+            </Link>
+            {error && error.includes('đăng nhập') && (
+              <Link 
+                to="/login" 
+                className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition-colors"
+              >
+                Đăng nhập
+              </Link>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const { id, status, date, items, deliveryFee, payWith, deliveryAddress } = order;
+  const total = items.reduce((sum: number, item: OrderItem) => sum + item.price * item.quantity, 0) + deliveryFee;
 
   return (
     <div className="p-4 max-w-5xl mx-auto">

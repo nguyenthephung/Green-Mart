@@ -28,7 +28,7 @@ const MyVoucherPage: React.FC = () => {
   }, [rawVouchers, user]);
   const loading = useVoucherStore(state => state.loading);
   const error = useVoucherStore(state => state.error);
-  const fetchAllVouchers = useVoucherStore(state => state.fetchAllVouchers);
+  const fetchVouchers = useVoucherStore(state => state.fetchVouchers);
 
   // Use user store for current selected voucher
   const voucher: Voucher | null = useUserStore(state => state.voucher);
@@ -37,8 +37,8 @@ const MyVoucherPage: React.FC = () => {
 
   useEffect(() => {
     if (!user || !user.id) return;
-    fetchAllVouchers();
-  }, [fetchAllVouchers, user]);
+    fetchVouchers();
+  }, [fetchVouchers, user]);
 
   const getVoucherIcon = (discountType: string) => {
     if (discountType === 'percent') {

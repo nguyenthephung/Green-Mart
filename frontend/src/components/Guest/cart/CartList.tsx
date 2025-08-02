@@ -27,7 +27,7 @@ export default function CartList({ items, onQuantityChange, onRemove }: CartList
           <span className="text-sm font-normal text-gray-500">({items.length} sản phẩm)</span>
         </h2>
         {items.length > 0 && (
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-gray-500 break-all">
             Tổng: {items.reduce((sum, item) => sum + (item.type === 'weight' ? (item.price * (item.weight || 0)) : (item.price * item.quantity)), 0).toLocaleString()} ₫
           </div>
         )}

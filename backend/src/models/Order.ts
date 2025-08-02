@@ -10,19 +10,26 @@ export interface IOrderItem {
 
 export interface IOrder extends Document {
   userId: mongoose.Types.ObjectId;
+  orderNumber: string;
   customerName: string;
   customerEmail: string;
   customerPhone: string;
   customerAddress: string;
   items: IOrderItem[];
+  subtotal: number;
+  deliveryFee: number;
+  serviceFee: number;
+  voucherDiscount: number;
+  voucherCode?: string;
   totalAmount: number;
-  status: 'pending' | 'confirmed' | 'shipping' | 'delivered' | 'cancelled';
-  paymentMethod: 'cod' | 'banking' | 'wallet';
-  paymentStatus: 'pending' | 'paid' | 'failed';
+  status: 'pending' | 'confirmed' | 'preparing' | 'shipping' | 'delivered' | 'cancelled' | 'returned';
+  paymentMethod: 'cod' | 'bank_transfer' | 'momo' | 'zalopay' | 'vnpay' | 'credit_card' | 'shopeepay';
+  paymentStatus: 'unpaid' | 'paid' | 'completed' | 'failed' | 'pending' | 'refunded' | 'partially_refunded';
   orderDate: Date;
   deliveryDate?: Date;
   notes?: string;
   trackingCode?: string;
+  paymentId?: string;
 }
 
 const OrderItemSchema: Schema = new Schema({
@@ -57,6 +64,12 @@ const OrderSchema: Schema = new Schema({
     ref: 'User',
     required: true
   },
+  orderNumber: {
+    type: String,
+    required: true,
+    unique: true,
+    index: true
+  },
   customerName: {
     type: String,
     required: true,
@@ -78,6 +91,32 @@ const OrderSchema: Schema = new Schema({
     trim: true
   },
   items: [OrderItemSchema],
+  subtotal: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  deliveryFee: {
+    type: Number,
+    required: true,
+    min: 0,
+    default: 0
+  },
+  serviceFee: {
+    type: Number,
+    required: true,
+    min: 0,
+    default: 0
+  },
+  voucherDiscount: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  voucherCode: {
+    type: String,
+    default: null
+  },
   totalAmount: {
     type: Number,
     required: true,
@@ -85,18 +124,18 @@ const OrderSchema: Schema = new Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'confirmed', 'shipping', 'delivered', 'cancelled'],
+    enum: ['pending', 'confirmed', 'preparing', 'shipping', 'delivered', 'cancelled', 'returned'],
     default: 'pending'
   },
   paymentMethod: {
     type: String,
-    enum: ['cod', 'banking', 'wallet'],
+    enum: ['cod', 'bank_transfer', 'momo', 'zalopay', 'vnpay', 'credit_card', 'shopeepay'],
     required: true
   },
   paymentStatus: {
     type: String,
-    enum: ['pending', 'paid', 'failed'],
-    default: 'pending'
+    enum: ['unpaid', 'paid', 'refunded', 'partially_refunded'],
+    default: 'unpaid'
   },
   orderDate: {
     type: Date,
@@ -112,6 +151,10 @@ const OrderSchema: Schema = new Schema({
   trackingCode: {
     type: String,
     trim: true
+  },
+  paymentId: {
+    type: String,
+    default: null
   }
 }, {
   timestamps: true
@@ -122,5 +165,28 @@ OrderSchema.index({ userId: 1 });
 OrderSchema.index({ status: 1 });
 OrderSchema.index({ orderDate: -1 });
 OrderSchema.index({ trackingCode: 1 });
+OrderSchema.index({ orderNumber: 1 }, { unique: true });
+OrderSchema.index({ paymentStatus: 1 });
+
+// Pre-save middleware to generate order number
+OrderSchema.pre('save', async function(next) {
+  if (this.isNew && !this.orderNumber) {
+    const timestamp = Date.now().toString();
+    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    this.orderNumber = `ORD${timestamp}${random}`;
+  }
+  next();
+});
+
+// Instance methods
+OrderSchema.methods.canCancel = function() {
+  return ['pending', 'confirmed'].includes(this.status);
+};
+
+OrderSchema.methods.canReturn = function() {
+  return this.status === 'delivered' && 
+         this.deliveryDate && 
+         (Date.now() - this.deliveryDate.getTime()) <= 7 * 24 * 60 * 60 * 1000; // 7 days
+};
 
 export default mongoose.model<IOrder>('Order', OrderSchema);

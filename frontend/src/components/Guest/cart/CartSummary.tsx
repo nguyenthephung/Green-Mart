@@ -70,35 +70,35 @@ export default function CartSummary({ itemsTotal, deliveryFee, voucherDiscount =
       <div className="space-y-3">
         <div className="flex justify-between items-center py-2">
           <span className="text-app-secondary">Tạm tính</span>
-          <span className="font-medium text-app-primary">{itemsTotal.toLocaleString()} ₫</span>
+          <span className="font-medium text-app-primary break-all">{itemsTotal.toLocaleString()} ₫</span>
         </div>
         
         <div className="flex justify-between items-center py-2">
           <span className="text-app-secondary flex items-center gap-2">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             Phí giao hàng
           </span>
-          <span className="font-medium text-app-primary">{dynamicFee.toLocaleString()} ₫</span>
+          <span className="font-medium text-app-primary break-all">{dynamicFee.toLocaleString()} ₫</span>
         </div>
 
         {voucher && voucherDiscount > 0 ? (
-          <div className="flex justify-between items-center py-3 px-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-            <span className="flex items-center gap-2 text-green-700 dark:text-green-300">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <div className="flex justify-between items-start gap-2 py-3 px-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+            <span className="flex items-center gap-2 text-green-700 dark:text-green-300 min-w-0 flex-1">
+              <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
               </svg>
-              <span className="font-medium">Voucher ({voucher.code})</span>
+              <span className="font-medium truncate">Voucher ({voucher.code})</span>
               <button 
-                className="ml-2 text-xs bg-red-100 hover:bg-red-200 text-red-600 hover:text-red-700 px-2 py-1 rounded-full transition-all duration-200" 
+                className="ml-2 text-xs bg-red-100 hover:bg-red-200 text-red-600 hover:text-red-700 px-2 py-1 rounded-full transition-all duration-200 flex-shrink-0" 
                 onClick={onRemoveVoucher}
                 title="Xóa voucher"
               >
                 ✕
               </button>
             </span>
-            <span className="font-semibold text-green-700 dark:text-green-300">-{voucherDiscount.toLocaleString()} ₫</span>
+            <span className="font-semibold text-green-700 dark:text-green-300 break-all">-{voucherDiscount.toLocaleString()} ₫</span>
           </div>
         ) : (
           <div className="flex justify-between items-center py-3 px-4 bg-app-secondary/50 hover:bg-app-secondary/70 rounded-lg border border-app-border border-dashed transition-all duration-200 cursor-pointer group" onClick={onShowVoucherModal}>
@@ -117,9 +117,9 @@ export default function CartSummary({ itemsTotal, deliveryFee, voucherDiscount =
       </div>
 
       <div className="border-t border-app-border mt-4 pt-4">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center gap-2">
           <span className="text-lg font-semibold text-app-primary">Tổng cộng</span>
-          <span className="text-xl font-bold text-green-600">{finalTotal.toLocaleString()} ₫</span>
+          <span className="text-xl font-bold text-green-600 break-all">{finalTotal.toLocaleString()} ₫</span>
         </div>
       </div>
 

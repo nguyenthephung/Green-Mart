@@ -18,3 +18,7 @@ export async function removeCartItem(productId: string, unit?: string, type?: 'c
     body: JSON.stringify({ productId, unit, type })
   });
 }
+
+export async function clearCart() {
+  return apiClient('/cart/clear', { method: 'DELETE' });
+}

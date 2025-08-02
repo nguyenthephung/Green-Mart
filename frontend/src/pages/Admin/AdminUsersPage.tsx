@@ -3,7 +3,7 @@ import React, { useState, useMemo } from 'react';
 
 import { adminUsers } from '../../data/Admin/users';
 import type { User } from '../../data/Admin/users';
-import Pagination from '../../components/Admin/Pagination';
+import Pagination from '../../components/Admin/Product/Pagination';
 
 type SortField = 'name' | 'email' | 'joinDate' | 'lastLogin' | 'totalOrders' | 'totalSpent';
 type SortOrder = 'asc' | 'desc';

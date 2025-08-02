@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { adminBanners } from '../../data/Admin/banners';
 import type { Banner } from '../../data/Admin/banners';
-import Pagination from '../../components/Admin/Pagination';
+import Pagination from '../../components/Admin/Product/Pagination';
 
 
 

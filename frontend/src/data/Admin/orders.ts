@@ -8,19 +8,29 @@ export interface OrderItem {
 
 export interface Order {
   id: number;
+  orderNumber?: string;
   customerName: string;
   customerEmail: string;
   customerPhone: string;
   customerAddress: string;
   items: OrderItem[];
+  subtotal?: number;
+  shippingFee?: number;
+  discount?: number;
   totalAmount: number;
   status: 'pending' | 'confirmed' | 'shipping' | 'delivered' | 'cancelled';
   paymentMethod: 'cod' | 'banking' | 'wallet';
   paymentStatus: 'pending' | 'paid' | 'failed';
   orderDate: string;
   deliveryDate?: string;
+  lastUpdated?: string;
   notes?: string;
   trackingCode?: string;
+  shippingInfo?: {
+    address: string;
+    estimatedDelivery: string;
+    courier: string;
+  };
 }
 
 export const adminOrders: Order[] = [

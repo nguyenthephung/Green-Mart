@@ -228,8 +228,8 @@ export default function CartPage() {
             <h1 className="text-4xl font-bold text-app-primary mb-2">
               🛒 Giỏ hàng của bạn
             </h1>
-            <p className="text-lg text-app-secondary">
-              {cart.length} sản phẩm đã chọn • Tổng: {subtotal.toLocaleString()} ₫
+            <p className="text-lg text-app-secondary break-words">
+              {cart.length} sản phẩm đã chọn • Tổng: <span className="font-semibold">{subtotal.toLocaleString()}</span> ₫
             </p>
           </div>
         </div>
@@ -270,28 +270,28 @@ export default function CartPage() {
             </h3>
             <div className="flex items-center gap-3">
               {voucher ? (
-                <div className="flex-1 p-3 bg-green-50 border border-green-200 rounded-xl">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <span className="font-semibold text-green-700">{voucher.code}</span>
-                      <p className="text-sm text-green-600">{voucher.description}</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <button 
-                        className="text-blue-600 text-sm hover:text-blue-700 font-medium transition" 
-                        onClick={() => setShowVoucherModal(true)}
-                      >
-                        Đổi
-                      </button>
-                      <button 
-                        className="text-red-500 text-sm hover:text-red-600 font-medium transition" 
-                        onClick={() => setVoucher(null)}
-                      >
-                        Bỏ
-                      </button>
+                  <div className="flex-1 p-3 bg-green-50 border border-green-200 rounded-xl">
+                    <div className="flex justify-between items-start gap-2">
+                      <div className="min-w-0 flex-1">
+                        <span className="font-semibold text-green-700 block truncate">{voucher.code}</span>
+                        <p className="text-sm text-green-600 break-words">{voucher.description}</p>
+                      </div>
+                      <div className="flex gap-2 flex-shrink-0">
+                        <button 
+                          className="text-blue-600 text-sm hover:text-blue-700 font-medium transition whitespace-nowrap" 
+                          onClick={() => setShowVoucherModal(true)}
+                        >
+                          Đổi
+                        </button>
+                        <button 
+                          className="text-red-500 text-sm hover:text-red-600 font-medium transition whitespace-nowrap" 
+                          onClick={() => setVoucher(null)}
+                        >
+                          Bỏ
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
               ) : (
                 <button 
                   className="flex-1 p-4 border-2 border-dashed border-green-300 rounded-xl text-green-600 hover:border-green-400 hover:bg-green-50 transition duration-200 flex items-center justify-center gap-2" 
@@ -347,11 +347,11 @@ export default function CartPage() {
             disabled={cart.length === 0}
             onClick={() => navigate('/checkout')}
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <svg className="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5H4M7 13l-2.293 2.293c-.39.39-.39 1.02 0 1.41L6.4 18H20M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z" />
             </svg>
-            Tiến hành thanh toán
-            <span className="bg-emerald-500/30 px-3 py-1 rounded-full text-sm text-white">
+            <span className="min-w-0 flex-1 text-center">Tiến hành thanh toán</span>
+            <span className="bg-emerald-500/30 px-3 py-1 rounded-full text-sm text-white flex-shrink-0 break-all">
               {(subtotal + dynamicDeliveryFee - voucherDiscount).toLocaleString()} ₫
             </span>
           </button>
