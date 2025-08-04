@@ -7,7 +7,15 @@ export interface INotificationSettings extends Document {
     promotion: boolean;
     system: boolean;
     review: boolean;
+    shipping: boolean;
+    admin: boolean;
+    voucher: boolean;
+    payment: boolean;
+    account: boolean;
   };
+  pushNotifications: boolean;
+  emailNotifications: boolean;
+  smsNotifications: boolean;
 }
 
 const NotificationSettingsSchema: Schema = new Schema({
@@ -33,7 +41,39 @@ const NotificationSettingsSchema: Schema = new Schema({
     review: {
       type: Boolean,
       default: true
+    },
+    shipping: {
+      type: Boolean,
+      default: true
+    },
+    admin: {
+      type: Boolean,
+      default: true
+    },
+    voucher: {
+      type: Boolean,
+      default: true
+    },
+    payment: {
+      type: Boolean,
+      default: true
+    },
+    account: {
+      type: Boolean,
+      default: true
     }
+  },
+  pushNotifications: {
+    type: Boolean,
+    default: true
+  },
+  emailNotifications: {
+    type: Boolean,
+    default: false
+  },
+  smsNotifications: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true

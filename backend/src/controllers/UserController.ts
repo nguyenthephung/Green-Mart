@@ -14,11 +14,30 @@ const addVoucherToUser = async (req: Request, res: Response, next: NextFunction)
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    if (!user.vouchers) user.vouchers = [];
-    if (!user.vouchers.map(String).includes(String(voucherId))) {
-      user.vouchers.push(voucherId);
-      await user.save();
+    
+    // Initialize vouchers as empty object if not exists
+    if (!user.vouchers) {
+      user.vouchers = {};
     }
+    
+    // Get current quantity for this voucher (default to 0)
+    const currentQuantity = user.vouchers[voucherId] || 0;
+    
+    // Increase quantity by 1
+    user.vouchers[voucherId] = currentQuantity + 1;
+    
+    // IMPORTANT: Mark vouchers field as modified for Mongoose Mixed type
+    user.markModified('vouchers');
+    
+    console.log('addVoucherToUser:', {
+      userId,
+      voucherId,
+      oldQuantity: currentQuantity,
+      newQuantity: currentQuantity + 1,
+      allVouchers: user.vouchers
+    });
+    
+    await user.save();
     return res.json({ success: true, vouchers: user.vouchers });
   } catch (err) {
     next(err);
@@ -30,21 +49,33 @@ const addVoucherToUser = async (req: Request, res: Response, next: NextFunction)
 const getUserVouchers = async (req: Request, res: Response) => {
   try {
     const userId = req.params.id;
-    const user = await User.findById(userId).populate('vouchers');
+    console.log('getUserVouchers - userId:', userId);
+    
+    const user = await User.findById(userId);
+    
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    // Lọc các voucher còn tồn tại
-    const allVoucherIds = (await Voucher.find({}, '_id')).map(v => String(v._id));
-    const validVouchers = (user.vouchers || []).filter((v: any) => allVoucherIds.includes(String(v._id || v)));
+    console.log('getUserVouchers - user found:', !!user);
+    console.log('getUserVouchers - user.vouchers:', user.vouchers);
 
-    // Nếu có voucher không hợp lệ thì cập nhật lại user.vouchers
-    if (validVouchers.length !== (user.vouchers || []).length) {
-      user.vouchers = validVouchers.map((v: any) => v._id || v);
-      await user.save();
+    // Convert vouchers object to array format for frontend compatibility
+    const userVouchersArray = [];
+    if (user.vouchers && typeof user.vouchers === 'object') {
+      for (const [voucherId, quantity] of Object.entries(user.vouchers)) {
+        if (quantity && quantity > 0) {
+          userVouchersArray.push({
+            voucherId,
+            quantity: Number(quantity)
+          });
+        }
+      }
     }
 
-    res.json({ vouchers: validVouchers });
+    console.log('getUserVouchers - returning vouchers:', userVouchersArray);
+
+    res.json({ vouchers: userVouchersArray });
   } catch (err) {
+    console.error('getUserVouchers error:', err);
     res.status(500).json({ message: 'Server error', error: err });
   }
 };

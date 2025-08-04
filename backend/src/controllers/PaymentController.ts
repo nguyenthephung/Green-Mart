@@ -18,6 +18,13 @@ export class PaymentController {
     try {
       const { orderId, paymentMethod, amount, returnUrl } = req.body;
 
+      console.log('PaymentController createPayment received:', {
+        orderId,
+        paymentMethod,
+        amount,
+        returnUrl
+      });
+
       // Validate input
       if (!orderId || !paymentMethod || !amount) {
         return res.status(400).json({
@@ -34,6 +41,14 @@ export class PaymentController {
           message: 'Order not found'
         });
       }
+
+      console.log('PaymentController found order:', {
+        orderId: order._id,
+        totalAmount: order.totalAmount,
+        voucherDiscount: order.voucherDiscount,
+        subtotal: order.subtotal,
+        requestedAmount: amount
+      });
 
       let paymentResult;
 
@@ -85,12 +100,20 @@ export class PaymentController {
   // Xử lý thanh toán COD
   private async processCOD(order: any, amount: number) {
     try {
+      // Sử dụng totalAmount từ order thay vì amount từ request
+      const actualAmount = order.totalAmount;
+      
+      console.log('PaymentController processCOD:');
+      console.log('Request amount:', amount);
+      console.log('Order totalAmount:', actualAmount);
+      console.log('Using order totalAmount for payment record');
+      
       // Tạo payment record với trạng thái pending - chờ admin xác nhận
       const payment = new Payment({
         orderId: order._id,
         userId: order.userId,
         paymentMethod: 'cod',
-        amount: amount,
+        amount: actualAmount, // Sử dụng order.totalAmount
         status: 'pending', // Chờ admin xác nhận khi giao hàng
         transactionId: `COD_${order._id}_${Date.now()}`
       });
@@ -121,9 +144,17 @@ export class PaymentController {
   // Xử lý thanh toán MoMo
   private async processMoMo(order: any, amount: number, returnUrl: string) {
     try {
+      // Sử dụng totalAmount từ order thay vì amount từ request
+      const actualAmount = order.totalAmount;
+      
+      console.log('PaymentController processMoMo:');
+      console.log('Request amount:', amount);
+      console.log('Order totalAmount:', actualAmount);
+      console.log('Using order totalAmount for payment');
+      
       const paymentRequest = {
         orderId: order._id.toString(),
-        amount: amount,
+        amount: actualAmount, // Sử dụng order.totalAmount
         orderInfo: `Payment for order ${order._id}`,
         returnUrl: returnUrl,
         notifyUrl: `${process.env.BASE_URL}/api/payments/momo/callback`
@@ -137,7 +168,7 @@ export class PaymentController {
           orderId: order._id,
           userId: order.userId,
           paymentMethod: 'momo',
-          amount: amount,
+          amount: actualAmount, // Sử dụng order.totalAmount
           status: 'pending',
           transactionId: momoResponse.requestId,
           metadata: {
@@ -173,9 +204,17 @@ export class PaymentController {
   // Xử lý chuyển khoản ngân hàng
   private async processBankTransfer(order: any, amount: number) {
     try {
+      // Sử dụng totalAmount từ order thay vì amount từ request
+      const actualAmount = order.totalAmount;
+      
+      console.log('PaymentController processBankTransfer:');
+      console.log('Request amount:', amount);
+      console.log('Order totalAmount:', actualAmount);
+      console.log('Using order totalAmount for payment');
+      
       const bankTransferResult = await this.bankTransferService.createPayment({
         orderId: order._id.toString(),
-        amount: amount
+        amount: actualAmount // Sử dụng order.totalAmount
       });
 
       // Tạo payment record với trạng thái pending - chờ admin xác nhận
@@ -183,7 +222,7 @@ export class PaymentController {
         orderId: order._id,
         userId: order.userId,
         paymentMethod: 'bank_transfer',
-        amount: amount,
+        amount: actualAmount, // Sử dụng order.totalAmount
         status: 'pending', // Chờ admin xác nhận chuyển khoản
         transactionId: bankTransferResult.transactionId,
         metadata: {
@@ -221,10 +260,18 @@ export class PaymentController {
   // Xử lý thanh toán thẻ tín dụng (qua MoMo gateway)
   private async processCreditCard(order: any, amount: number, returnUrl: string) {
     try {
+      // Sử dụng totalAmount từ order thay vì amount từ request
+      const actualAmount = order.totalAmount;
+      
+      console.log('PaymentController processCreditCard:');
+      console.log('Request amount:', amount);
+      console.log('Order totalAmount:', actualAmount);
+      console.log('Using order totalAmount for payment');
+      
       // Sử dụng MoMo gateway cho thẻ tín dụng
       const paymentRequest = {
         orderId: order._id.toString(),
-        amount: amount,
+        amount: actualAmount, // Sử dụng order.totalAmount
         orderInfo: `Credit Card payment for order ${order._id}`,
         returnUrl: returnUrl,
         notifyUrl: `${process.env.BASE_URL}/api/payments/momo/callback`
@@ -238,7 +285,7 @@ export class PaymentController {
           orderId: order._id,
           userId: order.userId,
           paymentMethod: 'credit_card',
-          amount: amount,
+          amount: actualAmount, // Sử dụng order.totalAmount
           status: 'pending',
           transactionId: momoResponse.requestId,
           metadata: {

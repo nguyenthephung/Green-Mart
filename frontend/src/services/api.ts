@@ -33,7 +33,7 @@ export interface User {
   lastLogin?: string;
   totalOrders: number;
   totalSpent: number;
-  vouchers?: (string | number)[];
+  vouchers?: { [voucherId: string]: number }; // New simple structure
 }
 
 export interface ApiResponse<T> {

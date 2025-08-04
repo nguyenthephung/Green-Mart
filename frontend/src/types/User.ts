@@ -5,7 +5,10 @@ export interface CurrentUser {
   phone?: string;
   role?: string;
   avatar?: string;
-  vouchers?: string[]; // Array of MongoDB ObjectId (voucher ids)
+  vouchers?: Array<{
+    voucherId: string;
+    quantity: number;
+  }> | string[]; // Support both new format and legacy format
   createdAt?: string;
   updatedAt?: string;
 }

@@ -3,6 +3,7 @@ import { User, IUser } from '@/models';
 import { generateToken, hashPassword, comparePassword } from '@/utils/auth';
 import { AuthRequest } from '@/middlewares/auth';
 import mongoose from 'mongoose';
+import NotificationHelper from '../services/notificationHelper';
 
 export class AuthController {
   // Cập nhật thông tin user hiện tại
@@ -94,6 +95,14 @@ export class AuthController {
       });
 
       await user.save();
+
+      // Create welcome notifications
+      try {
+        await NotificationHelper.notifyUserRegistered((user._id as mongoose.Types.ObjectId).toString(), user);
+      } catch (notificationError) {
+        console.error('Error creating registration notifications:', notificationError);
+        // Don't fail registration if notification fails
+      }
 
       // Generate token
       const token = generateToken((user._id as mongoose.Types.ObjectId).toString());
@@ -228,6 +237,9 @@ export class AuthController {
     try {
       const user = req.user;
 
+      // Populate voucher data properly
+      await user.populate('vouchers.voucherId');
+
       const userData = {
         id: user._id,
         name: user.name,
@@ -243,7 +255,8 @@ export class AuthController {
         joinDate: user.joinDate,
         lastLogin: user.lastLogin,
         totalOrders: user.totalOrders,
-        totalSpent: user.totalSpent
+        totalSpent: user.totalSpent,
+        vouchers: user.vouchers || []
       };
 
       res.status(200).json({

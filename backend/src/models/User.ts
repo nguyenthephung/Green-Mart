@@ -16,7 +16,7 @@ export interface IUser extends Document {
   address?: string;
   dateOfBirth?: Date;
   gender?: 'male' | 'female' | 'other';
-  vouchers?: mongoose.Types.ObjectId[];
+  vouchers?: { [voucherId: string]: number }; // Simple object: voucherId -> quantity
 }
 
 const UserSchema: Schema = new Schema({
@@ -87,11 +87,10 @@ const UserSchema: Schema = new Schema({
     type: String,
     enum: ['male', 'female', 'other']
   },
-  vouchers: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Voucher',
-    default: []
-  }]
+  vouchers: {
+    type: Schema.Types.Mixed,
+    default: {}
+  },
 }, {
   timestamps: true
 });

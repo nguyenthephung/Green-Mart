@@ -13,19 +13,53 @@ const MyVoucherPage: React.FC = () => {
   const user = useUserStore(state => state.user);
   const vouchers: Voucher[] = useMemo(() => {
     // Nếu user không có vouchers, trả về []
-    if (!user || !user.vouchers || !Array.isArray(user.vouchers)) return [];
-    // Lọc rawVouchers theo user.vouchers (giả sử là mảng id)
-    const userVoucherIds = user.vouchers.map((v: any) => (typeof v === 'string' ? v : v._id));
-    return rawVouchers
-      .filter(v => userVoucherIds.includes(v._id))
-      .map(v => ({
-        ...v,
-        createdAt: (v as any).createdAt || '',
-        updatedAt: (v as any).updatedAt || '',
-        currentUsage: (v as any).currentUsage || 0,
-        isActive: (v as any).isActive ?? true,
-      }));
-  }, [rawVouchers, user]);
+    if (!user || !user.vouchers || typeof user.vouchers !== 'object') {
+      console.log('MyVoucherPage: No user vouchers found');
+      return [];
+    }
+    
+    console.log('MyVoucherPage: Processing user vouchers:', user.vouchers);
+    
+    // Với cấu trúc mới đơn giản: vouchers: {[voucherId: string]: number}
+    const uniqueVouchers: Voucher[] = [];
+    
+    // Lặp qua các voucher trong user.vouchers
+    Object.entries(user.vouchers).forEach(([voucherId, quantity]) => {
+      const quantityNum = Number(quantity);
+      if (quantityNum && quantityNum > 0) {
+        const voucher = rawVouchers.find(v => v._id === voucherId);
+        console.log('MyVoucherPage: Looking for voucher:', voucherId, 'found:', !!voucher, 'quantity:', quantityNum);
+        
+        if (voucher) {
+          // Check if voucher is not expired
+          const notExpired = new Date(voucher.expired) >= new Date();
+          console.log(`MyVoucherPage: Voucher ${voucher.code} expired check:`, {
+            expired: voucher.expired,
+            notExpired,
+            isActive: voucher.isActive
+          });
+          
+          // Only add if voucher is active and not expired
+          if (voucher.isActive && notExpired) {
+            uniqueVouchers.push({
+              ...voucher,
+              createdAt: (voucher as any).createdAt || '',
+              updatedAt: (voucher as any).updatedAt || '',
+              currentUsage: (voucher as any).currentUsage || 0,
+              isActive: (voucher as any).isActive ?? true,
+              quantity: quantityNum, // Thêm trường quantity
+            } as Voucher & { quantity: number });
+            console.log('MyVoucherPage: Added unique voucher:', voucher.code, 'quantity:', quantityNum);
+          } else {
+            console.log('MyVoucherPage: Skipped expired/inactive voucher:', voucher.code);
+          }
+        }
+      }
+    });
+    
+    console.log('MyVoucherPage: Final unique vouchers:', uniqueVouchers);
+    return uniqueVouchers;
+  }, [rawVouchers, user?.vouchers]);
   const loading = useVoucherStore(state => state.loading);
   const error = useVoucherStore(state => state.error);
   const fetchVouchers = useVoucherStore(state => state.fetchVouchers);
@@ -37,8 +71,36 @@ const MyVoucherPage: React.FC = () => {
 
   useEffect(() => {
     if (!user || !user.id) return;
+    console.log('MyVoucherPage: User data:', user);
+    console.log('MyVoucherPage: User vouchers:', user.vouchers);
+    console.log('MyVoucherPage: User vouchers type:', typeof user.vouchers);
+    console.log('MyVoucherPage: User vouchers count:', user.vouchers ? Object.keys(user.vouchers).length : 0);
+    
+    // Fetch vouchers from store
     fetchVouchers();
-  }, [fetchVouchers, user]);
+    
+    // Also refresh user data to get latest vouchers
+    const refreshUserData = async () => {
+      try {
+        const userStore = useUserStore.getState();
+        if (userStore.refreshUserData) {
+          await userStore.refreshUserData();
+        }
+      } catch (error) {
+        console.error('Failed to refresh user data:', error);
+      }
+    };
+    
+    refreshUserData();
+  }, [fetchVouchers, user?.id]); // Only depend on user.id to avoid infinite loop
+
+  // Debug logs
+  useEffect(() => {
+    console.log('MyVoucherPage: Raw vouchers from store:', rawVouchers);
+    console.log('MyVoucherPage: Processed vouchers:', vouchers);
+    console.log('MyVoucherPage: Loading state:', loading);
+    console.log('MyVoucherPage: Error state:', error);
+  }, [rawVouchers, vouchers, loading, error]);
 
   const getVoucherIcon = (discountType: string) => {
     if (discountType === 'percent') {
@@ -137,6 +199,7 @@ const MyVoucherPage: React.FC = () => {
             <div className="space-y-6">
               {vouchers.map(v => {
                 const active = voucher && voucher._id === v._id;
+                const quantity = (v as any).quantity || 1;
                 return (
                   <div key={v._id} className={`relative overflow-hidden rounded-2xl border-2 transition-all duration-300 ${active ? 'border-brand-green bg-brand-green/5 shadow-lg shadow-green-200/50' : 'border-app-border bg-app-card hover:border-brand-green/50 hover:shadow-lg'}`}>
                     <div className="flex">
@@ -159,6 +222,11 @@ const MyVoucherPage: React.FC = () => {
                               <div>
                                 <div className="font-bold text-lg text-gray-900">{v.code}</div>
                                 <div className="text-gray-600">{v.label}</div>
+                                {quantity > 1 && (
+                                  <div className="text-sm text-blue-600 font-semibold">
+                                    Số lượng: {quantity}
+                                  </div>
+                                )}
                               </div>
                             </div>
                             <div className="text-app-primary mb-2">{v.description}</div>
@@ -202,6 +270,15 @@ const MyVoucherPage: React.FC = () => {
                           <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                           </svg>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Quantity badge */}
+                    {quantity > 1 && (
+                      <div className="absolute top-4 left-4">
+                        <div className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                          x{quantity}
                         </div>
                       </div>
                     )}

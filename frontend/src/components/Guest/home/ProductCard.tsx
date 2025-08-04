@@ -86,10 +86,18 @@ const ProductCard: React.FC<ProductCardProps> = memo(({ product, onAddToCart, sh
       if (isInWishlist(product.id.toString())) {
         await removeFromWishlist(product.id.toString());
       } else {
-        // Chuyển đổi price string thành number
+        // Chuyển đổi price thành number - handle both string and number
         const priceStr = product.salePrice || product.price;
-        const priceNumber = parseFloat(priceStr.replace(/[^\d]/g, ''));
-        const originalPriceNumber = product.isSale ? parseFloat(product.price.replace(/[^\d]/g, '')) : undefined;
+        const priceNumber = typeof priceStr === 'string' 
+          ? parseFloat(priceStr.replace(/[^\d]/g, ''))
+          : parseFloat(String(priceStr));
+        
+        const originalPriceStr = product.price;
+        const originalPriceNumber = product.isSale && originalPriceStr
+          ? (typeof originalPriceStr === 'string' 
+              ? parseFloat(originalPriceStr.replace(/[^\d]/g, ''))
+              : parseFloat(String(originalPriceStr)))
+          : undefined;
         await addToWishlist({
           id: product.id,
           name: product.name,

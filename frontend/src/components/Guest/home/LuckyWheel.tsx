@@ -27,20 +27,24 @@ const LuckyWheel: React.FC<LuckyWheelProps> = ({ onClose }) => {
     setIsSpinning(true);
     setResult(null);
 
-    // Random rotation between 1440 and 2160 degrees (4-6 full rotations)
-    const randomRotation = Math.floor(Math.random() * 720) + 1440;
-    const finalRotation = rotation + randomRotation;
+    // Chọn ngẫu nhiên giải thưởng trước
+    const selectedPrizeIndex = Math.floor(Math.random() * prizes.length);
+    const selectedPrize = prizes[selectedPrizeIndex];
+    
+    // Tính góc để kim chỉ vào giữa của ô được chọn
+    const segmentAngle = 360 / prizes.length;
+    const targetAngle = selectedPrizeIndex * segmentAngle + segmentAngle / 2;
+    
+    // Số vòng quay (4-6 vòng)
+    const spins = 4 + Math.floor(Math.random() * 3);
+    // Quay ngược lại để ô mục tiêu về vị trí kim chỉ
+    const finalRotation = rotation + 360 * spins - targetAngle;
     
     setRotation(finalRotation);
-
-    // Calculate which prize was won
-    const normalizedRotation = finalRotation % 360;
-    const prizeAngle = 360 / prizes.length;
-    const prizeIndex = Math.floor((360 - normalizedRotation + prizeAngle / 2) / prizeAngle) % prizes.length;
     
     setTimeout(() => {
       setIsSpinning(false);
-      setResult(prizes[prizeIndex].text);
+      setResult(selectedPrize.text);
     }, 3000);
   };
 

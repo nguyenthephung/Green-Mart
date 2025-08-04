@@ -23,10 +23,32 @@ const Checkout = () => {
   const setPayments = useUserStore(state => state.setPayments);
   const voucher = useUserStore(state => state.voucher);
   const setVoucher = useUserStore(state => state.setVoucher);
+  const refreshUserData = useUserStore(state => state.refreshUserData);
   const vouchers = useVoucherStore(state => state.vouchers);
   const fetchVouchers = useVoucherStore(state => state.fetchVouchers);
   const [showVoucherModal, setShowVoucherModal] = useState(false);
   const [isProcessingOrder, setIsProcessingOrder] = useState(false);
+
+  // Filter valid vouchers that user owns and are not expired
+  const availableVouchers = vouchers.filter(v => {
+    // Check if voucher is active and not expired
+    const isActive = v.isActive === true;
+    const notExpired = new Date(v.expired) >= new Date();
+    const notFullyUsed = !v.maxUsage || v.currentUsage < v.maxUsage;
+    
+    // Check if user owns this voucher
+    const userOwnsVoucher = user?.vouchers && user.vouchers[v._id] && user.vouchers[v._id] > 0;
+    
+    console.log(`CheckoutPage - Voucher ${v.code}:`, {
+      isActive,
+      notExpired,
+      notFullyUsed,
+      userOwnsVoucher,
+      userVoucherQuantity: user?.vouchers?.[v._id] || 0
+    });
+    
+    return isActive && notExpired && notFullyUsed && userOwnsVoucher;
+  });
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
@@ -98,6 +120,10 @@ const Checkout = () => {
     }
     if (voucherDiscount > subtotal) voucherDiscount = subtotal;
   }
+
+  // Tính phí ship theo logic backend (dựa trên subtotal trước discount)
+  const shippingFee = subtotal >= 500000 ? 0 : 30000;
+  const expectedTotal = subtotal - voucherDiscount + shippingFee;
 
   // Hàm xử lý đặt hàng và thanh toán
   const handleCheckout = async () => {
@@ -172,7 +198,13 @@ const Checkout = () => {
         notes: ''
       };
 
-      console.log('Order data to send:', orderData); // Debug log
+      console.log('=== CHECKOUT DEBUG ===');
+      console.log('Subtotal calculated on frontend:', subtotal);
+      console.log('Voucher used:', voucher);
+      console.log('Voucher discount calculated on frontend:', voucherDiscount);
+      console.log('Expected total after discount:', subtotal - voucherDiscount);
+      console.log('Order data to send:', orderData);
+      console.log('======================');
 
       // Tạo đơn hàng
       console.log('Creating order with data:', orderData);
@@ -196,7 +228,14 @@ const Checkout = () => {
         const totalAmount = (data as any).totalAmount;
         const paymentMethod = (data as any).paymentMethod || orderData.paymentMethod;
         
+        console.log('=== ORDER CREATION RESULT ===');
         console.log('Order created successfully:', { orderId, orderNumber, totalAmount, paymentMethod });
+        console.log('Frontend expected total:', expectedTotal);
+        console.log('Backend returned totalAmount:', totalAmount);
+        console.log('Difference:', expectedTotal - totalAmount);
+        console.log('Voucher discount applied by frontend:', voucherDiscount);
+        console.log('Shipping fee applied by frontend:', shippingFee);
+        console.log('==============================');
         
         // Handle payment processing based on payment method
         if (paymentMethod === 'momo' || paymentMethod === 'credit_card') {
@@ -259,6 +298,16 @@ const Checkout = () => {
               // Clear cart for both COD and Bank Transfer after successful order creation
               await useCartStore.getState().clearCart();
               console.log('Cart cleared successfully');
+              
+              // Clear voucher after successful order
+              if (voucher) {
+                setVoucher(null);
+                console.log('Voucher cleared from UI');
+              }
+              
+              // Refresh user data to get updated voucher list
+              await refreshUserData();
+              console.log('User data refreshed');
             } else {
               console.error('Payment record creation failed:', paymentResponse);
               alert(`Không thể tạo bản ghi thanh toán. Đơn hàng đã được tạo nhưng có thể cần liên hệ admin.`);
@@ -271,6 +320,13 @@ const Checkout = () => {
             // Clear cart anyway since order was created
             try {
               await useCartStore.getState().clearCart();
+              // Clear voucher anyway since order was created
+              if (voucher) {
+                setVoucher(null);
+              }
+              
+              // Refresh user data anyway since order was created
+              await refreshUserData();
             } catch (clearError) {
               console.error('Error clearing cart:', clearError);
             }
@@ -475,7 +531,7 @@ const Checkout = () => {
 
           <ShopeeVoucherModal
             open={showVoucherModal}
-            vouchers={vouchers.map(v => ({
+            vouchers={availableVouchers.map(v => ({
               _id: v._id,
               code: v.code,
               label: v.label,

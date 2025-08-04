@@ -36,6 +36,7 @@ interface UserState {
   register: (name: string, email: string, password: string, phone?: string) => Promise<{ success: boolean; message: string; errors?: any }>;
   logout: () => Promise<void>;
   checkAuthStatus: () => Promise<void>;
+  refreshUserData: () => Promise<void>;
   setUser: (user: User | null) => void;
   setLoading: (loading: boolean) => void;
   setUserInfo: (userInfo: UserInfo | null) => void;
@@ -181,6 +182,20 @@ export const useUserStore = create<UserState>()(
             isAuthenticated: false,
             isLoading: false 
           });
+        }
+      },
+
+      refreshUserData: async () => {
+        try {
+          const token = tokenManager.get();
+          if (token) {
+            const response = await authService.getProfile();
+            if (response.success && response.data) {
+              set({ user: response.data });
+            }
+          }
+        } catch (error) {
+          console.error('Failed to refresh user data:', error);
         }
       },
 

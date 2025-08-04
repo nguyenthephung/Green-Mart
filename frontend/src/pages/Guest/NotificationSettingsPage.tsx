@@ -1,25 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { defaultSettings } from '../../data/Guest/notifications';
+import { useNotificationStore } from '../../stores/useNotificationStore';
 import DashboardLayout from '../../layouts/DashboardLayout';
 
 const NotificationSettingsPage: React.FC = () => {
-  const [settings, setSettings] = useState(defaultSettings);
+  const { settings, updateSettings, fetchSettings } = useNotificationStore();
+  const [localSettings, setLocalSettings] = useState(settings);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const navigate = useNavigate();
 
-  const handleChange = (key: keyof typeof settings) => {
-    setSettings(prev => ({ ...prev, [key]: !prev[key] }));
+  useEffect(() => {
+    fetchSettings();
+  }, [fetchSettings]);
+
+  useEffect(() => {
+    setLocalSettings(settings);
+  }, [settings]);
+
+  const handleChange = (key: string) => {
+    if (!localSettings) return;
+    
+    setLocalSettings(prev => {
+      if (!prev || !prev.settings) return prev;
+      return {
+        ...prev,
+        settings: {
+          ...prev.settings,
+          [key]: !prev.settings[key as keyof typeof prev.settings]
+        }
+      };
+    });
     setSaved(false);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (!localSettings) return;
+    
     setSaving(true);
-    setTimeout(() => {
-      setSaving(false);
+    try {
+      await updateSettings(localSettings);
       setSaved(true);
-    }, 900);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (error) {
+      console.error('Failed to save settings:', error);
+    } finally {
+      setSaving(false);
+    }
   };
 
   // Define notification types for mapping
@@ -65,7 +92,9 @@ const NotificationSettingsPage: React.FC = () => {
     },
   ];
 
-  const enabledCount = notificationTypes.filter(({ key }) => settings[key as keyof typeof settings]).length;
+  const enabledCount = notificationTypes.filter(({ key }) => 
+    localSettings?.settings?.[key as keyof typeof localSettings.settings]
+  ).length;
   const disabledCount = notificationTypes.length - enabledCount;
 
   return (
@@ -130,7 +159,7 @@ const NotificationSettingsPage: React.FC = () => {
         <div className="bg-white dark:bg-gray-950 rounded-2xl shadow-lg p-8">
           <div className="space-y-6">
             {notificationTypes.map(({ key, label, description, color, icon }) => {
-              const isEnabled = settings[key as keyof typeof settings];
+              const isEnabled = localSettings?.settings?.[key as keyof typeof localSettings.settings] || false;
               return (
                 <div key={key} className={`p-6 rounded-2xl transition-all duration-300 ${
                   key === 'order' ? 'bg-green-50 dark:bg-gray-950' : key === 'promotion' ? 'bg-orange-50 dark:bg-gray-950' : 'bg-blue-50 dark:bg-gray-950'

@@ -21,6 +21,7 @@ interface Order {
   deliveryFee: number;
   payWith: string;
   deliveryAddress: string;
+  totalAmount: number; // Add totalAmount field
 }
 
 const OrdersPage = () => {
@@ -59,7 +60,8 @@ const OrdersPage = () => {
             })),
             deliveryFee: order.deliveryFee || 0,
             payWith: getPaymentMethodText(order.paymentMethod),
-            deliveryAddress: order.customerAddress || 'Chưa có địa chỉ'
+            deliveryAddress: order.customerAddress || 'Chưa có địa chỉ',
+            totalAmount: order.totalAmount || 0 // Add totalAmount from backend
           }));
           
           console.log('Converted orders:', convertedOrders);
@@ -222,12 +224,7 @@ const OrdersPage = () => {
                     id={order.id}
                     status={order.status}
                     date={order.date}
-                    total={
-                      order.items.reduce(
-                        (sum: number, item: OrderItem) => sum + item.price * item.quantity,
-                        0
-                      ) + order.deliveryFee
-                    }
+                    total={order.totalAmount} // Use totalAmount from backend (already includes voucher discount)
                     items={order.items}
                     deliveryFee={order.deliveryFee}
                     payWith={order.payWith}

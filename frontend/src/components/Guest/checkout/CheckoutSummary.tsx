@@ -161,6 +161,17 @@ const CheckoutSummary = ({
   const total =
     itemsTotal + dynamicDeliveryFee + serviceFee + (selectedTip || 0) - (voucherDiscount || 0);
 
+  // Debug voucher calculation
+  console.log('CheckoutSummary calculation:', {
+    itemsTotal,
+    dynamicDeliveryFee,
+    serviceFee,
+    selectedTip,
+    voucherDiscount,
+    total,
+    voucher
+  });
+
   const formatVND = (value: number) =>
     value.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
 

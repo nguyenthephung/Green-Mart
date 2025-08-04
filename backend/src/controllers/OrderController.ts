@@ -3,7 +3,9 @@ import Order, { IOrder } from '../models/Order';
 import Payment from '../models/Payment';
 import Product from '../models/Product';
 import Voucher from '../models/Voucher';
+import User from '../models/User';
 import { Types } from 'mongoose';
+import NotificationHelper from '../services/notificationHelper';
 
 interface OrderItem {
   productId: string;
@@ -86,7 +88,7 @@ class OrderController {
 
       // Apply voucher if provided
       let discount = 0;
-      let voucherId = null;
+      let voucherId: Types.ObjectId | null = null;
 
       if (voucherCode) {
         const voucher = await Voucher.findOne({ 
@@ -113,18 +115,86 @@ class OrderController {
 
         // Calculate discount
         if (voucher.discountType === 'percent') {
-          discount = Math.min((subtotal * voucher.discountValue) / 100, voucher.discountValue || Infinity);
+          // For percentage: discount = percentage of subtotal
+          const percentDiscount = (subtotal * voucher.discountValue) / 100;
+          discount = Math.min(percentDiscount, subtotal); // Cannot exceed subtotal
         } else {
+          // For fixed amount: discount = fixed value, but cannot exceed subtotal
           discount = Math.min(voucher.discountValue, subtotal);
         }
 
-        voucherId = voucher._id;
+        console.log('OrderController - Voucher calculation:', {
+          voucherCode: voucher.code,
+          discountType: voucher.discountType,
+          discountValue: voucher.discountValue,
+          subtotal,
+          calculatedDiscount: discount
+        });
+
+        voucherId = voucher._id as Types.ObjectId;
+
+        // Check if user has this voucher
+        const userWithVoucher = await User.findById(userId);
+        if (!userWithVoucher) {
+          res.status(400).json({
+            success: false,
+            message: 'User not found'
+          });
+          return;
+        }
+
+        // Check if user has this voucher with the new simple structure
+        const userVoucherQuantity = userWithVoucher.vouchers?.[voucherId!.toString()] || 0;
+
+        if (userVoucherQuantity <= 0) {
+          res.status(400).json({
+            success: false,
+            message: 'You do not have this voucher or it has been used up'
+          });
+          return;
+        }
+
+        // Decrease voucher quantity for user
+        if (!userWithVoucher.vouchers) {
+          userWithVoucher.vouchers = {};
+        }
+        
+        if (userVoucherQuantity === 1) {
+          // Remove voucher completely if quantity becomes 0
+          delete userWithVoucher.vouchers[voucherId!.toString()];
+        } else {
+          // Decrease quantity by 1
+          userWithVoucher.vouchers[voucherId!.toString()] = userVoucherQuantity - 1;
+        }
+
+        console.log('OrderController - Updated user vouchers:', userWithVoucher.vouchers);
+
+        // IMPORTANT: Mark vouchers field as modified for Mongoose Mixed type
+        userWithVoucher.markModified('vouchers');
+
+        await userWithVoucher.save();
+
+        // Update voucher usage statistics
+        await Voucher.findByIdAndUpdate(
+          voucherId,
+          { $inc: { currentUsage: 1 } },
+          { new: true }
+        );
       }
 
       // Calculate shipping (simple flat rate for demo)
       const shippingFee = subtotal >= 500000 ? 0 : 30000; // Free shipping for orders >= 500k VND
 
       const totalAmount = subtotal - discount + shippingFee;
+
+      console.log('OrderController - Final calculation:', {
+        subtotal,
+        discount,
+        shippingFee,
+        totalAmount,
+        voucherCode,
+        voucherId: voucherId?.toString()
+      });
 
       // Generate order number
       const orderNumber = await this.generateOrderNumber();
@@ -166,6 +236,14 @@ class OrderController {
           item.productId,
           { $inc: { stock: -item.quantity } }
         );
+      }
+
+      // Create notifications for order creation
+      try {
+        await NotificationHelper.notifyOrderCreated(userId, order);
+      } catch (notificationError) {
+        console.error('Error creating order notifications:', notificationError);
+        // Don't fail the order creation if notification fails
       }
 
       res.status(201).json({
@@ -413,6 +491,14 @@ class OrderController {
       // so confirming the order means payment was successful
 
       await order.save();
+
+      // Create notification for status change
+      try {
+        await NotificationHelper.notifyOrderStatusChanged(order.userId.toString(), order, status);
+      } catch (notificationError) {
+        console.error('Error creating order status notification:', notificationError);
+        // Don't fail the status update if notification fails
+      }
 
       res.json({
         success: true,

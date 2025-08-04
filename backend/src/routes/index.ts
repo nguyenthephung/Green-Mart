@@ -9,6 +9,7 @@ import voucherRoutes from './voucherRoutes';
 import userRoutes from './userRoutes';
 import paymentRoutes from './paymentRoutes';
 import orderRoutes from './orderRoutes';
+import notificationRoutes from './notificationRoutes';
 
 const router = Router();
 
@@ -20,15 +21,14 @@ router.use('/', addressRoutes);
 
 // User routes (vouchers, wishlist, ...)
 router.use('/users', userRoutes);
-// Wishlist routes (if you want to keep separate, can be merged into userRoutes)
-// router.use('/users', wishlistRoutes);
+// Wishlist routes
+router.use('/users', wishlistRoutes);
 
 // Cart routes
 router.use('/cart', cartRoutes);
 
 // Product routes
 router.use('/products', productRoutes);
-
 
 // Voucher routes
 router.use('/vouchers', voucherRoutes);
@@ -38,6 +38,9 @@ router.use('/payments', paymentRoutes);
 
 // Order routes
 router.use('/orders', orderRoutes);
+
+// Notification routes
+router.use('/notifications', notificationRoutes);
 
 // Category routes
 router.use(categoryRoutes);

@@ -4,7 +4,8 @@ import { ShoppingCart, Search, User, Home, Bell, LogOut, Heart } from 'lucide-re
 import { useCartStore } from '../../stores/useCartStore';
 import { useUserStore } from '../../stores/useUserStore';
 import { useWishlistStore } from '../../stores/useWishlistStore';
-import NotificationDropdown from './NotificationDropdown';
+import { useNotificationStore } from '../../stores/useNotificationStore';
+import NotificationDropdownContent from './Notification/NotificationDropdownContent';
 import ThemeToggle from '../ui/ThemeToggle';
 
 const Header: React.FC = memo(() => {
@@ -14,17 +15,33 @@ const Header: React.FC = memo(() => {
   const userMenuRef = useRef<HTMLDivElement>(null);
   let dropdownTimeout: NodeJS.Timeout | null = null;
   const navigate = useNavigate();
+  
   // Use cartCount selector so Header re-renders when cart changes
   const cartCount = useCartStore(state => state.totalItems);
   const fetchCart = useCartStore(state => state.fetchCart);
+  
+  // Get notification store
+  const { unreadCount, fetchUnreadCount } = useNotificationStore();
+  
   // Fetch cart on mount to ensure cart count is up-to-date after reload
   useEffect(() => {
     fetchCart();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  
   const getWishlistCount = useWishlistStore(state => state.getWishlistCount);
   const user = useUserStore(state => state.user);
   const logout = useUserStore(state => state.logout);
+
+  // Fetch unread notifications count when user is available
+  useEffect(() => {
+    if (user) {
+      fetchUnreadCount();
+      // Poll every 30 seconds
+      const interval = setInterval(fetchUnreadCount, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [user, fetchUnreadCount]);
 
   // Close user menu when clicking outside
   useEffect(() => {
@@ -157,7 +174,11 @@ const Header: React.FC = memo(() => {
                 title="Thông báo"
               >
                 <Bell size={20} />
-                <span className="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse border-2 border-white shadow-sm"></span>
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center animate-pulse">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
               </button>
               {showDropdown && (
                 <div 
@@ -168,7 +189,7 @@ const Header: React.FC = memo(() => {
                     animation: showDropdown ? 'fadeInDown 0.2s ease-out' : 'fadeOutUp 0.2s ease-in'
                   }}
                 >
-                  <NotificationDropdown onClose={() => setShowDropdown(false)} />
+                  <NotificationDropdownContent onClose={() => setShowDropdown(false)} />
                 </div>
               )}
             </div>

@@ -46,8 +46,22 @@ export default function CartPage() {
   const setVoucher = useUserStore(state => state.setVoucher);
   const vouchers = useVoucherStore(state => state.vouchers);
   const fetchVouchers = useVoucherStore(state => state.fetchVouchers);
+  const user = useUserStore(state => state.user);
   const navigate = useNavigate();
   const [showVoucherModal, setShowVoucherModal] = useState(false);
+
+  // Filter valid vouchers that user owns and are not expired
+  const availableVouchers = vouchers.filter(v => {
+    // Check if voucher is active and not expired
+    const isActive = v.isActive === true;
+    const notExpired = new Date(v.expired) >= new Date();
+    const notFullyUsed = !v.maxUsage || v.currentUsage < v.maxUsage;
+    
+    // Check if user owns this voucher
+    const userOwnsVoucher = user?.vouchers && user.vouchers[v._id] && user.vouchers[v._id] > 0;
+    
+    return isActive && notExpired && notFullyUsed && userOwnsVoucher;
+  });
   
   // Cuộn lên đầu trang khi component được mount
   useEffect(() => {
@@ -308,7 +322,7 @@ export default function CartPage() {
 
           <ShopeeVoucherModal
             open={showVoucherModal}
-            vouchers={vouchers}
+            vouchers={availableVouchers}
             selectedVoucher={voucher}
             onSelect={(v) => {
               if (!v) { setVoucher(null); setShowVoucherModal(false); return; }

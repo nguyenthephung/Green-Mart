@@ -78,6 +78,7 @@ export const useCartStore = create<CartState>((set, get) => ({
           items = res.data as CartItem[];
         }
         const { totalItems, totalAmount } = calculateTotals(items);
+        console.log('Cart store: fetchCart calculated totals', { totalItems, totalAmount, itemsCount: items.length });
         set({ items, totalItems, totalAmount, loading: false });
       } else {
         set({ error: res.message || 'Lỗi lấy giỏ hàng', loading: false });
@@ -96,6 +97,7 @@ export const useCartStore = create<CartState>((set, get) => ({
         res = await apiAddToCart(String(item.id), item.quantity, item.unit, undefined, 'count');
       }
       if (res.success) {
+        console.log('Cart store: addToCart success, calling fetchCart...');
         await get().fetchCart();
         set({ loading: false });
       } else {

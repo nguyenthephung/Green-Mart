@@ -1,101 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import ThemeToggle from '../components/ui/ThemeToggle';
-
-// Notification Dropdown Component
-const NotificationDropdown: React.FC = () => {
-  const [showNotifications, setShowNotifications] = useState(false);
-  
-  const notifications = [
-    { id: 1, title: 'Đơn hàng mới #1001', message: 'Khách hàng Nguyễn Văn An vừa đặt đơn hàng', time: '5 phút trước', type: 'order', isRead: false },
-    { id: 2, title: 'Sản phẩm sắp hết hàng', message: 'Cà chua cherry chỉ còn 5 kg trong kho', time: '1 giờ trước', type: 'warning', isRead: false },
-    { id: 3, title: 'Đánh giá mới', message: 'Khách hàng vừa đánh giá 5 sao cho sản phẩm Xà lách xoăn', time: '2 giờ trước', type: 'review', isRead: true },
-  ];
-
-  const unreadCount = notifications.filter(n => !n.isRead).length;
-
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case 'order': return '🛒';
-      case 'warning': return '⚠️';
-      case 'review': return '⭐';
-      default: return '📢';
-    }
-  };
-
-  return (
-    <div className="relative">
-      <button
-        onClick={() => setShowNotifications(!showNotifications)}
-        className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors relative"
-        title="Thông báo"
-      >
-        <span className="text-lg">🔔</span>
-        {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-xs text-white flex items-center justify-center font-bold">
-            {unreadCount}
-          </span>
-        )}
-      </button>
-
-      {showNotifications && (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg z-50 max-h-96 overflow-y-auto">
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-gray-900 dark:text-white">Thông báo</h3>
-              <button
-                onClick={() => setShowNotifications(false)}
-                className="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded transition-colors"
-                style={{ color: 'rgb(var(--color-text-secondary))' }}
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-          
-          <div className="max-h-64 overflow-y-auto">
-            {notifications.map((notification) => (
-              <div
-                key={notification.id}
-                className={`p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
-                  !notification.isRead ? 'bg-blue-50 dark:bg-blue-900/20' : ''
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <span className="text-lg text-gray-900" style={{color: '#1a202c'}}>{getNotificationIcon(notification.type)}</span>
-                  <div className="flex-1">
-                    <h4 className={`text-sm font-medium`} style={{color: '#1a202c'}}>
-                      {notification.title}
-                    </h4>
-                    <p className="text-xs text-gray-600 mt-1">{notification.message}</p>
-                    <p className="text-xs text-gray-400 mt-2">{notification.time}</p>
-                  </div>
-                  {!notification.isRead && (
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-          
-          <div className="p-3 border-t border-gray-200">
-            <button className="w-full text-center text-sm text-blue-600 hover:text-blue-700 font-medium">
-              Xem tất cả thông báo
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Backdrop to close dropdown */}
-      {showNotifications && (
-        <div 
-          className="fixed inset-0 z-40"
-          onClick={() => setShowNotifications(false)}
-        />
-      )}
-    </div>
-  );
-};
+import { useNotificationStore } from '../stores/useNotificationStore';
+import { useUserStore } from '../stores/useUserStore';
+import NotificationDropdownContent from '../components/Guest/Notification/NotificationDropdownContent';
 
 const adminMenu = [
   { label: 'Thống kê', path: '/admin/dashboard', icon: '📊', color: 'from-blue-500 to-blue-600' },
@@ -112,7 +20,20 @@ const AdminLayout: React.FC = () => {
   const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(document.documentElement.classList.contains('dark'));
+
+  const { user } = useUserStore();
+  const { unreadCount, fetchUnreadCount } = useNotificationStore();
+
+  // Fetch unread notifications count
+  useEffect(() => {
+    if (user) {
+      fetchUnreadCount();
+      const interval = setInterval(fetchUnreadCount, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [user, fetchUnreadCount]);
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
@@ -302,7 +223,36 @@ const AdminLayout: React.FC = () => {
               {/* Quick Actions */}
               <div className="flex items-center gap-2">
                 <ThemeToggle size="sm" />
-                <NotificationDropdown />
+                
+                {/* Notification Bell */}
+                <div className="relative">
+                  <button
+                    onClick={() => setShowNotifications(!showNotifications)}
+                    className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors relative"
+                    title="Thông báo"
+                  >
+                    <span className="text-lg">🔔</span>
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-xs text-white flex items-center justify-center font-bold">
+                        {unreadCount > 99 ? '99+' : unreadCount}
+                      </span>
+                    )}
+                  </button>
+
+                  {showNotifications && (
+                    <div className="absolute right-0 top-full mt-2 z-50">
+                      <NotificationDropdownContent onClose={() => setShowNotifications(false)} />
+                    </div>
+                  )}
+
+                  {/* Backdrop to close dropdown */}
+                  {showNotifications && (
+                    <div 
+                      className="fixed inset-0 z-40"
+                      onClick={() => setShowNotifications(false)}
+                    />
+                  )}
+                </div>
               </div>
               
               {/* Current Time */}
