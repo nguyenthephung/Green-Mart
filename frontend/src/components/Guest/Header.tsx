@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShoppingCart, Search, User, Home, Bell, LogOut, Heart } from 'lucide-react';
 import { useCartStore } from '../../stores/useCartStore';
+import { CartIconWrapper } from '../../hooks/useAddToCartAnimation';
 import { useUserStore } from '../../stores/useUserStore';
 import { useWishlistStore } from '../../stores/useWishlistStore';
 import { useNotificationStore } from '../../stores/useNotificationStore';
@@ -196,20 +197,22 @@ const Header: React.FC = memo(() => {
             </div>
 
             {/* Cart Button - Fixed positioning */}
-            <button
-              onClick={() => navigate('/mycart')}
-              className="p-3 text-app-secondary hover:text-app-primary hover:bg-app-secondary dark:hover:text-green-400 dark:hover:bg-green-900/20 rounded-xl group relative transition-colors duration-200"
-              title="Giỏ hàng"
-            >
-              <span id="cart-fly-icon" className="inline-block relative">
-                <ShoppingCart size={20} />
-                {cartCount > 0 && (
-                  <span className="absolute top-0 right-0 translate-x-[80%] -translate-y-2/3 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center shadow-lg border-2 border-white dark:border-gray-800 font-bold min-w-[20px]">
-                    {cartCount}
-                  </span>
-                )}
-              </span>
-            </button>
+            <CartIconWrapper>
+              <button
+                onClick={() => navigate('/mycart')}
+                className="p-3 text-app-secondary hover:text-app-primary hover:bg-app-secondary dark:hover:text-green-400 dark:hover:bg-green-900/20 rounded-xl group relative transition-colors duration-200"
+                title="Giỏ hàng"
+              >
+                <span className="inline-block relative">
+                  <ShoppingCart size={20} />
+                  {cartCount > 0 && (
+                    <span className="absolute top-0 right-0 translate-x-[80%] -translate-y-2/3 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center shadow-lg border-2 border-white dark:border-gray-800 font-bold min-w-[20px]">
+                      {cartCount}
+                    </span>
+                  )}
+                </span>
+              </button>
+            </CartIconWrapper>
 
             {/* Wishlist Button - Fixed positioning */}
             <button

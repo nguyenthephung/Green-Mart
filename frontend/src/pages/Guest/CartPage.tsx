@@ -278,51 +278,100 @@ export default function CartPage() {
         </div>
         <div className="space-y-6">
           {/* Voucher Selection Card */}
-          <div className="bg-app-card rounded-2xl shadow-lg p-6 border border-green-100">
-            <h3 className="text-lg font-semibold text-app-primary mb-4 flex items-center gap-2">
-              🎫 Mã giảm giá
-            </h3>
-            <div className="flex items-center gap-3">
+          <div className="bg-app-card rounded-2xl shadow-lg p-6 border border-green-100 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-green-100 to-transparent rounded-bl-full opacity-50"></div>
+            <div className="relative">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-app-primary flex items-center gap-2">
+                  <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
+                  </div>
+                  Mã giảm giá
+                </h3>
+                {availableVouchers.length > 0 && (
+                  <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">
+                    {availableVouchers.length} voucher
+                  </span>
+                )}
+              </div>
+              
               {voucher ? (
-                  <div className="flex-1 p-3 bg-green-50 border border-green-200 rounded-xl">
-                    <div className="flex justify-between items-start gap-2">
-                      <div className="min-w-0 flex-1">
-                        <span className="font-semibold text-green-700 block truncate">{voucher.code}</span>
-                        <p className="text-sm text-green-600 break-words">{voucher.description}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-sm font-bold text-red-600">
-                            {voucher.discountType === 'percent' 
-                              ? `Giảm ${voucher.discountValue}%` 
-                              : `Giảm ${voucher.discountValue.toLocaleString()}₫`}
-                          </span>
-                          <span className="text-xs text-gray-500">• Đơn tối thiểu: {voucher.minOrder.toLocaleString()}₫</span>
-                        </div>
+                <div className="relative">
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-4 relative overflow-hidden">
+                    {/* Decorative elements */}
+                    <div className="absolute top-2 right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    
+                    <div className="pr-8">
+                      {/* Voucher Code */}
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-gradient-to-r from-orange-500 to-red-500 text-white">
+                          {voucher.code}
+                        </span>
+                        <div className="flex-1 h-px bg-green-200" />
                       </div>
-                      <div className="flex gap-2 flex-shrink-0">
+                      
+                      {/* Description */}
+                      <p className="text-sm text-green-700 font-medium mb-3 line-clamp-2">{voucher.description}</p>
+                      
+                      {/* Discount Info */}
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-lg font-bold text-red-600 bg-red-100 px-3 py-1 rounded-lg">
+                          {voucher.discountType === 'percent' 
+                            ? `Giảm ${voucher.discountValue}%` 
+                            : `Giảm ${voucher.discountValue.toLocaleString()}₫`}
+                        </span>
+                        <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                          Đơn tối thiểu: {voucher.minOrder.toLocaleString()}₫
+                        </span>
+                      </div>
+                      
+                      {/* Action buttons */}
+                      <div className="flex gap-2">
                         <button 
-                          className="text-blue-600 text-sm hover:text-blue-700 font-medium transition whitespace-nowrap" 
+                          className="flex-1 px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-1" 
                           onClick={() => setShowVoucherModal(true)}
                         >
-                          Đổi
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                          </svg>
+                          Đổi voucher
                         </button>
                         <button 
-                          className="text-red-500 text-sm hover:text-red-600 font-medium transition whitespace-nowrap" 
+                          className="px-3 py-2 bg-red-100 text-red-600 text-sm font-medium rounded-lg hover:bg-red-200 transition-colors duration-200 flex items-center justify-center" 
                           onClick={() => setVoucher(null)}
+                          title="Bỏ voucher"
                         >
-                          Bỏ
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
                         </button>
                       </div>
                     </div>
                   </div>
+                </div>
               ) : (
                 <button 
-                  className="flex-1 p-4 border-2 border-dashed border-green-300 rounded-xl text-green-600 hover:border-green-400 hover:bg-green-50 transition duration-200 flex items-center justify-center gap-2" 
+                  className="w-full p-6 border-2 border-dashed border-green-300 rounded-2xl text-green-600 hover:border-green-400 hover:bg-green-50 transition-all duration-200 flex items-center justify-center gap-3 group relative overflow-hidden" 
                   onClick={() => setShowVoucherModal(true)}
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                  Chọn mã giảm giá
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-400/5 to-emerald-400/5 translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
+                  <div className="relative flex items-center gap-3">
+                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center group-hover:bg-green-200 transition-colors duration-200">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                    </div>
+                    <div className="text-left">
+                      <div className="font-semibold">Chọn mã giảm giá</div>
+                      <div className="text-sm text-green-500">Tiết kiệm hơn cho đơn hàng</div>
+                    </div>
+                  </div>
                 </button>
               )}
             </div>

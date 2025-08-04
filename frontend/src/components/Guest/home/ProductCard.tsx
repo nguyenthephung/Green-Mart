@@ -4,6 +4,7 @@ import { FaShoppingCart } from 'react-icons/fa';
 import { Heart } from 'lucide-react';
 import { useWishlistStore } from '../../../stores/useWishlistStore';
 import { useUserStore } from '../../../stores/useUserStore';
+import { useAddToCartAnimation } from '../../../hooks/useAddToCartAnimation';
 
 export interface Product {
   id: string | number;
@@ -28,49 +29,27 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = memo(({ product, onAddToCart, showSaleBadge = true, quantity = 1, onQuantityChange }) => {
   const imgRef = useRef<HTMLImageElement>(null);
+  const { triggerAnimation } = useAddToCartAnimation();
   
   // Wishlist store hooks
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlistStore();
   const user = useUserStore(state => state.user);
 
-  // Memoize cart handler with animation effect
+  // Memoize cart handler with modern animation
   const handleAddToCart = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
+    
     if (imgRef.current) {
-      const img = imgRef.current;
-      const cartIcon = document.getElementById('cart-fly-icon');
-      if (cartIcon) {
-        const imgRect = img.getBoundingClientRect();
-        const cartRect = cartIcon.getBoundingClientRect();
-        const clone = img.cloneNode(true) as HTMLImageElement;
-        clone.style.position = 'fixed';
-        clone.style.left = imgRect.left + 'px';
-        clone.style.top = imgRect.top + 'px';
-        clone.style.width = imgRect.width + 'px';
-        clone.style.height = imgRect.height + 'px';
-        clone.style.zIndex = '9999';
-        clone.style.transition = 'all 3s cubic-bezier(.4,2,.6,1)';
-        clone.style.transform = 'scale(1) rotateY(0deg)';
-        document.body.appendChild(clone);
-        setTimeout(() => {
-          // Tính toán vị trí trung tâm của icon giỏ hàng
-          const targetLeft = cartRect.left + cartRect.width / 2 - imgRect.width / 4;
-          const targetTop = cartRect.top + cartRect.height / 2 - imgRect.height / 4;
-          clone.style.left = targetLeft + 'px';
-          clone.style.top = targetTop + 'px';
-          clone.style.width = imgRect.width / 2 + 'px';
-          clone.style.height = imgRect.height / 2 + 'px';
-          clone.style.opacity = '0.7';
-          clone.style.transform = 'scale(0.5)';
-          clone.style.boxShadow = '0 8px 32px 0 rgba(34,197,94,0.4)';
-        }, 10);
-        setTimeout(() => {
-          document.body.removeChild(clone);
-        }, 2500);
-      }
+      triggerAnimation({
+        sourceElement: imgRef.current,
+        onComplete: () => {
+          onAddToCart(product);
+        }
+      });
+    } else {
+      onAddToCart(product);
     }
-    onAddToCart(product);
-  }, [product, onAddToCart]);
+  }, [product, onAddToCart, triggerAnimation]);
 
   const handleWishlistToggle = useCallback(async (e: React.MouseEvent) => {
     e.stopPropagation();
