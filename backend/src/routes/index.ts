@@ -10,6 +10,8 @@ import userRoutes from './userRoutes';
 import paymentRoutes from './paymentRoutes';
 import orderRoutes from './orderRoutes';
 import notificationRoutes from './notificationRoutes';
+import commentRoutes from './commentRoutes';
+import dashboardRoutes from './dashboardRoutes';
 
 const router = Router();
 
@@ -42,6 +44,12 @@ router.use('/orders', orderRoutes);
 
 // Notification routes
 router.use('/notifications', notificationRoutes);
+
+// Comment routes
+router.use('/comments', commentRoutes);
+
+// Dashboard routes (admin only)
+router.use('/dashboard', dashboardRoutes);
 
 // Category routes
 router.use(categoryRoutes);

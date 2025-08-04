@@ -1,11 +1,10 @@
 import React, { useRef, useEffect, useCallback, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useProductStore } from '../../stores/useProductStore';
+import ProductComments from '../../components/Guest/ProductComments';
 
 import { FaShoppingCart, FaCheckCircle, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { useCartStore } from '../../stores/useCartStore';
-import { comments as mockComments } from '../../data/Guest/comments';
-import type { Comment } from '../../data/Guest/comments';
 
 const ProductDetailPage: React.FC = () => {
   // 1. All hooks must be at the very top, no conditional logic before them
@@ -21,22 +20,11 @@ const ProductDetailPage: React.FC = () => {
   // Remove quantity state for kg products
   const [mainImage, setMainImage] = useState<string>('');
   const [descIndex, setDescIndex] = useState<number>(0);
-  const [commentInput, setCommentInput] = useState<string>('');
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [editingContent, setEditingContent] = useState<string>('');
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // 4. All useMemo hooks
   const product = useMemo(() => {
     return products?.find((p: any) => String(p.id) === id) || null;
   }, [products, id]);
-
-  const currentUser = useMemo(() => ({ 
-    id: 2, 
-    name: 'Nguyễn Văn A', 
-    role: 'user' as const 
-  }), []);
 
   const relatedProducts = useMemo(() => {
     if (!product || !products) return [];
@@ -58,11 +46,9 @@ const ProductDetailPage: React.FC = () => {
   // 5. All useEffect hooks
   useEffect(() => {
     const loadData = async () => {
-      setIsLoading(true);
       if (!products || products.length === 0) {
         await fetchAll();
       }
-      setIsLoading(false);
     };
     loadData();
   }, [products, fetchAll]);
@@ -82,26 +68,6 @@ const ProductDetailPage: React.FC = () => {
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
   }, []);
-
-  useEffect(() => {
-    if (!id) return;
-    
-    const storageKey = `comments_product_${id}`;
-    const local = localStorage.getItem(storageKey);
-    if (local) {
-      setComments(JSON.parse(local));
-    } else {
-      const filtered = mockComments.filter(c => c.productId === Number(id));
-      setComments(filtered);
-      localStorage.setItem(storageKey, JSON.stringify(filtered));
-    }
-  }, [id]);
-
-  useEffect(() => {
-    if (id && comments.length > 0) {
-      localStorage.setItem(`comments_product_${id}`, JSON.stringify(comments));
-    }
-  }, [comments, id]);
 
   // 6. All useCallback hooks
   const handlePrev = useCallback(() => {
@@ -180,47 +146,7 @@ const ProductDetailPage: React.FC = () => {
     });
   }, [addToCart]);
 
-  const handleAddComment = useCallback(() => {
-    if (!commentInput.trim() || !id) return;
-    
-    const newComment: Comment = {
-      id: Date.now(),
-      productId: Number(id),
-      userId: currentUser.id,
-      userName: currentUser.name,
-      content: commentInput,
-      createdAt: new Date().toISOString()
-    };
-    setComments(prev => [...prev, newComment]);
-    setCommentInput('');
-  }, [commentInput, id, currentUser]);
-
-  const handleEditComment = useCallback((comment: Comment) => {
-    setEditingId(comment.id);
-    setEditingContent(comment.content);
-  }, []);
-
-  const handleSaveEdit = useCallback(() => {
-    setComments(prev => prev.map(c => 
-      c.id === editingId ? { ...c, content: editingContent } : c
-    ));
-    setEditingId(null);
-    setEditingContent('');
-  }, [editingId, editingContent]);
-
-  const handleDeleteComment = useCallback((commentId: number) => {
-    setComments(prev => prev.filter(c => c.id !== commentId));
-  }, []);
-
   // 7. Conditional rendering ONLY after all hooks
-  if (isLoading) {
-    return (
-      <div className="p-6 text-center">
-        <div className="text-xl text-gray-600">Đang tải dữ liệu...</div>
-      </div>
-    );
-  }
-
   if (!product) {
     return <div className="p-6 text-center text-red-600 text-xl">Không tìm thấy sản phẩm.</div>;
   }
@@ -343,111 +269,7 @@ const ProductDetailPage: React.FC = () => {
       )}
 
       {/* Comments Section */}
-      <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6">
-        <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-          <span className="inline-block w-2 h-6 bg-green-500 rounded-full mr-2"></span>
-          Bình luận sản phẩm
-          <span className="ml-2 text-base text-gray-400 font-normal">({comments.length})</span>
-        </h3>
-        
-        {/* Add Comment */}
-        <div className="flex gap-2 mb-6">
-          <img
-            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name)}&background=34d399&color=fff&size=48`}
-            alt={currentUser.name}
-            className="w-10 h-10 rounded-full border-2 border-green-400 shadow"
-          />
-          <input
-            type="text"
-            className="flex-1 border-2 border-green-200 rounded-lg px-3 py-2 focus:outline-green-500 bg-gray-50"
-            placeholder="Chia sẻ cảm nhận về sản phẩm..."
-            value={commentInput}
-            onChange={e => setCommentInput(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') handleAddComment(); }}
-          />
-          <button
-            className="bg-green-500 text-white px-5 py-2 rounded-lg font-semibold hover:bg-green-600 transition-all"
-            onClick={handleAddComment}
-          >
-            Gửi
-          </button>
-        </div>
-        
-        {/* Comments List */}
-        <div className="divide-y divide-gray-100">
-          {comments.length === 0 && (
-            <div className="text-gray-400 text-center py-8">
-              Chưa có bình luận nào. Hãy là người đầu tiên!
-            </div>
-          )}
-          
-          {comments.map(c => (
-            <div key={c.id} className="py-4 flex items-start gap-3 group relative">
-              <img
-                src={`https://ui-avatars.com/api/?name=${encodeURIComponent(c.userName)}&background=bbf7d0&color=166534&size=48`}
-                alt={c.userName}
-                className="w-10 h-10 rounded-full border border-green-200"
-              />
-              
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="font-semibold text-green-700">{c.userName}</span>
-                  <span className="text-xs text-gray-400">
-                    {new Date(c.createdAt).toLocaleString()}
-                  </span>
-                  {c.userId === currentUser.id && (
-                    <span className="text-xs text-green-500 bg-green-100 px-2 py-0.5 rounded">
-                      Bạn
-                    </span>
-                  )}
-                </div>
-                
-                {editingId === c.id ? (
-                  <div className="flex gap-2 items-center">
-                    <input
-                      className="border-2 border-green-300 rounded px-2 py-1 flex-1"
-                      value={editingContent}
-                      onChange={e => setEditingContent(e.target.value)}
-                      autoFocus
-                    />
-                    <button
-                      className="text-green-600 font-bold px-2 py-1 hover:underline"
-                      onClick={handleSaveEdit}
-                    >
-                      Lưu
-                    </button>
-                    <button
-                      className="text-gray-500 px-2 py-1 hover:underline"
-                      onClick={() => setEditingId(null)}
-                    >
-                      Hủy
-                    </button>
-                  </div>
-                ) : (
-                  <div className="text-gray-800 leading-relaxed">{c.content}</div>
-                )}
-              </div>
-              
-              {c.userId === currentUser.id && editingId !== c.id && (
-                <div className="absolute right-0 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    className="text-blue-600 text-xs px-2 py-1 hover:underline"
-                    onClick={() => handleEditComment(c)}
-                  >
-                    Sửa
-                  </button>
-                  <button
-                    className="text-red-500 text-xs px-2 py-1 hover:underline ml-2"
-                    onClick={() => handleDeleteComment(c.id)}
-                  >
-                    Xóa
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
+      <ProductComments productId={String(product.id)} />
     </div>
   );
 };

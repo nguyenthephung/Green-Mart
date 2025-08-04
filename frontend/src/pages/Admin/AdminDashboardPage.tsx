@@ -1,9 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { recentOrders, topProducts, quickStats } from '../../data/Admin/dashboard';
+import { dashboardService } from '../../services/dashboardService';
+import type { DashboardStats, QuickStats, RecentOrder, TopProduct } from '../../services/dashboardService';
 
 const AdminDashboard: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const [loading, setLoading] = useState(false);
+  
+  // Data states
+  const [stats, setStats] = useState<DashboardStats[]>([]);
+  const [quickStats, setQuickStats] = useState<QuickStats[]>([]);
+  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
+  const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
+  
   // Theme state for reactive background fix
   const [isDarkMode, setIsDarkMode] = useState(document.documentElement.classList.contains('dark'));
   // Chế độ dark: true = nền đen, false = chữ đen
@@ -15,10 +24,54 @@ const AdminDashboard: React.FC = () => {
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     return () => observer.disconnect();
   }, []);
+
+  // Load dashboard data
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  // Load data when filter changes
+  useEffect(() => {
+    loadRecentOrders();
+  }, [selectedFilter]);
+
+  const loadDashboardData = async () => {
+    setLoading(true);
+    try {
+      // Load stats and quick stats
+      const statsData = await dashboardService.getDashboardStats();
+      setStats(statsData.stats);
+      setQuickStats(statsData.quickStats);
+
+      // Load top products
+      const productsData = await dashboardService.getTopProducts({ limit: 4 });
+      setTopProducts(productsData);
+
+      // Load recent orders
+      await loadRecentOrders();
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadRecentOrders = async () => {
+    try {
+      const ordersData = await dashboardService.getRecentOrders({
+        limit: 10,
+        status: selectedFilter
+      });
+      setRecentOrders(ordersData.orders);
+    } catch (error) {
+      console.error('Error loading recent orders:', error);
+      setRecentOrders([]);
+    }
+  };
   const [notifications] = useState([
-    { id: 1, message: '5 sản phẩm sắp hết hàng', type: 'warning', time: '5 phút trước' },
-    { id: 2, message: 'Đơn hàng #DH001 đã được giao', type: 'success', time: '10 phút trước' },
-    { id: 3, message: '12 khách hàng mới đăng ký', type: 'info', time: '15 phút trước' },
+    { id: 1, message: `${quickStats.find(s => s.label === 'Sản phẩm hết hàng')?.value || 0} sản phẩm sắp hết hàng`, type: 'warning', time: '5 phút trước' },
+    { id: 2, message: 'Đơn hàng mới đã được đặt', type: 'success', time: '10 phút trước' },
+    { id: 3, message: `${quickStats.find(s => s.label === 'Khách hàng mới')?.value || 0} khách hàng mới đăng ký`, type: 'info', time: '15 phút trước' },
   ]);
 
   useEffect(() => {
@@ -33,10 +86,8 @@ const AdminDashboard: React.FC = () => {
     return 'Chào buổi tối! 🌙';
   };
 
-  const filteredOrders = recentOrders.filter(order => {
-    if (selectedFilter === 'all') return true;
-    return order.status === selectedFilter;
-  });
+  // Use dynamic data instead of static filtered orders
+  const filteredOrders = recentOrders; // Already filtered by API
 
   return (
     <div
@@ -88,23 +139,42 @@ const AdminDashboard: React.FC = () => {
         </div>
         {/* Quick Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {quickStats.map((stat, i) => (
-            <div 
-              key={i} 
-              className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 border-l-4 border-green-500 dark:border-green-400 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer group"
-              style={{ backgroundColor: isDarkMode ? '#18181b' : '#fff' }}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200 transition-colors">{stat.label}</p>
-                  <p className={`text-2xl font-bold ${stat.color} dark:text-${stat.color?.split('-')[1] || 'green'}-400 group-hover:scale-110 transition-transform`}>
-                    {stat.value}
-                  </p>
+          {loading ? (
+            // Loading skeleton
+            [...Array(4)].map((_, i) => (
+              <div 
+                key={i} 
+                className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 border-l-4 border-green-500 dark:border-green-400 animate-pulse"
+                style={{ backgroundColor: isDarkMode ? '#18181b' : '#fff' }}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-24 mb-2"></div>
+                    <div className="h-8 bg-gray-300 dark:bg-gray-600 rounded w-16"></div>
+                  </div>
+                  <div className="w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded"></div>
                 </div>
-                <div className="text-2xl group-hover:animate-bounce">{stat.icon}</div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            quickStats.map((stat, i) => (
+              <div 
+                key={i} 
+                className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 border-l-4 border-green-500 dark:border-green-400 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer group"
+                style={{ backgroundColor: isDarkMode ? '#18181b' : '#fff' }}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200 transition-colors">{stat.label}</p>
+                    <p className={`text-2xl font-bold ${stat.color} dark:text-${stat.color?.split('-')[1] || 'green'}-400 group-hover:scale-110 transition-transform`}>
+                      {stat.value}
+                    </p>
+                  </div>
+                  <div className="text-2xl group-hover:animate-bounce">{stat.icon}</div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
@@ -119,12 +189,19 @@ const AdminDashboard: React.FC = () => {
             <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Đơn hàng gần đây</h2>
             <div className="flex items-center space-x-4">
               <div className="flex space-x-2">
-                {['all', 'Đã giao', 'Đang xử lý', 'Đang vận chuyển'].map((filter) => {
+                {['all', 'completed', 'processing', 'shipping'].map((filter) => {
                   const isSelected = selectedFilter === filter;
+                  const filterLabels = {
+                    'all': 'Tất cả',
+                    'completed': 'Đã giao', 
+                    'processing': 'Đang xử lý',
+                    'shipping': 'Đang vận chuyển'
+                  };
                   return (
                     <button
                       key={filter}
                       onClick={() => setSelectedFilter(filter)}
+                      disabled={loading}
                       style={
                         isDarkMode
                           ? isSelected
@@ -134,13 +211,13 @@ const AdminDashboard: React.FC = () => {
                             ? { backgroundColor: '#d1fae5', color: '#065f46', boxShadow: '0 2px 8px 0 #10b98122' }
                             : { backgroundColor: '#f3f4f6', color: '#374151' }
                       }
-                      className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                      className={`px-3 py-1 rounded-full text-xs font-medium transition-all disabled:opacity-50 ${
                         isSelected
                           ? 'shadow-md'
                           : 'hover:bg-gray-200 dark:hover:bg-[#18181b]'
                       }`}
                     >
-                      {filter === 'all' ? 'Tất cả' : filter}
+                      {filterLabels[filter as keyof typeof filterLabels]}
                     </button>
                   );
                 })}
@@ -196,23 +273,26 @@ const AdminDashboard: React.FC = () => {
                         className={`px-3 py-1 rounded-full text-xs font-semibold transition-all group-hover:scale-105`}
                         style={
                           isDarkMode
-                            ? o.status === 'Đã giao'
+                            ? o.status === 'completed'
                               ? { backgroundColor: '#23272f', color: '#4ade80' } // green
-                              : o.status === 'Đã hủy'
+                              : o.status === 'cancelled'
                                 ? { backgroundColor: '#23272f', color: '#f87171' } // red
-                                : o.status === 'Đang vận chuyển'
+                                : o.status === 'shipping'
                                   ? { backgroundColor: '#23272f', color: '#60a5fa' } // blue
                                   : { backgroundColor: '#23272f', color: '#fde68a' } // yellow
-                            : o.status === 'Đã giao'
+                            : o.status === 'completed'
                               ? { backgroundColor: '#bbf7d0', color: '#166534' }
-                              : o.status === 'Đã hủy'
+                              : o.status === 'cancelled'
                                 ? { backgroundColor: '#fecaca', color: '#991b1b' }
-                                : o.status === 'Đang vận chuyển'
+                                : o.status === 'shipping'
                                   ? { backgroundColor: '#bae6fd', color: '#1e40af' }
                                   : { backgroundColor: '#fef9c3', color: '#92400e' }
                         }
                       >
-                        {o.status}
+                        {o.status === 'completed' ? 'Đã giao' : 
+                         o.status === 'cancelled' ? 'Đã hủy' :
+                         o.status === 'shipping' ? 'Đang vận chuyển' :
+                         o.status === 'processing' ? 'Đang xử lý' : o.status}
                       </span>
                     </td>
                     <td className="py-4"

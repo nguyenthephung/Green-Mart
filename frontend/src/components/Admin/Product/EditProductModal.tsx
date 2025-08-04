@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import type { AdminProduct } from '../../../types/AdminProduct';
 import { useCategoryStore } from '../../../stores/useCategoryStore';
+import NumberInput from '../../ui/NumberInput';
 
 interface EditProductModalProps {
   show: boolean;
@@ -178,18 +179,11 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ show, product, onCl
               return null;
             })()}
             {errors.category && <div className="text-red-500 text-xs">{errors.category}</div>}
-            <input className={`w-full border px-3 py-2 rounded ${errors.price ? 'border-red-400' : ''}`} placeholder="Giá" type="number" value={editProduct.price} onChange={e => setEditProduct(prev => prev ? { ...prev, price: Number(e.target.value) } : null)}
-              style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}} />
-            {typeof editProduct.price === 'number' && !isNaN(editProduct.price) && editProduct.price > 0 && (
-              <input
-                type="text"
-                value={editProduct.price.toLocaleString('vi-VN') + '₫'}
-                readOnly
-                tabIndex={-1}
-                className="w-full border px-3 py-2 rounded bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 mt-1 cursor-default"
-                style={{ pointerEvents: 'none' }}
-              />
-            )}
+            <NumberInput
+              value={editProduct.price || 0}
+              onChange={(value) => setEditProduct(prev => prev ? { ...prev, price: value } : null)}
+              placeholder="Giá"
+            />
             {errors.price && <div className="text-red-500 text-xs">{errors.price}</div>}
             <input className={`w-full border px-3 py-2 rounded ${errors.stock ? 'border-red-400' : ''}`} placeholder="Tồn kho" type="number" value={editProduct.stock} onChange={e => setEditProduct(prev => prev ? { ...prev, stock: Number(e.target.value) } : null)}
               style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}} />
@@ -291,24 +285,11 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ show, product, onCl
                   <div className="space-y-2">
                     <div>
                       <label className="block text-xs font-medium mb-1" style={{ color: '#111' }}>Số tiền giảm giá (đ)</label>
-                      <input 
-                        className="w-full border border-gray-300 px-2 py-1 rounded text-sm" 
-                        type="number" 
-                        placeholder="Nhập số tiền giảm..." 
-                        value={editProduct.discountAmount || ''} 
-                        onChange={e => setEditProduct(prev => prev ? { ...prev, discountAmount: Number(e.target.value) } : null)} 
-                        style={isDarkMode ? { color: '#111' } : {}} 
+                      <NumberInput
+                        value={editProduct.discountAmount || 0}
+                        onChange={(value) => setEditProduct(prev => prev ? { ...prev, discountAmount: value } : null)}
+                        placeholder="Nhập số tiền giảm..."
                       />
-                      {typeof editProduct.discountAmount === 'number' && !isNaN(editProduct.discountAmount) && editProduct.discountAmount > 0 && (
-                        <input
-                          type="text"
-                          value={editProduct.discountAmount.toLocaleString('vi-VN') + '₫'}
-                          readOnly
-                          tabIndex={-1}
-                          className="w-full border px-3 py-2 rounded bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 mt-1 cursor-default"
-                          style={{ pointerEvents: 'none' }}
-                        />
-                      )}
                     </div>
                     {editProduct.discountAmount && editProduct.discountAmount > 0 && (
                       <div className="bg-green-50 border border-green-200 rounded p-2">

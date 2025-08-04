@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import type { AdminProduct } from '../../../types/AdminProduct';
 import { useCategoryStore } from '../../../stores/useCategoryStore';
+import NumberInput from '../../ui/NumberInput';
 
 type AddProductModalProps = {
   show: boolean;
@@ -330,29 +331,11 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Giá bán <span className="text-red-500">*</span>
                     </label>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        value={product.price || ''}
-                        onChange={e => setProduct(prev => ({ ...prev, price: Number(e.target.value) }))}
-                        className={`w-full px-4 py-3 pr-12 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-                          errors.price ? 'border-red-500 bg-red-50' : 'border-gray-300'
-                        }`}
-                        placeholder="0"
-                        style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
-                      />
-                      <span className="absolute right-3 top-3 text-gray-500">đ</span>
-                      {typeof product.price === 'number' && !isNaN(product.price) && product.price > 0 && (
-                        <input
-                          type="text"
-                          value={Number(product.price).toLocaleString('vi-VN') + '₫'}
-                          readOnly
-                          tabIndex={-1}
-                          className="w-full px-4 py-2 border rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 mt-1 cursor-default"
-                          style={{ pointerEvents: 'none' }}
-                        />
-                      )}
-                    </div>
+                    <NumberInput
+                      value={product.price || 0}
+                      onChange={(value) => setProduct(prev => ({ ...prev, price: value }))}
+                      placeholder="Nhập giá bán"
+                    />
                     {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
                   </div>
 
@@ -480,29 +463,11 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                         <label className="block text-sm font-semibold text-red-700 mb-2">
                           Số tiền giảm giá <span className="text-red-500">*</span>
                         </label>
-                        <div className="relative">
-                          <input
-                            type="number"
-                            value={product.discountAmount || ''}
-                            onChange={e => setProduct(prev => ({ ...prev, discountAmount: Number(e.target.value) }))}
-                            className={`w-full px-4 py-3 pr-12 border rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors ${
-                              errors.discountAmount ? 'border-red-500 bg-red-50' : 'border-red-300'
-                            }`}
-                            placeholder="0"
-                            style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
-                          />
-                          <span className="absolute right-3 top-3 text-red-500">đ</span>
-                          {typeof product.discountAmount === 'number' && !isNaN(product.discountAmount) && product.discountAmount > 0 && (
-                            <input
-                              type="text"
-                              value={Number(product.discountAmount).toLocaleString('vi-VN') + '₫'}
-                              readOnly
-                              tabIndex={-1}
-                              className="w-full px-4 py-2 border rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 mt-1 cursor-default"
-                              style={{ pointerEvents: 'none' }}
-                            />
-                          )}
-                        </div>
+                        <NumberInput
+                          value={product.discountAmount || 0}
+                          onChange={(value) => setProduct(prev => ({ ...prev, discountAmount: value }))}
+                          placeholder="Nhập số tiền giảm giá"
+                        />
                         {errors.discountAmount && <p className="text-red-500 text-sm mt-1">{errors.discountAmount}</p>}
                       </div>
 

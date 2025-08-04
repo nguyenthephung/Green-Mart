@@ -26,7 +26,7 @@ import ProductDetailPage from '../pages/Guest/ProductDetailPage';
 import CategoryPage from '../pages/Guest/CategoryPage';
 import MyVoucher from '../pages/Guest/MyVoucherPage';
 import NotificationSettingsPage from '../pages/Guest/NotificationSettingsPage';
-import NotificationListPage from '../pages/Guest/NotificationListPage';
+import NotificationPage from '../pages/Guest/NotificationPage';
 import WishlistPage from '../pages/Guest/WishlistPage';
 import OrderSuccessPage from '../pages/Guest/OrderSuccessPage';
 import PaymentResultPage from '../pages/Guest/PaymentResultPage';
@@ -92,7 +92,7 @@ const AppRouter = () => (
           } />
           <Route path="notifications" element={
             <ProtectedRoute>
-              <NotificationListPage />
+              <NotificationPage />
             </ProtectedRoute>
           } />
 
