@@ -6,20 +6,32 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import ProfilerWrapper from './components/ProfilerWrapper';
 import { useCategoryStore } from './stores/useCategoryStore';
 import { useVoucherStore } from './stores/useVoucherStore';
+import { useToastStore } from './stores/useToastStore';
+import ToastContainer from './components/ui/Toast/ToastContainer';
 
 const App = memo(() => {
   const checkAuthStatus = useUserStore(state => state.checkAuthStatus);
   const fetchAll = useProductStore(state => state.fetchAll);
   const fetchCategories = useCategoryStore(state => state.fetchCategories);
   const fetchVouchers = useVoucherStore(state => state.fetchVouchers);
+  const { toasts, removeToast } = useToastStore();
 
   // Fetch sản phẩm, category, voucher một lần khi app khởi động (chỉ chạy 1 lần khi mount)
   useEffect(() => {
-    fetchAll && fetchAll();
-    fetchCategories && fetchCategories();
-    fetchVouchers && fetchVouchers();
-    // eslint-disable-next-line
-  }, []);
+    const initializeData = async () => {
+      try {
+        await Promise.all([
+          fetchAll?.(),
+          fetchCategories?.(),
+          fetchVouchers?.()
+        ]);
+      } catch (error) {
+        console.error('Error initializing app data:', error);
+      }
+    };
+    
+    initializeData();
+  }, [fetchAll, fetchCategories, fetchVouchers]);
 
   // Enable INP monitoring
 
@@ -56,6 +68,13 @@ const App = memo(() => {
           <AppRouter />
         </ThemeProvider>
         {/* Đã xóa PerformanceDashboard */}
+        
+        {/* Toast Notifications */}
+        <ToastContainer 
+          toasts={toasts} 
+          onClose={removeToast}
+          position="top-right"
+        />
       </div>
     </ProfilerWrapper>
   );

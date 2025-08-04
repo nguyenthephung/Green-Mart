@@ -1,113 +1,120 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 
-
-import { adminUsers } from '../../data/Admin/users';
-import type { User } from '../../data/Admin/users';
+import { useAdminUserStore } from '../../stores/useAdminUserStore';
+import { useToastStore } from '../../stores/useToastStore';
+import type { User, CreateUserRequest } from '../../services/adminUserService';
 import Pagination from '../../components/Admin/Product/Pagination';
+import AddUserModal from '../../components/Admin/User/AddUserModal';
+import EditUserModal from '../../components/Admin/User/EditUserModal';
+import ViewUserModal from '../../components/Admin/User/ViewUserModal';
+import ConfirmDeleteUserModal from '../../components/Admin/User/ConfirmDeleteUserModal';
 
-type SortField = 'name' | 'email' | 'joinDate' | 'lastLogin' | 'totalOrders' | 'totalSpent';
+type SortField = 'name' | 'email' | 'createdAt' | 'totalOrders' | 'totalSpent';
 type SortOrder = 'asc' | 'desc';
 type ViewMode = 'table' | 'grid';
 type FilterStatus = 'all' | 'active' | 'inactive' | 'suspended';
-type FilterRole = 'all' | 'admin' | 'user' | 'staff';
+type FilterRole = 'all' | 'user' | 'admin';
 
-const AdminUsers: React.FC = () => {
-  // Dark mode state
-  const [isDarkMode, setIsDarkMode] = React.useState(false);
-  React.useEffect(() => {
-    const checkDark = () => setIsDarkMode(document.documentElement.classList.contains('dark'));
-    checkDark();
-    const observer = new MutationObserver(checkDark);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-    return () => observer.disconnect();
-  }, []);
-
-  // Helper for dark mode style
-  const darkBg = isDarkMode ? '#18181b' : '#f9fafb';
-  const [users, setUsers] = useState<User[]>(adminUsers);
-  const [search, setSearch] = useState('');
-  const [showAdd, setShowAdd] = useState(false);
-  const [editUser, setEditUser] = useState<User | null>(null);
-  const [showEdit, setShowEdit] = useState(false);
-  const [viewUser, setViewUser] = useState<User | null>(null);
-  const [showView, setShowView] = useState(false);
-  const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [sortField, setSortField] = useState<SortField>('name');
-  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
+const AdminUsersPage: React.FC = () => {
+  const { users, loading, error, fetchUsers, createUser, updateUser, deleteUser } = useAdminUserStore();
+  const { showSuccess, showError } = useToastStore();
+  
+  const [sortField, setSortField] = useState<SortField>('createdAt');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+  const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('table');
+  
+  // Filters
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
   const [filterRole, setFilterRole] = useState<FilterRole>('all');
-  const [showFilters, setShowFilters] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   
-  // Pagination state
+  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  
+  // Modals
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   // Filter and sort logic
   const filteredAndSortedUsers = useMemo(() => {
+    // Filter out null/undefined users and validate structure
     let filtered = users.filter(user => {
-      const matchesSearch = user.name.toLowerCase().includes(search.toLowerCase()) ||
-                          user.email.toLowerCase().includes(search.toLowerCase()) ||
-                          user.phone.includes(search);
-      
-      const matchesStatus = filterStatus === 'all' || user.status === filterStatus;
-      const matchesRole = filterRole === 'all' || user.role === filterRole;
-      
-      return matchesSearch && matchesStatus && matchesRole;
+      return user && user.status && user.role;
     });
 
-    filtered.sort((a, b) => {
-      let aValue: any, bValue: any;
-      
-      switch (sortField) {
-        case 'name':
-          aValue = a.name.toLowerCase();
-          bValue = b.name.toLowerCase();
-          break;
-        case 'email':
-          aValue = a.email.toLowerCase();
-          bValue = b.email.toLowerCase();
-          break;
-        case 'joinDate':
-          aValue = new Date(a.joinDate).getTime();
-          bValue = new Date(b.joinDate).getTime();
-          break;
-        case 'lastLogin':
-          aValue = new Date(a.lastLogin).getTime();
-          bValue = new Date(b.lastLogin).getTime();
-          break;
-        case 'totalOrders':
-          aValue = a.totalOrders;
-          bValue = b.totalOrders;
-          break;
-        case 'totalSpent':
-          aValue = a.totalSpent;
-          bValue = b.totalSpent;
-          break;
+    // Search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(user => 
+        (user.name && user.name.toLowerCase().includes(query)) ||
+        (user.email && user.email.toLowerCase().includes(query)) ||
+        (user.phone && user.phone.toLowerCase().includes(query))
+      );
+    }
 
-        default:
-          return 0;
+    // Status filter
+    if (filterStatus !== 'all') {
+      filtered = filtered.filter(user => user.status === filterStatus);
+    }
+
+    // Role filter
+    if (filterRole !== 'all') {
+      filtered = filtered.filter(user => user.role === filterRole);
+    }
+
+    // Sort
+    filtered.sort((a, b) => {
+      let aValue: any = a[sortField];
+      let bValue: any = b[sortField];
+
+      if (sortField === 'createdAt') {
+        aValue = new Date(aValue).getTime();
+        bValue = new Date(bValue).getTime();
       }
+
+      if (typeof aValue === 'string') {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
+      }
+
       if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
       if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
       return 0;
     });
+
     return filtered;
-  }, [users, search, sortField, sortOrder, filterStatus, filterRole]);
+  }, [users, searchQuery, filterStatus, filterRole, sortField, sortOrder]);
 
-  // Pagination calculations
-  const totalItems = filteredAndSortedUsers.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentUsers = filteredAndSortedUsers.slice(startIndex, endIndex);
+  // Pagination logic
+  const totalPages = Math.ceil(filteredAndSortedUsers.length / itemsPerPage);
+  const paginatedUsers = filteredAndSortedUsers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
-  // Reset to first page when filters change
-  React.useEffect(() => {
-    setCurrentPage(1);
-  }, [search, filterStatus, filterRole, sortField, sortOrder]);
+  // Statistics
+  const stats = useMemo(() => {
+    // Filter out invalid users for statistics
+    const validUsers = users.filter(u => u && typeof u === 'object' && u.status && u.role);
+    
+    const total = validUsers.length;
+    const active = validUsers.filter(u => u.status === 'active').length;
+    const admins = validUsers.filter(u => u.role === 'admin').length;
+    const totalOrders = validUsers.reduce((sum, u) => sum + (u.totalOrders || 0), 0);
+    const totalSpent = validUsers.reduce((sum, u) => sum + (u.totalSpent || 0), 0);
 
+    return { total, active, admins, totalOrders, totalSpent };
+  }, [users]);
+
+  // Handlers
   const handleSort = (field: SortField) => {
     if (sortField === field) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -117,13 +124,52 @@ const AdminUsers: React.FC = () => {
     }
   };
 
-  // ...rest of logic...
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('vi-VN');
+  const handleAddUser = async (userData: CreateUserRequest) => {
+    try {
+      await createUser(userData);
+      setShowAddModal(false);
+      showSuccess('Thành công!', 'Người dùng đã được thêm thành công');
+    } catch (error) {
+      console.error('Error adding user:', error);
+      showError('Lỗi!', 'Không thể thêm người dùng. Vui lòng thử lại');
+    }
   };
 
-  const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString('vi-VN');
+  const handleEditUser = (user: User) => {
+    setSelectedUser(user);
+    setShowEditModal(true);
+  };
+
+  const handleSaveUser = async (userData: Partial<User>) => {
+    if (!selectedUser) return;
+    
+    try {
+      await updateUser(selectedUser._id, userData);
+      setShowEditModal(false);
+      setSelectedUser(null);
+      showSuccess('Thành công!', 'Thông tin người dùng đã được cập nhật');
+    } catch (error) {
+      console.error('Error updating user:', error);
+      showError('Lỗi!', 'Không thể cập nhật thông tin người dùng. Vui lòng thử lại');
+    }
+  };
+
+  const handleViewUser = (user: User) => {
+    setSelectedUser(user);
+    setShowViewModal(true);
+  };
+
+  const handleDeleteUser = async () => {
+    if (!deleteId) return;
+    
+    try {
+      await deleteUser(deleteId);
+      setDeleteId(null);
+      showSuccess('Thành công!', 'Người dùng đã được xóa khỏi hệ thống');
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      showError('Lỗi!', 'Không thể xóa người dùng. Vui lòng thử lại');
+    }
   };
 
   const formatPrice = (price: number) => {
@@ -133,320 +179,219 @@ const AdminUsers: React.FC = () => {
     }).format(price);
   };
 
-  const totalUsers = users.length;
-  const activeUsers = users.filter(u => u.status === 'active').length;
-  const verifiedUsers = users.filter(u => u.isVerified).length;
-  const totalSpent = users.reduce((sum, u) => sum + u.totalSpent, 0);
-
-  // (no code after the return statement)
-  const getSortIcon = (field: SortField) => {
-    if (sortField !== field) return '↕️';
-    return sortOrder === 'asc' ? '↑' : '↓';
+  const SortIcon = ({ field }: { field: SortField }) => {
+    if (sortField !== field) return <span className="text-gray-400">↑↓</span>;
+    return <span className="text-blue-600">{sortOrder === 'asc' ? '↑' : '↓'}</span>;
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-green-100 text-green-800 border-green-200';
-      case 'inactive': return 'bg-gray-100 text-gray-800 border-gray-200';
-      case 'suspended': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case 'admin': return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'staff': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'user': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
-  const handleToggleStatus = (id: number, newStatus: 'active' | 'inactive' | 'suspended') => {
-    setUsers(users.map(u => 
-      u.id === id ? { ...u, status: newStatus } : u
-    ));
-  };
-
-  const openEditModal = (user: User) => {
-    setEditUser(user);
-    setShowEdit(true);
-  };
-
-  const openViewModal = (user: User) => {
-    setViewUser(user);
-    setShowView(true);
-  };
-
-  const handleAddUser = (newUser: Omit<User, 'id'>) => {
-    setIsLoading(true);
-    setTimeout(() => {
-      const id = Math.max(...users.map(u => u.id)) + 1;
-      setUsers([...users, { ...newUser, id }]);
-      setShowAdd(false);
-      setIsLoading(false);
-    }, 800);
-  };
-
-  const handleEditUser = (updatedUser: User) => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setUsers(users.map(u => u.id === updatedUser.id ? updatedUser : u));
-      setShowEdit(false);
-      setEditUser(null);
-      setIsLoading(false);
-    }, 800);
-  };
-
-  const handleDeleteUser = () => {
-    if (!deleteId) return;
-    setIsLoading(true);
-    setTimeout(() => {
-      setUsers(users.filter(u => u.id !== deleteId));
-      setDeleteId(null);
-      setIsLoading(false);
-    }, 500);
-  };
+  if (error) {
+    return (
+      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+        <p className="text-red-800 dark:text-red-300">Lỗi: {error}</p>
+      </div>
+    );
+  }
 
   return (
-    <div
-      className="space-y-6 min-h-screen"
-      style={{ background: darkBg }}
-    >
+    <div className="p-6">
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Quản lý người dùng</h1>
-            <div className="flex flex-wrap gap-3 text-sm text-gray-600">
-              <span>Tổng: <span className="font-semibold text-blue-600">{totalUsers}</span> người dùng</span>
-              <span>Hoạt động: <span className="font-semibold text-green-600">{activeUsers}</span></span>
-              <span>Đã xác thực: <span className="font-semibold text-purple-600">{verifiedUsers}</span></span>
-              <span>Tổng chi tiêu: <span className="font-semibold text-orange-600">{formatPrice(totalSpent)}</span></span>
-              {totalItems !== totalUsers && (
-                <span>Hiển thị: <span className="font-semibold text-indigo-600">{totalItems}</span></span>
-              )}
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Quản lý người dùng</h1>
+          <p className="text-gray-600 dark:text-gray-400">Quản lý tài khoản người dùng trong hệ thống</p>
+        </div>
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+        >
+          <span>+</span>
+          Thêm người dùng
+        </button>
+      </div>
+
+      {/* Statistics */}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Tổng người dùng</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
             </div>
+            <div className="text-blue-600 text-2xl">👥</div>
           </div>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Hiển thị:</span>
-              <select
-                value={itemsPerPage}
-                onChange={(e) => {
-                  setItemsPerPage(Number(e.target.value));
-                  setCurrentPage(1);
-                }}
-                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white text-gray-900"
-              >
-                <option value={5}>5</option>
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-              </select>
-              <span className="text-sm text-gray-600">mục/trang</span>
+        </div>
+        
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Đang hoạt động</p>
+              <p className="text-2xl font-bold text-green-600">{stats.active}</p>
             </div>
+            <div className="text-green-600 text-2xl">✅</div>
+          </div>
+        </div>
+        
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Quản trị viên</p>
+              <p className="text-2xl font-bold text-purple-600">{stats.admins}</p>
+            </div>
+            <div className="text-purple-600 text-2xl">👑</div>
+          </div>
+        </div>
+        
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Tổng đơn hàng</p>
+              <p className="text-2xl font-bold text-orange-600">{stats.totalOrders}</p>
+            </div>
+            <div className="text-orange-600 text-2xl">📦</div>
+          </div>
+        </div>
+        
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Doanh thu</p>
+              <p className="text-lg font-bold text-green-600">{formatPrice(stats.totalSpent)}</p>
+            </div>
+            <div className="text-green-600 text-2xl">💰</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters and Search */}
+      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 mb-6">
+        <div className="flex flex-wrap gap-4 items-center">
+          {/* Search */}
+          <div className="flex-1 min-w-64">
+            <input
+              type="text"
+              placeholder="Tìm kiếm theo tên, email, số điện thoại..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+            />
+          </div>
+
+          {/* Status Filter */}
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value as FilterStatus)}
+            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+          >
+            <option value="all">Tất cả trạng thái</option>
+            <option value="active">Hoạt động</option>
+            <option value="inactive">Không hoạt động</option>
+            <option value="suspended">Tạm khóa</option>
+          </select>
+
+          {/* Role Filter */}
+          <select
+            value={filterRole}
+            onChange={(e) => setFilterRole(e.target.value as FilterRole)}
+            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+          >
+            <option value="all">Tất cả vai trò</option>
+            <option value="user">Khách hàng</option>
+            <option value="admin">Quản trị viên</option>
+          </select>
+
+          {/* Items per page */}
+          <select
+            value={itemsPerPage}
+            onChange={(e) => setItemsPerPage(Number(e.target.value))}
+            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+          >
+            <option value={10}>10 / trang</option>
+            <option value={25}>25 / trang</option>
+            <option value={50}>50 / trang</option>
+            <option value={100}>100 / trang</option>
+          </select>
+
+          {/* View Mode Toggle */}
+          <div className="flex border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
             <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 ${
-                showFilters 
-                  ? 'bg-blue-600 text-white shadow-lg' 
-                  : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-              }`}
+              onClick={() => setViewMode('table')}
+              className={`px-3 py-2 ${viewMode === 'table' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
             >
-              <span>🔍</span>
-              Bộ lọc
+              📋
             </button>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setViewMode('table')}
-                className={`px-3 py-2 rounded-lg transition-all duration-200 ${
-                  viewMode === 'table' 
-                    ? 'bg-green-600 text-white shadow-lg' 
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-                title="Xem dạng bảng"
-              >
-                📋
-              </button>
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`px-3 py-2 rounded-lg transition-all duration-200 ${
-                  viewMode === 'grid' 
-                    ? 'bg-green-600 text-white shadow-lg' 
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-                title="Xem dạng thẻ"
-              >
-                🔳
-              </button>
-            </div>
             <button
-              onClick={() => setShowAdd(true)}
-              className="px-6 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center gap-2"
+              onClick={() => setViewMode('grid')}
+              className={`px-3 py-2 ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
             >
-              <span className="text-lg">+</span>
-              Thêm người dùng
+              ▦
             </button>
           </div>
         </div>
       </div>
 
-      {/* Filters */}
-      {showFilters && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 animate-slideDown">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-lg font-semibold text-gray-900">Bộ lọc và tìm kiếm</h3>
-            <button
-              onClick={() => {
-                setSearch('');
-                setFilterStatus('all');
-                setFilterRole('all');
-                setSortField('name');
-                setSortOrder('asc');
-              }}
-              className="text-sm text-gray-500 hover:text-gray-700 underline"
-            >
-              Xóa bộ lọc
-            </button>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Tìm kiếm</label>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Tên, email, số điện thoại..."
-                  className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors bg-white text-gray-900 placeholder-gray-400"
-                />
-                <span className="absolute left-3 top-2.5 text-gray-400">🔍</span>
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Trạng thái</label>
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value as FilterStatus)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors bg-white text-gray-900"
-              >
-                <option value="all">Tất cả</option>
-                <option value="active">Hoạt động</option>
-                <option value="inactive">Không hoạt động</option>
-                <option value="suspended">Tạm khóa</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Vai trò</label>
-              <select
-                value={filterRole}
-                onChange={(e) => setFilterRole(e.target.value as FilterRole)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors bg-white text-gray-900"
-              >
-                <option value="all">Tất cả vai trò</option>
-                <option value="admin">👑 Admin</option>
-                <option value="staff">👨‍💼 Nhân viên</option>
-                <option value="user">👤 Khách hàng</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Sắp xếp theo</label>
-              <select
-                value={`${sortField}-${sortOrder}`}
-                onChange={(e) => {
-                  const [field, order] = e.target.value.split('-');
-                  setSortField(field as SortField);
-                  setSortOrder(order as SortOrder);
-                }}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors bg-white text-gray-900"
-              >
-                <option value="name-asc">Tên A-Z</option>
-                <option value="name-desc">Tên Z-A</option>
-                <option value="joinDate-desc">Tham gia mới nhất</option>
-                <option value="joinDate-asc">Tham gia lâu nhất</option>
-                <option value="lastLogin-desc">Đăng nhập mới nhất</option>
-                <option value="totalOrders-desc">Đơn hàng nhiều nhất</option>
-                <option value="totalSpent-desc">Chi tiêu nhiều nhất</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Results Info */}
+      <div className="mb-4">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          Hiển thị {Math.min((currentPage - 1) * itemsPerPage + 1, filteredAndSortedUsers.length)} - {Math.min(currentPage * itemsPerPage, filteredAndSortedUsers.length)} 
+          trên tổng số {filteredAndSortedUsers.length} người dùng
+        </p>
+      </div>
 
-      {/* Users Display */}
+      {/* User List */}
       {viewMode === 'table' ? (
-        /* Table View */
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead
-                style={{ background: isDarkMode ? '#23272f' : '#f9fafb', color: isDarkMode ? '#fff' : '#6b7280', borderBottom: isDarkMode ? '1px solid #23272f' : '1px solid #e5e7eb' }}
-              >
+              <thead className="bg-gray-50 dark:bg-gray-900">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Người dùng
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <button onClick={() => handleSort('name')} className="flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-300">
+                      Người dùng <SortIcon field="name" />
+                    </button>
                   </th>
-                  <th 
-                    className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
-                    onClick={() => handleSort('email')}
-                  >
-                    <div className="flex items-center gap-1">
-                      Liên hệ {getSortIcon('email')}
-                    </div>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <button onClick={() => handleSort('email')} className="flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-300">
+                      Email <SortIcon field="email" />
+                    </button>
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Vai trò
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vai trò</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Trạng thái</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <button onClick={() => handleSort('totalOrders')} className="flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-300">
+                      Đơn hàng <SortIcon field="totalOrders" />
+                    </button>
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Trạng thái
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <button onClick={() => handleSort('totalSpent')} className="flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-300">
+                      Chi tiêu <SortIcon field="totalSpent" />
+                    </button>
                   </th>
-                  <th 
-                    className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
-                    onClick={() => handleSort('totalOrders')}
-                  >
-                    <div className="flex items-center gap-1">
-                      Đơn hàng {getSortIcon('totalOrders')}
-                    </div>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <button onClick={() => handleSort('createdAt')} className="flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-300">
+                      Tham gia <SortIcon field="createdAt" />
+                    </button>
                   </th>
-                  <th 
-                    className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
-                    onClick={() => handleSort('totalSpent')}
-                  >
-                    <div className="flex items-center gap-1">
-                      Chi tiêu {getSortIcon('totalSpent')}
-                    </div>
-                  </th>
-                  <th 
-                    className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
-                    onClick={() => handleSort('lastLogin')}
-                  >
-                    <div className="flex items-center gap-1">
-                      Đăng nhập {getSortIcon('lastLogin')}
-                    </div>
-                  </th>
-                  <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Thao tác
-                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Thao tác</th>
                 </tr>
               </thead>
-              <tbody style={{ background: isDarkMode ? '#23272f' : '#fff' }}>
-                {currentUsers.map((user) => (
-                  <tr
-                    key={user.id}
-                    // ...existing code...
-                    style={{ background: isDarkMode ? '#23272f' : '#fff', cursor: 'pointer', transition: 'none' }}
-                    onMouseEnter={e => { if (e.currentTarget) e.currentTarget.style.background = isDarkMode ? '#18181b' : '#f3f4f6'; }}
-                    onMouseLeave={e => { if (e.currentTarget) e.currentTarget.style.background = isDarkMode ? '#23272f' : '#fff'; }}
-                  >
+              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                {paginatedUsers.map((user) => (
+                  <tr key={user._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="w-10 h-10 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center overflow-hidden">
                           {user.avatar ? (
                             <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                           ) : (
-                            <span className="text-gray-600 dark:text-gray-300 font-medium">{user.name.charAt(0)}</span>
+                            <span className="text-gray-600 dark:text-gray-300 font-bold">{user.name.charAt(0)}</span>
                           )}
                         </div>
                         <div className="ml-4">
@@ -454,70 +399,55 @@ const AdminUsers: React.FC = () => {
                             {user.name}
                             {user.isVerified && <span className="text-blue-500 dark:text-blue-400" title="Đã xác thực">✓</span>}
                           </div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400">ID: {user.id}</div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">{user.phone}</div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900 dark:text-white">{user.email}</div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">{user.phone}</div>
-                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{user.email}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getRoleColor(user.role)}`}>
-                        {user.role === 'admin' && '👑'} {user.role === 'staff' && '👨‍💼'} {user.role === 'user' && '👤'}
-                        {user.role === 'admin' ? 'Admin' : user.role === 'staff' ? 'Nhân viên' : 'Khách hàng'}
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        user.role === 'admin' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300' :
+                        'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300'
+                      }`}>
+                        {user.role === 'admin' ? '👑 Admin' : '👤 User'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <select
-                        value={user.status}
-                        onChange={(e) => handleToggleStatus(user.id, e.target.value as any)}
-                        className={`text-xs font-medium border rounded-full px-2.5 py-0.5 ${getStatusColor(user.status)} ` +
-                          (user.status === 'inactive'
-                            ? 'custom-inactive-status'
-                            : user.status === 'suspended'
-                              ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 border-red-200 dark:border-red-700'
-                              : 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700')
-                        }
-                        style={{ minWidth: 120 }}
-                      >
-                        <option value="active">Hoạt động</option>
-                        <option value="inactive">Không hoạt động</option>
-                        <option value="suspended">Tạm khóa</option>
-                      </select>
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        user.status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
+                        user.status === 'suspended' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' :
+                        'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
+                      }`}>
+                        {user.status === 'active' ? 'Hoạt động' : user.status === 'suspended' ? 'Tạm khóa' : 'Không hoạt động'}
+                      </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                      {user.totalOrders}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                      {formatPrice(user.totalSpent)}
-                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{user.totalOrders || 0}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{formatPrice(user.totalSpent || 0)}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                      {formatDateTime(user.lastLogin)}
+                      {new Date(user.createdAt).toLocaleDateString('vi-VN')}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex gap-2">
                         <button
-                          onClick={() => openViewModal(user)}
-                          className="text-black hover:text-gray-900 p-1 rounded transition-colors"
+                          onClick={() => handleViewUser(user)}
+                          className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
                           title="Xem chi tiết"
                         >
                           👁️
                         </button>
                         <button
-                          onClick={() => openEditModal(user)}
-                          className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 p-1 rounded transition-colors"
+                          onClick={() => handleEditUser(user)}
+                          className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
                           title="Chỉnh sửa"
                         >
                           ✏️
                         </button>
                         <button
-                          onClick={() => setDeleteId(user.id)}
-                          className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 p-1 rounded transition-colors"
+                          onClick={() => setDeleteId(user._id)}
+                          className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                           title="Xóa"
-                          disabled={user.role === 'admin'}
                         >
-                          {user.role === 'admin' ? '🔒' : '🗑️'}
+                          🗑️
                         </button>
                       </div>
                     </td>
@@ -526,414 +456,147 @@ const AdminUsers: React.FC = () => {
               </tbody>
             </table>
           </div>
-          
-          {totalItems === 0 && (
-            <div className="text-center py-12">
-              <div className="text-gray-400 dark:text-gray-500 text-6xl mb-4">👥</div>
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Không tìm thấy người dùng</h3>
-              <p className="text-gray-500 dark:text-gray-400">
-                {search ? 'Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc' : 'Chưa có người dùng nào'}
-              </p>
-            </div>
-          )}
         </div>
       ) : (
-        /* Grid View */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {currentUsers.map((user) => (
-            <div key={user.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1">
-              <div className="p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="w-12 h-12 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center overflow-hidden">
-                    {user.avatar ? (
-                      <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-gray-600 dark:text-gray-300 font-bold text-lg">{user.name.charAt(0)}</span>
-                    )}
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(user.status)}`}>
-                      {user.status === 'active' ? '✅' : user.status === 'suspended' ? '🚫' : '⏸️'}
-                    </span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getRoleColor(user.role)}`}>
-                      {user.role === 'admin' && '👑'} {user.role === 'staff' && '👨‍💼'} {user.role === 'user' && '👤'}
-                    </span>
-                  </div>
+          {paginatedUsers.map((user) => (
+            <div key={user._id} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-12 h-12 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center overflow-hidden">
+                  {user.avatar ? (
+                    <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-gray-600 dark:text-gray-300 font-bold">{user.name.charAt(0)}</span>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    {user.name}
+                    {user.isVerified && <span className="text-blue-500 dark:text-blue-400" title="Đã xác thực">✓</span>}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{user.email}</p>
+                </div>
+              </div>
+              
+              <div className="space-y-2 mb-4">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600 dark:text-gray-400">Vai trò:</span>
+                  <span className={`font-medium ${
+                    user.role === 'admin' ? 'text-purple-600 dark:text-purple-400' :
+                    'text-gray-600 dark:text-gray-400'
+                  }`}>
+                    {user.role === 'admin' ? '👑 Admin' : '👤 User'}
+                  </span>
                 </div>
                 
-                <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1 flex items-center gap-2">
-                  {user.name}
-                  {user.isVerified && <span className="text-blue-500 dark:text-blue-400" title="Đã xác thực">✓</span>}
-                </h3>
-                
-                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">{user.email}</p>
-                <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">{user.phone}</p>
-                
-                <div className="grid grid-cols-2 gap-3 mb-3">
-                  <div className="text-center">
-                    <div className="text-base font-bold text-blue-600 dark:text-blue-400">{user.totalOrders}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">Đơn hàng</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-xs font-bold text-green-600 dark:text-green-400">{formatPrice(user.totalSpent)}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">Chi tiêu</div>
-                  </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600 dark:text-gray-400">Trạng thái:</span>
+                  <span className={`font-medium ${
+                    user.status === 'active' ? 'text-green-600 dark:text-green-400' :
+                    user.status === 'suspended' ? 'text-red-600 dark:text-red-400' :
+                    'text-yellow-600 dark:text-yellow-400'
+                  }`}>
+                    {user.status === 'active' ? 'Hoạt động' : user.status === 'suspended' ? 'Tạm khóa' : 'Không hoạt động'}
+                  </span>
                 </div>
                 
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-                  <div>Tham gia: {formatDate(user.joinDate)}</div>
-                  <div>Đăng nhập: {formatDateTime(user.lastLogin)}</div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600 dark:text-gray-400">Đơn hàng:</span>
+                  <span className="font-medium text-gray-900 dark:text-white">{user.totalOrders || 0}</span>
                 </div>
                 
-                <div className="flex gap-1">
-                  <button
-                    onClick={() => openViewModal(user)}
-                    className="flex-1 px-2 py-1 bg-gray-100 dark:bg-gray-700 text-black rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-xs"
-                  >
-                    Xem
-                  </button>
-                  <button
-                    onClick={() => openEditModal(user)}
-                    className="flex-1 px-2 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-xs"
-                  >
-                    Sửa
-                  </button>
-                  <button
-                    onClick={() => setDeleteId(user.id)}
-                    disabled={user.role === 'admin'}
-                    className="px-2 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-xs disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {user.role === 'admin' ? '🔒' : 'Xóa'}
-                  </button>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600 dark:text-gray-400">Chi tiêu:</span>
+                  <span className="font-medium text-green-600 dark:text-green-400">{formatPrice(user.totalSpent || 0)}</span>
                 </div>
+                
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600 dark:text-gray-400">Tham gia:</span>
+                  <span className="font-medium text-gray-900 dark:text-white">{new Date(user.createdAt).toLocaleDateString('vi-VN')}</span>
+                </div>
+              </div>
+              
+              <div className="flex gap-2 pt-3 border-t border-gray-200 dark:border-gray-700">
+                <button
+                  onClick={() => handleViewUser(user)}
+                  className="flex-1 text-center py-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium"
+                >
+                  👁️ Xem
+                </button>
+                <button
+                  onClick={() => handleEditUser(user)}
+                  className="flex-1 text-center py-2 text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 text-sm font-medium"
+                >
+                  ✏️ Sửa
+                </button>
+                <button
+                  onClick={() => setDeleteId(user._id)}
+                  className="flex-1 text-center py-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 text-sm font-medium"
+                >
+                  🗑️ Xóa
+                </button>
               </div>
             </div>
           ))}
-          
-          {totalItems === 0 && (
-            <div className="col-span-full text-center py-12">
-              <div className="text-gray-400 dark:text-gray-500 text-6xl mb-4">👥</div>
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Không tìm thấy người dùng</h3>
-              <p className="text-gray-500 dark:text-gray-400">
-                {search ? 'Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc' : 'Chưa có người dùng nào'}
-              </p>
-            </div>
-          )}
         </div>
       )}
 
       {/* Pagination */}
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        totalItems={totalItems}
-        itemsPerPage={itemsPerPage}
-        startIndex={startIndex}
-        endIndex={endIndex}
-        onPageChange={setCurrentPage}
-        onItemsPerPageChange={(newItemsPerPage) => {
-          setItemsPerPage(newItemsPerPage);
-          setCurrentPage(1);
-        }}
-      />
-
-      {/* Loading indicator */}
-      {isLoading && (
-        <div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-xl">
-            <div className="flex items-center gap-3">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
-              <span className="text-gray-700 dark:text-gray-300">Đang xử lý...</span>
-            </div>
-          </div>
+      {totalPages > 1 && (
+        <div className="mt-6 flex justify-center">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={filteredAndSortedUsers.length}
+            itemsPerPage={itemsPerPage}
+            startIndex={(currentPage - 1) * itemsPerPage + 1}
+            endIndex={Math.min(currentPage * itemsPerPage, filteredAndSortedUsers.length)}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={setItemsPerPage}
+          />
         </div>
       )}
 
       {/* Modals */}
-      {showAdd && (
-        <AddUserModal
-          show={showAdd}
-          onAdd={handleAddUser}
-          onClose={() => setShowAdd(false)}
-        />
-      )}
+      <AddUserModal
+        show={showAddModal}
+        onAdd={handleAddUser}
+        onClose={() => setShowAddModal(false)}
+      />
 
-      {showEdit && editUser && (
-        <EditUserModal
-          show={showEdit}
-          user={editUser}
-          onSave={handleEditUser}
-          onClose={() => {
-            setShowEdit(false);
-            setEditUser(null);
-          }}
-        />
-      )}
+      {selectedUser && (
+        <>
+          <EditUserModal
+            show={showEditModal}
+            user={selectedUser}
+            onSave={handleSaveUser}
+            onClose={() => {
+              setShowEditModal(false);
+              setSelectedUser(null);
+            }}
+          />
 
-      {showView && viewUser && (
-        <ViewUserModal
-          show={showView}
-          user={viewUser}
-          onClose={() => {
-            setShowView(false);
-            setViewUser(null);
-          }}
-        />
+          <ViewUserModal
+            show={showViewModal}
+            user={selectedUser}
+            onClose={() => {
+              setShowViewModal(false);
+              setSelectedUser(null);
+            }}
+          />
+        </>
       )}
 
       {deleteId && (
         <ConfirmDeleteUserModal
           show={!!deleteId}
-          userName={users.find(u => u.id === deleteId)?.name || ''}
+          user={users.find(u => u._id === deleteId)!}
           onConfirm={handleDeleteUser}
-          onCancel={() => setDeleteId(null)}
+          onClose={() => setDeleteId(null)}
         />
       )}
     </div>
   );
 };
 
-// Modal components (simplified for now)
-const AddUserModal: React.FC<{show: boolean, onAdd: (user: Omit<User, 'id'>) => void, onClose: () => void}> = ({ show, onAdd, onClose }) => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    role: 'user' as 'admin' | 'user' | 'staff',
-    status: 'active' as 'active' | 'inactive' | 'suspended',
-    address: ''
-  });
-
-  if (!show) return null;
-
-  const handleAdd = () => {
-    if (!formData.name.trim() || !formData.email.trim()) return;
-    onAdd({
-      ...formData,
-      isVerified: false,
-      joinDate: new Date().toISOString().split('T')[0],
-      lastLogin: new Date().toISOString(),
-      totalOrders: 0,
-      totalSpent: 0
-    });
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      role: 'user',
-      status: 'active',
-      address: ''
-    });
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-start pt-10 z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md">
-        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Thêm người dùng mới</h2>
-        <div className="space-y-4">
-          <input
-            type="text"
-            value={formData.name}
-            onChange={(e) => setFormData({...formData, name: e.target.value})}
-            placeholder="Họ và tên"
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-          />
-          <input
-            type="email"
-            value={formData.email}
-            onChange={(e) => setFormData({...formData, email: e.target.value})}
-            placeholder="Email"
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-          />
-          <input
-            type="tel"
-            value={formData.phone}
-            onChange={(e) => setFormData({...formData, phone: e.target.value})}
-            placeholder="Số điện thoại"
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-          />
-          <select
-            value={formData.role}
-            onChange={(e) => setFormData({...formData, role: e.target.value as any})}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-          >
-            <option value="user">👤 Khách hàng</option>
-            <option value="staff">👨‍💼 Nhân viên</option>
-            <option value="admin">👑 Admin</option>
-          </select>
-          <input
-            type="text"
-            value={formData.address}
-            onChange={(e) => setFormData({...formData, address: e.target.value})}
-            placeholder="Địa chỉ"
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-          />
-        </div>
-        <div className="flex gap-2 mt-6">
-          <button onClick={onClose} className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">Hủy</button>
-          <button onClick={handleAdd} className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg">Thêm</button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const EditUserModal: React.FC<{show: boolean, user: User, onSave: (user: User) => void, onClose: () => void}> = ({ show, user, onSave, onClose }) => {
-  const [formData, setFormData] = useState(user);
-
-  if (!show) return null;
-
-  const handleSave = () => {
-    if (!formData.name.trim() || !formData.email.trim()) return;
-    onSave(formData);
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-start pt-10 z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md">
-        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Sửa thông tin người dùng</h2>
-        <div className="space-y-4">
-          <input
-            type="text"
-            value={formData.name}
-            onChange={(e) => setFormData({...formData, name: e.target.value})}
-            placeholder="Họ và tên"
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-          />
-          <input
-            type="email"
-            value={formData.email}
-            onChange={(e) => setFormData({...formData, email: e.target.value})}
-            placeholder="Email"
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-          />
-          <input
-            type="tel"
-            value={formData.phone}
-            onChange={(e) => setFormData({...formData, phone: e.target.value})}
-            placeholder="Số điện thoại"
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-          />
-          <select
-            value={formData.role}
-            onChange={(e) => setFormData({...formData, role: e.target.value as any})}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-          >
-            <option value="user">👤 Khách hàng</option>
-            <option value="staff">👨‍💼 Nhân viên</option>
-            <option value="admin">👑 Admin</option>
-          </select>
-          <input
-            type="text"
-            value={formData.address || ''}
-            onChange={(e) => setFormData({...formData, address: e.target.value})}
-            placeholder="Địa chỉ"
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-          />
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={formData.isVerified}
-              onChange={(e) => setFormData({...formData, isVerified: e.target.checked})}
-              className="w-4 h-4"
-            />
-            <label className="text-gray-900 dark:text-white">Đã xác thực</label>
-          </div>
-        </div>
-        <div className="flex gap-2 mt-6">
-          <button onClick={onClose} className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">Hủy</button>
-          <button onClick={handleSave} className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Lưu</button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const ViewUserModal: React.FC<{show: boolean, user: User, onClose: () => void}> = ({ show, user, onClose }) => {
-  if (!show) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-start pt-10 z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-lg">
-        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Chi tiết người dùng</h2>
-        <div className="space-y-4">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center overflow-hidden">
-              {user.avatar ? (
-                <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-gray-600 dark:text-gray-300 font-bold text-xl">{user.name.charAt(0)}</span>
-              )}
-            </div>
-            <div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white">{user.name}</h3>
-              <p className="text-gray-600 dark:text-gray-400">ID: {user.id}</p>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
-              <p className="text-gray-900 dark:text-white">{user.email}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Điện thoại</label>
-              <p className="text-gray-900 dark:text-white">{user.phone}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Vai trò</label>
-              <p className="text-gray-900 dark:text-white">{user.role === 'admin' ? 'Admin' : user.role === 'staff' ? 'Nhân viên' : 'Khách hàng'}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Trạng thái</label>
-              <p className="text-gray-900 dark:text-white">{user.status === 'active' ? 'Hoạt động' : user.status === 'suspended' ? 'Tạm khóa' : 'Không hoạt động'}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tham gia</label>
-              <p className="text-gray-900 dark:text-white">{new Date(user.joinDate).toLocaleDateString('vi-VN')}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Đăng nhập cuối</label>
-              <p className="text-gray-900 dark:text-white">{new Date(user.lastLogin).toLocaleString('vi-VN')}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tổng đơn hàng</label>
-              <p className="text-gray-900 dark:text-white">{user.totalOrders}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tổng chi tiêu</label>
-              <p className="text-gray-900 dark:text-white">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(user.totalSpent)}</p>
-            </div>
-          </div>
-          {user.address && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Địa chỉ</label>
-              <p className="text-gray-900 dark:text-white">{user.address}</p>
-            </div>
-          )}
-        </div>
-        <div className="flex justify-end mt-6">
-          <button onClick={onClose} className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg">Đóng</button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const ConfirmDeleteUserModal: React.FC<{show: boolean, userName: string, onConfirm: () => void, onCancel: () => void}> = ({ show, userName, onConfirm, onCancel }) => {
-  if (!show) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-sm">
-        <h2 className="text-xl font-bold mb-4 text-red-700 dark:text-red-400">Xác nhận xóa</h2>
-        <p className="mb-6 text-gray-900 dark:text-white">Bạn có chắc chắn muốn xóa người dùng <strong>"{userName}"</strong> không?</p>
-        <div className="flex gap-2">
-          <button onClick={onCancel} className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">Hủy</button>
-          <button onClick={onConfirm} className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg">Xóa</button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default AdminUsers;
+export default AdminUsersPage;

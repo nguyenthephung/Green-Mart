@@ -4,10 +4,6 @@ import { useUserStore } from '../../../stores/useUserStore';
 import { updateUserVouchers } from '../../../services/userService';
 import { X, Gift } from 'lucide-react';
 
-
-// Sử dụng voucher động từ store, thêm 1 ô "Chúc bạn may mắn lần sau"
-
-
 const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: () => void }> = ({ 
   userId,
   isOpen, 
@@ -17,10 +13,8 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
   const voucherLoading = useVoucherStore(state => state.loading || false);
   const { user, setUser, setVoucher } = useUserStore();
   const [userVouchers, setUserVouchers] = useState<{[key: string]: number}>(() => {
-    // Handle both old array format and new object format
     if (user?.vouchers) {
       if (Array.isArray(user.vouchers)) {
-        // Convert old array format to new object format
         const voucherObj: {[key: string]: number} = {};
         user.vouchers.forEach((v: any) => {
           if (typeof v === 'string') {
@@ -31,41 +25,24 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
         });
         return voucherObj;
       } else {
-        // Already in new object format
         return user.vouchers as {[key: string]: number};
       }
     }
     return {};
   });
-  // Đã fetch voucher ở App.tsx, không cần fetch lại ở đây
-  // Chỉ lấy các voucher còn hiệu lực và chưa hết hạn
+
   const validVouchers = vouchers.filter(v => {
     const isActive = v.isActive === true;
     const notFullyUsed = !v.maxUsage || v.currentUsage < v.maxUsage;
     const notExpired = new Date(v.expired) >= new Date();
-    
-    console.log(`LuckyWheel - Voucher ${v.code}:`, {
-      isActive,
-      notFullyUsed,
-      notExpired,
-      currentUsage: v.currentUsage,
-      maxUsage: v.maxUsage,
-      expired: v.expired
-    });
-    
     return isActive && notFullyUsed && notExpired;
   });
-  
-  // Debug log
-  console.log('LuckyWheel - All vouchers:', vouchers);
-  console.log('LuckyWheel - Valid vouchers:', validVouchers);
   
   const prizes = [
     ...validVouchers.map(v => ({ ...v, id: String(v.id || v._id) })),
     { code: 'LUCKY', label: 'Chúc bạn may mắn lần sau', description: '', minOrder: 0, discountType: 'amount', discountValue: 0, expired: '', usedPercent: 0, isActive: false, id: '-1', note: '', currentUsage: 0, maxUsage: 0, onlyOn: '', disabled: false },
   ];
   
-  console.log('Prizes array:', prizes);
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [rotation, setRotation] = useState(0);
@@ -73,125 +50,118 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
   const [showVoucherModal, setShowVoucherModal] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  // Thay thế logic spin trong component LuckyWheel
-
-const spin = async () => {
-  if (spinning || isUpdating) return;
-  setSpinning(true);
-  setResult(null);
-  setShowFireworks(false);
-  setShowVoucherModal(false);
-  
-  // Random prize index
-  let prizeIndex = Math.floor(Math.random() * prizes.length);
-  
-  // Only skip voucher if user already owns it and there is at least one other voucher to win
-  let tries = 0;
-  const availableVoucherCount = prizes.filter(p => p.id !== '-1' && !(String(p.id) in userVouchers)).length;
-  while (
-    prizes[prizeIndex].id !== '-1' &&
-    String(prizes[prizeIndex].id) in userVouchers &&
-    tries < 10 &&
-    availableVoucherCount > 0
-  ) {
-    prizeIndex = Math.floor(Math.random() * prizes.length);
-    tries++;
-  }
-  
-  // LOGIC SỬA LẠI:
-  // Kim chỉ ở vị trí 12h (0 độ)
-  // Các ô được vẽ theo thứ tự: ô 0 từ 0° đến segmentAngle°, ô 1 từ segmentAngle° đến 2*segmentAngle°, v.v.
-  // Để kim chỉ vào ô prizeIndex, ta cần quay wheel sao cho giữa ô đó về vị trí 12h
-  
-  const segmentAngle = 360 / prizes.length;  // Góc mỗi ô
-  
-  // Góc giữa của ô prizeIndex (tính từ 0°)
-  const prizeMiddleAngle = prizeIndex * segmentAngle + segmentAngle / 2;
-  
-  // Để đưa giữa ô về vị trí 12h (0°), ta cần quay wheel THUẬN CHIỀU KIM ĐỒNG HỒ
-  // một góc = prizeMiddleAngle
-  // Nhưng vì CSS transform rotate() quay ngược chiều kim đồng hồ khi giá trị dương
-  // nên ta cần dùng giá trị âm để quay thuận chiều kim đồng hồ
-  const targetAngle = -prizeMiddleAngle;
-  
-  // Thêm số vòng quay để tạo hiệu ứng
-  const spins = 8 + Math.floor(Math.random() * 5); // 8-12 vòng quay
-  const finalRotation = 360 * spins + targetAngle;
-  
-  console.log('Lucky Wheel spin (FIXED):', {
-    prizeIndex,
-    selectedPrize: prizes[prizeIndex],
-    segmentAngle,
-    prizeMiddleAngle,
-    targetAngle,
-    finalRotation,
-    totalRotation: rotation + finalRotation
-  });
-  
-  setRotation(prev => prev + finalRotation);
-  
-  // Save the selected prize for use in the async block
-  const selectedPrize = prizes[prizeIndex];
-  
-  setTimeout(async () => {
-    setSpinning(false);
-    setResult(selectedPrize);
+  const spin = async () => {
+    if (spinning || isUpdating) return;
+    setSpinning(true);
+    setResult(null);
+    setShowFireworks(false);
+    setShowVoucherModal(false);
     
-    // Nếu trúng voucher thật
-    if (String(selectedPrize.id) !== '-1') {
-      setShowFireworks(true);
-      setIsUpdating(true);
-      try {
-        const voucherId = String(selectedPrize.id);
-        
-        // Gọi API cập nhật voucher cho user
-        await updateUserVouchers(userId, voucherId);
-        
-        // Cập nhật lại user local
-        if (setUser && user) {
-          const updatedVouchers = { ...userVouchers };
-          updatedVouchers[voucherId] = (updatedVouchers[voucherId] || 0) + 1;
-          
-          setUser({
-            ...user,
-            vouchers: updatedVouchers
-          });
-          setUserVouchers(updatedVouchers);
-        }
-        
-        // Set voucher vừa trúng là voucher đang chọn
-        if (setVoucher && selectedPrize.code) {
-          const v = vouchers.find(vv => String(vv.id || vv._id) === String(selectedPrize.id));
-          if (v) {
-            setVoucher({
-              ...v,
-              createdAt: (v as any).createdAt || '',
-              updatedAt: (v as any).updatedAt || '',
-              currentUsage: (v as any).currentUsage || 0,
-              isActive: (v as any).isActive ?? true,
-            });
-          }
-        }
-      } catch (err) {
-        alert('Có lỗi khi cập nhật voucher cho tài khoản!');
-      }
-      setIsUpdating(false);
-      
-      // Hiện pháo hoa 2s, sau đó show modal trúng thưởng
-      setTimeout(() => {
-        setShowFireworks(false);
-        setShowVoucherModal(true);
-      }, 2000);
+    // Random prize index
+    let prizeIndex = Math.floor(Math.random() * prizes.length);
+    
+    // Skip logic for already owned vouchers
+    let tries = 0;
+    const availableVoucherCount = prizes.filter(p => p.id !== '-1' && !(String(p.id) in userVouchers)).length;
+    while (
+      prizes[prizeIndex].id !== '-1' &&
+      String(prizes[prizeIndex].id) in userVouchers &&
+      tries < 10 &&
+      availableVoucherCount > 0
+    ) {
+      prizeIndex = Math.floor(Math.random() * prizes.length);
+      tries++;
     }
-  }, 4100);
-};
+    
+    // LOGIC TÍNH TOÁN GÓC QUAY CHÍNH XÁC
+    const segmentAngle = 360 / prizes.length;
+    
+    // Trong code render, ô được vẽ tại góc: index * segmentAngle + segmentAngle/2
+    const prizeCurrentAngle = prizeIndex * segmentAngle + segmentAngle / 2;
+    
+    // Kim ở vị trí 0° (12h), để kim chỉ vào ô prizeIndex:
+    // Ta cần quay wheel để đưa prizeCurrentAngle về vị trí 0°
+    // Vì wheel quay theo chiều dương (counter-clockwise), ta cần:
+    const targetAngle = (360 - prizeCurrentAngle) % 360;
+    
+    // Thêm số vòng quay để tạo hiệu ứng
+    const extraSpins = 8 + Math.floor(Math.random() * 5);
+    const finalRotation = 360 * extraSpins + targetAngle;
+    
+    console.log('=== LUCKY WHEEL SPIN DEBUG ===');
+    console.log('Total prizes:', prizes.length);
+    console.log('Segment angle:', segmentAngle, '°');
+    console.log('Selected prize index:', prizeIndex);
+    console.log('Selected prize:', prizes[prizeIndex]);
+    console.log('Prize current angle:', prizeCurrentAngle, '°');
+    console.log('Target angle to align with pointer:', targetAngle, '°');
+    console.log('Extra spins:', extraSpins);
+    console.log('Final rotation:', finalRotation, '°');
+    console.log('Total rotation:', rotation + finalRotation, '°');
+    
+    // Verify calculation
+    const finalWheelAngle = (rotation + finalRotation) % 360;
+    const expectedPrizeAngle = (prizeCurrentAngle - finalWheelAngle + 360) % 360;
+    console.log('After spin - Wheel angle:', finalWheelAngle, '°');
+    console.log('After spin - Prize will be at:', expectedPrizeAngle, '° (should be ~0°)');
+    console.log('===============================');
+    
+    setRotation(prev => prev + finalRotation);
+    
+    const selectedPrize = prizes[prizeIndex];
+    
+    setTimeout(async () => {
+      setSpinning(false);
+      setResult(selectedPrize);
+      
+      if (String(selectedPrize.id) !== '-1') {
+        setShowFireworks(true);
+        setIsUpdating(true);
+        try {
+          const voucherId = String(selectedPrize.id);
+          await updateUserVouchers(userId, voucherId);
+          
+          if (setUser && user) {
+            const updatedVouchers = { ...userVouchers };
+            updatedVouchers[voucherId] = (updatedVouchers[voucherId] || 0) + 1;
+            
+            setUser({
+              ...user,
+              vouchers: updatedVouchers
+            });
+            setUserVouchers(updatedVouchers);
+          }
+          
+          if (setVoucher && selectedPrize.code) {
+            const v = vouchers.find(vv => String(vv.id || vv._id) === String(selectedPrize.id));
+            if (v) {
+              setVoucher({
+                ...v,
+                createdAt: (v as any).createdAt || '',
+                updatedAt: (v as any).updatedAt || '',
+                currentUsage: (v as any).currentUsage || 0,
+                isActive: (v as any).isActive ?? true,
+              });
+            }
+          }
+        } catch (err) {
+          alert('Có lỗi khi cập nhật voucher cho tài khoản!');
+        }
+        setIsUpdating(false);
+        
+        setTimeout(() => {
+          setShowFireworks(false);
+          setShowVoucherModal(true);
+        }, 2000);
+      }
+    }, 4100);
+  };
 
   if (!isOpen && !showVoucherModal) return null;
 
   // Component hiệu ứng pháo hoa
   const Fireworks = () => (
     <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
-      {/* Tăng số lượng hạt pháo hoa và độ sáng */}
       {[...Array(25)].map((_, i) => (
         <div
           key={i}
@@ -206,7 +176,6 @@ const spin = async () => {
           }}
         />
       ))}
-      {/* Thêm hiệu ứng tia sáng */}
       {[...Array(8)].map((_, i) => (
         <div
           key={`beam-${i}`}
@@ -221,7 +190,6 @@ const spin = async () => {
           }}
         />
       ))}
-      {/* Ngôi sao sáng hơn */}
       {[...Array(15)].map((_, i) => (
         <div
           key={`star-${i}`}
@@ -238,7 +206,6 @@ const spin = async () => {
           ⭐
         </div>
       ))}
-      {/* Hiệu ứng flash */}
       <div 
         className="absolute inset-0 bg-gradient-radial from-yellow-300 via-transparent to-transparent animate-ping opacity-30"
         style={{
@@ -248,13 +215,8 @@ const spin = async () => {
     </div>
   );
 
-  // Hiển thị danh sách voucher hiện có
-  // (Có thể bỏ qua nếu không muốn show ngoài vòng quay, nhưng theo yêu cầu sẽ show)
-  // Chỉ show các voucher hợp lệ
-  // Nếu muốn show tất cả, thay validVouchers thành vouchers
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
-      {/* Overlay loading spinner */}
       {(isUpdating || voucherLoading) && (
         <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="flex flex-col items-center gap-2">
@@ -282,7 +244,7 @@ const spin = async () => {
             })}
           </div>
         </div>
-        {/* Hiệu ứng pháo hoa */}
+        
         {showFireworks && <Fireworks />}
         
         <button
@@ -326,7 +288,6 @@ const spin = async () => {
                   border: '2px solid white'
                 }}
               >
-                {/* Thêm các đường viền phân chia rõ ràng hơn */}
                 {prizes.map((_, index) => (
                   <div
                     key={`divider-${index}`}
@@ -384,7 +345,7 @@ const spin = async () => {
               </div>
             </div>
             
-            {/* Pointer - Mũi tên chính xác hơn */}
+            {/* Pointer */}
             <div 
               className="absolute w-0 h-0 z-20"
               style={{
@@ -398,7 +359,7 @@ const spin = async () => {
               }}
             />
             
-            {/* Vòng tròn trung tâm */}
+            {/* Center circle */}
             <div 
               className="absolute bg-white rounded-full border-4 border-gray-800 z-20"
               style={{
@@ -455,7 +416,6 @@ const spin = async () => {
             }}
           >
             <div className="bg-white rounded-3xl p-6 text-center relative overflow-hidden">
-              {/* Background decoration sáng hơn */}
               <div className="absolute inset-0 opacity-20">
                 {[...Array(30)].map((_, i) => (
                   <div
@@ -475,7 +435,6 @@ const spin = async () => {
                   </div>
                 ))}
               </div>
-              {/* Hiệu ứng sáng chớp nền */}
               <div 
                 className="absolute inset-0 bg-gradient-radial from-yellow-200 via-transparent to-transparent animate-ping opacity-40"
                 style={{
@@ -516,7 +475,6 @@ const spin = async () => {
                     animation: 'glow 2s ease-in-out infinite alternate'
                   }}
                 >
-                  {/* Hiệu ứng sáng chạy */}
                   <div 
                     className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30 animate-pulse"
                     style={{

@@ -29,7 +29,8 @@ const Header: React.FC = memo(() => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
-  const getWishlistCount = useWishlistStore(state => state.getWishlistCount);
+  // Use reactive wishlist count instead of function
+  const wishlistCount = useWishlistStore(state => state.items.length);
   const user = useUserStore(state => state.user);
   const logout = useUserStore(state => state.logout);
 
@@ -218,9 +219,9 @@ const Header: React.FC = memo(() => {
             >
               <span className="inline-block relative">
                 <Heart size={20} />
-                {user && getWishlistCount() > 0 && (
+                {user && wishlistCount > 0 && (
                   <span className="absolute top-0 right-0 translate-x-[60%] -translate-y-2/3 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center shadow-lg border-2 border-white dark:border-gray-800 font-bold min-w-[20px]">
-                    {getWishlistCount()}
+                    {wishlistCount}
                   </span>
                 )}
               </span>
@@ -291,9 +292,9 @@ const Header: React.FC = memo(() => {
                           <Heart size={16} className="group-hover:text-red-600" />
                         </div>
                         <span className="font-medium">Danh sách yêu thích</span>
-                        {getWishlistCount() > 0 && (
+                        {wishlistCount > 0 && (
                           <span className="bg-red-100 text-red-600 px-2 py-1 rounded-full text-xs font-medium ml-auto relative z-10">
-                            {getWishlistCount()}
+                            {wishlistCount}
                           </span>
                         )}
                       </button>

@@ -38,7 +38,14 @@ const ShopeeVoucherModal: React.FC<ShopeeVoucherModalProps> = ({ open, vouchers,
                   >
                     <span className="font-semibold text-green-700 text-lg break-words">{voucher.code}</span>
                     <span className="text-sm text-gray-600 break-words">{voucher.description}</span>
-                    <span className="text-xs text-gray-400 mt-1 break-all">Đơn tối thiểu: {voucher.minOrder.toLocaleString()} ₫</span>
+                    <div className="flex items-center gap-3 mt-2 w-full">
+                      <span className="text-sm font-bold text-red-600">
+                        {voucher.discountType === 'percent' 
+                          ? `Giảm ${voucher.discountValue}%` 
+                          : `Giảm ${voucher.discountValue.toLocaleString()}₫`}
+                      </span>
+                      <span className="text-xs text-gray-400">• Đơn tối thiểu: {voucher.minOrder.toLocaleString()}₫</span>
+                    </div>
                   </button>
                 ))}
               </div>

@@ -33,12 +33,22 @@ export default function CategoryPage() {
   const [sort, setSort] = useState('default');
   const [filterType, setFilterType] = useState<'all' | 'sale' | 'featured'>('all');
 
-  // Check URL params for special filters
-  
-
-
   // Use admin product store
   const products = useProductStore(state => state.products);
+
+  // Tìm parent category từ URL param
+  const currentParentCategory = useMemo(() => {
+    if (!category) return null;
+    return categories.find(cat => Array.isArray(cat.subs) && cat.subs.includes(category));
+  }, [category, categories]);
+
+  // Lấy subcategories của parent category hiện tại
+  const currentSubcategories = useMemo(() => {
+    if (currentParentCategory) {
+      return currentParentCategory.subs || [];
+    }
+    return [];
+  }, [currentParentCategory]);
 
   // Memoize filtered products for performance
   const filteredProducts = useMemo(() => {
@@ -46,10 +56,10 @@ export default function CategoryPage() {
       if (p.status !== 'active') return false;
       let categoryMatch = true;
       if (category) {
-        // Tìm category cha có subs chứa p.category
-        const parentCat = categories.find(cat => Array.isArray(cat.subs) && cat.subs.includes(p.category));
-        categoryMatch = !!parentCat && category === p.category;
+        // So sánh trực tiếp p.category với URL param category
+        categoryMatch = p.category === category;
       }
+      // Nếu không có category param, hiển thị tất cả sản phẩm active
       const searchMatch = p.name?.toLowerCase().includes(search.toLowerCase());
       let typeMatch = true;
       if (filterType === 'sale') typeMatch = !!p.isSale;
@@ -92,12 +102,10 @@ export default function CategoryPage() {
         {/* Page Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4">
-            {category
-              ? categories.find(cat => Array.isArray(cat.subs) && cat.subs.includes(category))?.name || category
-              : 'Tất Cả Sản Phẩm'}
+            {currentParentCategory ? currentParentCategory.name : category || 'Tất Cả Sản Phẩm'}
           </h1>
           <p className="text-gray-600 text-lg">
-            Khám phá bộ sưu tập tươi ngon chất lượng cao
+            {currentParentCategory ? `Khám phá ${currentParentCategory.name.toLowerCase()}` : 'Khám phá bộ sưu tập tươi ngon chất lượng cao'}
           </p>
           {/* Hiển thị tên user và địa chỉ giao hàng nếu có */}
           {user && (
@@ -155,32 +163,63 @@ export default function CategoryPage() {
           </div>
 
           {/* Category Navigation */}
-          <div className="flex flex-wrap gap-3 mb-6 justify-center">
-            <a
-              href="/category"
-              className={`px-4 py-2 rounded-full font-semibold text-sm transition-all duration-200 ${
-                !category
-                  ? 'bg-emerald-600 text-white border-emerald-700 shadow-lg'
-                  : 'text-gray-700 border border-gray-300 bg-white hover:bg-emerald-50 hover:text-emerald-700'
-              }`}
-            >
-              Tất Cả
-            </a>
-            {categories.map(cat => (
-              cat.subs.map(sub => (
+          <div className="mb-6">
+            {/* Parent Categories */}
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold text-gray-700 mb-3">Danh mục chính:</h3>
+              <div className="flex flex-wrap gap-3 justify-center">
                 <a
-                  key={sub}
-                  href={`/category/${sub}`}
+                  href="/category"
                   className={`px-4 py-2 rounded-full font-semibold text-sm transition-all duration-200 ${
-                    sub === category
+                    !category
                       ? 'bg-emerald-600 text-white border-emerald-700 shadow-lg'
                       : 'text-gray-700 border border-gray-300 bg-white hover:bg-emerald-50 hover:text-emerald-700'
                   }`}
                 >
-                  {cat.icon ? `${cat.icon} ` : ''}{sub}
+                  Tất Cả
                 </a>
-              ))
-            ))}
+                {categories.map(cat => (
+                  <button
+                    key={cat._id}
+                    onClick={() => {
+                      // Navigate to first subcategory of this parent để hiển thị subcategories
+                      if (cat.subs && cat.subs.length > 0) {
+                        window.location.href = `/category/${cat.subs[0]}`;
+                      }
+                    }}
+                    className={`px-4 py-2 rounded-full font-semibold text-sm transition-all duration-200 ${
+                      currentParentCategory?._id === cat._id
+                        ? 'bg-emerald-600 text-white border-emerald-700 shadow-lg'
+                        : 'text-gray-700 border border-gray-300 bg-white hover:bg-emerald-50 hover:text-emerald-700'
+                    }`}
+                  >
+                    {cat.icon ? `${cat.icon} ` : ''}{cat.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Subcategories - chỉ hiện khi có parent category được chọn */}
+            {currentParentCategory && currentSubcategories.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold text-gray-700 mb-3">Danh mục con:</h3>
+                <div className="flex flex-wrap gap-3 justify-center">
+                  {currentSubcategories.map(sub => (
+                    <a
+                      key={sub}
+                      href={`/category/${sub}`}
+                      className={`px-4 py-2 rounded-full font-semibold text-sm transition-all duration-200 ${
+                        sub === category
+                          ? 'bg-blue-600 text-white border-blue-700 shadow-lg'
+                          : 'text-gray-700 border border-gray-300 bg-white hover:bg-blue-50 hover:text-blue-700'
+                      }`}
+                    >
+                      {sub}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Search and Sort Controls */}

@@ -19,10 +19,11 @@ router.use('/auth', authRoutes);
 // Address routes
 router.use('/', addressRoutes);
 
-// User routes (vouchers, wishlist, ...)
-router.use('/users', userRoutes);
-// Wishlist routes
+// Wishlist routes (public - no auth required)
 router.use('/users', wishlistRoutes);
+
+// User routes (vouchers, admin functions...)
+router.use('/users', userRoutes);
 
 // Cart routes
 router.use('/cart', cartRoutes);
