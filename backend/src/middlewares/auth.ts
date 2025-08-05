@@ -47,6 +47,37 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
   }
 };
 
+// Optional authentication - allows both authenticated and unauthenticated users
+export const optionalAuthenticate = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    
+    if (!token) {
+      // No token provided, continue without user info
+      req.user = null;
+      next();
+      return;
+    }
+
+    const decoded = verifyToken(token);
+    const user = await User.findById(decoded.userId).select('-password');
+    
+    if (!user || user.status !== 'active') {
+      // Invalid token or inactive user, continue without user info
+      req.user = null;
+      next();
+      return;
+    }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    // Token verification failed, continue without user info
+    req.user = null;
+    next();
+  }
+};
+
 export const authorize = (roles: string[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction): void => {
     if (!req.user) {

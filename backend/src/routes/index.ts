@@ -9,6 +9,7 @@ import voucherRoutes from './voucherRoutes';
 import userRoutes from './userRoutes';
 import paymentRoutes from './paymentRoutes';
 import orderRoutes from './orderRoutes';
+import guestOrderRoutes from './guestOrderRoutes';
 import notificationRoutes from './notificationRoutes';
 import commentRoutes from './commentRoutes';
 import dashboardRoutes from './dashboardRoutes';
@@ -42,6 +43,9 @@ router.use('/payments', paymentRoutes);
 
 // Order routes
 router.use('/orders', orderRoutes);
+
+// Guest order routes
+router.use('/orders', guestOrderRoutes);
 
 // Notification routes
 router.use('/notifications', notificationRoutes);

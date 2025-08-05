@@ -7,14 +7,24 @@ const CartController = {
   async getCart(req: Request, res: Response): Promise<void> {
     try {
       const userId = req.user?._id;
+      
+      // Nếu user chưa đăng nhập, trả về giỏ hàng trống với hướng dẫn
       if (!userId) {
-        res.status(401).json({ success: false, message: 'Chưa xác thực người dùng', data: null });
+        res.json({ 
+          success: true, 
+          message: 'Giỏ hàng cho khách (chưa đăng nhập)', 
+          data: { 
+            items: [], 
+            isGuest: true,
+            note: 'Giỏ hàng sẽ được lưu tạm thời trên trình duyệt. Đăng nhập để đồng bộ giỏ hàng.'
+          } 
+        });
         return;
       }
 
       const cart = await Cart.findOne({ userId });
       if (!cart) {
-        res.json({ success: true, message: 'Giỏ hàng trống', data: { items: [] } });
+        res.json({ success: true, message: 'Giỏ hàng trống', data: { items: [], isGuest: false } });
         return;
       }
 
@@ -32,7 +42,7 @@ const CartController = {
         await cart.save();
       }
 
-      res.json({ success: true, message: 'Lấy giỏ hàng thành công', data: cart });
+      res.json({ success: true, message: 'Lấy giỏ hàng thành công', data: { ...cart.toObject(), isGuest: false } });
     } catch (err) {
       res.status(500).json({ success: false, message: 'Không lấy được giỏ hàng', data: null });
     }
@@ -42,10 +52,19 @@ const CartController = {
   async addToCart(req: Request, res: Response): Promise<void> {
     try {
       const userId = req.user?._id;
+      
+      // Nếu user chưa đăng nhập, hướng dẫn sử dụng local storage
       if (!userId) {
-        res.status(401).json({ success: false, message: 'Chưa xác thực người dùng', data: null });
+        res.json({ 
+          success: false, 
+          message: 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng', 
+          data: null,
+          isGuest: true,
+          requireLogin: true
+        });
         return;
       }
+      
       const { productId, quantity, weight, unit } = req.body;
       let cart = await Cart.findOne({ userId });
       if (!cart) {
@@ -103,8 +122,16 @@ const CartController = {
   async updateCartItem(req: Request, res: Response): Promise<void> {
     try {
       const userId = req.user?._id;
+      
+      // Nếu user chưa đăng nhập, hướng dẫn đăng nhập
       if (!userId) {
-        res.status(401).json({ success: false, message: 'Chưa xác thực người dùng', data: null });
+        res.json({ 
+          success: false, 
+          message: 'Vui lòng đăng nhập để cập nhật giỏ hàng', 
+          data: null,
+          isGuest: true,
+          requireLogin: true
+        });
         return;
       }
       
@@ -137,8 +164,16 @@ const CartController = {
   async removeFromCart(req: Request, res: Response): Promise<void> {
     try {
       const userId = req.user?._id;
+      
+      // Nếu user chưa đăng nhập, hướng dẫn đăng nhập
       if (!userId) {
-        res.status(401).json({ success: false, message: 'Chưa xác thực người dùng', data: null });
+        res.json({ 
+          success: false, 
+          message: 'Vui lòng đăng nhập để xóa sản phẩm khỏi giỏ hàng', 
+          data: null,
+          isGuest: true,
+          requireLogin: true
+        });
         return;
       }
       
@@ -177,14 +212,21 @@ const CartController = {
   async clearCart(req: Request, res: Response): Promise<void> {
     try {
       const userId = req.user?._id;
+      
+      // Nếu user chưa đăng nhập, trả về thành công nhưng không cần xử lý gì
       if (!userId) {
-        res.status(401).json({ success: false, message: 'Chưa xác thực người dùng', data: null });
+        res.json({ 
+          success: true, 
+          message: 'Giỏ hàng guest đã được xóa (local storage)', 
+          data: { items: [] },
+          isGuest: true
+        });
         return;
       }
       
       const cart = await Cart.findOne({ userId });
       if (!cart) {
-        res.status(404).json({ success: false, message: 'Không tìm thấy giỏ hàng', data: null });
+        res.json({ success: true, message: 'Giỏ hàng đã trống', data: { items: [] } });
         return;
       }
       

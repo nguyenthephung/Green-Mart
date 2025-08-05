@@ -330,8 +330,8 @@ class OrderController {
         return;
       }
 
-      // Check if order belongs to user
-      if (order.userId.toString() !== userId) {
+      // Check if order belongs to user (skip for guest orders)
+      if (order.userId && order.userId.toString() !== userId) {
         console.log('Unauthorized access - Order userId:', order.userId, 'Request userId:', userId);
         res.status(403).json({
           success: false,
@@ -429,7 +429,7 @@ class OrderController {
 
       // For admin, skip ownership check - admin can update any order
       // For regular users, check if they own the order
-      const isOwner = order.userId.toString() === userId;
+      const isOwner = order.userId ? order.userId.toString() === userId : false;
       // Note: You might want to add proper admin role checking here
       // For now, we'll allow any authenticated user to update orders (admin behavior)
       
@@ -492,9 +492,11 @@ class OrderController {
 
       await order.save();
 
-      // Create notification for status change
+      // Create notification for status change (only for authenticated users)
       try {
-        await NotificationHelper.notifyOrderStatusChanged(order.userId.toString(), order, status);
+        if (order.userId) {
+          await NotificationHelper.notifyOrderStatusChanged(order.userId.toString(), order, status);
+        }
       } catch (notificationError) {
         console.error('Error creating order status notification:', notificationError);
         // Don't fail the status update if notification fails
@@ -531,8 +533,8 @@ class OrderController {
         return;
       }
 
-      // Check permission
-      if (order.userId.toString() !== userId) {
+      // Check permission (skip for guest orders - they shouldn't access this endpoint)
+      if (order.userId && order.userId.toString() !== userId) {
         res.status(403).json({
           success: false,
           message: 'Unauthorized access to order'

@@ -4,8 +4,8 @@ import { getAllVouchers, createVoucher, updateVoucher, deleteVoucher } from '../
 
 const router = Router();
 
-router.get('/', getAllVouchers);
-router.post('/', createVoucher);
+router.get('/', getAllVouchers as express.RequestHandler);
+router.post('/', createVoucher as express.RequestHandler);
 router.put('/:id', updateVoucher as express.RequestHandler);
 router.delete('/:id', deleteVoucher as express.RequestHandler);
 

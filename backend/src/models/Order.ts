@@ -6,15 +6,31 @@ export interface IOrderItem {
   quantity: number;
   price: number;
   image?: string;
+  weight?: number;
+  unit?: string;
+  total?: number;
+  product?: mongoose.Types.ObjectId;
+  name?: string;
+}
+
+export interface IGuestInfo {
+  name: string;
+  phone: string;
+  address: string;
+  email?: string;
 }
 
 export interface IOrder extends Document {
-  userId: mongoose.Types.ObjectId;
+  userId?: mongoose.Types.ObjectId; // Optional for guest orders
   orderNumber: string;
-  customerName: string;
-  customerEmail: string;
-  customerPhone: string;
-  customerAddress: string;
+  customerName?: string;
+  customerEmail?: string;
+  customerPhone?: string;
+  customerAddress?: string;
+  // Guest info for guest orders
+  guestInfo?: IGuestInfo;
+  isGuestOrder?: boolean;
+  deliveryType?: 'pickup' | 'delivery';
   items: IOrderItem[];
   subtotal: number;
   deliveryFee: number;
@@ -22,31 +38,41 @@ export interface IOrder extends Document {
   voucherDiscount: number;
   voucherCode?: string;
   totalAmount: number;
+  shippingFee?: number;
   status: 'pending' | 'confirmed' | 'preparing' | 'shipping' | 'delivered' | 'cancelled' | 'returned';
-  paymentMethod: 'cod' | 'bank_transfer' | 'momo' | 'zalopay' | 'vnpay' | 'credit_card' | 'shopeepay';
+  paymentMethod: 'cash' | 'cod' | 'bank_transfer' | 'momo' | 'zalopay' | 'vnpay' | 'credit_card' | 'shopeepay';
   paymentStatus: 'unpaid' | 'paid' | 'completed' | 'failed' | 'pending' | 'refunded' | 'partially_refunded';
+  paymentInfo?: any;
   orderDate: Date;
   deliveryDate?: Date;
   notes?: string;
   trackingCode?: string;
   paymentId?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const OrderItemSchema: Schema = new Schema({
   productId: {
     type: Schema.Types.ObjectId,
-    ref: 'Product',
-    required: true
+    ref: 'Product'
+  },
+  product: {
+    type: Schema.Types.ObjectId,
+    ref: 'Product'
   },
   productName: {
     type: String,
-    required: true,
+    trim: true
+  },
+  name: {
+    type: String,
     trim: true
   },
   quantity: {
     type: Number,
-    required: true,
-    min: 1
+    min: 1,
+    default: 1
   },
   price: {
     type: Number,
@@ -54,7 +80,20 @@ const OrderItemSchema: Schema = new Schema({
     min: 0
   },
   image: {
-    type: String
+    type: String,
+    trim: true
+  },
+  weight: {
+    type: Number,
+    min: 0
+  },
+  unit: {
+    type: String,
+    trim: true
+  },
+  total: {
+    type: Number,
+    min: 0
   }
 });
 
@@ -62,7 +101,7 @@ const OrderSchema: Schema = new Schema({
   userId: {
     type: Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: false // Make optional for guest orders
   },
   orderNumber: {
     type: String,
@@ -72,23 +111,39 @@ const OrderSchema: Schema = new Schema({
   },
   customerName: {
     type: String,
-    required: true,
+    required: false, // Will be filled from guestInfo for guest orders
     trim: true
   },
   customerEmail: {
     type: String,
-    required: true,
+    required: false,
     trim: true
   },
   customerPhone: {
     type: String,
-    required: true,
+    required: false,
     trim: true
   },
   customerAddress: {
     type: String,
-    required: true,
+    required: false,
     trim: true
+  },
+  // Guest order fields
+  guestInfo: {
+    name: { type: String, trim: true },
+    phone: { type: String, trim: true },
+    address: { type: String, trim: true },
+    email: { type: String, trim: true }
+  },
+  isGuestOrder: {
+    type: Boolean,
+    default: false
+  },
+  deliveryType: {
+    type: String,
+    enum: ['pickup', 'delivery'],
+    default: 'delivery'
   },
   items: [OrderItemSchema],
   subtotal: {
@@ -122,6 +177,11 @@ const OrderSchema: Schema = new Schema({
     required: true,
     min: 0
   },
+  shippingFee: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
   status: {
     type: String,
     enum: ['pending', 'confirmed', 'preparing', 'shipping', 'delivered', 'cancelled', 'returned'],
@@ -129,64 +189,49 @@ const OrderSchema: Schema = new Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ['cod', 'bank_transfer', 'momo', 'zalopay', 'vnpay', 'credit_card', 'shopeepay'],
+    enum: ['cash', 'cod', 'bank_transfer', 'momo', 'zalopay', 'vnpay', 'credit_card', 'shopeepay'],
     required: true
   },
   paymentStatus: {
     type: String,
-    enum: ['unpaid', 'paid', 'refunded', 'partially_refunded'],
-    default: 'unpaid'
+    enum: ['unpaid', 'paid', 'completed', 'failed', 'pending', 'refunded', 'partially_refunded'],
+    default: 'pending'
+  },
+  paymentInfo: {
+    type: Schema.Types.Mixed,
+    default: null
   },
   orderDate: {
     type: Date,
     default: Date.now
   },
   deliveryDate: {
-    type: Date
+    type: Date,
+    default: null
   },
   notes: {
     type: String,
-    trim: true
+    default: null
   },
   trackingCode: {
     type: String,
-    trim: true
+    default: null
   },
   paymentId: {
     type: String,
     default: null
   }
 }, {
-  timestamps: true
+  timestamps: true // This adds createdAt and updatedAt automatically
 });
 
-// Indexes
-OrderSchema.index({ userId: 1 });
+// Create indexes for better performance
+OrderSchema.index({ userId: 1, orderDate: -1 });
+OrderSchema.index({ orderNumber: 1 });
 OrderSchema.index({ status: 1 });
-OrderSchema.index({ orderDate: -1 });
-OrderSchema.index({ trackingCode: 1 });
-OrderSchema.index({ orderNumber: 1 }, { unique: true });
 OrderSchema.index({ paymentStatus: 1 });
+OrderSchema.index({ isGuestOrder: 1 });
 
-// Pre-save middleware to generate order number
-OrderSchema.pre('save', async function(next) {
-  if (this.isNew && !this.orderNumber) {
-    const timestamp = Date.now().toString();
-    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-    this.orderNumber = `ORD${timestamp}${random}`;
-  }
-  next();
-});
+const Order = mongoose.model<IOrder>('Order', OrderSchema);
 
-// Instance methods
-OrderSchema.methods.canCancel = function() {
-  return ['pending', 'confirmed'].includes(this.status);
-};
-
-OrderSchema.methods.canReturn = function() {
-  return this.status === 'delivered' && 
-         this.deliveryDate && 
-         (Date.now() - this.deliveryDate.getTime()) <= 7 * 24 * 60 * 60 * 1000; // 7 days
-};
-
-export default mongoose.model<IOrder>('Order', OrderSchema);
+export default Order;
