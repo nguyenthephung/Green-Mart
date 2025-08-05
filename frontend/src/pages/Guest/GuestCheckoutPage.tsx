@@ -14,7 +14,7 @@ const GuestCheckoutPage: React.FC = () => {
   
   const [showGuestModal, setShowGuestModal] = useState(false);
   const [currentGuestInfo, setCurrentGuestInfo] = useState<GuestUser | null>(guestInfo);
-  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'momo' | 'bank_transfer'>('cash');
+  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'momo' | 'bank_transfer'>('cod');
   const [notes, setNotes] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -225,9 +225,9 @@ const GuestCheckoutPage: React.FC = () => {
                   <input
                     type="radio"
                     name="paymentMethod"
-                    value="cash"
-                    checked={paymentMethod === 'cash'}
-                    onChange={(e) => setPaymentMethod(e.target.value as 'cash')}
+                    value="cod"
+                    checked={paymentMethod === 'cod'}
+                    onChange={(e) => setPaymentMethod(e.target.value as 'cod')}
                     className="mr-3"
                   />
                   <Banknote className="w-5 h-5 mr-3 text-green-600" />

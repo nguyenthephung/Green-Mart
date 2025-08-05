@@ -23,7 +23,7 @@ interface GuestOrderRequest {
     email?: string;
   };
   deliveryType: 'pickup' | 'delivery';
-  paymentMethod: 'cash' | 'momo' | 'bank_transfer';
+  paymentMethod: 'cod' | 'momo' | 'bank_transfer';
   totalAmount: number;
   shippingFee: number;
   notes?: string;
@@ -84,7 +84,10 @@ export const createGuestOrder = async (req: Request, res: Response) => {
       });
     }
 
-    // Add shipping fee
+    // Calculate subtotal (items total before shipping)
+    const subtotal = calculatedTotal;
+    
+    // Add shipping fee to get total amount
     calculatedTotal += orderData.shippingFee;
 
     // Validate total amount (allow small rounding differences)
@@ -104,15 +107,19 @@ export const createGuestOrder = async (req: Request, res: Response) => {
       user: null, // Guest order
       guestInfo: orderData.guestInfo,
       items: validatedItems,
+      subtotal: subtotal, // Required field
       totalAmount: orderData.totalAmount,
       shippingFee: orderData.shippingFee,
+      deliveryFee: orderData.shippingFee, // Same as shippingFee
+      serviceFee: 0, // No service fee for guest orders
+      voucherDiscount: 0, // No voucher for guest orders
       paymentMethod: orderData.paymentMethod,
       deliveryType: orderData.deliveryType,
       status: 'pending',
-      paymentStatus: orderData.paymentMethod === 'cash' ? 'pending' : 'pending',
+      paymentStatus: orderData.paymentMethod === 'cod' ? 'pending' : 'pending',
       notes: orderData.notes,
       isGuestOrder: true,
-      createdAt: new Date()
+      orderDate: new Date()
     });
 
     await order.save();

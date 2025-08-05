@@ -596,7 +596,7 @@ class OrderController {
   // Admin: Get all orders
   async getAllOrders(req: Request, res: Response): Promise<void> {
     try {
-      const { page = 1, limit = 20, status, paymentStatus, paymentMethod, startDate, endDate } = req.query;
+      const { page = 1, limit = 10, status, paymentStatus, paymentMethod, startDate, endDate } = req.query;
 
       const query: any = {};
       if (status) query.status = status;
@@ -609,11 +609,21 @@ class OrderController {
       }
 
       const orders = await Order.find(query)
-        .populate('userId', 'name email phone')
-        .populate('items.productId', 'name images price')
+        .populate({
+          path: 'userId',
+          select: 'name email phone',
+          // Don't fail if userId is null (for guest orders)
+          options: { lean: true }
+        })
+        .populate({
+          path: 'items.productId',
+          select: 'name images price category',
+          options: { lean: true }
+        })
         .sort({ createdAt: -1 })
         .limit(Number(limit))
-        .skip((Number(page) - 1) * Number(limit));
+        .skip((Number(page) - 1) * Number(limit))
+        .lean(); // Use lean for better performance
 
       const total = await Order.countDocuments(query);
 

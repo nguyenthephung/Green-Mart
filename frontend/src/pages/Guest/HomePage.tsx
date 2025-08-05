@@ -241,13 +241,20 @@ const Home: React.FC = memo(() => {
     return () => clearInterval(interval);
   }, [isScrolling]);
 
-  // Lấy danh sách category động từ products
+  // Lấy danh sách category động từ products - include both category and subcategory
   const categoryList = useMemo(() => {
     const set = new Set<string>();
     products.forEach((p: any) => {
-      if (p.status === 'active' && p.category) set.add(p.category);
+      if (p.status === 'active') {
+        // Add main category
+        if (p.category) set.add(p.category);
+        // Add subcategory if different from main category
+        if (p.subcategory && p.subcategory !== p.category) {
+          set.add(p.subcategory);
+        }
+      }
     });
-    return Array.from(set); // lấy tất cả danh mục, không dùng ảnh ở tiêu đề
+    return Array.from(set); // Get all categories and subcategories
   }, [products]);
 
   // (Đã bỏ heroImageMap, không còn dùng)
@@ -261,23 +268,41 @@ const Home: React.FC = memo(() => {
       titleClass: 'text-left flex items-center gap-3 text-2xl font-bold text-emerald-700 dark:text-emerald-200',
       viewMoreLink: `/category/${cat}`,
       // Bỏ heroImage
-      productCount: products.filter((p: any) => p.status === 'active' && p.category === cat).length
+      productCount: products.filter((p: any) => 
+        p.status === 'active' && (p.category === cat || p.subcategory === cat)
+      ).length
     })),
     [categoryList, products]
   );
 
-  // Memoize getProductsByCategory
+  // Memoize getProductsByCategory - Support both category and subcategory filtering
   const getProductsByCategory = useMemo(() => {
     const categorizedProducts = products.reduce((acc: Record<string, any[]>, product: any) => {
       if (product.status !== 'active') return acc;
+      
+      // Check for valid price
+      const hasValidPrice = (typeof product.price === 'number') || 
+        (product.units && product.units.length > 0 && typeof product.units[0].price === 'number');
+      
+      if (!hasValidPrice) return acc;
+      
+      // Add to main category
       if (!acc[product.category]) {
         acc[product.category] = [];
       }
-      if ((typeof product.price === 'number') || (product.units && product.units.length > 0 && typeof product.units[0].price === 'number')) {
-        acc[product.category].push(product);
+      acc[product.category].push(product);
+      
+      // Also add to subcategory if it exists
+      if (product.subcategory && product.subcategory !== product.category) {
+        if (!acc[product.subcategory]) {
+          acc[product.subcategory] = [];
+        }
+        acc[product.subcategory].push(product);
       }
+      
       return acc;
     }, {} as Record<string, any[]>);
+    
     return (category: string) => categorizedProducts[category]?.slice(0, 8) || [];
   }, [products]);
 

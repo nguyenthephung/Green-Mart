@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { dashboardService } from '../../services/dashboardService';
-import type { DashboardStats, QuickStats, RecentOrder, TopProduct } from '../../services/dashboardService';
+import type { QuickStats, RecentOrder, TopProduct } from '../../services/dashboardService';
 
 const AdminDashboard: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());

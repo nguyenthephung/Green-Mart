@@ -37,6 +37,7 @@ import UnauthorizedPage from '../pages/Guest/UnauthorizedPage';
 
 // Admin pages
 import AdminDashboard from '../pages/Admin/AdminDashboardPage';
+import AnalyticsDashboard from '../components/Admin/Analytics/AnalyticsDashboard';
 import AdminProducts from '../pages/Admin/AdminProductsPage';
 import AdminCategories from '../pages/Admin/AdminCategoriesPage';
 import AdminUsers from '../pages/Admin/AdminUsersPage';
@@ -120,6 +121,7 @@ const AppRouter = () => (
             </AdminRoute>
           }>
             <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="analytics" element={<AnalyticsDashboard />} />
             <Route path="products" element={<AdminProducts />} />
             <Route path="categories" element={<AdminCategories />} />
             <Route path="users" element={<AdminUsers />} />

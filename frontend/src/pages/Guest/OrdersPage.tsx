@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import OrderTabs from "../../components/Guest/myOrder/OrderTabs";
 import OrderCard from "../../components/Guest/myOrder/OrderCard";
-import orderService, { type OrderDetails } from '../../services/orderService';
+import orderService from '../../services/orderService';
 
 interface OrderItem {
   name: string;
