@@ -9,12 +9,30 @@ const AnalyticsDashboard: React.FC = () => {
   const { data, loading, error } = useAnalytics(period);
 
   const formatCurrency = (value: number) => {
+    if (value >= 1000000000) {
+      return `${(value / 1000000000).toFixed(1)} tỷ đ`;
+    } else if (value >= 1000000) {
+      return `${(value / 1000000).toFixed(1)} triệu đ`;
+    } else if (value >= 1000) {
+      return `${(value / 1000).toFixed(0)}K đ`;
+    }
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
       currency: 'VND',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(value);
+  };
+
+  const formatNumber = (value: number) => {
+    if (value >= 1000000000) {
+      return `${(value / 1000000000).toFixed(1)} tỷ`;
+    } else if (value >= 1000000) {
+      return `${(value / 1000000).toFixed(1)} triệu`;
+    } else if (value >= 1000) {
+      return `${(value / 1000).toFixed(0)}K`;
+    }
+    return value.toString();
   };
 
   const getPeriodLabel = (period: AnalyticsPeriod) => {
@@ -128,7 +146,7 @@ const AnalyticsDashboard: React.FC = () => {
                 Tổng Đơn Hàng
               </p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                {data.totalOrders}
+                {formatNumber(data.totalOrders)}
               </p>
             </div>
             <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-full">
@@ -175,7 +193,7 @@ const AnalyticsDashboard: React.FC = () => {
             </div>
           </div>
           <div className="mt-4">
-            <span className="text-sm text-gray-500 dark:text-gray-400">
+            <span className="text-sm text-gray-500 dark:text-gray-400 truncate">
               {data.topProducts[0]?.name || 'Chưa có dữ liệu'}
             </span>
           </div>

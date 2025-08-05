@@ -40,6 +40,13 @@ const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#f97316'
 
 const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ salesData, topProducts, period }) => {
   const formatCurrency = (value: number) => {
+    if (value >= 1000000000) {
+      return `${(value / 1000000000).toFixed(1)} tỷ đ`;
+    } else if (value >= 1000000) {
+      return `${(value / 1000000).toFixed(1)} triệu đ`;
+    } else if (value >= 1000) {
+      return `${(value / 1000).toFixed(0)}K đ`;
+    }
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
       currency: 'VND',
