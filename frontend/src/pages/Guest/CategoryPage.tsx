@@ -284,11 +284,14 @@ export default function CategoryPage() {
                   product={{
                     id: product.id,
                     name: product.name,
-                    price: String(typeof product.salePrice === 'number' ? product.salePrice : product.price),
+                    price: typeof product.salePrice === 'number' ? product.salePrice : product.price,
                     image: product.image,
                     category: product.category,
-                    unit: product.unit,
-                    salePrice: typeof product.salePrice === 'number' ? String(product.salePrice) : product.salePrice
+                    unit: product.unit || "",
+                    salePrice: product.salePrice,
+                    isSale: product.isSale,
+                    averageRating: product.averageRating,
+                    totalRatings: product.totalRatings
                   }}
                   quantity={1}
                   onAddToCart={() => handleAddToCart(productForCart)}

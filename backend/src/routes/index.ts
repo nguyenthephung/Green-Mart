@@ -41,11 +41,11 @@ router.use('/vouchers', voucherRoutes);
 // Payment routes
 router.use('/payments', paymentRoutes);
 
-// Order routes
-router.use('/orders', orderRoutes);
-
-// Guest order routes
+// Guest order routes (must be before authenticated order routes)
 router.use('/orders', guestOrderRoutes);
+
+// Order routes (authenticated)
+router.use('/orders', orderRoutes);
 
 // Notification routes
 router.use('/notifications', notificationRoutes);

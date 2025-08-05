@@ -21,6 +21,8 @@ import ResetPassword from '../pages/Guest/ResetPasswordPage';
 import PasswordChanged from '../pages/Guest/PasswordChangedPage';
 import CartPage from '../pages/Guest/CartPage';
 import Checkout from '../pages/Guest/CheckoutPage';
+import GuestCheckoutPage from '../pages/Guest/GuestCheckoutPage';
+import GuestOrderSuccessPage from '../pages/Guest/GuestOrderSuccessPage';
 import Home from '../pages/Guest/HomePage';
 import ProductDetailPage from '../pages/Guest/ProductDetailPage';
 import CategoryPage from '../pages/Guest/CategoryPage';
@@ -56,7 +58,9 @@ const AppRouter = () => (
             <Route path="category/:category?" element={<CategoryPage />} />
             <Route path="mycart" element={<CartPage />} />
             <Route path="checkout" element={<Checkout />} />
+            <Route path="guest-checkout" element={<GuestCheckoutPage />} />
             <Route path="order-success" element={<OrderSuccessPage />} />
+            <Route path="guest-order-success" element={<GuestOrderSuccessPage />} />
             <Route path="payment-result" element={<PaymentResultPage />} />
             <Route path="payment-test" element={<PaymentTestPage />} />
           </Route>

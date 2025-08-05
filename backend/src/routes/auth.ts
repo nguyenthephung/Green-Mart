@@ -20,4 +20,17 @@ router.patch('/profile', authenticate, AuthController.updateProfile);
 // POST /api/auth/logout - Đăng xuất (cần auth)
 router.post('/logout', authenticate, AuthController.logout);
 
+// Social login routes
+// GET /api/auth/google - Google OAuth
+router.get('/google', AuthController.googleAuth);
+
+// GET /api/auth/google/callback - Google callback
+router.get('/google/callback', AuthController.googleCallback);
+
+// GET /api/auth/facebook - Facebook OAuth
+router.get('/facebook', AuthController.facebookAuth);
+
+// GET /api/auth/facebook/callback - Facebook callback
+router.get('/facebook/callback', AuthController.facebookCallback);
+
 export default router;

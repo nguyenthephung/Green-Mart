@@ -24,7 +24,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onClose }) 
     markAsRead,
     markAllAsRead,
     deleteNotification,
-    fetchUnreadCount,
+    // fetchUnreadCount,
     clearError
   } = useNotificationStore();
 

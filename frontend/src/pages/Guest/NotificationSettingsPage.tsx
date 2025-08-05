@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useNotificationStore } from '../../stores/useNotificationStore';
 import DashboardLayout from '../../layouts/DashboardLayout';
 
@@ -8,7 +7,6 @@ const NotificationSettingsPage: React.FC = () => {
   const [localSettings, setLocalSettings] = useState(settings);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetchSettings();

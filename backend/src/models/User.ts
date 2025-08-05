@@ -17,6 +17,12 @@ export interface IUser extends Document {
   dateOfBirth?: Date;
   gender?: 'male' | 'female' | 'other';
   vouchers?: { [voucherId: string]: number }; // Simple object: voucherId -> quantity
+  // Social login fields
+  authProvider?: 'local' | 'google' | 'facebook';
+  googleId?: string;
+  facebookId?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const UserSchema: Schema = new Schema({
@@ -39,7 +45,6 @@ const UserSchema: Schema = new Schema({
   },
   password: {
     type: String,
-    required: true,
     minlength: 6
   },
   avatar: {
@@ -91,6 +96,20 @@ const UserSchema: Schema = new Schema({
     type: Schema.Types.Mixed,
     default: {}
   },
+  // Social login fields
+  authProvider: {
+    type: String,
+    enum: ['local', 'google', 'facebook'],
+    default: 'local'
+  },
+  googleId: {
+    type: String,
+    sparse: true
+  },
+  facebookId: {
+    type: String,
+    sparse: true
+  }
 }, {
   timestamps: true
 });

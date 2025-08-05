@@ -60,11 +60,11 @@ const SearchPage: React.FC = () => {
             const cardProduct = {
               id: product.id,
               name: product.name,
-              price: String(typeof product.salePrice === 'number' ? product.salePrice : product.price),
+              price: typeof product.salePrice === 'number' ? product.salePrice : product.price,
               image: product.image,
               category: product.category,
-              unit: product.unit,
-              salePrice: typeof product.salePrice === 'number' ? String(product.salePrice) : product.salePrice
+              unit: product.unit || '',
+              salePrice: typeof product.salePrice === 'number' ? product.salePrice : product.salePrice
             };
             // Không cho chỉnh khối lượng, luôn quantity=1
             const { descriptionImages, ...rest } = product;

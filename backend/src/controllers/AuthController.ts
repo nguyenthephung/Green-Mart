@@ -289,4 +289,259 @@ export class AuthController {
       });
     }
   }
+
+  // Google OAuth
+  static googleAuth = async (req: Request, res: Response): Promise<void> => {
+    try {
+      // Redirect to Google OAuth
+      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
+        `client_id=${process.env.GOOGLE_CLIENT_ID}&` +
+        `redirect_uri=${encodeURIComponent(process.env.GOOGLE_REDIRECT_URI || '')}&` +
+        `response_type=code&` +
+        `scope=email profile&` +
+        `access_type=offline`;
+      
+      res.redirect(googleAuthUrl);
+    } catch (error) {
+      console.error('Google auth error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Lỗi xác thực Google'
+      });
+    }
+  }
+
+  // Google OAuth callback
+  static googleCallback = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { code } = req.query;
+
+      if (!code) {
+        return res.redirect(`${process.env.FRONTEND_URL}/login?error=google_auth_failed`);
+      }
+
+      // Exchange code for access token
+      const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          client_id: process.env.GOOGLE_CLIENT_ID || '',
+          client_secret: process.env.GOOGLE_CLIENT_SECRET || '',
+          code: code as string,
+          grant_type: 'authorization_code',
+          redirect_uri: process.env.GOOGLE_REDIRECT_URI || '',
+        }),
+      });
+
+      const tokenData = await tokenResponse.json();
+
+      if (!tokenData.access_token) {
+        return res.redirect(`${process.env.FRONTEND_URL}/login?error=google_token_failed`);
+      }
+
+      // Get user info from Google
+      const userResponse = await fetch(`https://www.googleapis.com/oauth2/v2/userinfo?access_token=${tokenData.access_token}`);
+      const googleUser = await userResponse.json();
+
+      // Find or create user
+      let user = await User.findOne({ email: googleUser.email });
+
+      if (!user) {
+        // Create new user
+        user = new User({
+          name: googleUser.name,
+          email: googleUser.email,
+          avatar: googleUser.picture,
+          isVerified: true,
+          authProvider: 'google',
+          googleId: googleUser.id,
+          role: 'user',
+          status: 'active'
+        });
+        await user.save();
+      } else if (!user.googleId) {
+        // Link existing user with Google
+        user.googleId = googleUser.id;
+        user.authProvider = 'google';
+        user.isVerified = true;
+        if (!user.avatar) user.avatar = googleUser.picture;
+        await user.save();
+      }
+
+      // Generate JWT token
+      const token = generateToken(user._id as string);
+
+      // Send success message to popup
+      const successScript = `
+        <script>
+          window.opener.postMessage({
+            type: 'SOCIAL_LOGIN_SUCCESS',
+            token: '${token}',
+            user: ${JSON.stringify({
+              id: user._id,
+              name: user.name,
+              email: user.email,
+              phone: user.phone,
+              role: user.role,
+              status: user.status,
+              isVerified: user.isVerified,
+              avatar: user.avatar,
+              address: user.address,
+              dateOfBirth: user.dateOfBirth,
+              gender: user.gender,
+              joinDate: user.createdAt,
+              lastLogin: user.lastLogin,
+              totalOrders: 0,
+              totalSpent: 0,
+              vouchers: user.vouchers || {}
+            })}
+          }, '${process.env.FRONTEND_URL}');
+          window.close();
+        </script>
+      `;
+
+      res.send(successScript);
+    } catch (error) {
+      console.error('Google callback error:', error);
+      const errorScript = `
+        <script>
+          window.opener.postMessage({
+            type: 'SOCIAL_LOGIN_ERROR',
+            message: 'Đăng nhập Google thất bại'
+          }, '${process.env.FRONTEND_URL}');
+          window.close();
+        </script>
+      `;
+      res.send(errorScript);
+    }
+  }
+
+  // Facebook OAuth
+  static facebookAuth = async (req: Request, res: Response): Promise<void> => {
+    try {
+      // Redirect to Facebook OAuth
+      const facebookAuthUrl = `https://www.facebook.com/v18.0/dialog/oauth?` +
+        `client_id=${process.env.FACEBOOK_APP_ID}&` +
+        `redirect_uri=${encodeURIComponent(process.env.FACEBOOK_REDIRECT_URI || '')}&` +
+        `scope=email,public_profile&` +
+        `response_type=code`;
+      
+      res.redirect(facebookAuthUrl);
+    } catch (error) {
+      console.error('Facebook auth error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Lỗi xác thực Facebook'
+      });
+    }
+  }
+
+  // Facebook OAuth callback
+  static facebookCallback = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { code } = req.query;
+
+      if (!code) {
+        return res.redirect(`${process.env.FRONTEND_URL}/login?error=facebook_auth_failed`);
+      }
+
+      // Exchange code for access token
+      const tokenResponse = await fetch(`https://graph.facebook.com/v18.0/oauth/access_token?` +
+        `client_id=${process.env.FACEBOOK_APP_ID}&` +
+        `client_secret=${process.env.FACEBOOK_APP_SECRET}&` +
+        `code=${code}&` +
+        `redirect_uri=${encodeURIComponent(process.env.FACEBOOK_REDIRECT_URI || '')}`
+      );
+
+      const tokenData = await tokenResponse.json();
+
+      if (!tokenData.access_token) {
+        return res.redirect(`${process.env.FRONTEND_URL}/login?error=facebook_token_failed`);
+      }
+
+      // Get user info from Facebook
+      const userResponse = await fetch(`https://graph.facebook.com/me?fields=id,name,email,picture&access_token=${tokenData.access_token}`);
+      const facebookUser = await userResponse.json();
+
+      // Find or create user
+      let user = await User.findOne({ 
+        $or: [
+          { email: facebookUser.email },
+          { facebookId: facebookUser.id }
+        ]
+      });
+
+      if (!user) {
+        // Create new user
+        user = new User({
+          name: facebookUser.name,
+          email: facebookUser.email || `fb_${facebookUser.id}@facebook.com`,
+          avatar: facebookUser.picture?.data?.url,
+          isVerified: true,
+          authProvider: 'facebook',
+          facebookId: facebookUser.id,
+          role: 'user',
+          status: 'active'
+        });
+        await user.save();
+      } else if (!user.facebookId) {
+        // Link existing user with Facebook
+        user.facebookId = facebookUser.id;
+        user.authProvider = 'facebook';
+        user.isVerified = true;
+        if (!user.avatar && facebookUser.picture?.data?.url) {
+          user.avatar = facebookUser.picture.data.url;
+        }
+        await user.save();
+      }
+
+      // Generate JWT token
+      const token = generateToken(user._id as string);
+
+      // Send success message to popup
+      const successScript = `
+        <script>
+          window.opener.postMessage({
+            type: 'SOCIAL_LOGIN_SUCCESS',
+            token: '${token}',
+            user: ${JSON.stringify({
+              id: user._id,
+              name: user.name,
+              email: user.email,
+              phone: user.phone,
+              role: user.role,
+              status: user.status,
+              isVerified: user.isVerified,
+              avatar: user.avatar,
+              address: user.address,
+              dateOfBirth: user.dateOfBirth,
+              gender: user.gender,
+              joinDate: user.createdAt,
+              lastLogin: user.lastLogin,
+              totalOrders: 0,
+              totalSpent: 0,
+              vouchers: user.vouchers || {}
+            })}
+          }, '${process.env.FRONTEND_URL}');
+          window.close();
+        </script>
+      `;
+
+      res.send(successScript);
+    } catch (error) {
+      console.error('Facebook callback error:', error);
+      const errorScript = `
+        <script>
+          window.opener.postMessage({
+            type: 'SOCIAL_LOGIN_ERROR',
+            message: 'Đăng nhập Facebook thất bại'
+          }, '${process.env.FRONTEND_URL}');
+          window.close();
+        </script>
+      `;
+      res.send(errorScript);
+    }
+  }
 }

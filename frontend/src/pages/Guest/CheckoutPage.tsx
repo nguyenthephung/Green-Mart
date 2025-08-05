@@ -6,7 +6,7 @@ import { useCartStore } from '../../stores/useCartStore';
 import { useUserStore } from '../../stores/useUserStore';
 import CheckoutSummary from '../../components/Guest/checkout/CheckoutSummary';
 import { useVoucherStore } from '../../stores/useVoucherStore';
-import ShopeeVoucherModal from '../../components/Guest/cart/ShopeeVoucherModal';
+import ShopeeVoucherModal from '../../components/Guest/cart/CartVoucherModal';
 import orderService from '../../services/orderService';
 import type { CreateOrderRequest } from '../../services/orderService';
 import paymentService from '../../services/paymentService';
@@ -38,14 +38,6 @@ const Checkout = () => {
     
     // Check if user owns this voucher
     const userOwnsVoucher = user?.vouchers && user.vouchers[v._id] && user.vouchers[v._id] > 0;
-    
-    console.log(`CheckoutPage - Voucher ${v.code}:`, {
-      isActive,
-      notExpired,
-      notFullyUsed,
-      userOwnsVoucher,
-      userVoucherQuantity: user?.vouchers?.[v._id] || 0
-    });
     
     return isActive && notExpired && notFullyUsed && userOwnsVoucher;
   });

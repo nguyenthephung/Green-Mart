@@ -3,7 +3,7 @@ import type { Voucher } from '../../types/Voucher';
 // Danh sách voucher mẫu cho toàn bộ hệ thống
 export const vouchers: Voucher[] = [
   {
-    id: 1,
+    _id: '1',
     code: 'TAPHOA50',
     label: 'Tạp Hóa',
     description: 'Giảm 50k cho đơn từ 300k',
@@ -16,7 +16,7 @@ export const vouchers: Voucher[] = [
     note: '',
   },
   {
-    id: 2,
+    _id: '2',
     code: 'FREESHIP',
     label: 'Freeship',
     description: 'Miễn phí vận chuyển cho đơn từ 100k',
@@ -29,7 +29,7 @@ export const vouchers: Voucher[] = [
     note: '',
   },
   {
-    id: 3,
+    _id: '3',
     code: 'LIVE17',
     label: 'Shopee Live',
     description: 'Giảm 17% tối đa 1tr, không giới hạn đơn tối thiểu',

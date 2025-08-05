@@ -55,6 +55,78 @@ export default function Register() {
     }
   };
 
+  const handleSocialLogin = async (provider: 'google' | 'facebook') => {
+    try {
+      setIsLoading(true);
+      setErrors({});
+      setMessage('');
+      
+      // Open popup window for OAuth
+      const popup = window.open(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/auth/${provider}`,
+        'socialLogin',
+        'width=500,height=600,scrollbars=yes,resizable=yes'
+      );
+
+      if (!popup) {
+        throw new Error('Popup blocked. Please allow popups for this site.');
+      }
+
+      // Listen for messages from popup
+      const messageListener = async (event: MessageEvent) => {
+        if (event.origin !== (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace('/api', '')) {
+          return;
+        }
+
+        if (event.data.type === 'SOCIAL_LOGIN_SUCCESS') {
+          window.removeEventListener('message', messageListener);
+          popup.close();
+
+          try {
+            // Save token and user data
+            localStorage.setItem('token', event.data.token);
+            localStorage.setItem('user', JSON.stringify(event.data.user));
+            
+            // Update user store
+            const { setUser } = useUserStore.getState();
+            setUser(event.data.user);
+            
+            // Sync guest cart if exists
+            const { syncGuestCartToServer } = (await import('../../stores/useCartStore')).useCartStore.getState();
+            await syncGuestCartToServer();
+            
+            // Navigate to home
+            navigate('/');
+          } catch (error) {
+            console.error('Error processing social login:', error);
+            setMessage('Đã có lỗi xảy ra khi xử lý đăng nhập');
+          }
+        } else if (event.data.type === 'SOCIAL_LOGIN_ERROR') {
+          window.removeEventListener('message', messageListener);
+          popup.close();
+          setMessage(event.data.message || 'Đăng nhập thất bại');
+        }
+      };
+
+      window.addEventListener('message', messageListener);
+
+      // Check if popup is closed manually
+      const checkClosed = setInterval(() => {
+        if (popup.closed) {
+          clearInterval(checkClosed);
+          window.removeEventListener('message', messageListener);
+          setIsLoading(false);
+        }
+      }, 1000);
+
+    } catch (error) {
+      console.error('Social login error:', error);
+      setMessage(error instanceof Error ? error.message : 'Đăng nhập thất bại');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900 px-4 transition-colors duration-300">
       <div className="w-full max-w-sm">
@@ -179,11 +251,21 @@ export default function Register() {
         <div className="my-6 text-center text-sm text-gray-500">Or Register with</div>
 
         <div className="flex gap-4 mb-6">
-          <button className="flex-1 flex items-center justify-center py-3 border border-gray-200 rounded-xl hover:bg-gray-50">
+          <button 
+            type="button"
+            onClick={() => handleSocialLogin('facebook')}
+            disabled={isLoading}
+            className="flex-1 flex items-center justify-center py-3 border border-gray-200 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             <span className="text-xl mr-2">📱</span>
             Facebook
           </button>
-          <button className="flex-1 flex items-center justify-center py-3 border border-gray-200 rounded-xl hover:bg-gray-50">
+          <button 
+            type="button"
+            onClick={() => handleSocialLogin('google')}
+            disabled={isLoading}
+            className="flex-1 flex items-center justify-center py-3 border border-gray-200 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             <span className="text-xl mr-2">🔍</span>
             Google
           </button>

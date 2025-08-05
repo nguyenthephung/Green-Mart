@@ -14,7 +14,7 @@ import EmptyCart from '../../components/Guest/cart/EmptyCart';
 import { districts } from '../../data/Guest/hcm_districts_sample';
 import haversine from 'haversine-distance';
 import { useVoucherStore } from '../../stores/useVoucherStore';
-import ShopeeVoucherModal from '../../components/Guest/cart/ShopeeVoucherModal';
+import ShopeeVoucherModal from '../../components/Guest/cart/CartVoucherModal';
 
 // Extend AddressInfo locally to match actual usage
 type AddressInfo = {
@@ -412,20 +412,50 @@ export default function CartPage() {
             } : undefined}
           />
 
-          {/* Checkout Button */}
-          <button
-            className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-4 px-6 rounded-2xl font-semibold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-200 flex items-center justify-center gap-3"
-            disabled={cart.length === 0}
-            onClick={() => navigate('/checkout')}
-          >
-            <svg className="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5H4M7 13l-2.293 2.293c-.39.39-.39 1.02 0 1.41L6.4 18H20M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z" />
-            </svg>
-            <span className="min-w-0 flex-1 text-center">Tiến hành thanh toán</span>
-            <span className="bg-emerald-500/30 px-3 py-1 rounded-full text-sm text-white flex-shrink-0 break-all">
-              {(subtotal + dynamicDeliveryFee - voucherDiscount).toLocaleString()} ₫
-            </span>
-          </button>
+          {/* Checkout Buttons */}
+          {user ? (
+            <button
+              className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-4 px-6 rounded-2xl font-semibold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-200 flex items-center justify-center gap-3"
+              disabled={cart.length === 0}
+              onClick={() => navigate('/checkout')}
+            >
+              <svg className="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5H4M7 13l-2.293 2.293c-.39.39-.39 1.02 0 1.41L6.4 18H20M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z" />
+              </svg>
+              <span className="min-w-0 flex-1 text-center">Tiến hành thanh toán</span>
+              <span className="bg-emerald-500/30 px-3 py-1 rounded-full text-sm text-white flex-shrink-0 break-all">
+                {(subtotal + dynamicDeliveryFee - voucherDiscount).toLocaleString()} ₫
+              </span>
+            </button>
+          ) : (
+            <div className="space-y-3">
+              <button
+                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-4 px-6 rounded-2xl font-semibold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-200 flex items-center justify-center gap-3"
+                disabled={cart.length === 0}
+                onClick={() => navigate('/guest-checkout')}
+              >
+                <svg className="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5H4M7 13l-2.293 2.293c-.39.39-.39 1.02 0 1.41L6.4 18H20M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z" />
+                </svg>
+                <span className="min-w-0 flex-1 text-center">Mua ngay (Khách vãng lai)</span>
+                <span className="bg-emerald-500/30 px-3 py-1 rounded-full text-sm text-white flex-shrink-0 break-all">
+                  {(subtotal + dynamicDeliveryFee).toLocaleString()} ₫
+                </span>
+              </button>
+              
+              <div className="text-center">
+                <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
+                  Hoặc đăng nhập để có thêm ưu đãi
+                </p>
+                <button
+                  onClick={() => navigate('/login')}
+                  className="text-green-600 hover:text-green-700 font-medium text-sm underline"
+                >
+                  Đăng nhập ngay
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </main>
     </div>

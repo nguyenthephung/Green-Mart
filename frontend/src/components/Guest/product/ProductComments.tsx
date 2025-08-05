@@ -267,7 +267,7 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId }) => {
                   </div>
                 </div>
                 
-                {user && user._id === comment.userId && (
+                {user && user.id === comment.userId && (
                   <div className="flex gap-2">
                     <button
                       onClick={() => startEdit(comment)}

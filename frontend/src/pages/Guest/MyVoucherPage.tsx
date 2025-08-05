@@ -62,7 +62,6 @@ const MyVoucherPage: React.FC = () => {
   }, [rawVouchers, user?.vouchers]);
   const loading = useVoucherStore(state => state.loading);
   const error = useVoucherStore(state => state.error);
-  const fetchVouchers = useVoucherStore(state => state.fetchVouchers);
 
   // Use user store for current selected voucher
   const voucher: Voucher | null = useUserStore(state => state.voucher);
@@ -76,10 +75,9 @@ const MyVoucherPage: React.FC = () => {
     console.log('MyVoucherPage: User vouchers type:', typeof user.vouchers);
     console.log('MyVoucherPage: User vouchers count:', user.vouchers ? Object.keys(user.vouchers).length : 0);
     
-    // Fetch vouchers from store
-    fetchVouchers();
+    // Vouchers are already fetched in App.tsx, no need to fetch again here
     
-    // Also refresh user data to get latest vouchers
+    // Refresh user data to get latest vouchers
     const refreshUserData = async () => {
       try {
         const userStore = useUserStore.getState();
@@ -92,7 +90,7 @@ const MyVoucherPage: React.FC = () => {
     };
     
     refreshUserData();
-  }, [fetchVouchers, user?.id]); // Only depend on user.id to avoid infinite loop
+  }, [user?.id]); // Only depend on user.id to avoid infinite loop
 
   // Debug logs
   useEffect(() => {

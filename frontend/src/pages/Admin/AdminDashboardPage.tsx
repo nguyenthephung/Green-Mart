@@ -8,7 +8,7 @@ const AdminDashboard: React.FC = () => {
   const [loading, setLoading] = useState(false);
   
   // Data states
-  const [stats, setStats] = useState<DashboardStats[]>([]);
+  // const [stats, setStats] = useState<DashboardStats[]>([]);
   const [quickStats, setQuickStats] = useState<QuickStats[]>([]);
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
@@ -40,7 +40,7 @@ const AdminDashboard: React.FC = () => {
     try {
       // Load stats and quick stats
       const statsData = await dashboardService.getDashboardStats();
-      setStats(statsData.stats);
+      // setStats(statsData.stats);
       setQuickStats(statsData.quickStats);
 
       // Load top products

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import ProductCard from './ProductCard';
-import type { Product } from './ProductCard';
+import type { Product } from '../../../types/Product';
 
 interface CategorySectionProps {
   title: string;

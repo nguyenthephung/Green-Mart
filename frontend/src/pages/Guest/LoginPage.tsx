@@ -30,6 +30,77 @@ const LoginPage: React.FC = () => {
     if (error) setError('');
   };
 
+  const handleSocialLogin = async (provider: 'google' | 'facebook') => {
+    try {
+      setIsLoading(true);
+      setError('');
+      
+      // Open popup window for OAuth
+      const popup = window.open(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/auth/${provider}`,
+        'socialLogin',
+        'width=500,height=600,scrollbars=yes,resizable=yes'
+      );
+
+      if (!popup) {
+        throw new Error('Popup blocked. Please allow popups for this site.');
+      }
+
+      // Listen for messages from popup
+      const messageListener = async (event: MessageEvent) => {
+        if (event.origin !== (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace('/api', '')) {
+          return;
+        }
+
+        if (event.data.type === 'SOCIAL_LOGIN_SUCCESS') {
+          window.removeEventListener('message', messageListener);
+          popup.close();
+
+          try {
+            // Save token and user data
+            localStorage.setItem('token', event.data.token);
+            localStorage.setItem('user', JSON.stringify(event.data.user));
+            
+            // Update user store
+            const { setUser } = useUserStore.getState();
+            setUser(event.data.user);
+            
+            // Sync guest cart if exists
+            const { syncGuestCartToServer } = (await import('../../stores/useCartStore')).useCartStore.getState();
+            await syncGuestCartToServer();
+            
+            // Navigate to home
+            navigate('/');
+          } catch (error) {
+            console.error('Error processing social login:', error);
+            setError('Đã có lỗi xảy ra khi xử lý đăng nhập');
+          }
+        } else if (event.data.type === 'SOCIAL_LOGIN_ERROR') {
+          window.removeEventListener('message', messageListener);
+          popup.close();
+          setError(event.data.message || 'Đăng nhập thất bại');
+        }
+      };
+
+      window.addEventListener('message', messageListener);
+
+      // Check if popup is closed manually
+      const checkClosed = setInterval(() => {
+        if (popup.closed) {
+          clearInterval(checkClosed);
+          window.removeEventListener('message', messageListener);
+          setIsLoading(false);
+        }
+      }, 1000);
+
+    } catch (error) {
+      console.error('Social login error:', error);
+      setError(error instanceof Error ? error.message : 'Đăng nhập thất bại');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -53,10 +124,6 @@ const LoginPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleSocialLogin = (provider: string) => {
-    console.log(`Login with ${provider}`);
   };
 
   return (

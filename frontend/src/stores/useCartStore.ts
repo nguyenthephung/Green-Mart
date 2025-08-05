@@ -1,6 +1,34 @@
 import { create } from 'zustand';
 import { fetchCart, addToCart as apiAddToCart, updateCartItem, removeCartItem, clearCart as apiClearCart } from '../services/cartService';
 
+// Local storage key for guest cart
+const GUEST_CART_KEY = 'guest_cart';
+
+// Helper functions for guest cart
+const getGuestCart = (): CartItem[] => {
+  try {
+    const stored = localStorage.getItem(GUEST_CART_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+};
+
+const setGuestCart = (items: CartItem[]) => {
+  try {
+    localStorage.setItem(GUEST_CART_KEY, JSON.stringify(items));
+  } catch (error) {
+    console.error('Failed to save guest cart:', error);
+  }
+};
+
+const clearGuestCart = () => {
+  try {
+    localStorage.removeItem(GUEST_CART_KEY);
+  } catch (error) {
+    console.error('Failed to clear guest cart:', error);
+  }
+};
 
 export interface CartItem {
   id: string | number;
@@ -27,6 +55,7 @@ interface CartState {
   cleanInvalidItems: () => Promise<void>;
   getCartCount: () => number;
   getItemQuantity: (id: string | number) => number;
+  syncGuestCartToServer: () => Promise<void>;
 }
 
 // Helper function để tính totals
@@ -59,9 +88,14 @@ export const useCartStore = create<CartState>((set, get) => ({
     try {
       const res = await fetchCart();
       let items: CartItem[] = [];
+      
       if (res.success && res.data) {
-        // Always use res.data.items if present (backend always returns { items: [...] })
-        if (res.data && typeof res.data === 'object' && 'items' in res.data) {
+        // Check if this is a guest response
+        if ((res.data as any)?.isGuest) {
+          console.log('Guest user detected, loading from localStorage');
+          items = getGuestCart();
+        } else if (res.data && typeof res.data === 'object' && 'items' in res.data) {
+          // Regular user with cart data
           const rawItems = (res.data as { items: any[] }).items || [];
           // Map backend cart items to frontend format
           items = rawItems.map((item: any) => ({
@@ -77,14 +111,23 @@ export const useCartStore = create<CartState>((set, get) => ({
         } else if (Array.isArray(res.data)) {
           items = res.data as CartItem[];
         }
+        
         const { totalItems, totalAmount } = calculateTotals(items);
         console.log('Cart store: fetchCart calculated totals', { totalItems, totalAmount, itemsCount: items.length });
         set({ items, totalItems, totalAmount, loading: false });
       } else {
-        set({ error: res.message || 'Lỗi lấy giỏ hàng', loading: false });
+        // If fetch fails, check if we have guest cart
+        console.log('Cart fetch failed, checking guest cart');
+        const guestItems = getGuestCart();
+        const { totalItems, totalAmount } = calculateTotals(guestItems);
+        set({ items: guestItems, totalItems, totalAmount, loading: false });
       }
     } catch (err: any) {
-      set({ error: err.message || 'Lỗi lấy giỏ hàng', loading: false });
+      console.log('Cart fetch error, loading guest cart as fallback:', err.message);
+      // Load guest cart as fallback
+      const guestItems = getGuestCart();
+      const { totalItems, totalAmount } = calculateTotals(guestItems);
+      set({ items: guestItems, totalItems, totalAmount, loading: false });
     }
   },
   addToCart: async (item: Omit<CartItem, 'quantity'> & { quantity: number; weight?: number; type?: 'count' | 'weight' }) => {
@@ -96,14 +139,60 @@ export const useCartStore = create<CartState>((set, get) => ({
       } else {
         res = await apiAddToCart(String(item.id), item.quantity, item.unit, undefined, 'count');
       }
+      
       if (res.success) {
         console.log('Cart store: addToCart success, calling fetchCart...');
         await get().fetchCart();
         set({ loading: false });
+      } else if ((res as any)?.requireLogin) {
+        // Guest user needs to use local storage
+        console.log('Adding to guest cart (local storage)');
+        const guestItems = getGuestCart();
+        
+        // Find existing item
+        const existingIndex = guestItems.findIndex(guestItem => 
+          guestItem.id === item.id && 
+          guestItem.unit === item.unit &&
+          guestItem.type === item.type
+        );
+        
+        if (existingIndex >= 0) {
+          // Update existing item
+          if (item.type === 'weight') {
+            guestItems[existingIndex].weight = (guestItems[existingIndex].weight || 0) + (item.weight || 0);
+          } else {
+            guestItems[existingIndex].quantity += item.quantity;
+          }
+        } else {
+          // Add new item
+          guestItems.push({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            image: item.image,
+            unit: item.unit,
+            quantity: item.quantity,
+            type: item.type,
+            weight: item.weight
+          });
+        }
+        
+        setGuestCart(guestItems);
+        
+        // Update state with guest cart
+        const { totalItems, totalAmount } = calculateTotals(guestItems);
+        set({ 
+          items: guestItems, 
+          totalItems, 
+          totalAmount, 
+          loading: false,
+          error: undefined
+        });
       } else {
         set({ error: res.message || 'Lỗi thêm sản phẩm', loading: false });
       }
     } catch (err: any) {
+      console.error('Add to cart error:', err);
       set({ error: err.message || 'Lỗi thêm sản phẩm', loading: false });
     }
   },
@@ -151,18 +240,29 @@ export const useCartStore = create<CartState>((set, get) => ({
     try {
       set({ loading: true, error: undefined });
       
-      // Call API to clear cart in database
-      const res = await apiClearCart();
-      
-      if (res.success) {
-        // Clear items from state
-        set({ items: [], totalItems: 0, totalAmount: 0, loading: false });
-      } else {
-        set({ error: res.message || 'Lỗi xóa giỏ hàng', loading: false });
+      // Try to call API to clear cart in database
+      try {
+        const res = await apiClearCart();
+        if (res.success) {
+          console.log('Server cart cleared successfully');
+        } else {
+          console.log('Server cart clear response:', res.message);
+        }
+      } catch (apiError: any) {
+        console.log('Server cart clear failed (user may not be authenticated):', apiError.message);
+        // This is okay for guest users or when logged out
       }
+      
+      // Always clear guest cart from localStorage
+      clearGuestCart();
+      
+      // Always clear local state regardless of API result
+      set({ items: [], totalItems: 0, totalAmount: 0, loading: false });
+      
     } catch (err: any) {
       console.error('Clear cart error:', err);
-      // Even if API fails, clear local state
+      // Even if everything fails, clear local state
+      clearGuestCart();
       set({ items: [], totalItems: 0, totalAmount: 0, error: err.message || 'Lỗi xóa giỏ hàng', loading: false });
     }
   },
@@ -192,5 +292,36 @@ export const useCartStore = create<CartState>((set, get) => ({
   getItemQuantity: (id: string | number) => {
     const item = get().items.find(item => item.id === id);
     return item?.quantity || 0;
+  },
+  syncGuestCartToServer: async () => {
+    try {
+      const guestItems = getGuestCart();
+      if (guestItems.length === 0) return;
+      
+      console.log('Syncing guest cart to server:', guestItems);
+      
+      // Add each guest item to server cart
+      for (const item of guestItems) {
+        try {
+          if (item.type === 'weight') {
+            await apiAddToCart(String(item.id), undefined, item.unit, item.weight, 'weight');
+          } else {
+            await apiAddToCart(String(item.id), item.quantity, item.unit, undefined, 'count');
+          }
+        } catch (itemError) {
+          console.error('Failed to sync item:', item, itemError);
+        }
+      }
+      
+      // Clear guest cart after successful sync
+      clearGuestCart();
+      
+      // Refresh cart from server
+      await get().fetchCart();
+      
+      console.log('Guest cart synced successfully');
+    } catch (error) {
+      console.error('Failed to sync guest cart:', error);
+    }
   },
 }));

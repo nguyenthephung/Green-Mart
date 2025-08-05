@@ -74,6 +74,21 @@ export const useUserStore = create<UserState>()(
               isAuthenticated: true,
               isLoading: false 
             });
+            
+            // Fetch cart after successful login
+            try {
+              const { useCartStore } = await import('./useCartStore');
+              const cartStore = useCartStore.getState();
+              
+              // First sync guest cart to server if exists
+              await cartStore.syncGuestCartToServer();
+              
+              // Then fetch the updated cart
+              await cartStore.fetchCart();
+            } catch (cartError) {
+              console.error('Error handling cart after login:', cartError);
+            }
+            
             return {
               success: true,
               message: response.message
@@ -108,6 +123,21 @@ export const useUserStore = create<UserState>()(
               isAuthenticated: true,
               isLoading: false 
             });
+            
+            // Fetch cart after successful register
+            try {
+              const { useCartStore } = await import('./useCartStore');
+              const cartStore = useCartStore.getState();
+              
+              // First sync guest cart to server if exists
+              await cartStore.syncGuestCartToServer();
+              
+              // Then fetch the updated cart
+              await cartStore.fetchCart();
+            } catch (cartError) {
+              console.error('Error handling cart after register:', cartError);
+            }
+            
             return {
               success: true,
               message: response.message
@@ -137,6 +167,27 @@ export const useUserStore = create<UserState>()(
         } finally {
           // Xóa token khỏi localStorage
           tokenManager.remove();
+          
+          // Clear cart khi logout - force clear both server and local state
+          try {
+            const { useCartStore } = await import('./useCartStore');
+            const cartStore = useCartStore.getState();
+            
+            // Clear local state immediately
+            cartStore.items = [];
+            cartStore.totalItems = 0;
+            cartStore.totalAmount = 0;
+            
+            // Try to clear server cart (may fail if already logged out)
+            try {
+              await cartStore.clearCart();
+            } catch (cartError) {
+              console.log('Server cart clear failed (expected for logout):', cartError);
+            }
+          } catch (error) {
+            console.error('Error clearing cart on logout:', error);
+          }
+          
           set({ 
             user: null, 
             isAuthenticated: false,
@@ -159,6 +210,20 @@ export const useUserStore = create<UserState>()(
                 isAuthenticated: true,
                 isLoading: false 
               });
+              
+              // Fetch cart after successful auth check
+              try {
+                const { useCartStore } = await import('./useCartStore');
+                const cartStore = useCartStore.getState();
+                
+                // First sync guest cart to server if exists
+                await cartStore.syncGuestCartToServer();
+                
+                // Then fetch the updated cart
+                await cartStore.fetchCart();
+              } catch (cartError) {
+                console.error('Error handling cart after auth check:', cartError);
+              }
             } else {
               tokenManager.remove();
               set({ 

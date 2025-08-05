@@ -27,7 +27,7 @@ interface Order {
 const OrdersPage = () => {
   const [activeTab, setActiveTab] = useState("Tất cả");
   const [orders, setOrders] = useState<Order[]>([]);
-  const [realOrders, setRealOrders] = useState<OrderDetails[]>([]);
+  // const [realOrders, setRealOrders] = useState<OrderDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,7 +43,7 @@ const OrdersPage = () => {
         console.log('Order history response:', response);
         
         if (response.orders) {
-          setRealOrders(response.orders);
+          // setRealOrders(response.orders);
           
           // Convert to legacy format for existing components
           const convertedOrders: Order[] = response.orders.map((order: any) => ({

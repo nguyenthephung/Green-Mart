@@ -18,4 +18,7 @@ export interface AdminProduct {
   isFeatured?: boolean;
   discountAmount?: number;
   salePrice?: number;
+  averageRating?: number;
+  totalRatings?: number;
+  totalSold?: number;
 }
