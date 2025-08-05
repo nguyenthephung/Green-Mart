@@ -8,6 +8,7 @@ import { useCategoryStore } from './stores/useCategoryStore';
 import { useVoucherStore } from './stores/useVoucherStore';
 import { useToastStore } from './stores/useToastStore';
 import ToastContainer from './components/ui/Toast/ToastContainer';
+import { useAuthSync } from './hooks/useAuthSync';
 
 const App = memo(() => {
   const checkAuthStatus = useUserStore(state => state.checkAuthStatus);
@@ -15,6 +16,9 @@ const App = memo(() => {
   const fetchCategories = useCategoryStore(state => state.fetchCategories);
   const fetchVouchers = useVoucherStore(state => state.fetchVouchers);
   const { toasts, removeToast } = useToastStore();
+  
+  // Hook để sync wishlist và cart khi user thay đổi
+  useAuthSync();
 
   // Fetch sản phẩm, category, voucher một lần khi app khởi động (chỉ chạy 1 lần khi mount)
   useEffect(() => {

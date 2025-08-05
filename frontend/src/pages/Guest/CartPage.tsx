@@ -4,10 +4,9 @@ import { useUserStore } from '../../stores/useUserStore';
 import { useEffect, useState } from "react";
 import CartSummary from "../../components/Guest/cart/CartSummary";
 import MarketInfo from "../../components/Guest/cart/MarketInfo";
-import Recommendations from "../../components/Guest/cart/Recommendations";
-import CartList from "../../components/Guest/cart/CartList";
+import SmartRecommendations from "../../components/Guest/cart/SmartRecommendations";
+import OptimizedCartList from "../../components/Guest/cart/OptimizedCartList";
 import { useProductStore } from '../../stores/useProductStore';
-import type { RecommendationItem } from '../../types/RecommendationItem';
 import type { CartItem } from '../../types/CartItem';
 import { useNavigate } from 'react-router-dom';
 import EmptyCart from '../../components/Guest/cart/EmptyCart';
@@ -15,6 +14,7 @@ import { districts } from '../../data/Guest/hcm_districts_sample';
 import haversine from 'haversine-distance';
 import { useVoucherStore } from '../../stores/useVoucherStore';
 import ShopeeVoucherModal from '../../components/Guest/cart/CartVoucherModal';
+import GuestVoucherModal from '../../components/Guest/cart/GuestVoucherModal';
 
 // Extend AddressInfo locally to match actual usage
 type AddressInfo = {
@@ -49,6 +49,16 @@ export default function CartPage() {
   const user = useUserStore(state => state.user);
   const navigate = useNavigate();
   const [showVoucherModal, setShowVoucherModal] = useState(false);
+  const [showGuestVoucherModal, setShowGuestVoucherModal] = useState(false);
+
+  // Function to handle voucher modal display
+  const handleShowVoucherModal = () => {
+    if (!user) {
+      setShowGuestVoucherModal(true);
+    } else {
+      setShowVoucherModal(true);
+    }
+  };
 
   // Filter valid vouchers that user owns and are not expired
   const availableVouchers = vouchers.filter(v => {
@@ -69,6 +79,15 @@ export default function CartPage() {
     fetchCart();
     fetchVouchers();
   }, [fetchCart, fetchVouchers]);
+
+  // Clear voucher when user becomes guest (not authenticated)
+  useEffect(() => {
+    if (!user && voucher) {
+      setVoucher(null);
+    }
+  }, [user, voucher, setVoucher]);
+
+  // Clear addresses when user becomes guest (handled by store)
   
 
 
@@ -132,7 +151,7 @@ export default function CartPage() {
     return {
       ...item,
       id, // luôn là string, đúng productId
-      unit: item.unit,
+      unit: item.unit || '', // Ensure unit is always string
       type: item.type,
       price: priceNumber,
       originalPrice,
@@ -176,37 +195,6 @@ export default function CartPage() {
       voucherDiscount = Math.min(voucher.discountValue, subtotal);
     }
   }
-
-  // Random các sản phẩm không nằm trong giỏ hàng
-  function getRandomRelatedProducts(count = 8) {
-    // Loại bỏ sản phẩm đã có trong giỏ hàng
-    const cartIds = cart.map(i => Number(i.id));
-    const available = products.filter(p => !cartIds.includes(Number(p.id)));
-    // Map về đúng định dạng RecommendationItem
-    const mapped: RecommendationItem[] = available.map(p => {
-      let price = 0;
-      if (Array.isArray(p.units)) {
-        price = p.units[0]?.price || 0;
-      } else if (typeof p.price === 'number') {
-        price = p.price;
-      }
-      return {
-        id: Number(p.id),
-        name: p.name,
-        image: p.image,
-        price,
-        originalPrice: Math.round(price * 1.15), // giả sử giảm giá 15%
-        stock: Math.floor(Math.random() * 10) + 1,
-      };
-    });
-    // Xáo trộn random
-    for (let i = mapped.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [mapped[i], mapped[j]] = [mapped[j], mapped[i]];
-    }
-    return mapped.slice(0, count);
-  }
-  const relatedItems = getRandomRelatedProducts(8);
 
   if (loading) {
     return (
@@ -252,7 +240,7 @@ export default function CartPage() {
       <main className="max-w-7xl mx-auto px-8 pb-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
           <MarketInfo />
-          <CartList
+          <OptimizedCartList
             items={cartListItems}
             onQuantityChange={(id, value, unit, type) => {
               updateQuantity(String(id), value, unit, type);
@@ -274,7 +262,7 @@ export default function CartPage() {
                 });
             }}
           />
-          <Recommendations items={relatedItems} />
+          <SmartRecommendations maxItems={8} />
         </div>
         <div className="space-y-6">
           {/* Voucher Selection Card */}
@@ -335,7 +323,7 @@ export default function CartPage() {
                       <div className="flex gap-2">
                         <button 
                           className="flex-1 px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-1" 
-                          onClick={() => setShowVoucherModal(true)}
+                          onClick={handleShowVoucherModal}
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
@@ -358,7 +346,7 @@ export default function CartPage() {
               ) : (
                 <button 
                   className="w-full p-6 border-2 border-dashed border-green-300 rounded-2xl text-green-600 hover:border-green-400 hover:bg-green-50 transition-all duration-200 flex items-center justify-center gap-3 group relative overflow-hidden" 
-                  onClick={() => setShowVoucherModal(true)}
+                  onClick={handleShowVoucherModal}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-green-400/5 to-emerald-400/5 translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
                   <div className="relative flex items-center gap-3">
@@ -377,26 +365,6 @@ export default function CartPage() {
             </div>
           </div>
 
-          <ShopeeVoucherModal
-            open={showVoucherModal}
-            vouchers={availableVouchers}
-            selectedVoucher={voucher}
-            onSelect={(v) => {
-              if (!v) { setVoucher(null); setShowVoucherModal(false); return; }
-              // Remove id field if present to match User.Voucher type
-              const { id, ...rest } = v as any;
-              setVoucher({
-                ...rest,
-                createdAt: (v as any).createdAt || '',
-                updatedAt: (v as any).updatedAt || '',
-                currentUsage: (v as any).currentUsage || 0,
-                isActive: (v as any).isActive ?? true,
-              });
-              setShowVoucherModal(false);
-            }}
-            onClose={() => setShowVoucherModal(false)}
-          />
-
           {/* Cart Summary Card */}
           <CartSummary
             itemsTotal={subtotal}
@@ -404,7 +372,8 @@ export default function CartPage() {
             voucherDiscount={voucherDiscount}
             voucher={voucher}
             onRemoveVoucher={() => setVoucher(null)}
-            address={selectedAddress ? {
+            onShowVoucherModal={handleShowVoucherModal}
+            address={user && selectedAddress ? {
               district: selectedAddress.district || '',
               ward: selectedAddress.wardName || selectedAddress.ward || '',
               fullName: selectedAddress.fullName,
@@ -458,6 +427,34 @@ export default function CartPage() {
           )}
         </div>
       </main>
+
+      {/* Voucher Modals */}
+      {user ? (
+        <ShopeeVoucherModal
+          open={showVoucherModal}
+          vouchers={availableVouchers}
+          selectedVoucher={voucher}
+          onSelect={(v) => {
+            if (!v) { setVoucher(null); setShowVoucherModal(false); return; }
+            // Convert Voucher type to User.Voucher type
+            const { id, ...rest } = v as any;
+            setVoucher({
+              ...rest,
+              createdAt: (v as any).createdAt || '',
+              updatedAt: (v as any).updatedAt || '',
+              currentUsage: (v as any).currentUsage || 0,
+              isActive: (v as any).isActive ?? true,
+            });
+            setShowVoucherModal(false);
+          }}
+          onClose={() => setShowVoucherModal(false)}
+        />
+      ) : (
+        <GuestVoucherModal
+          open={showGuestVoucherModal}
+          onClose={() => setShowGuestVoucherModal(false)}
+        />
+      )}
     </div>
     {/* <Footer /> */}
     </>

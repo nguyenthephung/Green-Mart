@@ -10,8 +10,49 @@ export class AuthController {
   static updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
       const user = req.user;
-      const { name, phone, avatar } = req.body;
+      const { name, phone, avatar, currentPassword, newPassword } = req.body;
 
+      // If password change is requested, validate current password
+      if (newPassword) {
+        if (!currentPassword) {
+          res.status(400).json({
+            success: false,
+            message: 'Vui lòng nhập mật khẩu hiện tại'
+          });
+          return;
+        }
+
+        // Verify current password
+        const isCurrentPasswordValid = await comparePassword(currentPassword, user.password);
+        if (!isCurrentPasswordValid) {
+          res.status(400).json({
+            success: false,
+            message: 'Mật khẩu hiện tại không đúng'
+          });
+          return;
+        }
+
+        // Validate new password
+        if (newPassword.length < 6) {
+          res.status(400).json({
+            success: false,
+            message: 'Mật khẩu mới phải có ít nhất 6 ký tự'
+          });
+          return;
+        }
+
+        // Hash and update password
+        user.password = await hashPassword(newPassword);
+        
+        // Send notification about password change
+        try {
+          await NotificationHelper.notifyPasswordChanged(user._id.toString());
+        } catch (notifError) {
+          console.error('Failed to send password change notification:', notifError);
+        }
+      }
+
+      // Update other profile fields
       if (name !== undefined) user.name = name;
       if (phone !== undefined) user.phone = phone;
       if (avatar !== undefined) user.avatar = avatar;
@@ -36,9 +77,13 @@ export class AuthController {
         totalSpent: user.totalSpent
       };
 
+      const message = newPassword ? 
+        'Cập nhật thông tin và mật khẩu thành công!' : 
+        'Cập nhật thông tin thành công!';
+
       res.status(200).json({
         success: true,
-        message: 'Cập nhật thông tin thành công!',
+        message,
         data: userData
       });
     } catch (error) {

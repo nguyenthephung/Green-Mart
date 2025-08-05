@@ -36,9 +36,15 @@ export default function CategoryPage() {
   // Use admin product store
   const products = useProductStore(state => state.products);
 
-  // Tìm parent category từ URL param
+  // Tìm parent category từ URL param - có thể là parent hoặc sub
   const currentParentCategory = useMemo(() => {
     if (!category) return null;
+    
+    // Trước tiên kiểm tra xem category có phải là parent category không
+    const directParent = categories.find(cat => cat.name === category);
+    if (directParent) return directParent;
+    
+    // Nếu không, tìm parent category có chứa category này trong subs
     return categories.find(cat => Array.isArray(cat.subs) && cat.subs.includes(category));
   }, [category, categories]);
 
@@ -56,8 +62,19 @@ export default function CategoryPage() {
       if (p.status !== 'active') return false;
       let categoryMatch = true;
       if (category) {
-        // So sánh trực tiếp p.category với URL param category
-        categoryMatch = p.category === category;
+        // Kiểm tra xem category param có phải là parent category không
+        const isParentCategory = categories.some(cat => cat.name === category);
+        
+        if (isParentCategory) {
+          // Nếu là parent category, hiển thị tất cả sản phẩm của các subcategory
+          const parentCat = categories.find(cat => cat.name === category);
+          if (parentCat && parentCat.subs) {
+            categoryMatch = parentCat.subs.includes(p.category);
+          }
+        } else {
+          // Nếu là subcategory, so sánh trực tiếp
+          categoryMatch = p.category === category;
+        }
       }
       // Nếu không có category param, hiển thị tất cả sản phẩm active
       const searchMatch = p.name?.toLowerCase().includes(search.toLowerCase());
@@ -102,10 +119,19 @@ export default function CategoryPage() {
         {/* Page Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4">
-            {currentParentCategory ? currentParentCategory.name : category || 'Tất Cả Sản Phẩm'}
+            {category ? (
+              // Nếu category param là parent category, hiển thị tên parent
+              categories.some(cat => cat.name === category) ? category :
+              // Nếu là subcategory, hiển thị cả parent và sub
+              currentParentCategory ? `${currentParentCategory.name} - ${category}` : category
+            ) : 'Tất Cả Sản Phẩm'}
           </h1>
           <p className="text-gray-600 text-lg">
-            {currentParentCategory ? `Khám phá ${currentParentCategory.name.toLowerCase()}` : 'Khám phá bộ sưu tập tươi ngon chất lượng cao'}
+            {category ? (
+              categories.some(cat => cat.name === category) ? 
+                `Khám phá tất cả sản phẩm ${category.toLowerCase()}` :
+                `Khám phá ${category.toLowerCase()}`
+            ) : 'Khám phá bộ sưu tập tươi ngon chất lượng cao'}
           </p>
           {/* Hiển thị tên user và địa chỉ giao hàng nếu có */}
           {user && (
@@ -182,13 +208,11 @@ export default function CategoryPage() {
                   <button
                     key={cat._id}
                     onClick={() => {
-                      // Navigate to first subcategory of this parent để hiển thị subcategories
-                      if (cat.subs && cat.subs.length > 0) {
-                        window.location.href = `/category/${cat.subs[0]}`;
-                      }
+                      // Navigate to parent category để hiển thị tất cả sản phẩm của parent
+                      window.location.href = `/category/${cat.name}`;
                     }}
                     className={`px-4 py-2 rounded-full font-semibold text-sm transition-all duration-200 ${
-                      currentParentCategory?._id === cat._id
+                      category === cat.name || currentParentCategory?._id === cat._id
                         ? 'bg-emerald-600 text-white border-emerald-700 shadow-lg'
                         : 'text-gray-700 border border-gray-300 bg-white hover:bg-emerald-50 hover:text-emerald-700'
                     }`}

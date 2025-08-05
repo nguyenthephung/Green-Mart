@@ -65,6 +65,10 @@ export const WishlistService = {
       if (result.success) {
         return result.data;
       } else {
+        // Nếu sản phẩm đã có trong wishlist (409 Conflict), ném lỗi đặc biệt
+        if (response.status === 409) {
+          throw new Error('Product already in wishlist');
+        }
         throw new Error(result.error || 'Không thể thêm vào danh sách yêu thích');
       }
     } catch (error) {

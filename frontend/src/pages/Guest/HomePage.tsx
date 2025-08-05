@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo, useCallback, memo } from 'react';
 
 import { useProductStore } from '../../stores/useProductStore';
+import { useCategoryStore } from '../../stores/useCategoryStore';
 import { useUserStore } from '../../stores/useUserStore';
 import HeroSection from '../../components/Guest/home/sections/HeroSection';
 import SaleSection from '../../components/Guest/home/sections/SaleSection';
@@ -69,6 +70,7 @@ const Home: React.FC = memo(() => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isScrolling, setIsScrolling] = useState(false);
   const addToCart = useCartStore(state => state.addToCart);
+  const fetchCategories = useCategoryStore(state => state.fetchCategories);
 
   // Create flying effect for add to cart animation - Optimized
   const createFlyingEffect = useCallback((event: React.MouseEvent, product: any) => {
@@ -241,70 +243,53 @@ const Home: React.FC = memo(() => {
     return () => clearInterval(interval);
   }, [isScrolling]);
 
-  // Lấy danh sách category động từ products - include both category and subcategory
-  const categoryList = useMemo(() => {
-    const set = new Set<string>();
-    products.forEach((p: any) => {
-      if (p.status === 'active') {
-        // Add main category
-        if (p.category) set.add(p.category);
-        // Add subcategory if different from main category
-        if (p.subcategory && p.subcategory !== p.category) {
-          set.add(p.subcategory);
-        }
-      }
-    });
-    return Array.from(set); // Get all categories and subcategories
-  }, [products]);
+  // Fetch categories when component mounts
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
-  // (Đã bỏ heroImageMap, không còn dùng)
-
-  // Sinh config section cho CategoriesSection
+  // Lấy danh sách parent categories từ category store thay vì từ products
+  const categories = useCategoryStore(state => state.categories);
+  
+  // Sinh config section cho CategoriesSection - chỉ hiển thị parent categories
   const categorySections = useMemo(() =>
-    categoryList.map((cat) => ({
-      title: cat,
-      category: cat,
-      // Đổi màu chữ phù hợp dark mode
-      titleClass: 'text-left flex items-center gap-3 text-2xl font-bold text-emerald-700 dark:text-emerald-200',
-      viewMoreLink: `/category/${cat}`,
-      // Bỏ heroImage
-      productCount: products.filter((p: any) => 
-        p.status === 'active' && (p.category === cat || p.subcategory === cat)
-      ).length
-    })),
-    [categoryList, products]
+    categories
+      .filter(cat => cat.status === 'active' && cat.subs && cat.subs.length > 0)
+      .map((cat) => ({
+        title: cat.name,
+        category: cat.name,
+        titleClass: 'text-left flex items-center gap-3 text-2xl font-bold text-emerald-700 dark:text-emerald-200',
+        viewMoreLink: `/category/${cat.name}`,
+        productCount: products.filter((p: any) => 
+          p.status === 'active' && cat.subs.includes(p.category)
+        ).length
+      })),
+    [categories, products]
   );
 
-  // Memoize getProductsByCategory - Support both category and subcategory filtering
+  // Memoize getProductsByCategory - Filter by subcategories of parent category
   const getProductsByCategory = useMemo(() => {
-    const categorizedProducts = products.reduce((acc: Record<string, any[]>, product: any) => {
-      if (product.status !== 'active') return acc;
+    return (parentCategoryName: string) => {
+      const parentCategory = categories.find(cat => cat.name === parentCategoryName);
+      if (!parentCategory || !parentCategory.subs) return [];
       
-      // Check for valid price
-      const hasValidPrice = (typeof product.price === 'number') || 
-        (product.units && product.units.length > 0 && typeof product.units[0].price === 'number');
+      // Lấy tất cả sản phẩm thuộc các subcategory của parent category này
+      const categoryProducts = products.filter((product: any) => {
+        if (product.status !== 'active') return false;
+        
+        // Check for valid price
+        const hasValidPrice = (typeof product.price === 'number') || 
+          (product.units && product.units.length > 0 && typeof product.units[0].price === 'number');
+        
+        if (!hasValidPrice) return false;
+        
+        // Check if product belongs to any subcategory of this parent
+        return parentCategory.subs.includes(product.category);
+      });
       
-      if (!hasValidPrice) return acc;
-      
-      // Add to main category
-      if (!acc[product.category]) {
-        acc[product.category] = [];
-      }
-      acc[product.category].push(product);
-      
-      // Also add to subcategory if it exists
-      if (product.subcategory && product.subcategory !== product.category) {
-        if (!acc[product.subcategory]) {
-          acc[product.subcategory] = [];
-        }
-        acc[product.subcategory].push(product);
-      }
-      
-      return acc;
-    }, {} as Record<string, any[]>);
-    
-    return (category: string) => categorizedProducts[category]?.slice(0, 8) || [];
-  }, [products]);
+      return categoryProducts.slice(0, 8); // Giới hạn 8 sản phẩm per section
+    };
+  }, [products, categories]);
 
   if (loading || !products || products.length === 0) {
     return (

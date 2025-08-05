@@ -52,6 +52,7 @@ interface CartState {
   updateQuantity: (productId: string | number, value: number, unit?: string, type?: 'count' | 'weight') => Promise<void>;
   removeFromCart: (productId: string | number, unit?: string, type?: 'count' | 'weight') => Promise<void>;
   clearCart: () => Promise<void>;
+  clearAllCartData: () => void; // Clear both server and guest cart
   cleanInvalidItems: () => Promise<void>;
   getCartCount: () => number;
   getItemQuantity: (id: string | number) => number;
@@ -131,7 +132,55 @@ export const useCartStore = create<CartState>((set, get) => ({
     }
   },
   addToCart: async (item: Omit<CartItem, 'quantity'> & { quantity: number; weight?: number; type?: 'count' | 'weight' }) => {
-    set({ loading: true, error: undefined });
+    // Optimistic update - update UI immediately
+    set((state) => {
+      const existingIndex = state.items.findIndex(cartItem => 
+        String(cartItem.id) === String(item.id) && 
+        cartItem.unit === item.unit &&
+        cartItem.type === item.type
+      );
+      
+      let newItems = [...state.items];
+      
+      if (existingIndex >= 0) {
+        // Update existing item
+        if (item.type === 'weight') {
+          newItems[existingIndex] = {
+            ...newItems[existingIndex],
+            weight: (newItems[existingIndex].weight || 0) + (item.weight || 0)
+          };
+        } else {
+          newItems[existingIndex] = {
+            ...newItems[existingIndex],
+            quantity: newItems[existingIndex].quantity + item.quantity
+          };
+        }
+      } else {
+        // Add new item
+        newItems.push({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          image: item.image,
+          unit: item.unit,
+          quantity: item.quantity,
+          type: item.type,
+          weight: item.weight
+        });
+      }
+      
+      const { totalItems, totalAmount } = calculateTotals(newItems);
+      return { 
+        ...state,
+        items: newItems, 
+        totalItems, 
+        totalAmount, 
+        loading: false,
+        error: undefined
+      };
+    });
+
+    // Then sync with server in background (don't block UI)
     try {
       let res;
       if (item.type === 'weight') {
@@ -141,63 +190,54 @@ export const useCartStore = create<CartState>((set, get) => ({
       }
       
       if (res.success) {
-        console.log('Cart store: addToCart success, calling fetchCart...');
-        await get().fetchCart();
-        set({ loading: false });
+        console.log('Cart store: addToCart success - optimistic update already applied');
+        // No need to fetchCart again since we already updated optimistically
       } else if ((res as any)?.requireLogin) {
-        // Guest user needs to use local storage
-        console.log('Adding to guest cart (local storage)');
-        const guestItems = getGuestCart();
-        
-        // Find existing item
-        const existingIndex = guestItems.findIndex(guestItem => 
-          guestItem.id === item.id && 
-          guestItem.unit === item.unit &&
-          guestItem.type === item.type
-        );
-        
-        if (existingIndex >= 0) {
-          // Update existing item
-          if (item.type === 'weight') {
-            guestItems[existingIndex].weight = (guestItems[existingIndex].weight || 0) + (item.weight || 0);
-          } else {
-            guestItems[existingIndex].quantity += item.quantity;
-          }
-        } else {
-          // Add new item
-          guestItems.push({
-            id: item.id,
-            name: item.name,
-            price: item.price,
-            image: item.image,
-            unit: item.unit,
-            quantity: item.quantity,
-            type: item.type,
-            weight: item.weight
-          });
-        }
-        
-        setGuestCart(guestItems);
-        
-        // Update state with guest cart
-        const { totalItems, totalAmount } = calculateTotals(guestItems);
-        set({ 
-          items: guestItems, 
-          totalItems, 
-          totalAmount, 
-          loading: false,
-          error: undefined
-        });
+        // Guest user - sync with localStorage
+        console.log('Syncing with guest cart (local storage)');
+        const currentState = get();
+        setGuestCart(currentState.items);
       } else {
-        set({ error: res.message || 'Lỗi thêm sản phẩm', loading: false });
+        // API error - revert optimistic update by refetching
+        console.warn('API error, reverting optimistic update');
+        await get().fetchCart();
+        set({ error: res.message || 'Lỗi thêm sản phẩm' });
       }
     } catch (err: any) {
-      console.error('Add to cart error:', err);
-      set({ error: err.message || 'Lỗi thêm sản phẩm', loading: false });
+      console.error('Add to cart error, reverting optimistic update:', err);
+      // Revert optimistic update on error
+      await get().fetchCart();
+      set({ error: err.message || 'Lỗi thêm sản phẩm' });
     }
   },
   updateQuantity: async (productId: string | number, value: number, unit?: string, type?: 'count' | 'weight') => {
-    set({ loading: true, error: undefined });
+    // Optimistic update - update UI immediately
+    set((state) => {
+      const newItems = state.items.map(item => {
+        if (String(item.id) === String(productId) && 
+            item.unit === unit && 
+            item.type === type) {
+          if (type === 'weight') {
+            return { ...item, weight: value };
+          } else {
+            return { ...item, quantity: value };
+          }
+        }
+        return item;
+      });
+      
+      const { totalItems, totalAmount } = calculateTotals(newItems);
+      return { 
+        ...state,
+        items: newItems, 
+        totalItems, 
+        totalAmount, 
+        loading: false,
+        error: undefined
+      };
+    });
+
+    // Then sync with server in background
     try {
       let res;
       if (type === 'weight') {
@@ -205,35 +245,69 @@ export const useCartStore = create<CartState>((set, get) => ({
       } else {
         res = await updateCartItem(String(productId), value, unit, undefined, 'count');
       }
+      
       if (res.success) {
-        await get().fetchCart();
+        console.log('Cart store: updateQuantity success - optimistic update already applied');
+        // No need to fetchCart again since we already updated optimistically
+      } else if ((res as any)?.requireLogin) {
+        // Guest user - sync with localStorage  
+        const currentState = get();
+        setGuestCart(currentState.items);
       } else {
-        set({ error: res.message || 'Lỗi cập nhật số lượng', loading: false });
+        // API error - revert optimistic update by refetching
+        console.warn('API error, reverting optimistic update');
+        await get().fetchCart();
+        set({ error: res.message || 'Lỗi cập nhật số lượng' });
       }
     } catch (err: any) {
-      set({ error: err.message || 'Lỗi cập nhật số lượng', loading: false });
+      console.error('Update quantity error, reverting optimistic update:', err);
+      // Revert optimistic update on error
+      await get().fetchCart();
+      set({ error: err.message || 'Lỗi cập nhật số lượng' });
     }
   },
   removeFromCart: async (productId: string | number, unit?: string, type?: 'count' | 'weight') => {
-    set({ loading: true, error: undefined });
-    // Optimistically update UI
+    // Optimistic update - update UI immediately
     set((state) => {
-      const items = state.items.filter(item => {
-        const match = String(item.id) === String(productId) && item.unit === unit && item.type === type;
+      const newItems = state.items.filter(item => {
+        const match = String(item.id) === String(productId) && 
+                      item.unit === unit && 
+                      item.type === type;
         return !match;
       });
-      const { totalItems, totalAmount } = calculateTotals(items);
-      return { items, totalItems, totalAmount };
+      
+      const { totalItems, totalAmount } = calculateTotals(newItems);
+      return { 
+        ...state,
+        items: newItems, 
+        totalItems, 
+        totalAmount, 
+        loading: false,
+        error: undefined
+      };
     });
+
+    // Then sync with server in background
     try {
       const res = await removeCartItem(String(productId), unit, type);
       if (res.success) {
-        await get().fetchCart();
+        console.log('Cart store: removeFromCart success - optimistic update already applied');
+        // No need to fetchCart again since we already updated optimistically
+      } else if ((res as any)?.requireLogin) {
+        // Guest user - sync with localStorage
+        const currentState = get();
+        setGuestCart(currentState.items);
       } else {
-        set({ error: res.message || 'Lỗi xóa sản phẩm', loading: false });
+        // API error - revert optimistic update by refetching
+        console.warn('API error, reverting optimistic update');
+        await get().fetchCart();
+        set({ error: res.message || 'Lỗi xóa sản phẩm' });
       }
     } catch (err: any) {
-      set({ error: err.message || 'Lỗi xóa sản phẩm', loading: false });
+      console.error('Remove from cart error, reverting optimistic update:', err);
+      // Revert optimistic update on error
+      await get().fetchCart();
+      set({ error: err.message || 'Lỗi xóa sản phẩm' });
     }
   },
   clearCart: async () => {
@@ -265,6 +339,12 @@ export const useCartStore = create<CartState>((set, get) => ({
       clearGuestCart();
       set({ items: [], totalItems: 0, totalAmount: 0, error: err.message || 'Lỗi xóa giỏ hàng', loading: false });
     }
+  },
+
+  clearAllCartData: () => {
+    // Immediate clear for logout - no API calls
+    clearGuestCart();
+    set({ items: [], totalItems: 0, totalAmount: 0, loading: false, error: undefined });
   },
   cleanInvalidItems: async () => {
     set({ loading: true, error: undefined });

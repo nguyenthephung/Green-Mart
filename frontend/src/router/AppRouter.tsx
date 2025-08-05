@@ -19,6 +19,7 @@ import ForgotPassword from '../pages/Guest/ForgotPasswordPage';
 import OtpVerify from '../pages/Guest/OtpVerifyPage';
 import ResetPassword from '../pages/Guest/ResetPasswordPage';
 import PasswordChanged from '../pages/Guest/PasswordChangedPage';
+import ChangePasswordPage from '../pages/Guest/ChangePasswordPage';
 import CartPage from '../pages/Guest/CartPage';
 import Checkout from '../pages/Guest/CheckoutPage';
 import GuestCheckoutPage from '../pages/Guest/GuestCheckoutPage';
@@ -93,6 +94,11 @@ const AppRouter = () => (
           <Route path="notification-settings" element={
             <ProtectedRoute>
               <NotificationSettingsPage />
+            </ProtectedRoute>
+          } />
+          <Route path="change-password" element={
+            <ProtectedRoute>
+              <ChangePasswordPage />
             </ProtectedRoute>
           } />
           <Route path="notifications" element={

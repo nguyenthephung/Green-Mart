@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useUserStore } from '../../stores/useUserStore';
 import { profileService } from '../../services/profileService';
 import DashboardLayout from '../../layouts/DashboardLayout';
+import { Link } from 'react-router-dom';
 import { LoadingSpinner } from '../../components/Loading';
 
 const AccountDetails: React.FC = () => {
@@ -256,16 +257,27 @@ const AccountDetails: React.FC = () => {
                 </button>
               </>
             ) : (
-              <button
-                type="button"
-                className="btn-primary flex items-center gap-2"
-                onClick={handleEdit}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-                Chỉnh sửa thông tin
-              </button>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  className="btn-primary flex items-center gap-2"
+                  onClick={handleEdit}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  Chỉnh sửa thông tin
+                </button>
+                <Link
+                  to="/change-password"
+                  className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors flex items-center gap-2 text-sm font-medium"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 7a2 2 0 012 2m0 0a2 2 0 012 2m-2-2v6m0 0a2 2 0 01-2 2m2-2h-6m6 0a2 2 0 01-2 2m0 0H9a2 2 0 01-2-2m0 0V9a2 2 0 012-2m0 0a2 2 0 012-2" />
+                  </svg>
+                  Đổi mật khẩu
+                </Link>
+              </div>
             )}
           </div>
         </div>

@@ -73,16 +73,22 @@ const GuestCheckoutPage: React.FC = () => {
         // Clear cart
         clearCart();
         
-        // Navigate to success page with order info
-        navigate('/guest-order-success', {
-          state: {
-            orderId: response.data.orderId,
-            orderNumber: response.data.orderNumber,
-            totalAmount: response.data.totalAmount,
-            paymentMethod: response.data.paymentMethod,
-            paymentUrl: response.data.paymentUrl,
-          }
-        });
+        // Handle different payment methods
+        if (paymentMethod === 'momo' && response.data.paymentUrl) {
+          // For MoMo, redirect to payment QR page
+          window.location.href = response.data.paymentUrl;
+        } else {
+          // For other payment methods, navigate to success page
+          navigate('/guest-order-success', {
+            state: {
+              orderId: response.data.orderId,
+              orderNumber: response.data.orderNumber,
+              totalAmount: response.data.totalAmount,
+              paymentMethod: response.data.paymentMethod,
+              paymentUrl: response.data.paymentUrl,
+            }
+          });
+        }
       }
     } catch (error) {
       console.error('Error creating guest order:', error);

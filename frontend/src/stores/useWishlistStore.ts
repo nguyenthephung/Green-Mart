@@ -13,12 +13,22 @@ interface WishlistState {
   clearWishlist: () => Promise<void>;
   isInWishlist: (productId: string) => boolean;
   getWishlistCount: () => number;
+  initializeWishlist: () => Promise<void>;
 }
 
 export const useWishlistStore = create<WishlistState>((set, get) => ({
   items: [],
   isLoading: false,
   error: null,
+
+  initializeWishlist: async () => {
+    const user = useUserStore.getState().user;
+    if (user?.id) {
+      await get().loadWishlist();
+    } else {
+      set({ items: [] }); // Clear wishlist if no user
+    }
+  },
 
   loadWishlist: async () => {
     const user = useUserStore.getState().user;
@@ -80,9 +90,16 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
         addedAt: new Date(newItem.createdAt)
       };
       set(prev => ({ items: [wishlistItem, ...prev.items] }));
-    } catch (error) {
-      set({ error: 'Không thể thêm vào danh sách yêu thích' });
-      throw error;
+    } catch (error: any) {
+      // Nếu sản phẩm đã có trong wishlist, không hiển thị lỗi
+      if (error.message === 'Product already in wishlist') {
+        console.log('Product already in wishlist, skipping...');
+        // Load lại wishlist để đồng bộ trạng thái
+        await get().loadWishlist();
+      } else {
+        set({ error: 'Không thể thêm vào danh sách yêu thích' });
+        throw error;
+      }
     } finally {
       set({ isLoading: false });
     }

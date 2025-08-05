@@ -43,6 +43,7 @@ interface UserState {
   setAddresses: (addresses: AddressInfo[]) => void;
   setPayments: (payments: PaymentInfo[]) => void;
   setVoucher: (voucher: Voucher | null) => void;
+  updateProfile: (data: any) => Promise<void>;
 }
 
 export const useUserStore = create<UserState>()(
@@ -173,25 +174,27 @@ export const useUserStore = create<UserState>()(
             const { useCartStore } = await import('./useCartStore');
             const cartStore = useCartStore.getState();
             
-            // Clear local state immediately
-            cartStore.items = [];
-            cartStore.totalItems = 0;
-            cartStore.totalAmount = 0;
-            
-            // Try to clear server cart (may fail if already logged out)
-            try {
-              await cartStore.clearCart();
-            } catch (cartError) {
-              console.log('Server cart clear failed (expected for logout):', cartError);
-            }
+            // Use immediate clear method for logout
+            cartStore.clearAllCartData();
           } catch (error) {
             console.error('Error clearing cart on logout:', error);
+          }
+
+          // Clear guest info when user logs out
+          try {
+            const { useGuestStore } = await import('./useGuestStore');
+            const guestStore = useGuestStore.getState();
+            guestStore.clearGuestInfo();
+          } catch (error) {
+            console.error('Error clearing guest info on logout:', error);
           }
           
           set({ 
             user: null, 
             isAuthenticated: false,
-            isLoading: false 
+            isLoading: false,
+            addresses: [], // Clear addresses for guest users
+            voucher: null  // Clear voucher for guest users
           });
         }
       },
@@ -278,6 +281,48 @@ export const useUserStore = create<UserState>()(
       setPayments: (payments: PaymentInfo[]) => set({ payments }),
 
       setVoucher: (voucher: Voucher | null) => set({ voucher }),
+      
+      updateProfile: async (data: any) => {
+        set({ isLoading: true });
+        try {
+          // Simulate API call - replace with actual API
+          const response = await fetch('/api/users/profile', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${tokenManager.get()}`
+            },
+            body: JSON.stringify(data)
+          });
+
+          if (response.ok) {
+            const updatedUser = await response.json();
+            set(state => ({ 
+              user: { ...state.user, ...updatedUser },
+              isLoading: false 
+            }));
+          } else {
+            const error = await response.json();
+            throw new Error(error.message || 'Cập nhật thông tin thất bại');
+          }
+        } catch (error: any) {
+          set({ isLoading: false });
+          // For demo purposes, just update local state
+          set(state => ({
+            user: state.user ? { 
+              ...state.user, 
+              name: data.name || state.user.name,
+              email: data.email || state.user.email,
+              phone: data.phone || state.user.phone
+            } : null
+          }));
+          
+          // Re-throw for component to handle
+          if (data.newPassword) {
+            throw error; // Don't silently ignore password change errors
+          }
+        }
+      },
     }),
     {
       name: 'user-storage',

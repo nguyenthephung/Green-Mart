@@ -93,8 +93,14 @@ const ProductRating: React.FC<ProductRatingProps> = ({
       setShowForm(false);
       setEditingRating(null);
       
-      // Reload to get updated average
-      setTimeout(() => window.location.reload(), 1000);
+      // Reload ratings to get updated data without full page reload
+      setTimeout(() => {
+        loadRatings(1);
+        // Trigger a custom event to update product data
+        window.dispatchEvent(new CustomEvent('productRatingUpdated', { 
+          detail: { productId } 
+        }));
+      }, 500);
     } catch (error) {
       console.error('Error submitting rating:', error);
       alert('Có lỗi xảy ra khi gửi đánh giá');
@@ -117,8 +123,14 @@ const ProductRating: React.FC<ProductRatingProps> = ({
       await ratingService.deleteRating(ratingId);
       setRatings(prev => prev.filter(r => r._id !== ratingId));
       
-      // Reload to get updated average
-      setTimeout(() => window.location.reload(), 1000);
+      // Reload ratings to get updated data without full page reload
+      setTimeout(() => {
+        loadRatings(1);
+        // Trigger a custom event to update product data
+        window.dispatchEvent(new CustomEvent('productRatingUpdated', { 
+          detail: { productId } 
+        }));
+      }, 500);
     } catch (error) {
       console.error('Error deleting rating:', error);
       alert('Có lỗi xảy ra khi xóa đánh giá');

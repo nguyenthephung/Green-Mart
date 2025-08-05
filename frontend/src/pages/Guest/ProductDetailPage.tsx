@@ -68,7 +68,22 @@ const ProductDetailPage: React.FC = () => {
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-  }, []);
+    
+    // Listen for rating updates
+    const handleRatingUpdate = (event: CustomEvent) => {
+      const { productId: updatedProductId } = event.detail;
+      if (updatedProductId === id) {
+        // Reload product data to get updated rating info
+        fetchAll();
+      }
+    };
+    
+    window.addEventListener('productRatingUpdated', handleRatingUpdate as EventListener);
+    
+    return () => {
+      window.removeEventListener('productRatingUpdated', handleRatingUpdate as EventListener);
+    };
+  }, [id, fetchAll]);
 
   // 6. All useCallback hooks
   const handlePrev = useCallback(() => {

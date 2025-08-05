@@ -4,6 +4,8 @@ import ThemeToggle from '../components/ui/ThemeToggle';
 import { useNotificationStore } from '../stores/useNotificationStore';
 import { useUserStore } from '../stores/useUserStore';
 import NotificationDropdownContent from '../components/Guest/Notification/NotificationDropdownContent';
+import AdminProfileModal from '../components/Admin/Profile/AdminProfileModal';
+import AdminSettingsModal from '../components/Admin/Profile/AdminSettingsModal';
 
 const adminMenu = [
   { label: 'Thống kê', path: '/admin/dashboard', icon: '📊', color: 'from-blue-500 to-blue-600' },
@@ -22,6 +24,8 @@ const AdminLayout: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(document.documentElement.classList.contains('dark'));
 
   const { user, logout } = useUserStore();
@@ -190,18 +194,33 @@ const AdminLayout: React.FC = () => {
           {/* Profile Dropdown */}
           {showProfile && !isCollapsed && (
             <div className="absolute bottom-full left-4 right-4 mb-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg p-2 z-50" style={{ backgroundColor: isDarkMode ? '#111827' : '#fff' }}>
-              <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm text-gray-700">
+              <button 
+                onClick={() => {
+                  setShowProfile(false);
+                  setShowProfileModal(true);
+                }}
+                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm text-gray-700 dark:text-gray-300"
+              >
                 <span>👤</span>
                 Hồ sơ cá nhân
               </button>
-              <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm text-gray-700">
+              <button 
+                onClick={() => {
+                  setShowProfile(false);
+                  setShowSettingsModal(true);
+                }}
+                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm text-gray-700 dark:text-gray-300"
+              >
                 <span>⚙️</span>
                 Cài đặt
               </button>
               <div className="border-t border-gray-200 my-2"></div>
               <button 
-                onClick={() => navigate('/')}
-                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors text-sm text-gray-700"
+                onClick={() => {
+                  setShowProfile(false);
+                  handleLogout();
+                }}
+                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-colors text-sm text-gray-700 dark:text-gray-300"
               >
                 <span>🚪</span>
                 Đăng xuất
@@ -297,6 +316,16 @@ const AdminLayout: React.FC = () => {
           <Outlet />
         </div>
       </main>
+
+      {/* Profile and Settings Modals */}
+      <AdminProfileModal 
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+      />
+      <AdminSettingsModal 
+        isOpen={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
+      />
     </div>
   );
 };

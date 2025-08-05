@@ -99,10 +99,12 @@ const GuestInfoModal: React.FC<GuestInfoModalProps> = ({ isOpen, onClose, onSave
 
   const handleAddressChange = (address: UserAddress) => {
     setAddressData(address);
+    
+    // Only update name and phone if they are empty, preserve user input
     setFormData(prev => ({
       ...prev,
-      name: address.fullName,
-      phone: address.phone,
+      name: prev.name.trim() || address.fullName, // Keep existing name if user typed something
+      phone: prev.phone.trim() || address.phone,  // Keep existing phone if user typed something
     }));
     
     // Clear address error when address is selected
