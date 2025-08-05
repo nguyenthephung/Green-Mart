@@ -68,11 +68,7 @@ const AdminDashboard: React.FC = () => {
       setRecentOrders([]);
     }
   };
-  const [notifications] = useState([
-    { id: 1, message: `${quickStats.find(s => s.label === 'Sản phẩm hết hàng')?.value || 0} sản phẩm sắp hết hàng`, type: 'warning', time: '5 phút trước' },
-    { id: 2, message: 'Đơn hàng mới đã được đặt', type: 'success', time: '10 phút trước' },
-    { id: 3, message: `${quickStats.find(s => s.label === 'Khách hàng mới')?.value || 0} khách hàng mới đăng ký`, type: 'info', time: '15 phút trước' },
-  ]);
+
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -115,27 +111,7 @@ const AdminDashboard: React.FC = () => {
               })} - {currentTime.toLocaleTimeString('vi-VN')}
             </p>
           </div>
-          <div className="relative">
-            <div
-              className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 max-w-sm"
-              style={{ backgroundColor: isDarkMode ? '#18181b' : '#fff' }}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-gray-800 dark:text-white">Thông báo</h3>
-                <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-                  {notifications.length}
-                </span>
-              </div>
-              <ul className="space-y-2">
-                {notifications.map(n => (
-                  <li key={n.id} className="flex justify-between items-center text-sm">
-                    <span className="text-gray-700 dark:text-gray-300">{n.message}</span>
-                    <span className="text-gray-500 dark:text-gray-400 text-xs">{n.time}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
+          
         </div>
         {/* Quick Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
