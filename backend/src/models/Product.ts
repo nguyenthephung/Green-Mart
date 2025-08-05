@@ -18,6 +18,17 @@ export interface IProduct extends Document {
   unit?: string;
   isFeatured: boolean;
   descriptionImages: string[];
+  // Rating fields
+  averageRating: number;
+  totalRatings: number;
+  ratingDistribution: {
+    5: number;
+    4: number;
+    3: number;
+    2: number;
+    1: number;
+  };
+  totalSold: number;
 }
 
 const ProductSchema: Schema = new Schema({
@@ -96,7 +107,29 @@ const ProductSchema: Schema = new Schema({
   },
   descriptionImages: [{
     type: String
-  }]
+  }],
+  // Rating fields
+  averageRating: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 5
+  },
+  totalRatings: {
+    type: Number,
+    default: 0
+  },
+  ratingDistribution: {
+    5: { type: Number, default: 0 },
+    4: { type: Number, default: 0 },
+    3: { type: Number, default: 0 },
+    2: { type: Number, default: 0 },
+    1: { type: Number, default: 0 }
+  },
+  totalSold: {
+    type: Number,
+    default: 0
+  }
 }, {
   timestamps: true
 });

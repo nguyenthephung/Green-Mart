@@ -5,18 +5,8 @@ import { Heart } from 'lucide-react';
 import { useWishlistStore } from '../../../stores/useWishlistStore';
 import { useUserStore } from '../../../stores/useUserStore';
 import { useAddToCartAnimation } from '../../../hooks/useAddToCartAnimation';
-
-export interface Product {
-  id: string | number;
-  name: string;
-  price: string;
-  salePrice?: string;
-  isSale?: boolean;
-  image: string;
-  category: string;
-  isFeatured?: boolean;
-  unit?: string; // Added unit property
-}
+import StarRating from '../../ui/StarRating';
+import type { Product } from '../../../types/Product';
 
 interface ProductCardProps {
   product: Product;
@@ -65,24 +55,16 @@ const ProductCard: React.FC<ProductCardProps> = memo(({ product, onAddToCart, sh
       if (isInWishlist(product.id.toString())) {
         await removeFromWishlist(product.id.toString());
       } else {
-        // Chuyển đổi price thành number - handle both string and number
-        const priceStr = product.salePrice || product.price;
-        const priceNumber = typeof priceStr === 'string' 
-          ? parseFloat(priceStr.replace(/[^\d]/g, ''))
-          : parseFloat(String(priceStr));
+        // Price is now number, handle salePrice which might be undefined
+        const currentPrice = product.salePrice || product.price;
+        const originalPrice = product.isSale ? product.price : undefined;
         
-        const originalPriceStr = product.price;
-        const originalPriceNumber = product.isSale && originalPriceStr
-          ? (typeof originalPriceStr === 'string' 
-              ? parseFloat(originalPriceStr.replace(/[^\d]/g, ''))
-              : parseFloat(String(originalPriceStr)))
-          : undefined;
         await addToWishlist({
           id: product.id,
           name: product.name,
-          price: priceNumber,
-          originalPrice: originalPriceNumber,
-          discount: product.isSale && originalPriceNumber ? Math.round((1 - priceNumber / originalPriceNumber) * 100) : undefined,
+          price: currentPrice,
+          originalPrice: originalPrice,
+          discount: product.isSale && originalPrice ? Math.round((1 - currentPrice / originalPrice) * 100) : undefined,
           image: product.image,
           category: product.category,
           inStock: true
@@ -119,21 +101,45 @@ const ProductCard: React.FC<ProductCardProps> = memo(({ product, onAddToCart, sh
         ) : null}
       </Link>
       <h4 className="text-lg font-medium mt-2 text-gray-900 dark:text-gray-100">{product.name}</h4>
+      
+      {/* Rating */}
+      {product.averageRating && product.averageRating > 0 && (
+        <div className="mt-1">
+          <StarRating 
+            rating={product.averageRating} 
+            size="sm" 
+            showValue={true}
+            showCount={true}
+            count={product.totalRatings || 0}
+          />
+        </div>
+      )}
+      
       {/* Giá và badge: luôn chiếm cùng chiều cao */}
       <div className="min-h-[38px] flex items-end">
         {product.isSale && showSaleBadge ? (
           <div className="flex items-center gap-2 mt-1">
-            <span className="text-gray-400 dark:text-gray-500 line-through text-sm">{product.price}</span>
-            <span className="text-red-600 dark:text-red-400 font-bold text-lg">{product.salePrice}</span>
+            <span className="text-gray-400 dark:text-gray-500 line-through text-sm">
+              {product.price.toLocaleString('vi-VN')}đ
+            </span>
+            <span className="text-red-600 dark:text-red-400 font-bold text-lg">
+              {product.salePrice?.toLocaleString('vi-VN')}đ
+            </span>
             <span className="ml-2 bg-red-500 dark:bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded">SALE</span>
           </div>
         ) : product.isSale ? (
           <div className="flex items-center gap-2 mt-1">
-            <span className="text-gray-400 dark:text-gray-500 line-through text-sm">{product.price}</span>
-            <span className="text-red-600 dark:text-red-400 font-bold text-lg">{product.salePrice}</span>
+            <span className="text-gray-400 dark:text-gray-500 line-through text-sm">
+              {product.price.toLocaleString('vi-VN')}đ
+            </span>
+            <span className="text-red-600 dark:text-red-400 font-bold text-lg">
+              {product.salePrice?.toLocaleString('vi-VN')}đ
+            </span>
           </div>
         ) : (
-          <p className="text-gray-600 dark:text-gray-300 mt-1">{product.price}</p>
+          <p className="text-gray-600 dark:text-gray-300 mt-1">
+            {product.price.toLocaleString('vi-VN')}đ
+          </p>
         )}
       </div>
 

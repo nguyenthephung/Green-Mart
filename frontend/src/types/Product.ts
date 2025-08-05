@@ -17,6 +17,9 @@ export interface Product {
   unit: string;
   type?: 'count' | 'weight';
   descriptionImages?: string[];
+  averageRating?: number;
+  totalRatings?: number;
+  totalSold?: number;
   createdAt?: string;
   updatedAt?: string;
 }

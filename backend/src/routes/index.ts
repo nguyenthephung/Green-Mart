@@ -12,6 +12,7 @@ import orderRoutes from './orderRoutes';
 import notificationRoutes from './notificationRoutes';
 import commentRoutes from './commentRoutes';
 import dashboardRoutes from './dashboardRoutes';
+import ratingRoutes from './ratingRoutes';
 
 const router = Router();
 
@@ -47,6 +48,9 @@ router.use('/notifications', notificationRoutes);
 
 // Comment routes
 router.use('/comments', commentRoutes);
+
+// Rating routes
+router.use('/ratings', ratingRoutes);
 
 // Dashboard routes (admin only)
 router.use('/dashboard', dashboardRoutes);
