@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import ProductCard from '../../components/Guest/home/ProductCard';
 import { useCartStore } from '../../stores/useCartStore';
 import { useProductStore } from '../../stores/useProductStore';
+import BannerManager from '../../components/Guest/BannerManager';
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -43,6 +44,9 @@ const SearchPage: React.FC = () => {
 
   return (
     <div className="min-h-screen p-6 bg-gray-50 dark:bg-gray-900">
+      {/* Banner Manager */}
+      <BannerManager page="search" />
+      
       <h2 className="text-2xl font-semibold mb-4">
         Kết quả tìm kiếm cho: <span className="text-green-600">"{searchTerm}"</span>
       </h2>

@@ -204,16 +204,9 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-start justify-center p-4 overflow-y-auto">
       <div 
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[95vh] overflow-hidden"
-        style={{
-          position: 'fixed',
-          top: '32px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          margin: '24px'
-        }}
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl my-8 overflow-hidden"
       >
         {/* Header */}
         <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6">

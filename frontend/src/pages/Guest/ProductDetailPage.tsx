@@ -6,6 +6,7 @@ import ProductRating from '../../components/Guest/ProductRating';
 
 import { FaShoppingCart, FaCheckCircle, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { useCartStore } from '../../stores/useCartStore';
+import BannerManager from '../../components/Guest/BannerManager';
 
 const ProductDetailPage: React.FC = () => {
   // 1. All hooks must be at the very top, no conditional logic before them
@@ -169,6 +170,9 @@ const ProductDetailPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-200 py-10 px-4 md:px-16">
+      {/* Banner Manager */}
+      <BannerManager page="product" categoryId={product?.category} />
+      
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-start mb-16">
         {/* Product Image */}
         <div className="bg-white p-6 rounded-2xl shadow-2xl">

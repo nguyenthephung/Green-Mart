@@ -14,6 +14,7 @@ import notificationRoutes from './notificationRoutes';
 import commentRoutes from './commentRoutes';
 import dashboardRoutes from './dashboardRoutes';
 import ratingRoutes from './ratingRoutes';
+import bannerRoutes from './bannerRoutes';
 
 const router = Router();
 
@@ -58,6 +59,9 @@ router.use('/ratings', ratingRoutes);
 
 // Dashboard routes (admin only)
 router.use('/dashboard', dashboardRoutes);
+
+// Banner routes
+router.use('/banners', bannerRoutes);
 
 // Category routes
 router.use(categoryRoutes);

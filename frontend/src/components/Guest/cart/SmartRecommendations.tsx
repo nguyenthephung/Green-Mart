@@ -179,19 +179,19 @@ export default function SmartRecommendations({ maxItems = 10 }: SmartRecommendat
             </h3>
             
             <div className="flex items-end justify-between">
-              <div className="flex flex-col">
-                <span className="text-green-600 font-bold text-sm">
-                  {item.price.toLocaleString()}₫
+              <div className="flex flex-col min-w-0 flex-1 mr-2">
+                <span className="text-green-600 font-bold text-sm break-all">
+                  {typeof item.price === 'number' ? item.price.toLocaleString('vi-VN') : '0'}₫
                 </span>
                 {item.originalPrice > item.price && (
-                  <span className="text-gray-400 line-through text-xs">
-                    {item.originalPrice.toLocaleString()}₫
+                  <span className="text-gray-400 line-through text-xs break-all">
+                    {typeof item.originalPrice === 'number' ? item.originalPrice.toLocaleString('vi-VN') : '0'}₫
                   </span>
                 )}
               </div>
               
               {item.stock <= 5 && item.stock > 0 && (
-                <span className="text-xs text-orange-600 bg-orange-100 dark:bg-orange-900/30 px-1.5 py-0.5 rounded-full">
+                <span className="text-xs text-orange-600 bg-orange-100 dark:bg-orange-900/30 px-1.5 py-0.5 rounded-full flex-shrink-0">
                   {item.stock}
                 </span>
               )}

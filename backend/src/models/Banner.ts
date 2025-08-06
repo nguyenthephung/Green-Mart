@@ -2,11 +2,17 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IBanner extends Document {
   title: string;
+  subtitle?: string;
   description?: string;
   imageUrl: string;
   linkUrl?: string;
+  buttonText?: string;
+  buttonLink?: string;
+  backgroundColor?: string;
+  textColor?: string;
   isActive: boolean;
-  position: 'hero' | 'sidebar' | 'footer' | 'category';
+  position: 'hero' | 'sidebar' | 'footer' | 'category' | 'promo' | 'sale' | 'featured';
+  categoryId?: mongoose.Types.ObjectId;
   priority: number;
   startDate: Date;
   endDate?: Date;
@@ -17,6 +23,10 @@ const BannerSchema: Schema = new Schema({
   title: {
     type: String,
     required: true,
+    trim: true
+  },
+  subtitle: {
+    type: String,
     trim: true
   },
   description: {
@@ -31,14 +41,38 @@ const BannerSchema: Schema = new Schema({
     type: String,
     trim: true
   },
+  buttonText: {
+    type: String,
+    trim: true,
+    default: 'Xem thêm'
+  },
+  buttonLink: {
+    type: String,
+    trim: true
+  },
+  backgroundColor: {
+    type: String,
+    trim: true,
+    default: 'from-green-400 to-emerald-500'
+  },
+  textColor: {
+    type: String,
+    trim: true,
+    default: 'text-white'
+  },
   isActive: {
     type: Boolean,
     default: true
   },
   position: {
     type: String,
-    enum: ['hero', 'sidebar', 'footer', 'category'],
+    enum: ['hero', 'sidebar', 'footer', 'category', 'promo', 'sale', 'featured'],
     required: true
+  },
+  categoryId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Category',
+    required: false
   },
   priority: {
     type: Number,

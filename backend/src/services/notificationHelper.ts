@@ -210,6 +210,19 @@ class NotificationHelper {
       metadata: promotionData.metadata
     });
   }
+
+  // Notify password changed
+  static async notifyPasswordChanged(userId: string) {
+    await this.createUserNotification({
+      recipientId: userId,
+      type: 'account',
+      title: 'Mật khẩu đã được thay đổi',
+      description: 'Mật khẩu tài khoản của bạn đã được cập nhật thành công.',
+      priority: 'high',
+      actionUrl: '/profile',
+      actionText: 'Xem hồ sơ'
+    });
+  }
 }
 
 export default NotificationHelper;

@@ -1,4 +1,4 @@
-import { useParams} from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import type { Product } from '../../types/Product';
 import { useProductStore } from '../../stores/useProductStore';
 import { useCategoryStore } from '../../stores/useCategoryStore';
@@ -20,6 +20,8 @@ import { useState, useMemo } from 'react';
 import { useCartStore } from '../../stores/useCartStore';
 import { StarIcon, FireIcon } from '@heroicons/react/24/solid';
 import ProductCard from '../../components/Guest/home/ProductCard';
+import BannerManager from '../../components/Guest/BannerManager';
+import DynamicBanner from '../../components/Guest/DynamicBanner';
 
 
 export default function CategoryPage() {
@@ -27,11 +29,18 @@ export default function CategoryPage() {
   const user = useUserStore(state => state.user);
   const addresses = useUserStore(state => state.addresses as AddressInfo[]);
   const { category } = useParams<{ category: string }>();
+  const [searchParams] = useSearchParams();
   const addToCart = useCartStore(state => state.addToCart);
   const categories = useCategoryStore(state => state.categories);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState('default');
-  const [filterType, setFilterType] = useState<'all' | 'sale' | 'featured'>('all');
+  
+  // Initialize filterType based on URL parameters
+  const [filterType, setFilterType] = useState<'all' | 'sale' | 'featured'>(() => {
+    if (searchParams.get('sale') === 'true') return 'sale';
+    if (searchParams.get('featured') === 'true') return 'featured';
+    return 'all';
+  });
 
   // Use admin product store
   const products = useProductStore(state => state.products);
@@ -115,6 +124,9 @@ export default function CategoryPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
+      {/* Banner Manager */}
+      <BannerManager page="category" categoryId={currentParentCategory?.id} />
+      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Page Header */}
         <div className="text-center mb-12">
@@ -271,6 +283,16 @@ export default function CategoryPage() {
             </select>
           </div>
         </div>
+        
+        {/* Dynamic Banner based on filter type */}
+        <div className="mb-8">
+          <DynamicBanner 
+            filterType={filterType} 
+            categoryId={currentParentCategory?.id}
+            className="w-full"
+          />
+        </div>
+        
         {/* Products Count and Status */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">

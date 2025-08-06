@@ -117,19 +117,11 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ show, product, onCl
     );
   }
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-30 z-50">
-      <div 
-        className="bg-white rounded-xl shadow-lg p-8 w-full max-w-lg relative animate-fadeIn"
-        style={{
-          position: 'fixed',
-          top: '20px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          margin: '16px'
-        }}
-      >
+    <div className="fixed inset-0 bg-black bg-opacity-30 z-50 flex items-start justify-center p-4 overflow-y-auto">
+      <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-4xl my-8 animate-fadeIn">
         <button className="absolute top-2 right-2 text-gray-400 hover:text-red-500 text-xl" onClick={onClose}>&times;</button>
         <h2 className="text-xl font-bold mb-4 flex items-center gap-2" style={isDarkMode ? { color: '#fff' } : { color: '#15803d' }}>Sửa sản phẩm</h2>
+        <div className="max-h-[70vh] overflow-y-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-3">
             <input className={`w-full border px-3 py-2 rounded ${errors.name ? 'border-red-400' : ''}`} placeholder="Tên sản phẩm" value={editProduct.name} onChange={e => setEditProduct(prev => prev ? { ...prev, name: e.target.value } : null)}
@@ -326,6 +318,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ show, product, onCl
               <option value="inactive">❌ Ẩn</option>
             </select>
           </div>
+        </div>
         </div>
         <button className="w-full bg-green-600 text-white py-2 rounded font-semibold hover:bg-green-700 mt-4 flex items-center justify-center gap-2" onClick={handleSave}>
           <span className="material-icons">Lưu</span>

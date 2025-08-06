@@ -10,6 +10,7 @@ import ShopeeVoucherModal from '../../components/Guest/cart/CartVoucherModal';
 import orderService from '../../services/orderService';
 import type { CreateOrderRequest } from '../../services/orderService';
 import paymentService from '../../services/paymentService';
+import BannerManager from '../../components/Guest/BannerManager';
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -374,6 +375,8 @@ const Checkout = () => {
 
   return (
     <div className="bg-gradient-app-main min-h-screen flex flex-col">
+      {/* Banner Manager */}
+      <BannerManager page="checkout" />
       
       {/* Hero Section */}
       <div className="pt-0 pb-2">

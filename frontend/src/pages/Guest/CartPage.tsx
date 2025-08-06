@@ -15,6 +15,7 @@ import haversine from 'haversine-distance';
 import { useVoucherStore } from '../../stores/useVoucherStore';
 import ShopeeVoucherModal from '../../components/Guest/cart/CartVoucherModal';
 import GuestVoucherModal from '../../components/Guest/cart/GuestVoucherModal';
+import BannerManager from '../../components/Guest/BannerManager';
 
 // Extend AddressInfo locally to match actual usage
 type AddressInfo = {
@@ -222,6 +223,9 @@ export default function CartPage() {
 
   return (
     <>
+    {/* Banner Manager */}
+    <BannerManager page="cart" />
+    
     <div className="bg-gradient-app-main min-h-screen">
       {/* Hero Section */}
       <div className="pt-0 pb-2">

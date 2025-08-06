@@ -4,6 +4,12 @@ import { useProductStore } from '../../stores/useProductStore';
 import { useCategoryStore } from '../../stores/useCategoryStore';
 import { useUserStore } from '../../stores/useUserStore';
 import HeroSection from '../../components/Guest/home/sections/HeroSection';
+import SectionBanner from '../../components/Guest/home/sections/SectionBanner';
+import SidebarBanner from '../../components/Guest/home/sections/SidebarBanner';
+import FooterBanner from '../../components/Guest/home/sections/FooterBanner';
+import FeaturedBanner from '../../components/Guest/home/sections/FeaturedBanner';
+import CategoryBanner from '../../components/Guest/home/sections/CategoryBanner';
+import SaleBanner from '../../components/Guest/home/sections/SaleBanner';
 import SaleSection from '../../components/Guest/home/sections/SaleSection';
 import CategoriesSection from '../../components/Guest/home/sections/CategoriesSection';
 import FeaturedProductsSection from '../../components/Guest/home/sections/FeaturedProductsSection';
@@ -303,6 +309,10 @@ const Home: React.FC = memo(() => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 scroll-optimized">
+      {/* Sidebar Banner - Fixed position */}
+      <SidebarBanner />
+      
+      {/* Hero Section with Banner Integration */}
       <HeroSection
         realSlides={realSlides}
         currentSlide={currentSlide}
@@ -310,21 +320,69 @@ const Home: React.FC = memo(() => {
         isScrolling={isScrolling}
         backgroundImage={realSlides[currentSlide]?.image}
       />
+      
+      {/* Sale Banner - Eye-catching sale section */}
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        <SaleBanner className="mb-8" />
+      </div>
+      
+      {/* Section banner for sale products */}
+      <div className="max-w-7xl mx-auto px-8 mb-6">
+        <SectionBanner 
+          sectionType="sale" 
+          className="h-24 shadow-lg"
+        />
+      </div>
+      
       <SaleSection
         saleProducts={saleProducts}
         handleAddToCart={handleAddToCart}
       />
+      
+      {/* Category Banner - General category promotion */}
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        <CategoryBanner className="mb-8" />
+      </div>
+      
+      {/* Section banner for categories */}
+      <div className="max-w-7xl mx-auto px-8 mb-6">
+        <SectionBanner 
+          sectionType="categories" 
+          className="h-24 shadow-lg"
+        />
+      </div>
+      
       <CategoriesSection
         getProductsByCategory={getProductsByCategory}
         handleAddToCart={handleAddToCart}
         products={products}
         sections={categorySections}
       />
+      
+      {/* Featured Banner - Highlight featured products */}
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        <FeaturedBanner className="mb-8" />
+      </div>
+      
+      {/* Section banner for featured products */}
+      <div className="max-w-7xl mx-auto px-8 mb-6">
+        <SectionBanner 
+          sectionType="featured" 
+          className="h-24 shadow-lg"
+        />
+      </div>
+      
       <FeaturedProductsSection
         featuredProducts={featuredProducts}
         handleAddToCart={handleAddToCart}
       />
+      
       <TestimonialsSection testimonials={testimonials} />
+      
+      {/* Footer Banner - Full width at bottom */}
+      <div className="w-full px-4 py-8 bg-gray-50 dark:bg-gray-800">
+        <FooterBanner />
+      </div>
     </div>
   );
 });

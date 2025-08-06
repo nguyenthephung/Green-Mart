@@ -102,42 +102,40 @@ const ProductCard: React.FC<ProductCardProps> = memo(({ product, onAddToCart, sh
       </Link>
       <h4 className="text-lg font-medium mt-2 text-gray-900 dark:text-gray-100">{product.name}</h4>
       
-      {/* Rating */}
-      {product.averageRating && product.averageRating > 0 && (
-        <div className="mt-1">
-          <StarRating 
-            rating={product.averageRating} 
-            size="sm" 
-            showValue={true}
-            showCount={true}
-            count={product.totalRatings || 0}
-          />
-        </div>
-      )}
+      {/* Rating - Always show, even when 0 */}
+      <div className="mt-1">
+        <StarRating 
+          rating={product.averageRating || 0} 
+          size="sm" 
+          showValue={(product.averageRating || 0) > 0}
+          showCount={(product.averageRating || 0) > 0}
+          count={product.totalRatings || 0}
+        />
+      </div>
       
       {/* Giá và badge: luôn chiếm cùng chiều cao */}
       <div className="min-h-[38px] flex items-end">
         {product.isSale && showSaleBadge ? (
-          <div className="flex items-center gap-2 mt-1">
-            <span className="text-gray-400 dark:text-gray-500 line-through text-sm">
+          <div className="flex flex-wrap items-center gap-1 mt-1 w-full">
+            <span className="text-gray-400 dark:text-gray-500 line-through text-xs sm:text-sm truncate">
               {product.price.toLocaleString('vi-VN')}đ
             </span>
-            <span className="text-red-600 dark:text-red-400 font-bold text-lg">
+            <span className="text-red-600 dark:text-red-400 font-bold text-sm sm:text-lg truncate">
               {product.salePrice?.toLocaleString('vi-VN')}đ
             </span>
-            <span className="ml-2 bg-red-500 dark:bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded">SALE</span>
+            <span className="bg-red-500 dark:bg-red-600 text-white text-xs font-semibold px-1 py-0.5 rounded whitespace-nowrap">SALE</span>
           </div>
         ) : product.isSale ? (
-          <div className="flex items-center gap-2 mt-1">
-            <span className="text-gray-400 dark:text-gray-500 line-through text-sm">
+          <div className="flex flex-wrap items-center gap-1 mt-1 w-full">
+            <span className="text-gray-400 dark:text-gray-500 line-through text-xs sm:text-sm truncate">
               {product.price.toLocaleString('vi-VN')}đ
             </span>
-            <span className="text-red-600 dark:text-red-400 font-bold text-lg">
+            <span className="text-red-600 dark:text-red-400 font-bold text-sm sm:text-lg truncate">
               {product.salePrice?.toLocaleString('vi-VN')}đ
             </span>
           </div>
         ) : (
-          <p className="text-gray-600 dark:text-gray-300 mt-1">
+          <p className="text-gray-600 dark:text-gray-300 mt-1 text-sm sm:text-base truncate w-full">
             {product.price.toLocaleString('vi-VN')}đ
           </p>
         )}
