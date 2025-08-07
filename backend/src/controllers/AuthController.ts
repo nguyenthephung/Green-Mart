@@ -9,7 +9,16 @@ export class AuthController {
   // Cập nhật thông tin user hiện tại
   static updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-      const user = req.user;
+      // Lấy user với password để có thể verify current password
+      const user = await User.findById(req.user._id);
+      if (!user) {
+        res.status(404).json({
+          success: false,
+          message: 'Người dùng không tồn tại'
+        });
+        return;
+      }
+
       const { name, phone, avatar, currentPassword, newPassword } = req.body;
 
       // If password change is requested, validate current password
@@ -46,7 +55,7 @@ export class AuthController {
         
         // Send notification about password change
         try {
-          await NotificationHelper.notifyPasswordChanged(user._id.toString());
+          await NotificationHelper.notifyPasswordChanged((user._id as mongoose.Types.ObjectId).toString());
         } catch (notifError) {
           console.error('Failed to send password change notification:', notifError);
         }
@@ -60,7 +69,7 @@ export class AuthController {
       await user.save();
 
       const userData = {
-        id: user._id,
+        id: (user._id as mongoose.Types.ObjectId).toString(),
         name: user.name,
         email: user.email,
         phone: user.phone,

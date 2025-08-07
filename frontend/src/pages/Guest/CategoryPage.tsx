@@ -20,8 +20,6 @@ import { useState, useMemo } from 'react';
 import { useCartStore } from '../../stores/useCartStore';
 import { StarIcon, FireIcon } from '@heroicons/react/24/solid';
 import ProductCard from '../../components/Guest/home/ProductCard';
-import BannerManager from '../../components/Guest/BannerManager';
-import DynamicBanner from '../../components/Guest/DynamicBanner';
 
 
 export default function CategoryPage() {
@@ -124,12 +122,9 @@ export default function CategoryPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
-      {/* Banner Manager */}
-      <BannerManager page="category" categoryId={currentParentCategory?.id} />
-      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Page Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 pt-8">
           <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4">
             {category ? (
               // Nếu category param là parent category, hiển thị tên parent
@@ -282,15 +277,6 @@ export default function CategoryPage() {
               <option value="price-desc">Giá: Cao đến Thấp</option>
             </select>
           </div>
-        </div>
-        
-        {/* Dynamic Banner based on filter type */}
-        <div className="mb-8">
-          <DynamicBanner 
-            filterType={filterType} 
-            categoryId={currentParentCategory?.id}
-            className="w-full"
-          />
         </div>
         
         {/* Products Count and Status */}

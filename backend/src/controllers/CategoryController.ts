@@ -9,10 +9,22 @@ export const getCategories = async (req: Request, res: Response) => {
     
     // Tính toán productCount thực tế cho mỗi category
     const categoriesWithCount = await Promise.all(categories.map(async (category) => {
-      const productCount = await Product.countDocuments({ category: category.name });
+      // Đếm sản phẩm theo tên parent category VÀ tất cả subcategories
+      const parentCategoryCount = await Product.countDocuments({ category: category.name });
+      
+      // Đếm sản phẩm theo tất cả subcategories
+      let subcategoriesCount = 0;
+      if (category.subs && category.subs.length > 0) {
+        subcategoriesCount = await Product.countDocuments({ 
+          category: { $in: category.subs } 
+        });
+      }
+      
+      const totalProductCount = parentCategoryCount + subcategoriesCount;
+      
       return {
         ...category.toObject(),
-        productCount
+        productCount: totalProductCount
       };
     }));
     
@@ -37,11 +49,16 @@ export const createOrUpdateCategory = async (req: Request, res: Response) => {
       if (Array.isArray(subs) && subs.every(s => typeof s === 'string')) (category as any).subs = subs;
       await category.save();
       
-      // Tính toán productCount thực tế
-      const productCount = await Product.countDocuments({ category: category.name });
+      // Tính toán productCount thực tế - update case
+      const parentCategoryCount = await Product.countDocuments({ category: category.name });
+      const subcategoriesCount = category.subs && category.subs.length > 0 
+        ? await Product.countDocuments({ category: { $in: category.subs } })
+        : 0;
+      const totalProductCount = parentCategoryCount + subcategoriesCount;
+      
       const categoryWithCount = {
         ...category.toObject(),
-        productCount
+        productCount: totalProductCount
       };
       
       return res.status(200).json(categoryWithCount);
@@ -56,11 +73,16 @@ export const createOrUpdateCategory = async (req: Request, res: Response) => {
       });
       await category.save();
       
-      // Tính toán productCount thực tế
-      const productCount = await Product.countDocuments({ category: category.name });
+      // Tính toán productCount thực tế - create case
+      const parentCategoryCount = await Product.countDocuments({ category: category.name });
+      const subcategoriesCount = category.subs && category.subs.length > 0 
+        ? await Product.countDocuments({ category: { $in: category.subs } })
+        : 0;
+      const totalProductCount = parentCategoryCount + subcategoriesCount;
+      
       const categoryWithCount = {
         ...category.toObject(),
-        productCount
+        productCount: totalProductCount
       };
       
       return res.status(201).json(categoryWithCount);
@@ -101,11 +123,16 @@ export const toggleCategoryStatus = async (req: Request, res: Response) => {
     category.status = category.status === 'active' ? 'inactive' : 'active';
     await category.save();
     
-    // Tính toán productCount thực tế
-    const productCount = await Product.countDocuments({ category: category.name });
+    // Tính toán productCount thực tế - toggle status case
+    const parentCategoryCount = await Product.countDocuments({ category: category.name });
+    const subcategoriesCount = category.subs && category.subs.length > 0 
+      ? await Product.countDocuments({ category: { $in: category.subs } })
+      : 0;
+    const totalProductCount = parentCategoryCount + subcategoriesCount;
+    
     const categoryWithCount = {
       ...category.toObject(),
-      productCount
+      productCount: totalProductCount
     };
     
     res.json(categoryWithCount);

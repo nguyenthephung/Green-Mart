@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useCategoryStore } from '../../stores/useCategoryStore';
+import { useProductStore } from '../../stores/useProductStore';
 // Category mới: name (tên cha), subs (mảng tên con), icon, description, ...
 type Category = {
   id: string;
@@ -34,6 +35,9 @@ const AdminCategories: React.FC = () => {
     remove,
     toggleStatus
   } = useCategoryStore();
+  
+  // Store sản phẩm  
+  const products = useProductStore(state => state.products);
   // Loading states for each action
   const [fetchLoading, setFetchLoading] = useState(false);
   const [addLoading, setAddLoading] = useState(false);
@@ -54,6 +58,8 @@ const AdminCategories: React.FC = () => {
   const [editCategory, setEditCategory] = useState<Category | null>(null);
   const [showEdit, setShowEdit] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [showProducts, setShowProducts] = useState(false);
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   const [viewMode, setViewMode] = useState<ViewMode>('table');
@@ -75,6 +81,36 @@ const AdminCategories: React.FC = () => {
   // If fetch failed, stop showing loading spinner
   const showLoading = (fetchLoading || addLoading || editLoading || deleteLoading) && !error;
 
+  // Function để lấy sản phẩm theo category (bao gồm cả subcategories)
+  const getProductsByCategory = (categoryName: string, subcategories: string[] = []) => {
+    // Lấy sản phẩm theo parent category
+    const parentProducts = products.filter(product => product.category === categoryName);
+    
+    // Lấy sản phẩm theo subcategories
+    const subProducts = products.filter(product => 
+      subcategories.includes(product.category)
+    );
+    
+    // Gộp lại và loại bỏ trùng lặp
+    const allProducts = [...parentProducts, ...subProducts];
+    const uniqueProducts = allProducts.filter((product, index, self) => 
+      index === self.findIndex(p => p.id === product.id)
+    );
+    
+    return uniqueProducts;
+  };
+
+  // Function để lấy productCount thực tế
+  const getRealProductCount = (categoryName: string, subcategories: string[] = []) => {
+    return getProductsByCategory(categoryName, subcategories).length;
+  };
+
+  // Function để hiển thị sản phẩm của category
+  const handleShowProducts = (categoryId: string, categoryName: string) => {
+    setSelectedCategoryId(categoryId);
+    setShowProducts(true);
+  };
+
   // Filter and sort logic
   const filteredAndSortedCategories = useMemo(() => {
     let filtered = categories.filter(category => {
@@ -95,6 +131,7 @@ const AdminCategories: React.FC = () => {
           bValue = b.name.toLowerCase();
           break;
         case 'productCount':
+          // Sử dụng productCount từ backend (đã tính đúng)
           aValue = a.productCount;
           bValue = b.productCount;
           break;
@@ -403,9 +440,17 @@ const AdminCategories: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <span className="text-sm font-medium" style={isDarkMode ? { color: '#fff' } : { color: '#111827' }}>{category.productCount}</span>
-                        <span className="ml-2 text-xs" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>sản phẩm</span>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <span className="text-sm font-medium" style={isDarkMode ? { color: '#fff' } : { color: '#111827' }}>{category.productCount}</span>
+                          <span className="ml-2 text-xs" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>sản phẩm</span>
+                        </div>
+                        <button
+                          onClick={() => handleShowProducts(category.id, category.name)}
+                          className="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition-colors"
+                        >
+                          Xem
+                        </button>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -495,6 +540,12 @@ const AdminCategories: React.FC = () => {
                   <div className="text-center">
                     <div className="text-2xl font-bold" style={isDarkMode ? { color: '#60a5fa' } : { color: '#2563eb' }}>{category.productCount}</div>
                     <div className="text-xs" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>Sản phẩm</div>
+                    <button
+                      onClick={() => handleShowProducts(category.id, category.name)}
+                      className="mt-1 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition-colors"
+                    >
+                      Xem sản phẩm
+                    </button>
                   </div>
                   <div className="text-center">
                     <div className="text-sm" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>{formatDate(category.updatedAt)}</div>
@@ -597,6 +648,16 @@ const AdminCategories: React.FC = () => {
           onCancel={() => setDeleteId(null)}
         />
       )}
+      
+      {/* Products Modal */}
+      <ProductsModal
+        show={showProducts}
+        onClose={() => setShowProducts(false)}
+        categoryId={selectedCategoryId}
+        categories={categories}
+        products={products}
+        getProductsByCategory={getProductsByCategory}
+      />
     </div>
   );
 };
@@ -875,6 +936,135 @@ const ConfirmDeleteCategoryModal: React.FC<{show: boolean, categoryName: string,
             style={isDarkMode ? { backgroundColor: '#ef4444', color: '#fff' } : {}}
             disabled={isDeleting}
           >{isDeleting ? 'Đang xóa...' : 'Xóa'}</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Products Modal Component
+const ProductsModal: React.FC<{
+  show: boolean;
+  onClose: () => void;
+  categoryId: string | null;
+  categories: Category[];
+  products: any[];
+  getProductsByCategory: (categoryName: string, subcategories?: string[]) => any[];
+}> = ({ show, onClose, categoryId, categories, products, getProductsByCategory }) => {
+  if (!show || !categoryId) return null;
+  
+  const category = categories.find(c => c.id === categoryId);
+  if (!category) return null;
+  
+  const categoryProducts = getProductsByCategory(category.name, category.subs || []);
+  const isDarkMode = document.documentElement.classList.contains('dark');
+  
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div
+        className="rounded-xl w-full max-w-6xl max-h-[90vh] overflow-hidden"
+        style={isDarkMode ? { backgroundColor: '#18181b', color: '#fff' } : { backgroundColor: '#fff' }}
+      >
+        {/* Header */}
+        <div className="p-6 border-b" style={isDarkMode ? { borderColor: '#374151' } : { borderColor: '#e5e7eb' }}>
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold">Sản phẩm trong danh mục</h2>
+              <p className="text-lg mt-1" style={isDarkMode ? { color: '#60a5fa' } : { color: '#2563eb' }}>
+                {category.name} ({categoryProducts.length} sản phẩm)
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              style={isDarkMode ? { backgroundColor: '#374151' } : {}}
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        {/* Content */}
+        <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+          {categoryProducts.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">📦</div>
+              <h3 className="text-xl font-semibold mb-2">Chưa có sản phẩm</h3>
+              <p style={isDarkMode ? { color: '#9ca3af' } : { color: '#6b7280' }}>
+                Danh mục này chưa có sản phẩm nào.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {categoryProducts.map((product) => (
+                <div 
+                  key={product.id} 
+                  className="border rounded-lg p-4 hover:shadow-lg transition-shadow"
+                  style={isDarkMode ? { borderColor: '#374151', backgroundColor: '#1f2937' } : { borderColor: '#e5e7eb' }}
+                >
+                  {/* Product Image */}
+                  <div className="aspect-square mb-3 overflow-hidden rounded-lg bg-gray-100">
+                    {product.images && product.images.length > 0 ? (
+                      <img 
+                        src={product.images[0]} 
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400">
+                        <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Product Info */}
+                  <h4 className="font-semibold mb-2 line-clamp-2" title={product.name}>
+                    {product.name}
+                  </h4>
+                  
+                  {/* Price */}
+                  <div className="mb-2">
+                    {product.salePrice && product.salePrice < product.price ? (
+                      <div>
+                        <span className="text-lg font-bold" style={{ color: '#ef4444' }}>
+                          {product.salePrice?.toLocaleString('vi-VN')}₫
+                        </span>
+                        <span className="ml-2 text-sm line-through" style={isDarkMode ? { color: '#9ca3af' } : { color: '#6b7280' }}>
+                          {product.price?.toLocaleString('vi-VN')}₫
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-lg font-bold" style={isDarkMode ? { color: '#60a5fa' } : { color: '#2563eb' }}>
+                        {product.price?.toLocaleString('vi-VN')}₫
+                      </span>
+                    )}
+                  </div>
+                  
+                  {/* Stock */}
+                  <div className="text-sm" style={isDarkMode ? { color: '#9ca3af' } : { color: '#6b7280' }}>
+                    Kho: {product.stock || 0}
+                  </div>
+                  
+                  {/* Status */}
+                  <div className="mt-2">
+                    <span 
+                      className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
+                        product.status === 'active' 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-red-100 text-red-800'
+                      }`}
+                    >
+                      {product.status === 'active' ? 'Đang bán' : 'Ngừng bán'}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

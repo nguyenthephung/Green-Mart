@@ -285,9 +285,9 @@ export const useUserStore = create<UserState>()(
       updateProfile: async (data: any) => {
         set({ isLoading: true });
         try {
-          // Simulate API call - replace with actual API
-          const response = await fetch('/api/users/profile', {
-            method: 'PUT',
+          // Sửa endpoint từ '/api/users/profile' thành '/api/auth/profile'
+          const response = await fetch('/api/auth/profile', {
+            method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${tokenManager.get()}`
