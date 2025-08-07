@@ -6,6 +6,7 @@ import { useUserStore } from '../stores/useUserStore';
 import NotificationDropdownContent from '../components/Guest/Notification/NotificationDropdownContent';
 import AdminProfileModal from '../components/Admin/Profile/AdminProfileModal';
 import AdminSettingsModal from '../components/Admin/Profile/AdminSettingsModal';
+import { useAdminAutoScroll } from '../hooks/useAdminAutoScroll';
 
 const adminMenu = [
   { label: 'Thống kê', path: '/admin/dashboard', icon: '📊', color: 'from-blue-500 to-blue-600' },
@@ -30,6 +31,13 @@ const AdminLayout: React.FC = () => {
 
   const { user, logout } = useUserStore();
   const { unreadCount, fetchUnreadCount } = useNotificationStore();
+
+  // Enable auto-scroll for admin routes
+  useAdminAutoScroll({
+    behavior: 'smooth',
+    delay: 150,
+    enabledRoutes: ['/admin']
+  });
 
   const handleLogout = () => {
     logout();
@@ -311,8 +319,12 @@ const AdminLayout: React.FC = () => {
           </div>
         </header>
 
-        {/* Page Content */}
-        <div className="flex-1 p-8 bg-gray-50 dark:bg-gray-900" style={{ backgroundColor: isDarkMode ? '#111827' : '#f9fafb' }}>
+        {/* Page Content with Auto-scroll Support */}
+        <div 
+          className="flex-1 p-8 bg-gray-50 dark:bg-gray-900 admin-layout-container overflow-y-auto" 
+          data-main-content
+          style={{ backgroundColor: isDarkMode ? '#111827' : '#f9fafb' }}
+        >
           <Outlet />
         </div>
       </main>

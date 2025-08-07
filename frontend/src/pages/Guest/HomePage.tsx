@@ -331,9 +331,9 @@ const Home: React.FC = memo(() => {
         handleAddToCart={handleAddToCart}
       />
       
-      {/* Category Banner - General category promotion */}
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        <CategoryBanner className="mb-8" />
+      {/* Category Banner - Full width, modern design */}
+      <div className="w-full bg-gradient-to-r from-emerald-50 via-green-50 to-teal-50 py-12 mb-8">
+        <CategoryBanner className="max-w-7xl mx-auto px-4" />
       </div>
       
       {/* Section banner for categories */}

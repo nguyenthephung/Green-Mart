@@ -960,24 +960,28 @@ const ProductsModal: React.FC<{
   const isDarkMode = document.documentElement.classList.contains('dark');
   
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div
-        className="rounded-xl w-full max-w-6xl max-h-[90vh] overflow-hidden"
-        style={isDarkMode ? { backgroundColor: '#18181b', color: '#fff' } : { backgroundColor: '#fff' }}
+        className="rounded-2xl w-full max-w-7xl max-h-[95vh] overflow-hidden shadow-2xl border-0"
+        style={isDarkMode ? { backgroundColor: '#111827', color: '#fff' } : { backgroundColor: '#fff' }}
       >
-        {/* Header */}
-        <div className="p-6 border-b" style={isDarkMode ? { borderColor: '#374151' } : { borderColor: '#e5e7eb' }}>
+        {/* Modern Header */}
+        <div className="bg-gradient-to-r from-emerald-600 to-green-600 text-white p-6">
           <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold">Sản phẩm trong danh mục</h2>
-              <p className="text-lg mt-1" style={isDarkMode ? { color: '#60a5fa' } : { color: '#2563eb' }}>
-                {category.name} ({categoryProducts.length} sản phẩm)
-              </p>
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                <span className="text-2xl">📦</span>
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold">Sản phẩm trong danh mục</h2>
+                <p className="text-emerald-100 text-lg">
+                  {category.name} • {categoryProducts.length} sản phẩm
+                </p>
+              </div>
             </div>
             <button
               onClick={onClose}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-              style={isDarkMode ? { backgroundColor: '#374151' } : {}}
+              className="w-10 h-10 rounded-xl bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

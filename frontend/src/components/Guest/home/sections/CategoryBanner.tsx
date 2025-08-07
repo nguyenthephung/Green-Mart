@@ -61,62 +61,102 @@ export default function CategoryBanner({ categoryId, className = '' }: CategoryB
 
   if (categoryBanners.length === 0) return null;
 
-  // Hiển thị tất cả banners thay vì chỉ 1 banner
+  // Hiển thị tất cả banners với thiết kế modern
   return (
     <div className={`w-full ${className}`}>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Section Header */}
+      <div className="text-center mb-10">
+        <h2 className="text-4xl font-black bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4">
+          🛍️ Khám Phá Danh Mục
+        </h2>
+        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          Tìm hiểu các sản phẩm tươi ngon và chất lượng theo từng danh mục
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {categoryBanners.map((banner, index) => {
           const linkedCategory = categories.find(cat => cat.id === banner.categoryId);
           
           return (
-            <div key={banner._id || index} className="relative group">
+            <div key={banner._id || index} className="group">
               <div 
-                className="relative overflow-hidden rounded-lg shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer"
+                className="relative overflow-hidden rounded-2xl bg-white shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer transform hover:-translate-y-2"
                 onClick={() => handleClick(banner)}
               >
-                <BannerImage
-                  src={banner.imageUrl}
-                  alt={banner.title || `Banner ${index + 1}`}
-                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                />
+                {/* Banner Image */}
+                <div className="relative h-64 overflow-hidden">
+                  <BannerImage
+                    src={banner.imageUrl}
+                    alt={banner.title || `Banner ${index + 1}`}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  />
+                  
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-80"></div>
+                  
+                  {/* Badge */}
+                  <div className="absolute top-4 left-4">
+                    <span className="bg-emerald-500 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
+                      🔥 Hot
+                    </span>
+                  </div>
+                </div>
                 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex flex-col justify-end p-6">
+                {/* Content */}
+                <div className="absolute inset-x-0 bottom-0 p-6 text-white">
                   {banner.title && (
-                    <h3 className="text-white text-xl font-bold mb-2 drop-shadow-lg">
+                    <h3 className="text-2xl font-bold mb-3 drop-shadow-lg">
                       {banner.title}
                     </h3>
                   )}
                   
                   {banner.description && (
-                    <p className="text-white/90 text-sm mb-3 drop-shadow-lg line-clamp-2">
+                    <p className="text-white/90 mb-4 drop-shadow-lg line-clamp-2 leading-relaxed">
                       {banner.description}
                     </p>
                   )}
 
-                  {(banner.linkUrl || linkedCategory) && (
-                    <div className="flex gap-2">
-                      {banner.linkUrl && banner.buttonText && (
-                        <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200">
-                          {banner.buttonText}
-                        </button>
-                      )}
-                      
-                      {linkedCategory && (
-                        <Link
-                          to={`/category/${linkedCategory.name.toLowerCase()}`}
-                          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                        >
-                          Xem {linkedCategory.name}
-                        </Link>
-                      )}
-                    </div>
-                  )}
+                  {/* Action Buttons */}
+                  <div className="flex gap-3">
+                    {banner.linkUrl && banner.buttonText && (
+                      <button className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
+                        {banner.buttonText}
+                      </button>
+                    )}
+                    
+                    {linkedCategory && (
+                      <Link
+                        to={`/category/${linkedCategory.name.toLowerCase()}`}
+                        className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 border border-white/30 hover:border-white/50"
+                      >
+                        Xem {linkedCategory.name} →
+                      </Link>
+                    )}
+                  </div>
                 </div>
+
+                {/* Hover Effect */}
+                <div className="absolute inset-0 bg-gradient-to-t from-emerald-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               </div>
             </div>
           );
         })}
       </div>
+
+      {/* Call to Action */}
+      {categoryBanners.length > 0 && (
+        <div className="text-center mt-12">
+          <Link
+            to="/category"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-green-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:from-emerald-700 hover:to-green-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+          >
+            <span>🗂️</span>
+            Xem Tất Cả Danh Mục
+            <span>→</span>
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
