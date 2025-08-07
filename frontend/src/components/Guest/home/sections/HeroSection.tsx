@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { SparklesIcon } from '@heroicons/react/24/solid';
 import { useBannerStore } from '../../../../stores/useBannerStore';
+import BannerImage from '../../../ui/BannerImage';
 
 interface Slide {
   id: number;
@@ -88,26 +89,22 @@ const HeroSection: React.FC<HeroSectionProps> = ({ realSlides, currentSlide, set
     {useHeroBanner && activeBanner ? (
       /* Hero Banner Mode */
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-1000"
-        style={{
-          backgroundImage: `url(${activeBanner.imageUrl})`,
-          filter: 'brightness(0.8) contrast(1.1)'
-        }}
+        className="absolute inset-0 transition-all duration-1000 cursor-pointer"
         onClick={handleBannerClick}
       >
+        <BannerImage
+          src={activeBanner.imageUrl}
+          alt={activeBanner.title}
+          className="absolute inset-0 w-full h-full"
+          fallbackIcon="🏆"
+          fallbackText="Hero Banner"
+        />
         {/* Overlay gradient */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/30"></div>
         
         {/* Hero Banner Content */}
         <div className="absolute inset-0 flex items-center justify-center text-white text-center p-6">
           <div className="max-w-6xl mx-auto">
-            {/* Priority Badge */}
-            <div className="mb-4">
-              <span className="inline-block px-4 py-2 bg-red-500/90 backdrop-blur-sm rounded-full text-sm font-bold tracking-wide animate-pulse">
-                🔥 PRIORITY #{activeBanner.priority}
-              </span>
-            </div>
-            
             {/* Main Title */}
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-black drop-shadow-2xl mb-6 leading-tight">
               <span className="bg-gradient-to-r from-emerald-300 to-green-200 bg-clip-text text-transparent">

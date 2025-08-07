@@ -42,7 +42,7 @@ export default function BannerManager({ page, categoryId, className = '' }: Bann
       category: {
         sidebar: true,
         category: true,
-        sale: true,
+        sale: false,
         featured: false,
         showInSections: false
       },

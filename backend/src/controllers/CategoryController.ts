@@ -1,11 +1,22 @@
 import { Request, Response } from 'express';
 import Category from '../models/Category';
+import Product from '../models/Product';
 
 // GET /api/categories
 export const getCategories = async (req: Request, res: Response) => {
   try {
     const categories = await Category.find();
-    res.json(categories);
+    
+    // Tính toán productCount thực tế cho mỗi category
+    const categoriesWithCount = await Promise.all(categories.map(async (category) => {
+      const productCount = await Product.countDocuments({ category: category.name });
+      return {
+        ...category.toObject(),
+        productCount
+      };
+    }));
+    
+    res.json(categoriesWithCount);
   } catch (err) {
     res.status(500).json({ error: 'Lỗi khi lấy danh mục' });
   }
@@ -14,7 +25,7 @@ export const getCategories = async (req: Request, res: Response) => {
 // Thêm mới hoặc cập nhật danh mục
 export const createOrUpdateCategory = async (req: Request, res: Response) => {
   try {
-    const { id, name, subs, icon, description, productCount, status } = req.body;
+    const { id, name, subs, icon, description, status } = req.body;
     if (id) {
       // Nếu có id, update danh mục cha (thêm danh mục con vào subs)
       const category = await Category.findById(id);
@@ -22,11 +33,18 @@ export const createOrUpdateCategory = async (req: Request, res: Response) => {
       category.name = name || category.name;
       category.icon = icon || category.icon;
       category.description = description || category.description;
-      category.productCount = productCount || category.productCount;
       category.status = status || category.status;
       if (Array.isArray(subs) && subs.every(s => typeof s === 'string')) (category as any).subs = subs;
       await category.save();
-      return res.status(200).json(category);
+      
+      // Tính toán productCount thực tế
+      const productCount = await Product.countDocuments({ category: category.name });
+      const categoryWithCount = {
+        ...category.toObject(),
+        productCount
+      };
+      
+      return res.status(200).json(categoryWithCount);
     } else {
       // Tạo mới danh mục cha
       const category = new Category({
@@ -34,11 +52,18 @@ export const createOrUpdateCategory = async (req: Request, res: Response) => {
         subs: subs || [],
         icon,
         description,
-        productCount,
         status
       });
       await category.save();
-      return res.status(201).json(category);
+      
+      // Tính toán productCount thực tế
+      const productCount = await Product.countDocuments({ category: category.name });
+      const categoryWithCount = {
+        ...category.toObject(),
+        productCount
+      };
+      
+      return res.status(201).json(categoryWithCount);
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -75,7 +100,15 @@ export const toggleCategoryStatus = async (req: Request, res: Response) => {
     if (!category) return res.status(404).json({ error: 'Không tìm thấy danh mục' });
     category.status = category.status === 'active' ? 'inactive' : 'active';
     await category.save();
-    res.json(category);
+    
+    // Tính toán productCount thực tế
+    const productCount = await Product.countDocuments({ category: category.name });
+    const categoryWithCount = {
+      ...category.toObject(),
+      productCount
+    };
+    
+    res.json(categoryWithCount);
   } catch (err) {
     res.status(500).json({ error: 'Lỗi khi đổi trạng thái' });
   }

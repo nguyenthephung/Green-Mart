@@ -326,14 +326,6 @@ const Home: React.FC = memo(() => {
         <SaleBanner className="mb-8" />
       </div>
       
-      {/* Section banner for sale products */}
-      <div className="max-w-7xl mx-auto px-8 mb-6">
-        <SectionBanner 
-          sectionType="sale" 
-          className="h-24 shadow-lg"
-        />
-      </div>
-      
       <SaleSection
         saleProducts={saleProducts}
         handleAddToCart={handleAddToCart}
@@ -362,14 +354,6 @@ const Home: React.FC = memo(() => {
       {/* Featured Banner - Highlight featured products */}
       <div className="max-w-7xl mx-auto px-4 py-6">
         <FeaturedBanner className="mb-8" />
-      </div>
-      
-      {/* Section banner for featured products */}
-      <div className="max-w-7xl mx-auto px-8 mb-6">
-        <SectionBanner 
-          sectionType="featured" 
-          className="h-24 shadow-lg"
-        />
       </div>
       
       <FeaturedProductsSection
