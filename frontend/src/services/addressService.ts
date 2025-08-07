@@ -32,27 +32,37 @@ export class AddressService {
   // Lấy tất cả địa chỉ của user
   static async getUserAddresses(userId: string): Promise<AddressResponse[]> {
     try {
-      const response = await fetch(`${API_BASE_URL}/users/${userId}/addresses`);
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/addresses`, {
+        headers: {
+          ...(token && { Authorization: `Bearer ${token}` })
+        }
+      });
       const result: ApiResponse<AddressResponse[]> = await response.json();
       
       if (!response.ok) {
         throw new Error(result.message || 'Lỗi khi lấy danh sách địa chỉ');
       }
-      
+
       return result.data || [];
     } catch (error) {
       console.error('Error fetching addresses:', error);
-      throw error;
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Không thể kết nối đến server');
     }
   }
 
   // Tạo địa chỉ mới
   static async createAddress(userId: string, addressData: UserAddress): Promise<AddressResponse> {
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch(`${API_BASE_URL}/users/${userId}/addresses`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(token && { Authorization: `Bearer ${token}` })
         },
         body: JSON.stringify(addressData),
       });
@@ -66,17 +76,22 @@ export class AddressService {
       return result.data!;
     } catch (error) {
       console.error('Error creating address:', error);
-      throw error;
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Không thể kết nối đến server');
     }
   }
 
   // Cập nhật địa chỉ
   static async updateAddress(userId: string, addressId: string, addressData: Partial<UserAddress>): Promise<AddressResponse> {
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch(`${API_BASE_URL}/users/${userId}/addresses/${addressId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          ...(token && { Authorization: `Bearer ${token}` })
         },
         body: JSON.stringify(addressData),
       });
@@ -90,43 +105,65 @@ export class AddressService {
       return result.data!;
     } catch (error) {
       console.error('Error updating address:', error);
-      throw error;
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Không thể kết nối đến server');
     }
   }
 
   // Xóa địa chỉ
   static async deleteAddress(userId: string, addressId: string): Promise<void> {
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch(`${API_BASE_URL}/users/${userId}/addresses/${addressId}`, {
         method: 'DELETE',
+        headers: {
+          ...(token && { Authorization: `Bearer ${token}` })
+        }
       });
       
-      const result: ApiResponse<void> = await response.json();
-      
       if (!response.ok) {
+        const result: ApiResponse<void> = await response.json();
         throw new Error(result.message || 'Lỗi khi xóa địa chỉ');
       }
     } catch (error) {
       console.error('Error deleting address:', error);
-      throw error;
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Không thể kết nối đến server');
     }
   }
 
   // Đặt làm địa chỉ mặc định
   static async setDefaultAddress(userId: string, addressId: string): Promise<void> {
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch(`${API_BASE_URL}/users/${userId}/addresses/${addressId}/default`, {
         method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { Authorization: `Bearer ${token}` })
+        }
       });
+      
+      if (!response.ok) {
+        const result: ApiResponse<void> = await response.json();
+        throw new Error(result.message || 'Lỗi khi đặt địa chỉ mặc định');
+      }
       
       const result: ApiResponse<void> = await response.json();
       
-      if (!response.ok) {
+      if (!result.success) {
         throw new Error(result.message || 'Lỗi khi đặt địa chỉ mặc định');
       }
     } catch (error) {
       console.error('Error setting default address:', error);
-      throw error;
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Không thể kết nối đến server');
     }
   }
 }

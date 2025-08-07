@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import { AddressModel, CreateAddressRequest, UpdateAddressRequest, AddressResponse } from '../models/Address';
 
 export class AddressController {
@@ -6,7 +7,17 @@ export class AddressController {
   static async getUserAddresses(req: Request, res: Response): Promise<void> {
     try {
       const userId = req.params.userId;
-      const addresses = await AddressModel.find({ userId }).sort({ createdAt: -1 });
+
+      // Validate ObjectId format
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        res.status(400).json({
+          success: false,
+          message: 'ID người dùng không hợp lệ'
+        });
+        return;
+      }
+
+      const addresses = await AddressModel.find({ userId: new mongoose.Types.ObjectId(userId) }).sort({ createdAt: -1 });
       
       const response: AddressResponse[] = addresses.map(addr => ({
         id: (addr._id as any).toString(),
@@ -44,9 +55,17 @@ export class AddressController {
   // Tạo địa chỉ mới
   static async createAddress(req: Request, res: Response): Promise<void> {
     try {
-
       const userId = req.params.userId;
       const addressData: CreateAddressRequest = req.body;
+
+      // Validate ObjectId format
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        res.status(400).json({
+          success: false,
+          message: 'ID người dùng không hợp lệ'
+        });
+        return;
+      }
 
       // Validation
       if (!addressData.fullName || !addressData.phone || !addressData.district || 
@@ -61,14 +80,14 @@ export class AddressController {
       // Nếu đây là địa chỉ mặc định, bỏ chọn các địa chỉ khác
       if (addressData.isSelected) {
         await AddressModel.updateMany(
-          { userId }, 
+          { userId: new mongoose.Types.ObjectId(userId) }, 
           { isDefaultSelected: false }
         );
       }
 
       // Tạo địa chỉ mới
       const newAddress = new AddressModel({
-        userId,
+        userId: new mongoose.Types.ObjectId(userId),
         ...addressData,
         isDefaultSelected: addressData.isSelected || false,
       });
@@ -120,7 +139,27 @@ export class AddressController {
       const addressId = req.params.addressId;
       const updateData: UpdateAddressRequest = req.body;
 
-      const address = await AddressModel.findOne({ _id: addressId, userId });
+      // Validate ObjectId format
+      if (!mongoose.Types.ObjectId.isValid(addressId)) {
+        res.status(400).json({
+          success: false,
+          message: 'ID địa chỉ không hợp lệ'
+        });
+        return;
+      }
+
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        res.status(400).json({
+          success: false,
+          message: 'ID người dùng không hợp lệ'
+        });
+        return;
+      }
+
+      const address = await AddressModel.findOne({ 
+        _id: new mongoose.Types.ObjectId(addressId), 
+        userId: new mongoose.Types.ObjectId(userId) 
+      });
 
       if (!address) {
         res.status(404).json({
@@ -133,13 +172,13 @@ export class AddressController {
       // Nếu đây là địa chỉ mặc định, bỏ chọn các địa chỉ khác
       if (updateData.isSelected) {
         await AddressModel.updateMany(
-          { userId, _id: { $ne: addressId } }, 
+          { userId: new mongoose.Types.ObjectId(userId), _id: { $ne: new mongoose.Types.ObjectId(addressId) } }, 
           { isDefaultSelected: false }
         );
       }
 
       const updatedAddress = await AddressModel.findByIdAndUpdate(
-        addressId,
+        new mongoose.Types.ObjectId(addressId),
         { ...updateData, isDefaultSelected: updateData.isSelected },
         { new: true }
       );
@@ -191,7 +230,27 @@ export class AddressController {
       const userId = req.params.userId;
       const addressId = req.params.addressId;
 
-      const address = await AddressModel.findOne({ _id: addressId, userId });
+      // Validate ObjectId format
+      if (!mongoose.Types.ObjectId.isValid(addressId)) {
+        res.status(400).json({
+          success: false,
+          message: 'ID địa chỉ không hợp lệ'
+        });
+        return;
+      }
+
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        res.status(400).json({
+          success: false,
+          message: 'ID người dùng không hợp lệ'
+        });
+        return;
+      }
+
+      const address = await AddressModel.findOne({ 
+        _id: new mongoose.Types.ObjectId(addressId), 
+        userId: new mongoose.Types.ObjectId(userId) 
+      });
 
       if (!address) {
         res.status(404).json({
@@ -202,11 +261,11 @@ export class AddressController {
       }
 
       const wasSelected = address.isDefaultSelected;
-      await AddressModel.findByIdAndDelete(addressId);
+      await AddressModel.findByIdAndDelete(new mongoose.Types.ObjectId(addressId));
 
       // Nếu xóa địa chỉ mặc định, chọn địa chỉ đầu tiên làm mặc định
       if (wasSelected) {
-        const firstAddress = await AddressModel.findOne({ userId });
+        const firstAddress = await AddressModel.findOne({ userId: new mongoose.Types.ObjectId(userId) });
         if (firstAddress) {
           await AddressModel.findByIdAndUpdate(firstAddress._id, { isDefaultSelected: true });
         }
@@ -231,7 +290,27 @@ export class AddressController {
       const userId = req.params.userId;
       const addressId = req.params.addressId;
 
-      const address = await AddressModel.findOne({ _id: addressId, userId });
+      // Validate ObjectId format
+      if (!mongoose.Types.ObjectId.isValid(addressId)) {
+        res.status(400).json({
+          success: false,
+          message: 'ID địa chỉ không hợp lệ'
+        });
+        return;
+      }
+
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        res.status(400).json({
+          success: false,
+          message: 'ID người dùng không hợp lệ'
+        });
+        return;
+      }
+
+      const address = await AddressModel.findOne({ 
+        _id: new mongoose.Types.ObjectId(addressId), 
+        userId: new mongoose.Types.ObjectId(userId) 
+      });
 
       if (!address) {
         res.status(404).json({
@@ -243,18 +322,22 @@ export class AddressController {
 
       // Bỏ chọn tất cả địa chỉ khác của user
       await AddressModel.updateMany(
-        { userId }, 
+        { userId: new mongoose.Types.ObjectId(userId) }, 
         { isDefaultSelected: false }
       );
 
       // Chọn địa chỉ hiện tại
-      await AddressModel.findByIdAndUpdate(addressId, { isDefaultSelected: true });
+      await AddressModel.findByIdAndUpdate(
+        new mongoose.Types.ObjectId(addressId), 
+        { isDefaultSelected: true }
+      );
 
       res.status(200).json({
         success: true,
         message: 'Đặt địa chỉ mặc định thành công'
       });
     } catch (error) {
+      console.error('Set default address error:', error);
       res.status(500).json({
         success: false,
         message: 'Lỗi server khi đặt địa chỉ mặc định',

@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import type { AdminProduct } from '../../../types/AdminProduct';
 import { useCategoryStore } from '../../../stores/useCategoryStore';
 import NumberInput from '../../ui/NumberInput';
+import ProductDescriptionEditor from '../ProductDescriptionEditor';
 
 interface EditProductModalProps {
   show: boolean;
@@ -252,8 +253,14 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ show, product, onCl
                 </div>
               </div>
             </div>
-            <textarea className="w-full border px-3 py-2 rounded min-h-[80px]" placeholder="Mô tả sản phẩm" value={editProduct.description || ''} onChange={e => setEditProduct(prev => prev ? { ...prev, description: e.target.value } : null)}
-              style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}} />
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Mô tả sản phẩm</label>
+              <ProductDescriptionEditor
+                product={editProduct}
+                onChange={(field, value) => setEditProduct(prev => prev ? { ...prev, [field]: value } : null)}
+              />
+            </div>
             
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1 bg-yellow-50 border border-yellow-200 rounded-lg p-3">

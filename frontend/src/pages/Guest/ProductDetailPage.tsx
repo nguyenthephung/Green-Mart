@@ -1,8 +1,7 @@
 import React, { useRef, useEffect, useCallback, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useProductStore } from '../../stores/useProductStore';
-import ProductComments from '../../components/Guest/ProductComments';
-import ProductRating from '../../components/Guest/ProductRating';
+import ProductDetailDisplay from '../../components/Guest/ProductDetailDisplay';
 
 import { FaShoppingCart, FaCheckCircle, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { useCartStore } from '../../stores/useCartStore';
@@ -288,15 +287,8 @@ const ProductDetailPage: React.FC = () => {
         </div>
       )}
 
-      {/* Rating Section */}
-      <ProductRating 
-        productId={String(product.id)} 
-        averageRating={product.averageRating || 0}
-        totalRatings={product.totalRatings || 0}
-      />
-
-      {/* Comments Section */}
-      <ProductComments productId={String(product.id)} />
+      {/* Product Details with Tabs */}
+      <ProductDetailDisplay product={product} className="mt-8" />
     </div>
   );
 };

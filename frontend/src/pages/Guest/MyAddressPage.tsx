@@ -1,9 +1,342 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useUserStore } from '../../stores/useUserStore';
 import DashboardLayout from '../../layouts/DashboardLayout';
-import AddressSelector, { type UserAddress } from '../../components/Guest/Account/AddressSelector';
+import { type UserAddress } from '../../components/Guest/Account/AddressSelector';
 import { AddressService, type AddressResponse } from '../../services/addressService';
+import { LocationService, type Province, type District, type Ward } from '../../services/locationService';
 import type { AddressInfo } from '../../types/User';
+
+// Address Form Component
+interface AddressFormContentProps {
+  address: UserAddress | null;
+  onSubmit: (data: UserAddress) => void;
+  onCancel: () => void;
+  loading: boolean;
+  submitText: string;
+}
+
+const AddressFormContent: React.FC<AddressFormContentProps> = ({
+  address,
+  onSubmit,
+  onCancel,
+  loading,
+  submitText
+}) => {
+  const [formData, setFormData] = useState<UserAddress>({
+    fullName: address?.fullName || '',
+    phone: address?.phone || '',
+    district: address?.district || '',
+    ward: address?.ward || '',
+    street: address?.street || '',
+    address: address?.address || '',
+    label: address?.label || '',
+    wardName: address?.wardName || '',
+    latitude: address?.latitude || 0,
+    longitude: address?.longitude || 0
+  });
+
+  const [errors, setErrors] = useState<Partial<UserAddress>>({});
+  
+  // Location state
+  const [provinces] = useState<Province[]>(LocationService.getProvinces());
+  const [districts, setDistricts] = useState<District[]>([]);
+  const [wards, setWards] = useState<Ward[]>([]);
+  const [selectedProvince, setSelectedProvince] = useState<string>('');
+  const [selectedDistrict, setSelectedDistrict] = useState<string>('');
+  const [selectedWard, setSelectedWard] = useState<string>('');
+  const [shippingFee, setShippingFee] = useState<number>(0);
+
+  // Initialize location data if editing
+  useEffect(() => {
+    if (address) {
+      // Try to find matching province/district/ward
+      const province = provinces.find(p => 
+        p.name === address.district || 
+        p.districts.some(d => d.name === address.district)
+      );
+      
+      if (province) {
+        setSelectedProvince(province.code);
+        setDistricts(province.districts);
+        
+        const district = province.districts.find(d => d.name === address.district);
+        if (district) {
+          setSelectedDistrict(district.code);
+          setWards(district.wards);
+          
+          const ward = district.wards.find(w => w.name === address.ward);
+          if (ward) {
+            setSelectedWard(ward.code);
+          }
+        }
+      }
+    }
+  }, [address, provinces]);
+
+  // Update districts when province changes
+  useEffect(() => {
+    if (selectedProvince) {
+      const newDistricts = LocationService.getDistrictsByProvince(selectedProvince);
+      setDistricts(newDistricts);
+      setSelectedDistrict('');
+      setSelectedWard('');
+      setWards([]);
+    }
+  }, [selectedProvince]);
+
+  // Update wards when district changes
+  useEffect(() => {
+    if (selectedDistrict) {
+      const newWards = LocationService.getWardsByDistrict(selectedDistrict);
+      setWards(newWards);
+      setSelectedWard('');
+      
+      // Calculate shipping fee
+      const fee = LocationService.calculateShippingFee(selectedProvince, selectedDistrict);
+      setShippingFee(fee);
+    }
+  }, [selectedDistrict, selectedProvince]);
+
+  // Update form data when location changes
+  useEffect(() => {
+    const province = LocationService.getProvinceByCode(selectedProvince);
+    const district = LocationService.getDistrictByCode(selectedDistrict);
+    const ward = LocationService.getWardByCode(selectedWard);
+
+    if (province && district) {
+      setFormData(prev => ({
+        ...prev,
+        district: district.name,
+        ward: ward?.name || '',
+        wardName: ward?.name || ''
+      }));
+    }
+  }, [selectedProvince, selectedDistrict, selectedWard]);
+
+  const validateForm = () => {
+    const newErrors: Partial<UserAddress> = {};
+    
+    if (!formData.fullName.trim()) newErrors.fullName = 'Vui lòng nhập họ tên';
+    if (!formData.phone.trim()) newErrors.phone = 'Vui lòng nhập số điện thoại';
+    if (!selectedProvince) newErrors.district = 'Vui lòng chọn tỉnh/thành phố';
+    if (!selectedDistrict) newErrors.district = 'Vui lòng chọn quận/huyện';
+    if (!selectedWard) newErrors.ward = 'Vui lòng chọn phường/xã';
+    if (!formData.street.trim()) newErrors.street = 'Vui lòng nhập địa chỉ cụ thể';
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validateForm()) {
+      const fullAddress = `${formData.street}, ${formData.ward}, ${formData.district}`;
+      const submittedData = {
+        ...formData,
+        address: fullAddress,
+        wardName: formData.ward
+      };
+      
+      // Call onSubmit and then close modal
+      onSubmit(submittedData);
+    }
+  };
+
+  const handleInputChange = (field: keyof UserAddress, value: string | number) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: undefined }));
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="p-6 space-y-6">
+      {/* Personal Info */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Họ và tên <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            value={formData.fullName}
+            onChange={(e) => handleInputChange('fullName', e.target.value)}
+            className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+              errors.fullName ? 'border-red-500 bg-red-50' : 'border-gray-300 dark:border-gray-600'
+            } bg-white dark:bg-gray-700 text-gray-900 dark:text-white`}
+            placeholder="Nhập họ và tên"
+          />
+          {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Số điện thoại <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="tel"
+            value={formData.phone}
+            onChange={(e) => handleInputChange('phone', e.target.value)}
+            className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+              errors.phone ? 'border-red-500 bg-red-50' : 'border-gray-300 dark:border-gray-600'
+            } bg-white dark:bg-gray-700 text-gray-900 dark:text-white`}
+            placeholder="Nhập số điện thoại"
+          />
+          {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+        </div>
+      </div>
+
+      {/* Location Info */}
+      <div className="space-y-6">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-600 pb-2">
+          Thông tin địa chỉ
+        </h3>
+        
+        {/* Province */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Tỉnh/Thành phố <span className="text-red-500">*</span>
+          </label>
+          <select
+            value={selectedProvince}
+            onChange={(e) => setSelectedProvince(e.target.value)}
+            className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+              errors.district ? 'border-red-500 bg-red-50' : 'border-gray-300 dark:border-gray-600'
+            } bg-white dark:bg-gray-700 text-gray-900 dark:text-white`}
+          >
+            <option value="">Chọn tỉnh/thành phố</option>
+            {provinces.map((province) => (
+              <option key={province.code} value={province.code}>
+                {province.name}
+              </option>
+            ))}
+          </select>
+          {errors.district && <p className="text-red-500 text-sm mt-1">{errors.district}</p>}
+        </div>
+
+        {/* District */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Quận/Huyện <span className="text-red-500">*</span>
+          </label>
+          <select
+            value={selectedDistrict}
+            onChange={(e) => setSelectedDistrict(e.target.value)}
+            disabled={!selectedProvince}
+            className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+              errors.district ? 'border-red-500 bg-red-50' : 'border-gray-300 dark:border-gray-600'
+            } bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed`}
+          >
+            <option value="">Chọn quận/huyện</option>
+            {districts.map((district) => (
+              <option key={district.code} value={district.code}>
+                {district.name}
+              </option>
+            ))}
+          </select>
+          {errors.district && <p className="text-red-500 text-sm mt-1">{errors.district}</p>}
+        </div>
+
+        {/* Ward */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Phường/Xã <span className="text-red-500">*</span>
+          </label>
+          <select
+            value={selectedWard}
+            onChange={(e) => setSelectedWard(e.target.value)}
+            disabled={!selectedDistrict}
+            className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+              errors.ward ? 'border-red-500 bg-red-50' : 'border-gray-300 dark:border-gray-600'
+            } bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed`}
+          >
+            <option value="">Chọn phường/xã</option>
+            {wards.map((ward) => (
+              <option key={ward.code} value={ward.code}>
+                {ward.name}
+              </option>
+            ))}
+          </select>
+          {errors.ward && <p className="text-red-500 text-sm mt-1">{errors.ward}</p>}
+        </div>
+
+        {/* Shipping Fee Display */}
+        {shippingFee > 0 && (
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/40 rounded-full flex items-center justify-center">
+                <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-blue-800 dark:text-blue-200 font-medium">
+                  Phí giao hàng dự kiến: {shippingFee.toLocaleString('vi-VN')}₫
+                </p>
+                <p className="text-blue-600 dark:text-blue-300 text-sm">
+                  Miễn phí giao hàng cho đơn hàng từ 500.000₫
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Street Address */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Địa chỉ cụ thể <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          value={formData.street}
+          onChange={(e) => handleInputChange('street', e.target.value)}
+          className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+            errors.street ? 'border-red-500 bg-red-50' : 'border-gray-300 dark:border-gray-600'
+          } bg-white dark:bg-gray-700 text-gray-900 dark:text-white`}
+          placeholder="Số nhà, tên đường..."
+        />
+        {errors.street && <p className="text-red-500 text-sm mt-1">{errors.street}</p>}
+      </div>
+
+      {/* Label */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Nhãn địa chỉ
+        </label>
+        <input
+          type="text"
+          value={formData.label || ''}
+          onChange={(e) => handleInputChange('label', e.target.value)}
+          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+          placeholder="Ví dụ: Nhà, Công ty, Trường học..."
+        />
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex justify-end gap-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={loading}
+          className="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+        >
+          Hủy
+        </button>
+        <button
+          type="submit"
+          disabled={loading}
+          className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+        >
+          {loading && (
+            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          )}
+          {submitText}
+        </button>
+      </div>
+    </form>
+  );
+};
 
 const MyAddresses: React.FC = () => {
   const user = useUserStore(state => state.user);
@@ -13,7 +346,7 @@ const MyAddresses: React.FC = () => {
   // Optimize state - combine related states
   const [modals, setModals] = useState({
     showAdd: false,
-    editId: null as number | null
+    editId: null as string | null
   });
   
   const [addressData, setAddressData] = useState<{
@@ -29,7 +362,7 @@ const MyAddresses: React.FC = () => {
 
   // Memoize conversion function
   const convertToAddressInfo = useCallback((addressResponse: AddressResponse): AddressInfo => ({
-    id: parseInt(addressResponse.id),
+    id: addressResponse.id, // Keep as string for MongoDB ObjectId
     isSelected: addressResponse.isSelected,
     label: addressResponse.label,
     address: addressResponse.address,
@@ -44,12 +377,12 @@ const MyAddresses: React.FC = () => {
   }), []);
 
   // Optimized modal handlers
-  const handleModalToggle = useCallback((type: 'add' | 'edit', value?: boolean | number) => {
+  const handleModalToggle = useCallback((type: 'add' | 'edit', value?: boolean | string) => {
     if (type === 'add') {
       setModals(prev => ({ ...prev, showAdd: value as boolean }));
       if (!value) setAddressData(prev => ({ ...prev, new: null }));
     } else {
-      const editId = typeof value === 'number' ? value : null;
+      const editId = typeof value === 'string' ? value : null;
       setModals(prev => ({ ...prev, editId }));
       if (!editId) setAddressData(prev => ({ ...prev, edit: null }));
     }
@@ -78,14 +411,14 @@ const MyAddresses: React.FC = () => {
   }, [user?.id, setAddresses, convertToAddressInfo]);
 
   // Optimized address handlers with better error handling
-  const handleAddAddress = useCallback(async () => {
-    if (!addressData.new || !user?.id) return;
+  const handleAddAddress = useCallback(async (newAddressData: UserAddress) => {
+    if (!newAddressData || !user?.id) return;
     
     try {
       setLoading(true);
       setError('');
       
-      const addressResponse = await AddressService.createAddress(user.id, addressData.new);
+      const addressResponse = await AddressService.createAddress(user.id, newAddressData);
       const newAddressInfo = convertToAddressInfo(addressResponse);
       
       setAddresses([
@@ -93,6 +426,8 @@ const MyAddresses: React.FC = () => {
         { ...newAddressInfo },
       ]);
       
+      // Reset form data and close modal
+      setAddressData(prev => ({ ...prev, new: null }));
       handleModalToggle('add', false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Lỗi khi thêm địa chỉ mới');
@@ -100,11 +435,11 @@ const MyAddresses: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [addressData.new, user?.id, addresses, setAddresses, convertToAddressInfo, handleModalToggle]);
+  }, [user?.id, addresses, setAddresses, convertToAddressInfo, handleModalToggle]);
 
   // Optimized edit address handler
-  const handleEditAddress = useCallback(async () => {
-    if (!addressData.edit || !modals.editId || !user?.id) return;
+  const handleEditAddress = useCallback(async (editedAddressData: UserAddress) => {
+    if (!editedAddressData || !modals.editId || !user?.id) return;
     
     try {
       setLoading(true);
@@ -112,8 +447,8 @@ const MyAddresses: React.FC = () => {
       
       const addressResponse = await AddressService.updateAddress(
         user.id,
-        modals.editId.toString(),
-        addressData.edit
+        modals.editId,
+        editedAddressData
       );
       
       const updatedAddressInfo = convertToAddressInfo(addressResponse);
@@ -124,6 +459,8 @@ const MyAddresses: React.FC = () => {
         )
       );
       
+      // Reset form data and close modal
+      setAddressData(prev => ({ ...prev, edit: null }));
       handleModalToggle('edit', undefined);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Lỗi khi cập nhật địa chỉ');
@@ -131,17 +468,17 @@ const MyAddresses: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [addressData.edit, modals.editId, user?.id, addresses, setAddresses, convertToAddressInfo, handleModalToggle]);
+  }, [modals.editId, user?.id, addresses, setAddresses, convertToAddressInfo, handleModalToggle]);
 
   // Optimized select address handler
-  const handleSelectAddress = useCallback(async (id: number) => {
+  const handleSelectAddress = useCallback(async (id: string) => {
     if (!user?.id) return;
     
     try {
       setLoading(true);
       setError('');
       
-      await AddressService.setDefaultAddress(user.id, id.toString());
+      await AddressService.setDefaultAddress(user.id, id);
       
       setAddresses(
         addresses.map((address: AddressInfo) => ({
@@ -158,14 +495,14 @@ const MyAddresses: React.FC = () => {
   }, [user?.id, addresses, setAddresses]);
 
   // Optimized delete address handler
-  const handleDeleteAddress = useCallback(async (id: number) => {
+  const handleDeleteAddress = useCallback(async (id: string) => {
     if (!user?.id) return;
     
     try {
       setLoading(true);
       setError('');
       
-      await AddressService.deleteAddress(user.id, id.toString());
+      await AddressService.deleteAddress(user.id, id);
       
       setAddresses(addresses.filter((address: AddressInfo) => address.id !== id));
     } catch (err) {
@@ -178,463 +515,238 @@ const MyAddresses: React.FC = () => {
 
   return (
     <DashboardLayout>
-      <div className="bg-app-secondary p-8 rounded-3xl shadow-xl max-w-4xl mx-auto mt-6 border-app-default">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-app-primary mb-2 flex items-center justify-center gap-3">
-            <div className="w-10 h-10 bg-brand-green rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
+      <div className="max-w-6xl mx-auto p-6 space-y-6">
+        {/* Enhanced Header */}
+        <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl p-8 text-white shadow-xl">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold">Địa chỉ của tôi</h1>
+                <p className="text-green-100 text-lg">Quản lý các địa chỉ giao hàng của bạn</p>
+              </div>
             </div>
-            Địa chỉ của tôi
-          </h2>
-          <p className="text-app-secondary">Quản lý các địa chỉ giao hàng của bạn</p>
+            
+            {/* Add Button */}
+            <button
+              onClick={() => handleModalToggle('add', true)}
+              disabled={loading}
+              className="px-6 py-3 bg-white text-green-600 rounded-xl font-semibold hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              Thêm địa chỉ mới
+            </button>
+          </div>
         </div>
 
-        <div className="bg-app-card rounded-2xl p-6 shadow-lg border-app-default">
-          {/* Error Message */}
-          {error && (
-            <div className="mb-4 p-4 bg-red-50/50 border border-red-200/50 rounded-xl">
-              <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+        {/* Enhanced Error Message */}
+        {error && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 shadow-lg">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-red-100 dark:bg-red-900/40 rounded-full flex items-center justify-center">
+                <svg className="w-4 h-4 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span className="text-red-700 font-medium">{error}</span>
-                <button 
-                  onClick={() => setError('')}
-                  className="ml-auto text-red-400 hover:text-red-600"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
               </div>
-            </div>
-          )}
-
-          {/* Loading State */}
-          {loading && (
-            <div className="text-center py-8">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-brand-green"></div>
-              <p className="mt-2 text-app-secondary">Đang xử lý...</p>
-            </div>
-          )}
-
-          <div className="space-y-4">
-            {addresses.map((address: AddressInfo) => (
-              <div 
-                key={address.id} 
-                className={`relative p-6 rounded-2xl border-2 transition-all duration-200 hover:shadow-lg ${
-                  address.isSelected 
-                    ? 'bg-brand-green/5 border-brand-green shadow-md' 
-                    : 'bg-app-card border-app-border hover:border-brand-green/50'
-                }`}
-              > 
-                <div className="flex items-start gap-4">
-                  <div className="pt-1">
-                    <input
-                      type="radio"
-                      checked={address.isSelected}
-                      onChange={() => handleSelectAddress(address.id)}
-                      className="h-5 w-5 text-brand-green border-2 border-app-border focus:ring-2 focus:ring-brand-green focus:ring-offset-2"
-                    />
-                  </div>
-                  
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="font-bold text-app-primary text-lg">{address.fullName || 'Người nhận'}</span>
-                      <span className="text-app-secondary text-sm bg-app-secondary/30 px-3 py-1 rounded-full">{address.phone}</span>
-                      {address.isSelected && (
-                        <span className="px-3 py-1 bg-brand-green text-white text-xs rounded-full font-medium">
-                          Địa chỉ mặc định
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-app-primary mb-2 flex items-start gap-2">
-                      <svg className="w-5 h-5 text-brand-green mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      <span className="leading-relaxed">{address.address}</span>
-                    </div>
-                    <div className="text-app-muted text-sm">{address.wardName} • {address.district}</div>
-                  </div>
-                  
-                  <div className="flex flex-col gap-2">
-                    <button
-                      className="flex items-center gap-2 text-brand-green hover:bg-brand-green/10 px-4 py-2 rounded-xl transition-all duration-200 font-medium"
-                      onClick={() => {
-                        handleModalToggle('edit', address.id);
-                        // Chuyển đổi rõ ràng sang UserAddress để tránh lỗi type
-                        setAddressData(prev => ({
-                          ...prev,
-                          edit: {
-                            id: address.id,
-                            isSelected: address.isSelected,
-                            label: address.label,
-                            address: address.address,
-                            wardName: address.wardName,
-                            phone: address.phone,
-                            fullName: address.fullName,
-                            district: address.district || '',
-                            ward: address.ward || '',
-                            street: address.street || '',
-                            latitude: address.latitude || 0,
-                            longitude: address.longitude || 0,
-                          }
-                        }));
-                      }}
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                      Sửa
-                    </button>
-                    <button
-                      onClick={() => handleDeleteAddress(address.id)}
-                      className="flex items-center gap-2 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 px-4 py-2 rounded-xl transition-all duration-200 font-medium"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                      Xóa
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-            
-            {addresses.length === 0 && (
-              <div className="text-center py-12">
-                <div className="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-12 h-12 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold text-app-primary mb-2">Chưa có địa chỉ nào</h3>
-                <p className="text-app-secondary mb-6">Thêm địa chỉ đầu tiên để bắt đầu mua sắm</p>
-              </div>
-            )}
-            
-            <div className="flex justify-center py-6">
+              <p className="text-red-800 dark:text-red-200 font-medium">{error}</p>
               <button 
-                className="btn-secondary flex items-center gap-3" 
-                onClick={() => handleModalToggle('add', true)}
+                onClick={() => setError('')}
+                className="ml-auto text-red-400 hover:text-red-600"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
-                Thêm địa chỉ mới
               </button>
             </div>
           </div>
-        </div>
-        {/* Modal thêm địa chỉ */}
-        {modals.showAdd && (
-          <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-60 z-50 p-4 overflow-y-auto">
-            <div className="bg-app-card rounded-2xl shadow-2xl w-full max-w-sm relative transform transition-all duration-300 scale-100 my-4">
-              {/* Header với gradient - compact */}
-              <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-t-2xl p-3 text-white relative overflow-hidden">
-                <button
-                  className="absolute top-2 right-2 p-1.5 rounded-full hover:bg-white hover:bg-opacity-20 text-white hover:text-white transition-all duration-200 z-20"
-                  onClick={() => handleModalToggle('add', false)}
-                  aria-label="Đóng"
-                  type="button"
+        )}
+
+        {/* Enhanced Address List */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          {loading && addresses.length === 0 ? (
+            <div className="p-12 text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+              <p className="text-gray-600 dark:text-gray-400">Đang tải danh sách địa chỉ...</p>
+            </div>
+          ) : addresses.length === 0 ? (
+            <div className="p-12 text-center">
+              <div className="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full mx-auto mb-6 flex items-center justify-center">
+                <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" strokeWidth="1" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Chưa có địa chỉ nào</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">Thêm địa chỉ đầu tiên để thuận tiện cho việc giao hàng</p>
+              <button
+                onClick={() => handleModalToggle('add', true)}
+                className="px-6 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors"
+              >
+                Thêm địa chỉ ngay
+              </button>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-200 dark:divide-gray-700">
+              {addresses.map((address) => (
+                <div
+                  key={address.id}
+                  className={`p-6 transition-all duration-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 ${
+                    address.isSelected ? 'bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500' : ''
+                  }`}
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-                <div className="relative z-10 pr-6">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-6 h-6 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-3">
+                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          address.isSelected 
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200' 
+                            : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                        }`}>
+                          {address.label}
+                        </span>
+                        {address.isSelected && (
+                          <span className="px-2 py-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200 text-xs rounded-full font-medium">
+                            Mặc định
+                          </span>
+                        )}
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                          <span className="font-semibold text-gray-900 dark:text-white">{address.fullName}</span>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                          <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                          </svg>
+                          <span className="text-gray-700 dark:text-gray-300">{address.phone}</span>
+                        </div>
+                        
+                        <div className="flex items-start gap-2">
+                          <svg className="w-4 h-4 text-gray-500 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          <span className="text-gray-700 dark:text-gray-300 leading-relaxed">{address.address}</span>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-base font-bold">Thêm địa chỉ mới</h3>
-                      <p className="text-green-100 text-xs">Điền thông tin địa chỉ giao hàng</p>
+                    
+                    {/* Action Buttons */}
+                    <div className="flex items-center gap-2 ml-4">
+                      {!address.isSelected && (
+                        <button
+                          onClick={() => handleSelectAddress(address.id)}
+                          disabled={loading}
+                          className="px-4 py-2 text-sm font-medium text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors disabled:opacity-50"
+                        >
+                          Đặt mặc định
+                        </button>
+                      )}
+                      
+                      <button
+                        onClick={() => {
+                          const editAddress = addresses.find(a => a.id === address.id);
+                          if (editAddress) {
+                            const addressForEdit: UserAddress = {
+                              fullName: editAddress.fullName,
+                              phone: editAddress.phone,
+                              address: editAddress.address || '',
+                              label: editAddress.label || '',
+                              ward: editAddress.ward || '',
+                              district: editAddress.district || '',
+                              wardName: editAddress.wardName || '',
+                              street: editAddress.street || '',
+                              latitude: editAddress.latitude || 0,
+                              longitude: editAddress.longitude || 0
+                            };
+                            setAddressData(prev => ({ ...prev, edit: addressForEdit }));
+                            handleModalToggle('edit', address.id);
+                          }
+                        }}
+                        disabled={loading}
+                        className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors disabled:opacity-50"
+                      >
+                        Sửa
+                      </button>
+                      
+                      <button
+                        onClick={() => handleDeleteAddress(address.id)}
+                        disabled={loading || address.isSelected}
+                        className="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors disabled:opacity-50"
+                      >
+                        Xóa
+                      </button>
                     </div>
                   </div>
                 </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Enhanced Add/Edit Modals */}
+        {modals.showAdd && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-600">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Thêm địa chỉ mới</h2>
+                  <button
+                    onClick={() => handleModalToggle('add', false)}
+                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
               </div>
-
-              {/* Form content - compact */}
-              <div className="p-3">
-                <form className="space-y-3" onSubmit={e => { e.preventDefault(); handleAddAddress(); }}>
-                  {/* Thông tin người nhận - compact */}
-                  <div className="bg-gray-50 rounded-lg p-2 border border-gray-100">
-                    <h4 className="text-xs font-semibold text-gray-800 mb-2 flex items-center gap-1">
-                      <svg className="w-3 h-3 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                      Thông tin người nhận
-                    </h4>
-                    
-                    <div className="space-y-2">
-                      <div>
-                        <label className="block text-gray-700 font-medium mb-1 text-xs">
-                          Họ và tên <span className="text-red-500">*</span>
-                        </label>
-                        <div className="relative">
-                          <input
-                            type="text"
-                            className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-transparent transition-all duration-200 pl-7 text-xs"
-                            placeholder="Nhập họ và tên người nhận"
-                            value={addressData.new?.fullName || ''}
-                            onChange={e => {
-                              setAddressData(prev => ({
-                                ...prev,
-                                new: {
-                                  ...prev.new,
-                                  fullName: e.target.value,
-                                  phone: prev.new?.phone ?? '',
-                                  street: prev.new?.street ?? '',
-                                  ward: prev.new?.ward ?? '',
-                                  district: prev.new?.district ?? '',
-                                  latitude: prev.new?.latitude ?? 0,
-                                  longitude: prev.new?.longitude ?? 0,
-                                } as UserAddress
-                              }));
-                            }}
-                            disabled={loading}
-                          />
-                          <svg className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                          </svg>
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-gray-700 font-medium mb-1 text-xs">
-                          Số điện thoại <span className="text-red-500">*</span>
-                        </label>
-                        <div className="relative">
-                          <input
-                            type="tel"
-                            className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-transparent transition-all duration-200 pl-7 text-xs"
-                            placeholder="Nhập số điện thoại"
-                            value={addressData.new?.phone || ''}
-                            onChange={e => {
-                              setAddressData(prev => ({
-                                ...prev,
-                                new: {
-                                  ...prev.new,
-                                  fullName: prev.new?.fullName ?? '',
-                                  phone: e.target.value,
-                                  street: prev.new?.street ?? '',
-                                  ward: prev.new?.ward ?? '',
-                                  district: prev.new?.district ?? '',
-                                  latitude: prev.new?.latitude ?? 0,
-                                  longitude: prev.new?.longitude ?? 0,
-                                } as UserAddress
-                              }));
-                            }}
-                            disabled={loading}
-                            required
-                          />
-                          <svg className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Địa chỉ chi tiết - compact */}
-                  <div className="bg-blue-50 rounded-lg p-2 border border-blue-100">
-                    <h4 className="text-xs font-semibold text-gray-800 mb-2 flex items-center gap-1">
-                      <svg className="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      Địa chỉ giao hàng
-                    </h4>
-                    
-                    <AddressSelector 
-                      value={undefined} 
-                      onChange={addr => {
-                        setAddressData(prev => ({
-                          ...prev,
-                          new: { 
-                            ...(prev.new || {}), 
-                            ...addr,
-                            fullName: prev.new?.fullName || '',
-                            phone: prev.new?.phone || ''
-                          } as UserAddress
-                        }));
-                      }} 
-                    />
-                  </div>
-
-                  {/* Action buttons - compact */}
-                  <div className="flex gap-2 pt-1">
-                    <button
-                      type="button"
-                      onClick={() => handleModalToggle('add', false)}
-                      className="flex-1 py-1.5 px-3 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50 transition-all duration-200 text-xs"
-                      disabled={loading}
-                    >
-                      Hủy
-                    </button>
-                    <button
-                      type="submit"
-                      className="flex-1 py-1.5 px-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-md font-medium hover:from-green-600 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-1 text-xs"
-                      disabled={!(addressData.new && addressData.new.fullName && addressData.new.phone && addressData.new.street && addressData.new.ward && addressData.new.district) || loading}
-                    >
-                      {loading && <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>}
-                      {loading ? 'Đang lưu...' : 'Lưu địa chỉ'}
-                    </button>
-                  </div>
-                </form>
-              </div>
+              <AddressFormContent
+                address={addressData.new}
+                onSubmit={handleAddAddress}
+                onCancel={() => handleModalToggle('add', false)}
+                loading={loading}
+                submitText="Thêm địa chỉ"
+              />
             </div>
           </div>
         )}
-        {/* Modal chỉnh sửa địa chỉ */}
-        {modals.editId !== null && addressData.edit && (
-          <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-60 z-50 p-4 overflow-y-auto">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm relative transform transition-all duration-300 scale-100 my-4">
-              {/* Header với gradient - compact */}
-              <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-t-2xl p-3 text-white relative overflow-hidden">
-                <button
-                  className="absolute top-2 right-2 p-1.5 rounded-full hover:bg-white hover:bg-opacity-20 text-white hover:text-white transition-all duration-200 z-20"
-                  onClick={() => handleModalToggle('edit', undefined)}
-                  aria-label="Đóng"
-                  type="button"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-                <div className="relative z-10 pr-6">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-6 h-6 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="text-base font-bold">Chỉnh sửa địa chỉ</h3>
-                      <p className="text-blue-100 text-xs">Cập nhật thông tin địa chỉ giao hàng</p>
-                    </div>
-                  </div>
+        
+        {modals.editId && addressData.edit && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-600">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Chỉnh sửa địa chỉ</h2>
+                  <button
+                    onClick={() => handleModalToggle('edit', undefined)}
+                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
                 </div>
               </div>
-
-              {/* Form content - compact */}
-              <div className="p-3">
-                <form className="space-y-3" onSubmit={e => { e.preventDefault(); handleEditAddress(); }}>
-                  {/* Thông tin người nhận - compact */}
-                  <div className="bg-gray-50 rounded-lg p-2 border border-gray-100">
-                    <h4 className="text-xs font-semibold text-gray-800 mb-2 flex items-center gap-1">
-                      <svg className="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                      Thông tin người nhận
-                    </h4>
-                    
-                    <div className="space-y-2">
-                      <div>
-                        <label className="block text-gray-700 font-medium mb-1 text-xs">
-                          Họ và tên <span className="text-red-500">*</span>
-                        </label>
-                        <div className="relative">
-                          <input
-                            type="text"
-                            className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent transition-all duration-200 pl-7 text-xs"
-                            placeholder="Nhập họ và tên người nhận"
-                            value={addressData.edit?.fullName || ''}
-                            onChange={e => setAddressData(prev => ({
-                              ...prev,
-                              edit: { ...(prev.edit || {}), fullName: e.target.value } as UserAddress
-                            }))}
-                            disabled={loading}
-                            required
-                          />
-                          <svg className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                          </svg>
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-gray-700 font-medium mb-1 text-xs">
-                          Số điện thoại <span className="text-red-500">*</span>
-                        </label>
-                        <div className="relative">
-                          <input
-                            type="tel"
-                            className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent transition-all duration-200 pl-7 text-xs"
-                            placeholder="Nhập số điện thoại"
-                            value={addressData.edit?.phone || ''}
-                            onChange={e => setAddressData(prev => ({
-                              ...prev,
-                              edit: { ...(prev.edit || {}), phone: e.target.value } as UserAddress
-                            }))}
-                            disabled={loading}
-                            required
-                          />
-                          <svg className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Địa chỉ chi tiết - compact */}
-                  <div className="bg-orange-50 rounded-lg p-2 border border-orange-100">
-                    <h4 className="text-xs font-semibold text-gray-800 mb-2 flex items-center gap-1">
-                      <svg className="w-3 h-3 text-orange-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      Địa chỉ giao hàng
-                    </h4>
-                    
-                    <AddressSelector 
-                      value={addressData.edit ? {
-                        ...addressData.edit,
-                        district: addressData.edit.district || '',
-                        ward: addressData.edit.ward || '',
-                        street: addressData.edit.street || '',
-                        latitude: addressData.edit.latitude || 0,
-                        longitude: addressData.edit.longitude || 0,
-                      } : undefined}
-                      onChange={addr => setAddressData(prev => ({
-                        ...prev,
-                        edit: { ...(prev.edit || {}), ...addr }
-                      }))} 
-                    />
-                  </div>
-
-                  {/* Action buttons - compact */}
-                  <div className="flex gap-2 pt-1">
-                    <button
-                      type="button"
-                      onClick={() => handleModalToggle('edit', undefined)}
-                      className="flex-1 py-1.5 px-3 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50 transition-all duration-200 text-xs"
-                      disabled={loading}
-                    >
-                      Hủy
-                    </button>
-                    <button
-                      type="submit"
-                      className="flex-1 py-1.5 px-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-md font-medium hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-1 text-xs"
-                      disabled={!(addressData.edit && addressData.edit.fullName && addressData.edit.phone && addressData.edit.street && addressData.edit.ward && addressData.edit.district) || loading}
-                    >
-                      {loading && <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>}
-                      {loading ? 'Đang cập nhật...' : 'Cập nhật địa chỉ'}
-                    </button>
-                  </div>
-                </form>
-              </div>
+              <AddressFormContent
+                address={addressData.edit}
+                onSubmit={handleEditAddress}
+                onCancel={() => handleModalToggle('edit', undefined)}
+                loading={loading}
+                submitText="Cập nhật địa chỉ"
+              />
             </div>
           </div>
         )}
@@ -643,4 +755,4 @@ const MyAddresses: React.FC = () => {
   );
 };
 
-export default React.memo(MyAddresses);
+export default MyAddresses;

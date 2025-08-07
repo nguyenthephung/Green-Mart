@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import type { AdminProduct } from '../../../types/AdminProduct';
 import { useCategoryStore } from '../../../stores/useCategoryStore';
 import NumberInput from '../../ui/NumberInput';
+import ProductDescriptionEditor from '../ProductDescriptionEditor';
 
 type AddProductModalProps = {
   show: boolean;
@@ -160,7 +161,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
       isSale: !!product.isSale,
       discountAmount: product.discountAmount || 0,
       salePrice: product.isSale ? calculateSalePrice() : undefined,
-      descriptionImages: typeof product.descriptionImages === 'function' ? product.descriptionImages : () => {},
+      descriptionImages: [],
       _id: undefined
     };
 
@@ -579,13 +580,9 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Mô tả sản phẩm</label>
-                <textarea
-                  value={product.description || ''}
-                  onChange={e => setProduct(prev => ({ ...prev, description: e.target.value }))}
-                  rows={12}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors resize-none"
-                  placeholder="Nhập mô tả chi tiết về sản phẩm..."
-                  style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
+                <ProductDescriptionEditor
+                  product={product}
+                  onChange={(field, value) => setProduct(prev => ({ ...prev, [field]: value }))}
                 />
               </div>
             </div>

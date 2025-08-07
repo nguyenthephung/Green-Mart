@@ -110,7 +110,7 @@ export default function CategoryPage() {
       name: item.name,
       price: typeof item.salePrice === 'number' ? item.salePrice : item.price,
       image: item.image,
-      unit: item.unit,
+      unit: item.unit || '',
       quantity: item.type === 'weight' ? 0 : 1,
       type: item.type,
       weight: item.type === 'weight' ? 1 : undefined

@@ -38,7 +38,7 @@ export interface UserInfo {
 }
 
 export interface AddressInfo {
-  id: number;
+  id: string; // Changed from number to string for MongoDB ObjectId
   isSelected: boolean;
   label?: string;
   address: string;

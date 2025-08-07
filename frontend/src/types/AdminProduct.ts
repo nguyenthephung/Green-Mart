@@ -1,7 +1,7 @@
 export interface AdminProduct {
   type?: 'count' | 'weight';
-  descriptionImages(descriptionImages: any): unknown;
-  _id: unknown;
+  descriptionImages?: string[];
+  _id?: string;
   id: string;
   name: string;
   price: number;
@@ -12,6 +12,18 @@ export interface AdminProduct {
   stock: number;
   status: 'active' | 'inactive';
   description?: string;
+  richDescription?: {
+    content: string;
+    format: 'html' | 'markdown';
+    sections?: {
+      title: string;
+      content: string;
+      type: 'text' | 'image' | 'video' | 'table';
+    }[];
+  };
+  specifications?: {
+    [key: string]: string | number;
+  };
   brand?: string;
   unit?: string;
   isSale?: boolean;

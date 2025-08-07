@@ -28,6 +28,8 @@ import Home from '../pages/Guest/HomePage';
 import ProductDetailPage from '../pages/Guest/ProductDetailPage';
 import CategoryPage from '../pages/Guest/CategoryPage';
 import MyVoucher from '../pages/Guest/MyVoucherPage';
+import AboutPage from '../pages/Guest/AboutPage';
+import PolicyPage from '../pages/Guest/PolicyPage';
 import NotificationSettingsPage from '../pages/Guest/NotificationSettingsPage';
 import NotificationPage from '../pages/Guest/NotificationPage';
 import WishlistPage from '../pages/Guest/WishlistPage';
@@ -65,6 +67,8 @@ const AppRouter = () => (
             <Route path="guest-order-success" element={<GuestOrderSuccessPage />} />
             <Route path="payment-result" element={<PaymentResultPage />} />
             <Route path="payment-test" element={<PaymentTestPage />} />
+            <Route path="about" element={<AboutPage />} />
+            <Route path="policy/:section" element={<PolicyPage />} />
           </Route>
           <Route path="accountdetail" element={
             <ProtectedRoute>

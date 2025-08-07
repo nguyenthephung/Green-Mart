@@ -35,6 +35,12 @@ const ProductRating: React.FC<ProductRatingProps> = ({
   // Check if user has already rated this product
   const userExistingRating = ratings.find(rating => rating.user._id === user?.id);
 
+  // Calculate actual ratings from loaded data
+  const actualTotalRatings = ratings.length;
+  const actualAverageRating = ratings.length > 0 
+    ? ratings.reduce((sum, rating) => sum + rating.rating, 0) / ratings.length 
+    : 0;
+
   useEffect(() => {
     loadRatings();
   }, [productId]);
@@ -170,11 +176,11 @@ const ProductRating: React.FC<ProductRatingProps> = ({
         <div className="flex items-center space-x-4">
           <div className="text-center">
             <div className="text-4xl font-bold text-gray-900 dark:text-white">
-              {averageRating.toFixed(1)}
+              {actualAverageRating > 0 ? actualAverageRating.toFixed(1) : (averageRating || 0).toFixed(1)}
             </div>
-            <StarRating rating={averageRating} size="lg" />
+            <StarRating rating={actualAverageRating > 0 ? actualAverageRating : (averageRating || 0)} size="lg" />
             <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              {totalRatings} đánh giá
+              {actualTotalRatings > 0 ? actualTotalRatings : (totalRatings || 0)} đánh giá
             </div>
           </div>
         </div>

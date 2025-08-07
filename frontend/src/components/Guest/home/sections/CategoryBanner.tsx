@@ -75,7 +75,7 @@ export default function CategoryBanner({ categoryId, className = '' }: CategoryB
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {categoryBanners.map((banner, index) => {
+        {categoryBanners.slice(0, 6).map((banner, index) => {
           const linkedCategory = categories.find(cat => cat.id === banner.categoryId);
           
           return (

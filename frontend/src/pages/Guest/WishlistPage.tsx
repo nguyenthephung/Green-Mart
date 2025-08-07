@@ -4,24 +4,42 @@ import { Heart, ShoppingCart, Trash2, Package } from 'lucide-react';
 // import { useWishlist } from '../../reduxSlice/WishlistContext';
 import { useCartStore } from '../../stores/useCartStore';
 import { useWishlistStore } from '../../stores/useWishlistStore';
+import { useToastStore } from '../../stores/useToastStore';
 
 const WishlistPage: React.FC = () => {
   const { items, removeFromWishlist, clearWishlist, isLoading } = useWishlistStore();
   const addToCart = useCartStore(state => state.addToCart);
+  const { showSuccess, showError } = useToastStore();
 
   const handleAddToCart = (item: any) => {
-    // Chuẩn hóa dữ liệu addToCart giống CategoryPage, thêm unit nếu có
-    const cartItem = {
-      id: item.productId ?? item.id,
-      name: item.productName ?? item.name,
-      price: item.productPrice ?? item.price,
-      image: item.productImage ?? item.image,
-      inStock: item.inStock,
-      category: item.category,
-      unit: item.unit ?? 'kg',
-      quantity: 1,
-    };
-    addToCart(cartItem);
+    try {
+      // Chuẩn hóa dữ liệu addToCart giống CategoryPage, thêm unit nếu có
+      const cartItem = {
+        id: item.productId ?? item.id,
+        name: item.productName ?? item.name,
+        price: item.productPrice ?? item.price,
+        image: item.productImage ?? item.image,
+        inStock: item.inStock,
+        category: item.category,
+        unit: item.unit ?? 'kg',
+        quantity: 1,
+      };
+      addToCart(cartItem);
+      
+      // Hiển thị thông báo thành công
+      showSuccess(
+        'Đã thêm vào giỏ hàng!',
+        `${cartItem.name} đã được thêm vào giỏ hàng của bạn.`,
+        3000
+      );
+    } catch (error) {
+      // Hiển thị thông báo lỗi nếu có
+      showError(
+        'Lỗi!',
+        'Không thể thêm sản phẩm vào giỏ hàng. Vui lòng thử lại.',
+        3000
+      );
+    }
   };
 
   const formatPrice = (price: number) => {

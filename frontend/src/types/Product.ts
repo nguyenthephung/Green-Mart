@@ -13,8 +13,20 @@ export interface Product {
   stock?: number;
   status?: string;
   description?: string;
+  richDescription?: {
+    content: string;
+    format: 'html' | 'markdown';
+    sections?: {
+      title: string;
+      content: string;
+      type: 'text' | 'image' | 'video' | 'table';
+    }[];
+  };
+  specifications?: {
+    [key: string]: string | number;
+  };
   brand?: string;
-  unit: string;
+  unit?: string;
   type?: 'count' | 'weight';
   descriptionImages?: string[];
   averageRating?: number;

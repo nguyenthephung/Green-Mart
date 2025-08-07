@@ -17,63 +17,9 @@ import TestimonialsSection from '../../components/Guest/home/sections/Testimonia
 import { useCartStore } from '../../stores/useCartStore';
 import { usePageLoading } from '../../components/Loading';
 import { LoadingSpinner } from '../../components/Loading';
-import meatHero from '../../assets/category-hero/meat.jpg';
-import vegetablesHero from '../../assets/category-hero/vegetables.jpg';
-import fruitsHero from '../../assets/category-hero/fruits.jpg';
-import dryfoodHero from '../../assets/category-hero/dryfood.jpg';
-import spicesHero from '../../assets/category-hero/spices.jpg';
-import drinkHero from '../../assets/category-hero/drink.jpg';
-
-
-// Real slides data using actual images
-const realSlides = [
-  {
-    id: 1,
-    title: "Thịt Tươi Ngon",
-    subtitle: "Thịt heo, thịt bò tươi ngon từ trang trại uy tín",
-    image: meatHero,
-    category: "Thịt"
-  },
-  {
-    id: 2,
-    title: "Rau Củ Sạch",
-    subtitle: "Rau củ quả tươi ngon, an toàn từ vườn nhà",
-    image: vegetablesHero,
-    category: "Rau củ"
-  },
-  {
-    id: 3,
-    title: "Trái Cây Tươi",
-    subtitle: "Trái cây tươi ngon, vitamin thiên nhiên mỗi ngày",
-    image: fruitsHero,
-    category: "Trái cây"
-  },
-  {
-    id: 4,
-    title: "Thực Phẩm Khô",
-    subtitle: "Gạo, đậu, ngũ cốc chất lượng cao",
-    image: dryfoodHero,
-    category: "Thực phẩm khô"
-  },
-  {
-    id: 5,
-    title: "Gia Vị Đậm Đà",
-    subtitle: "Gia vị thơm ngon, tạo hương vị đặc biệt",
-    image: spicesHero,
-    category: "Gia vị"
-  },
-  {
-    id: 6,
-    title: "Đồ Uống Tươi Mát",
-    subtitle: "Nước trái cây, đồ uống tươi mát mỗi ngày",
-    image: drinkHero,
-    category: "Đồ uống"
-  }
-];
 
 const Home: React.FC = memo(() => {
   const loading = usePageLoading(0);
-  const [currentSlide, setCurrentSlide] = useState(0);
   const [isScrolling, setIsScrolling] = useState(false);
   const addToCart = useCartStore(state => state.addToCart);
   const fetchCategories = useCategoryStore(state => state.fetchCategories);
@@ -239,16 +185,6 @@ const Home: React.FC = memo(() => {
     [products]
   );
 
-  // Auto-slide effect - Optimized
-  useEffect(() => {
-    // Pause auto-slide when scrolling to improve performance
-    if (isScrolling) return;
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % realSlides.length);
-    }, 6000);
-    return () => clearInterval(interval);
-  }, [isScrolling]);
-
   // Fetch categories when component mounts
   useEffect(() => {
     fetchCategories();
@@ -312,13 +248,9 @@ const Home: React.FC = memo(() => {
       {/* Sidebar Banner - Fixed position */}
       <SidebarBanner />
       
-      {/* Hero Section with Banner Integration */}
+      {/* Hero Section with Database Banners Only */}
       <HeroSection
-        realSlides={realSlides}
-        currentSlide={currentSlide}
-        setCurrentSlide={setCurrentSlide}
         isScrolling={isScrolling}
-        backgroundImage={realSlides[currentSlide]?.image}
       />
       
       {/* Sale Banner - Eye-catching sale section */}
@@ -331,26 +263,6 @@ const Home: React.FC = memo(() => {
         handleAddToCart={handleAddToCart}
       />
       
-      {/* Category Banner - Full width, modern design */}
-      <div className="w-full bg-gradient-to-r from-emerald-50 via-green-50 to-teal-50 py-12 mb-8">
-        <CategoryBanner className="max-w-7xl mx-auto px-4" />
-      </div>
-      
-      {/* Section banner for categories */}
-      <div className="max-w-7xl mx-auto px-8 mb-6">
-        <SectionBanner 
-          sectionType="categories" 
-          className="h-24 shadow-lg"
-        />
-      </div>
-      
-      <CategoriesSection
-        getProductsByCategory={getProductsByCategory}
-        handleAddToCart={handleAddToCart}
-        products={products}
-        sections={categorySections}
-      />
-      
       {/* Featured Banner - Highlight featured products */}
       <div className="max-w-7xl mx-auto px-4 py-6">
         <FeaturedBanner className="mb-8" />
@@ -359,6 +271,26 @@ const Home: React.FC = memo(() => {
       <FeaturedProductsSection
         featuredProducts={featuredProducts}
         handleAddToCart={handleAddToCart}
+      />
+      
+      {/* Category Banner - Compact version */}
+      <div className="w-full bg-gradient-to-r from-emerald-50 via-green-50 to-teal-50 py-8 mb-6">
+        <CategoryBanner className="max-w-7xl mx-auto px-4" />
+      </div>
+      
+      {/* Section banner for categories */}
+      <div className="max-w-7xl mx-auto px-8 mb-6">
+        <SectionBanner 
+          sectionType="categories" 
+          className="h-20 shadow-lg"
+        />
+      </div>
+      
+      <CategoriesSection
+        getProductsByCategory={getProductsByCategory}
+        handleAddToCart={handleAddToCart}
+        products={products}
+        sections={categorySections}
       />
       
       <TestimonialsSection testimonials={testimonials} />

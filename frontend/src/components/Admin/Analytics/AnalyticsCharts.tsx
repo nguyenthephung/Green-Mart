@@ -1,7 +1,5 @@
 import React from 'react';
 import {
-  LineChart,
-  Line,
   AreaChart,
   Area,
   BarChart,
@@ -68,9 +66,8 @@ const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ salesData, topProduct
 
   const aggregateDataForPeriod = (data: ChartData[]) => {
     if (period === '3months') {
-      // Group by month for 3 months view
       const monthlyData = data.reduce((acc, item) => {
-        const month = new Date(item.date).toISOString().slice(0, 7); // YYYY-MM
+        const month = new Date(item.date).toISOString().slice(0, 7);
         if (!acc[month]) {
           acc[month] = { date: month, revenue: 0, orders: 0 };
         }
@@ -96,7 +93,7 @@ const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ salesData, topProduct
   return (
     <div className="p-4 sm:p-6 space-y-6">
       {/* Enhanced Revenue Chart */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+      <div>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6">
           <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-2 sm:mb-0">
             Doanh Thu Theo Thời Gian
@@ -166,7 +163,7 @@ const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ salesData, topProduct
       </div>
 
       {/* Enhanced Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {/* Orders Chart */}
         <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-lg border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between mb-4 sm:mb-6">
@@ -224,173 +221,111 @@ const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ salesData, topProduct
             </ResponsiveContainer>
           </div>
         </div>
-          Biểu Đồ Doanh Thu
-        </h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <AreaChart data={chartData}>
-            <defs>
-              <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
-                <stop offset="95%" stopColor="#10b981" stopOpacity={0.1}/>
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis 
-              dataKey="date" 
-              tick={{ fontSize: 12 }}
-              angle={-45}
-              textAnchor="end"
-              height={60}
-            />
-            <YAxis tickFormatter={formatCurrency} tick={{ fontSize: 12 }} />
-            <Tooltip 
-              formatter={(value: number) => [formatCurrency(value), 'Doanh thu']}
-              labelStyle={{ color: '#374151' }}
-            />
-            <Area
-              type="monotone"
-              dataKey="revenue"
-              stroke="#10b981"
-              fill="url(#revenueGradient)"
-              strokeWidth={2}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
 
-      {/* Orders Chart */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Biểu Đồ Số Đơn Hàng
-        </h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis 
-              dataKey="date" 
-              tick={{ fontSize: 12 }}
-              angle={-45}
-              textAnchor="end"
-              height={60}
-            />
-            <YAxis tick={{ fontSize: 12 }} />
-            <Tooltip 
-              formatter={(value: number) => [value, 'Đơn hàng']}
-              labelStyle={{ color: '#374151' }}
-            />
-            <Line
-              type="monotone"
-              dataKey="orders"
-              stroke="#3b82f6"
-              strokeWidth={3}
-              dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
-              activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* Top Products */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top Products Bar Chart */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Sản Phẩm Bán Chạy (Số Lượng)
-          </h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={topProducts.slice(0, 5)} layout="horizontal">
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis type="number" tick={{ fontSize: 12 }} />
-              <YAxis 
-                type="category" 
-                dataKey="name" 
-                tick={{ fontSize: 10 }}
-                width={120}
-              />
-              <Tooltip 
-                formatter={(value: number) => [value, 'Đã bán']}
-                labelStyle={{ color: '#374151' }}
-              />
-              <Bar dataKey="sales" fill="#10b981" radius={[0, 4, 4, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Top Products by Revenue Pie Chart */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Doanh Thu Theo Sản Phẩm
-          </h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={topProducts.slice(0, 8)}
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-                dataKey="revenue"
-                label={(entry: any) => `${entry.name}: ${(entry.percent * 100).toFixed(1)}%`}
-              >
-                {topProducts.slice(0, 8).map((_, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip formatter={(value: number) => [formatCurrency(value), 'Doanh thu']} />
-            </PieChart>
-          </ResponsiveContainer>
+        {/* Top Products Chart */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+              Sản Phẩm Bán Chạy
+            </h3>
+            <div className="text-sm text-gray-500 dark:text-gray-400">
+              Top {Math.min(topProducts.length, 8)}
+            </div>
+          </div>
+          
+          {topProducts.length > 0 ? (
+            <div className="h-64 sm:h-80 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={topProducts.slice(0, 8).map((product, index) => ({
+                      name: product.name.length > 20 ? product.name.slice(0, 20) + '...' : product.name,
+                      value: product.sales,
+                      color: COLORS[index % COLORS.length]
+                    }))}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ percent }: { percent?: number }) => percent ? `${(percent * 100).toFixed(0)}%` : ''}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                    stroke="none"
+                  >
+                    {topProducts.slice(0, 8).map((_, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#ffffff',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '12px',
+                      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                      padding: '12px'
+                    }}
+                    formatter={(value: number) => [value, 'Đã bán']}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <div className="h-64 sm:h-80 flex items-center justify-center text-gray-500 dark:text-gray-400">
+              <div className="text-center">
+                <div className="text-4xl mb-2">📊</div>
+                <p>Chưa có dữ liệu sản phẩm</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Top Products Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Top 10 Sản Phẩm Bán Chạy
-        </h3>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-700">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  #
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Sản Phẩm
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Danh Mục
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Đã Bán
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Doanh Thu
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {topProducts.map((product, index) => (
-                <tr key={product.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                    {index + 1}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                    {product.name}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                    {product.category}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                    {product.sales}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600 dark:text-green-400">
-                    {formatCurrency(product.revenue)}
-                  </td>
+      {/* Top Products List */}
+      {topProducts.length > 0 && (
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+          <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6">
+            Chi Tiết Sản Phẩm Bán Chạy
+          </h3>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-200 dark:border-gray-700">
+                  <th className="text-left py-3 px-2 text-sm font-medium text-gray-600 dark:text-gray-400">Sản phẩm</th>
+                  <th className="text-left py-3 px-2 text-sm font-medium text-gray-600 dark:text-gray-400">Danh mục</th>
+                  <th className="text-right py-3 px-2 text-sm font-medium text-gray-600 dark:text-gray-400">Đã bán</th>
+                  <th className="text-right py-3 px-2 text-sm font-medium text-gray-600 dark:text-gray-400">Doanh thu</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {topProducts.slice(0, 10).map((product, index) => (
+                  <tr key={product.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <td className="py-3 px-2">
+                      <div className="flex items-center gap-3">
+                        <div 
+                          className="w-4 h-4 rounded-full flex-shrink-0"
+                          style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                        ></div>
+                        <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                          {product.name}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-2 text-sm text-gray-600 dark:text-gray-400">
+                      {product.category}
+                    </td>
+                    <td className="py-3 px-2 text-sm font-medium text-gray-900 dark:text-white text-right">
+                      {product.sales}
+                    </td>
+                    <td className="py-3 px-2 text-sm font-medium text-gray-900 dark:text-white text-right">
+                      {formatCurrency(product.revenue)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

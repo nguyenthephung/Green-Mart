@@ -14,6 +14,18 @@ export interface IProduct extends Document {
   stock: number;
   status: 'active' | 'inactive';
   description?: string;
+  richDescription?: {
+    content: string;
+    format: 'html' | 'markdown';
+    sections?: {
+      title: string;
+      content: string;
+      type: 'text' | 'image' | 'video' | 'table';
+    }[];
+  };
+  specifications?: {
+    [key: string]: string | number;
+  };
   brand?: string;
   unit?: string;
   isFeatured: boolean;
@@ -91,6 +103,35 @@ const ProductSchema: Schema = new Schema({
   description: {
     type: String,
     trim: true
+  },
+  richDescription: {
+    content: {
+      type: String,
+      default: ''
+    },
+    format: {
+      type: String,
+      enum: ['html', 'markdown'],
+      default: 'html'
+    },
+    sections: [{
+      title: {
+        type: String,
+        trim: true
+      },
+      content: {
+        type: String
+      },
+      type: {
+        type: String,
+        enum: ['text', 'image', 'video', 'table'],
+        default: 'text'
+      }
+    }]
+  },
+  specifications: {
+    type: Schema.Types.Mixed,
+    default: {}
   },
   brand: {
     type: String,

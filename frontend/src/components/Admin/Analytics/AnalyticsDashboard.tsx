@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Users, Package } from 'lucide-react';
 import { useAnalytics, type AnalyticsPeriod } from '../../../hooks/useAnalytics';
-import AnalyticsCharts from './AnalyticsChartsNew';
+import AnalyticsCharts from './AnalyticsCharts';
 import LoadingSpinner from '../../Loading/LoadingSpinner';
 
 const AnalyticsDashboard: React.FC = () => {

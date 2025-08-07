@@ -163,7 +163,7 @@ export class AuthController {
 
       // Return user data without password
       const userData = {
-        id: user._id,
+        id: (user._id as mongoose.Types.ObjectId).toString(),
         name: user.name,
         email: user.email,
         phone: user.phone,
@@ -250,7 +250,7 @@ export class AuthController {
 
       // Return user data without password
       const userData = {
-        id: user._id,
+        id: (user._id as mongoose.Types.ObjectId).toString(),
         name: user.name,
         email: user.email,
         phone: user.phone,
@@ -295,7 +295,7 @@ export class AuthController {
       await user.populate('vouchers.voucherId');
 
       const userData = {
-        id: user._id,
+        id: (user._id as mongoose.Types.ObjectId).toString(),
         name: user.name,
         email: user.email,
         phone: user.phone,
@@ -434,7 +434,7 @@ export class AuthController {
             type: 'SOCIAL_LOGIN_SUCCESS',
             token: '${token}',
             user: ${JSON.stringify({
-              id: user._id,
+              id: (user._id as mongoose.Types.ObjectId).toString(),
               name: user.name,
               email: user.email,
               phone: user.phone,
@@ -561,7 +561,7 @@ export class AuthController {
             type: 'SOCIAL_LOGIN_SUCCESS',
             token: '${token}',
             user: ${JSON.stringify({
-              id: user._id,
+              id: (user._id as mongoose.Types.ObjectId).toString(),
               name: user.name,
               email: user.email,
               phone: user.phone,

@@ -1,7 +1,21 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaFacebook, FaInstagram, FaTwitter, FaEnvelope, FaPhone, FaMapMarkerAlt, FaLeaf, FaCertificate, FaTruck, FaShieldAlt } from 'react-icons/fa';
 
 const Footer: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handlePolicyClick = (section: string) => {
+    // Navigate to a specific policy section
+    navigate(`/policy/${section}`);
+  };
+
+  const handleContactClick = (type: 'email' | 'phone') => {
+    if (type === 'email') {
+      window.open('mailto:contact@greenmart.vn', '_blank');
+    } else if (type === 'phone') {
+      window.open('tel:+84123456789', '_blank');
+    }
+  };
   return (
     <footer className="bg-gradient-to-br from-gray-900 via-gray-800 to-green-900 dark:from-gray-950 dark:via-gray-900 dark:to-green-950 text-white mt-16 relative overflow-hidden">
       {/* Background Pattern */}
@@ -137,40 +151,40 @@ const Footer: React.FC = () => {
                 </h4>
                 <ul className="space-y-4">
                   <li>
-                    <Link 
-                      to="/faqs" 
-                      className="text-gray-300 hover:text-green-400 flex items-center gap-2 group transition-all duration-300"
+                    <button 
+                      onClick={() => handlePolicyClick('faqs')}
+                      className="text-gray-300 hover:text-green-400 flex items-center gap-2 group transition-all duration-300 w-full text-left"
                     >
                       <span className="w-1 h-1 bg-green-400 rounded-full group-hover:w-2 transition-all duration-300"></span>
                       Câu hỏi thường gặp
-                    </Link>
+                    </button>
                   </li>
                   <li>
-                    <Link 
-                      to="/shipping" 
-                      className="text-gray-300 hover:text-green-400 flex items-center gap-2 group transition-all duration-300"
+                    <button 
+                      onClick={() => handlePolicyClick('shipping')}
+                      className="text-gray-300 hover:text-green-400 flex items-center gap-2 group transition-all duration-300 w-full text-left"
                     >
                       <span className="w-1 h-1 bg-green-400 rounded-full group-hover:w-2 transition-all duration-300"></span>
                       Chính sách giao hàng
-                    </Link>
+                    </button>
                   </li>
                   <li>
-                    <Link 
-                      to="/return" 
-                      className="text-gray-300 hover:text-green-400 flex items-center gap-2 group transition-all duration-300"
+                    <button 
+                      onClick={() => handlePolicyClick('return')}
+                      className="text-gray-300 hover:text-green-400 flex items-center gap-2 group transition-all duration-300 w-full text-left"
                     >
                       <span className="w-1 h-1 bg-green-400 rounded-full group-hover:w-2 transition-all duration-300"></span>
                       Đổi trả & Hoàn tiền
-                    </Link>
+                    </button>
                   </li>
                   <li>
-                    <Link 
-                      to="/contact" 
-                      className="text-gray-300 hover:text-green-400 flex items-center gap-2 group transition-all duration-300"
+                    <button 
+                      onClick={() => handleContactClick('email')}
+                      className="text-gray-300 hover:text-green-400 flex items-center gap-2 group transition-all duration-300 w-full text-left"
                     >
                       <span className="w-1 h-1 bg-green-400 rounded-full group-hover:w-2 transition-all duration-300"></span>
                       Liên hệ hỗ trợ
-                    </Link>
+                    </button>
                   </li>
                 </ul>
               </div>
@@ -183,31 +197,31 @@ const Footer: React.FC = () => {
                 </h4>
                 <ul className="space-y-4 mb-8">
                   <li>
-                    <Link 
-                      to="/terms" 
-                      className="text-gray-300 hover:text-green-400 flex items-center gap-2 group transition-all duration-300"
+                    <button 
+                      onClick={() => handlePolicyClick('terms')}
+                      className="text-gray-300 hover:text-green-400 flex items-center gap-2 group transition-all duration-300 w-full text-left"
                     >
                       <span className="w-1 h-1 bg-green-400 rounded-full group-hover:w-2 transition-all duration-300"></span>
                       Điều khoản sử dụng
-                    </Link>
+                    </button>
                   </li>
                   <li>
-                    <Link 
-                      to="/privacy" 
-                      className="text-gray-300 hover:text-green-400 flex items-center gap-2 group transition-all duration-300"
+                    <button 
+                      onClick={() => handlePolicyClick('privacy')}
+                      className="text-gray-300 hover:text-green-400 flex items-center gap-2 group transition-all duration-300 w-full text-left"
                     >
                       <span className="w-1 h-1 bg-green-400 rounded-full group-hover:w-2 transition-all duration-300"></span>
                       Chính sách bảo mật
-                    </Link>
+                    </button>
                   </li>
                   <li>
-                    <Link 
-                      to="/security" 
-                      className="text-gray-300 hover:text-green-400 flex items-center gap-2 group transition-all duration-300"
+                    <button 
+                      onClick={() => handlePolicyClick('security')}
+                      className="text-gray-300 hover:text-green-400 flex items-center gap-2 group transition-all duration-300 w-full text-left"
                     >
                       <span className="w-1 h-1 bg-green-400 rounded-full group-hover:w-2 transition-all duration-300"></span>
                       Bảo mật thông tin
-                    </Link>
+                    </button>
                   </li>
                 </ul>
 
