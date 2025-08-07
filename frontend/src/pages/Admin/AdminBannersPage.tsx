@@ -3,6 +3,8 @@ import { useBannerStore } from '../../stores/useBannerStore';
 import { useCategoryStore } from '../../stores/useCategoryStore';
 import type { Banner } from '../../services/bannerService';
 import Pagination from '../../components/Admin/Product/Pagination';
+import ImageUpload from '../../components/ui/ImageUpload';
+import { useErrorHandler } from '../../hooks/useErrorHandler';
 import { 
   PlusIcon, 
   MagnifyingGlassIcon, 
@@ -750,9 +752,11 @@ const AdminBanners: React.FC = () => {
 // Modal components (enhanced with category support)
 const AddBannerModal: React.FC<{show: boolean, onAdd: (banner: Omit<Banner, '_id' | 'clickCount' | 'createdAt' | 'updatedAt'>) => void, onClose: () => void}> = ({ show, onAdd, onClose }) => {
   const { categories } = useCategoryStore();
+  const { handleError } = useErrorHandler();
   
   const [formData, setFormData] = useState({
     title: '',
+    subtitle: '',
     description: '',
     imageUrl: '',
     linkUrl: '',
@@ -767,26 +771,45 @@ const AddBannerModal: React.FC<{show: boolean, onAdd: (banner: Omit<Banner, '_id
 
   if (!show) return null;
 
-  const handleAdd = () => {
-    if (!formData.title.trim() || !formData.imageUrl.trim()) return;
-    onAdd({
-      ...formData,
-      categoryId: formData.categoryId || undefined,
-      endDate: formData.endDate || undefined
-    });
-    setFormData({
-      title: '',
-      description: '',
-      imageUrl: '',
-      linkUrl: '',
-      buttonText: 'Xem thêm',
-      isActive: true,
-      position: 'hero',
-      categoryId: '',
-      priority: 1,
-      startDate: new Date().toISOString().split('T')[0],
-      endDate: ''
-    });
+  const handleImageUpload = (imageData: string) => {
+    setFormData({...formData, imageUrl: imageData});
+  };
+
+  const handleAdd = async () => {
+    try {
+      if (!formData.title.trim()) {
+        handleError('Vui lòng nhập tiêu đề banner', 'Validation Error');
+        return;
+      }
+      if (!formData.imageUrl.trim()) {
+        handleError('Vui lòng chọn hình ảnh banner', 'Validation Error');
+        return;
+      }
+
+      await onAdd({
+        ...formData,
+        categoryId: formData.categoryId || undefined,
+        endDate: formData.endDate || undefined
+      });
+      
+      // Reset form
+      setFormData({
+        title: '',
+        subtitle: '',
+        description: '',
+        imageUrl: '',
+        linkUrl: '',
+        buttonText: 'Xem thêm',
+        isActive: true,
+        position: 'hero',
+        categoryId: '',
+        priority: 1,
+        startDate: new Date().toISOString().split('T')[0],
+        endDate: ''
+      });
+    } catch (error: any) {
+      handleError(error.message || 'Có lỗi khi thêm banner', 'Add Banner Error');
+    }
   };
 
   return (
@@ -824,6 +847,17 @@ const AddBannerModal: React.FC<{show: boolean, onAdd: (banner: Omit<Banner, '_id
               </div>
               
               <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Tiêu đề phụ</label>
+                <input
+                  type="text"
+                  value={formData.subtitle}
+                  onChange={(e) => setFormData({...formData, subtitle: e.target.value})}
+                  placeholder="Nhập tiêu đề phụ (tùy chọn)"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                />
+              </div>
+              
+              <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Mô tả</label>
                 <textarea
                   value={formData.description}
@@ -835,13 +869,13 @@ const AddBannerModal: React.FC<{show: boolean, onAdd: (banner: Omit<Banner, '_id
               </div>
               
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">URL Hình ảnh *</label>
-                <input
-                  type="url"
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Hình ảnh Banner *</label>
+                <ImageUpload
                   value={formData.imageUrl}
-                  onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
-                  placeholder="https://example.com/image.jpg"
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  onChange={handleImageUpload}
+                  className="w-full"
+                  accept="image/*"
+                  maxSize={5 * 1024 * 1024} // 5MB
                 />
               </div>
               
@@ -976,13 +1010,30 @@ const AddBannerModal: React.FC<{show: boolean, onAdd: (banner: Omit<Banner, '_id
 
 const EditBannerModal: React.FC<{show: boolean, banner: Banner, onSave: (banner: Banner) => void, onClose: () => void}> = ({ show, banner, onSave, onClose }) => {
   const { categories } = useCategoryStore();
+  const { handleError } = useErrorHandler();
   const [formData, setFormData] = useState(banner);
 
   if (!show) return null;
 
-  const handleSave = () => {
-    if (!formData.title.trim() || !formData.imageUrl.trim()) return;
-    onSave(formData);
+  const handleImageUpload = (imageData: string) => {
+    setFormData({...formData, imageUrl: imageData});
+  };
+
+  const handleSave = async () => {
+    try {
+      if (!formData.title.trim()) {
+        handleError('Vui lòng nhập tiêu đề banner', 'Validation Error');
+        return;
+      }
+      if (!formData.imageUrl.trim()) {
+        handleError('Vui lòng chọn hình ảnh banner', 'Validation Error');
+        return;
+      }
+
+      await onSave(formData);
+    } catch (error: any) {
+      handleError(error.message || 'Có lỗi khi cập nhật banner', 'Edit Banner Error');
+    }
   };
 
   return (
@@ -1020,6 +1071,17 @@ const EditBannerModal: React.FC<{show: boolean, banner: Banner, onSave: (banner:
               </div>
               
               <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Tiêu đề phụ</label>
+                <input
+                  type="text"
+                  value={formData.subtitle || ''}
+                  onChange={(e) => setFormData({...formData, subtitle: e.target.value})}
+                  placeholder="Nhập tiêu đề phụ (tùy chọn)"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+              </div>
+              
+              <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Mô tả</label>
                 <textarea
                   value={formData.description || ''}
@@ -1031,13 +1093,13 @@ const EditBannerModal: React.FC<{show: boolean, banner: Banner, onSave: (banner:
               </div>
               
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">URL Hình ảnh *</label>
-                <input
-                  type="url"
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Hình ảnh Banner *</label>
+                <ImageUpload
                   value={formData.imageUrl}
-                  onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
-                  placeholder="https://example.com/image.jpg"
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  onChange={handleImageUpload}
+                  className="w-full"
+                  accept="image/*"
+                  maxSize={5 * 1024 * 1024} // 5MB
                 />
               </div>
               
