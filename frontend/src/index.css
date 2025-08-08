@@ -39,6 +39,15 @@
   }
 }
 
+@keyframes toast-progress {
+  from { 
+    width: 100%; 
+  }
+  to { 
+    width: 0%; 
+  }
+}
+
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-out;
 }
@@ -49,6 +58,10 @@
 
 .animate-bounceIn {
   animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.animate-toast-progress {
+  animation: toast-progress linear forwards;
 }
 
 .line-clamp-2 {

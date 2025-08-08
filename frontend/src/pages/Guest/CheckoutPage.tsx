@@ -52,10 +52,26 @@ const Checkout = () => {
     
     // Clean invalid items from cart on page load
     useCartStore.getState().cleanInvalidItems();
+
+    // Kiểm tra và sửa lại payments nếu có method cũ
+    if (payments && payments.length > 0) {
+      const hasOldMethod = payments.some(p => p.method === 'credit_card');
+      if (hasOldMethod) {
+        console.log('Found old payment methods, updating...');
+        const updatedPayments = [
+          { id: 1, method: 'cod', expiry: '', isSelected: false },
+          { id: 2, method: 'bank_transfer', expiry: '', isSelected: false },
+          { id: 3, method: 'momo', expiry: '', isSelected: false },
+          { id: 4, method: 'paypal', expiry: '', isSelected: false },
+        ];
+        setPayments(updatedPayments);
+      }
+    }
   }, []); // Only run once on mount
 
   // Separate effect for payments
   useEffect(() => {
+    console.log('CheckoutPage - Payments state changed:', payments); // Debug log
     // Nếu chưa có payment nào được chọn, để user tự chọn
     if (payments && payments.length > 0 && !payments.some(p => p.isSelected)) {
       // Không tự động chọn payment method nào cả
@@ -82,19 +98,18 @@ const Checkout = () => {
     avatar: user.avatar || ''
   } : null);
 
-  // Hàm nhận payment method từ CheckoutMain
+  // Hàm nhận payment method từ CheckoutMain và CheckoutSummary
   const handlePaymentChange = (method: string) => {
+    console.log('Payment method changed to:', method); // Debug log
+    console.log('Current payments before update:', payments); // Debug log
     if (setPayments && payments && payments.length > 0) {
       const updatedPayments = payments.map(p => ({ 
         ...p, 
         isSelected: p.method === method 
       }));
+      console.log('Updated payments:', updatedPayments); // Debug log
       setPayments(updatedPayments);
     }
-  };
-
-  const handlePaymentSelect = (method: string) => {
-    handlePaymentChange(method);
   };
 
   // Tính tổng tiền hàng
@@ -231,8 +246,8 @@ const Checkout = () => {
         console.log('==============================');
         
         // Handle payment processing based on payment method
-        if (paymentMethod === 'momo' || paymentMethod === 'credit_card') {
-          // For online payment methods (momo, credit_card), create payment and redirect
+        if (paymentMethod === 'momo' || paymentMethod === 'paypal') {
+          // For online payment methods (momo, paypal), create payment and redirect
           try {
             console.log('Creating payment for online method:', paymentMethod);
             
@@ -244,24 +259,51 @@ const Checkout = () => {
             });
 
             console.log('Payment response:', paymentResponse);
+            console.log('Payment response structure check:', {
+              hasSuccess: 'success' in paymentResponse,
+              successValue: paymentResponse.success,
+              hasData: 'data' in paymentResponse,
+              dataKeys: paymentResponse.data ? Object.keys(paymentResponse.data) : 'no data',
+              fullResponse: JSON.stringify(paymentResponse, null, 2)
+            });
 
             // Check for different possible redirect URL field names
             const redirectUrl = paymentResponse.data?.redirectUrl || 
                               paymentResponse.data?.payUrl ||
+                              paymentResponse.data?.paymentUrl ||
                               paymentResponse.redirectUrl ||
                               paymentResponse.payUrl ||
                               (paymentResponse as any).redirectUrl ||
                               (paymentResponse as any).payUrl;
 
             console.log('Final redirect URL found:', redirectUrl);
+            console.log('Payment success check:', {
+              paymentResponseSuccess: paymentResponse.success,
+              hasRedirectUrl: !!redirectUrl,
+              willRedirect: paymentResponse.success && !!redirectUrl
+            });
 
             if (paymentResponse.success && redirectUrl) {
-              // Redirect to payment gateway - cart will be cleared after successful payment
-              console.log('Redirecting to payment gateway:', redirectUrl);
+              // KHÔNG hiển thị thông báo thành công và KHÔNG clear cart
+              // Chỉ redirect - cart sẽ được clear sau khi payment thành công
+              console.log('✅ REDIRECTING TO PAYMENT GATEWAY - NOT SHOWING SUCCESS MESSAGE');
+              console.log('Payment URL:', redirectUrl);
+              
+              // Store order info to localStorage for later use
+              localStorage.setItem('pendingOrder', JSON.stringify({
+                orderId,
+                orderNumber,
+                paymentMethod,
+                timestamp: Date.now()
+              }));
+              
+              // Redirect without clearing cart or showing success message
               window.location.href = redirectUrl;
-              return; // Don't proceed to success page yet
+              return; // EXIT FUNCTION HERE - NO SUCCESS MESSAGE
             } else {
-              console.error('Payment creation failed - missing redirect URL');
+              console.error('❌ Payment creation failed - missing redirect URL or success=false');
+              console.error('paymentResponse.success:', paymentResponse.success);
+              console.error('redirectUrl:', redirectUrl);
               alert(`Không thể tạo link thanh toán ${paymentMethod.toUpperCase()}. Vui lòng thử lại hoặc chọn phương thức thanh toán khác.`);
               setIsProcessingOrder(false);
               return;
@@ -301,40 +343,34 @@ const Checkout = () => {
               // Refresh user data to get updated voucher list
               await refreshUserData();
               console.log('User data refreshed');
+              
+              // Show success message for COD and Bank Transfer
+              alert(`Đặt hàng thành công! Mã đơn hàng: ${orderNumber}`);
+              
+              // Navigate to success page
+              navigate(`/order-success?orderId=${orderId}&orderNumber=${orderNumber}`, { replace: true });
+              return;
             } else {
               console.error('Payment record creation failed:', paymentResponse);
               alert(`Không thể tạo bản ghi thanh toán. Đơn hàng đã được tạo nhưng có thể cần liên hệ admin.`);
+              setIsProcessingOrder(false);
+              return;
             }
           } catch (paymentError) {
             console.error('Payment record creation failed:', paymentError);
             // Still proceed since order was created, but log the error
             console.warn('Order created but payment record failed. This may need manual admin intervention.');
-            
-            // Clear cart anyway since order was created
-            try {
-              await useCartStore.getState().clearCart();
-              // Clear voucher anyway since order was created
-              if (voucher) {
-                setVoucher(null);
-              }
-              
-              // Refresh user data anyway since order was created
-              await refreshUserData();
-            } catch (clearError) {
-              console.error('Error clearing cart:', clearError);
-            }
+            alert(`Đơn hàng đã được tạo nhưng có lỗi xử lý thanh toán. Vui lòng liên hệ admin với mã đơn hàng: ${orderNumber}`);
+            setIsProcessingOrder(false);
+            return;
           }
         }
-        
-        // Show success alert
-        alert(`Đặt hàng thành công! Mã đơn hàng: ${orderNumber}`);
-        
-        // Navigate to success page
-        navigate(`/order-success?orderId=${orderId}&orderNumber=${orderNumber}`, { replace: true });
       } else {
         // Order creation failed
         console.error('Order creation failed:', orderResponse);
         alert(`Tạo đơn hàng thất bại: ${(orderResponse as any)?.message || 'Lỗi không xác định'}`);
+        setIsProcessingOrder(false);
+        return;
       }
     } catch (error) {
       console.error('Checkout error:', error);
@@ -597,7 +633,7 @@ const Checkout = () => {
               } : null}
               onRemoveVoucher={() => setVoucher(null)}
               onShowVoucherModal={() => setShowVoucherModal(true)}
-              onPaymentSelect={handlePaymentSelect}
+              onPaymentSelect={handlePaymentChange}
               onCheckout={handleCheckout}
               isProcessing={isProcessingOrder}
             />

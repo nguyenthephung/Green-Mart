@@ -223,7 +223,7 @@ class OrderController {
         paymentMethod,
         paymentStatus: 'unpaid',
         // Trạng thái order phụ thuộc vào phương thức thanh toán
-        status: paymentMethod === 'momo' || paymentMethod === 'credit_card' ? 'pending' : 'pending', // Tất cả đều bắt đầu từ pending
+        status: paymentMethod === 'momo' || paymentMethod === 'paypal' ? 'pending' : 'pending', // Tất cả đều bắt đầu từ pending
         orderDate: new Date(),
         notes: notes || undefined
       });
@@ -238,12 +238,19 @@ class OrderController {
         );
       }
 
-      // Create notifications for order creation
-      try {
-        await NotificationHelper.notifyOrderCreated(userId, order);
-      } catch (notificationError) {
-        console.error('Error creating order notifications:', notificationError);
-        // Don't fail the order creation if notification fails
+      // Create notifications for order creation - ONLY for offline payment methods
+      // For online payments (PayPal, MoMo), notifications will be created after payment confirmation
+      const offlinePaymentMethods = ['cod', 'bank_transfer', 'cash'];
+      if (offlinePaymentMethods.includes(paymentMethod.toLowerCase())) {
+        try {
+          await NotificationHelper.notifyOrderCreated(userId, order);
+          console.log('Order notification created for offline payment method:', paymentMethod);
+        } catch (notificationError) {
+          console.error('Error creating order notifications:', notificationError);
+          // Don't fail the order creation if notification fails
+        }
+      } else {
+        console.log('Skipping notification for online payment method:', paymentMethod, '- will create after payment confirmation');
       }
 
       res.status(201).json({
@@ -483,11 +490,15 @@ class OrderController {
           // MoMo: If order is confirmed, it means payment was successful
           // (payment would have been processed during checkout)
           order.paymentStatus = 'paid';
+        } else if (order.paymentMethod === 'paypal') {
+          // PayPal: If order is confirmed, it means payment was successful
+          // (payment would have been processed during checkout)
+          order.paymentStatus = 'paid';
         }
         // COD: payment status remains 'pending' until delivery
-        // credit_card: usually auto-confirmed during payment processing
+        // PayPal: usually auto-confirmed during payment processing
       }
-      // Note: MoMo payments are processed immediately during checkout,
+      // Note: MoMo and PayPal payments are processed immediately during checkout,
       // so confirming the order means payment was successful
 
       await order.save();

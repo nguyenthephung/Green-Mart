@@ -28,87 +28,86 @@ export const useOrderManagement = () => {
   const [error, setError] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState(new Date());
 
-  // Convert API orders to UI format
-  const convertApiOrdersToUI = (apiOrders: any[]): Order[] => {
-    return apiOrders.map((order: any, index: number) => {
-      try {
-        return {
-          id: parseInt(order._id?.slice(-6), 16) || index + 1000,
-          orderNumber: order._id || `ORDER-${index}`,
-          orderDate: order.createdAt || order.orderDate || new Date().toISOString(),
-          // Handle both user orders and guest orders
-          customerName: order.customerName || order.guestInfo?.name || order.userId?.name || 'Khách hàng',
-          customerEmail: order.customerEmail || order.guestInfo?.email || order.userId?.email || '',
-          customerPhone: order.customerPhone || order.guestInfo?.phone || order.userId?.phone || '',
-          customerAddress: order.customerAddress || order.guestInfo?.address || '',
-          items: (order.items || []).map((item: any) => ({
-            // Handle both populated and non-populated productId
-            id: item.productId?._id ? parseInt(item.productId._id.slice(-6), 16) : Math.random(),
-            productName: item.productName || item.name || item.productId?.name || 'Sản phẩm',
-            price: item.price || 0,
-            quantity: item.quantity || 1,
-            image: item.image || item.productId?.images?.[0] || '',
-          })),
-          subtotal: order.subtotal || 0,
-          shippingFee: order.deliveryFee || order.shippingFee || 0,
-          discount: order.voucherDiscount || 0,
-          totalAmount: order.totalAmount || 0,
-          paymentMethod: order.paymentMethod as 'cod' | 'momo' | 'bank_transfer' | 'credit_card',
-          paymentStatus: order.paymentStatus as 'pending' | 'paid' | 'failed',
-          status: mapOrderStatus(order.status),
-          notes: order.notes || '',
-          trackingCode: order.trackingCode || order._id?.slice(-8).toUpperCase() || 'N/A',
-          lastUpdated: order.updatedAt || order.createdAt || new Date().toISOString(),
-          shippingInfo: {
-            address: order.customerAddress || order.guestInfo?.address || '',
-            estimatedDelivery: order.deliveryDate || new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-            courier: 'GreenMart Express'
-          }
-        };
-      } catch (error) {
-        console.error('Error processing order:', error, order);
-        // Return a fallback order object
-        return {
-          id: index + 1000,
-          orderNumber: `ERROR-${index}`,
-          orderDate: new Date().toISOString(),
-          customerName: 'Lỗi dữ liệu',
-          customerEmail: '',
-          customerPhone: '',
-          customerAddress: '',
-          items: [],
-          subtotal: 0,
-          shippingFee: 0,
-          discount: 0,
-          totalAmount: 0,
-          paymentMethod: 'cod' as const,
-          paymentStatus: 'pending' as const,
-          status: 'pending' as const,
-          notes: '',
-          trackingCode: '',
-          lastUpdated: new Date().toISOString(),
-          shippingInfo: {
-            address: '',
-            estimatedDelivery: new Date().toISOString(),
-            courier: 'GreenMart Express'
-          }
-        };
-      }
-    });
-  };
-
+  // Fetch orders from API
   // Fetch orders from API
   const fetchOrders = async () => {
     try {
       setIsLoading(true);
       setError(null);
-      // Reduce limit for faster loading
-      const response = await orderService.getAllOrders({ page: 1, limit: 50 });
+      // Optimized: fetch fewer orders initially, implement pagination if needed
+      const response = await orderService.getAllOrders({ page: 1, limit: 100 });
       
       if (response && response.orders) {
-        // Add safety check for orders array
+        // Add safety check for orders array and optimize processing
         const validOrders = response.orders.filter((order: any) => order && order._id);
-        const convertedOrders = convertApiOrdersToUI(validOrders);
+        
+        // Memoize the conversion to avoid reprocessing on every render
+        const convertedOrders = validOrders.map((order: any, index: number) => {
+          try {
+            return {
+              id: parseInt(order._id?.slice(-6), 16) || index + 1000,
+              orderNumber: order._id || `ORDER-${index}`,
+              orderDate: order.createdAt || order.orderDate || new Date().toISOString(),
+              // Handle both user orders and guest orders
+              customerName: order.customerName || order.guestInfo?.name || order.userId?.name || 'Khách hàng',
+              customerEmail: order.customerEmail || order.guestInfo?.email || order.userId?.email || '',
+              customerPhone: order.customerPhone || order.guestInfo?.phone || order.userId?.phone || '',
+              customerAddress: order.customerAddress || order.guestInfo?.address || '',
+              items: (order.items || []).map((item: any) => ({
+                // Handle both populated and non-populated productId
+                id: item.productId?._id ? parseInt(item.productId._id.slice(-6), 16) : Math.random(),
+                productName: item.productName || item.name || item.productId?.name || 'Sản phẩm',
+                price: item.price || 0,
+                quantity: item.quantity || 1,
+                image: item.image || item.productId?.images?.[0] || '',
+              })),
+              subtotal: order.subtotal || 0,
+              shippingFee: order.deliveryFee || order.shippingFee || 0,
+              discount: order.voucherDiscount || 0,
+              totalAmount: order.totalAmount || 0,
+              paymentMethod: order.paymentMethod as 'cod' | 'momo' | 'bank_transfer' | 'credit_card',
+              paymentStatus: order.paymentStatus as 'pending' | 'paid' | 'failed',
+              status: mapOrderStatus(order.status),
+              notes: order.notes || '',
+              trackingCode: order.trackingCode || order._id?.slice(-8).toUpperCase() || 'N/A',
+              lastUpdated: order.updatedAt || order.createdAt || new Date().toISOString(),
+              shippingInfo: {
+                address: order.customerAddress || order.guestInfo?.address || '',
+                estimatedDelivery: order.deliveryDate || new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+                courier: 'GreenMart Express'
+              }
+            };
+          } catch (error) {
+            console.error('Error processing order:', error, order);
+            // Return a fallback order object
+            return {
+              id: index + 1000,
+              orderNumber: `ERROR-${index}`,
+              orderDate: new Date().toISOString(),
+              customerName: 'Lỗi dữ liệu',
+              customerEmail: '',
+              customerPhone: '',
+              customerAddress: '',
+              items: [],
+              subtotal: 0,
+              shippingFee: 0,
+              discount: 0,
+              totalAmount: 0,
+              paymentMethod: 'cod' as const,
+              paymentStatus: 'pending' as const,
+              status: 'pending' as const,
+              notes: '',
+              trackingCode: '',
+              lastUpdated: new Date().toISOString(),
+              shippingInfo: {
+                address: '',
+                estimatedDelivery: new Date().toISOString(),
+                courier: 'GreenMart Express'
+              }
+            };
+          }
+        });
+        
         setOrders(convertedOrders);
         setLastRefresh(new Date());
       } else {
@@ -128,25 +127,75 @@ export const useOrderManagement = () => {
     await fetchOrders();
   };
 
-  // Update order status
-  const handleStatusChange = async (orderId: number, newStatus: Order['status']) => {
+  // Batch update multiple orders (for bulk operations)
+  const batchUpdateOrders = async (updates: Array<{ orderId: number, newStatus: Order['status'] }>) => {
     try {
       setIsLoading(true);
       
-      const orderToUpdate = orders.find((order: Order) => order.id === orderId);
-      if (!orderToUpdate || !orderToUpdate.orderNumber) {
-        setError('Không tìm thấy đơn hàng để cập nhật');
-        return;
+      // Apply optimistic updates
+      const optimisticOrders = [...orders];
+      for (const update of updates) {
+        const orderIndex = optimisticOrders.findIndex(order => order.id === update.orderId);
+        if (orderIndex !== -1) {
+          optimisticOrders[orderIndex] = {
+            ...optimisticOrders[orderIndex],
+            status: update.newStatus,
+            lastUpdated: new Date().toISOString()
+          };
+        }
       }
+      setOrders(optimisticOrders);
       
-      await orderService.updateOrderStatus(orderToUpdate.orderNumber, newStatus);
+      // Execute all updates
+      const updatePromises = updates.map(async (update) => {
+        const orderToUpdate = orders.find(order => order.id === update.orderId);
+        if (orderToUpdate?.orderNumber) {
+          return orderService.updateOrderStatus(orderToUpdate.orderNumber, update.newStatus);
+        }
+      });
+      
+      await Promise.all(updatePromises);
+      setError(null);
+    } catch (err: any) {
+      console.error('Failed to batch update orders:', err);
+      setError(`Không thể cập nhật hàng loạt: ${err.message}`);
+      
+      // Revert on error and refresh
       await refreshData();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Update order status
+  const handleStatusChange = async (orderId: number, newStatus: Order['status']) => {
+    const orderToUpdate = orders.find((order: Order) => order.id === orderId);
+    if (!orderToUpdate || !orderToUpdate.orderNumber) {
+      setError('Không tìm thấy đơn hàng để cập nhật');
+      return;
+    }
+    
+    // Optimistically update the local state first
+    const optimisticOrders = orders.map((order: Order) => 
+      order.id === orderId 
+        ? { ...order, status: newStatus, lastUpdated: new Date().toISOString() }
+        : order
+    );
+    setOrders(optimisticOrders);
+    
+    try {
+      // Then update on the server
+      await orderService.updateOrderStatus(orderToUpdate.orderNumber, newStatus);
       setError(null);
     } catch (err: any) {
       console.error('Failed to update order status:', err);
       setError(`Không thể cập nhật trạng thái: ${err.message}`);
-    } finally {
-      setIsLoading(false);
+      
+      // Revert the optimistic update on error
+      setOrders(orders);
+      
+      // Optionally refresh data to ensure consistency
+      setTimeout(() => refreshData(), 1000);
     }
   };
 
@@ -227,6 +276,7 @@ export const useOrderManagement = () => {
     setError,
     lastRefresh,
     handleStatusChange,
+    batchUpdateOrders,
     refreshData
   };
 };

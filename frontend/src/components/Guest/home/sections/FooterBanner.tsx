@@ -18,6 +18,9 @@ export default function FooterBanner({ className = '' }: FooterBannerProps) {
           b.position === 'footer' && b.isActive
         );
         
+        // Sort by priority (lower number = higher priority) and get the first one
+        footerBanners.sort((a: any, b: any) => a.priority - b.priority);
+        
         if (footerBanners.length > 0) {
           setBanner(footerBanners[0]);
         }

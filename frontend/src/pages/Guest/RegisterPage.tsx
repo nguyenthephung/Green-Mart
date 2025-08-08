@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useUserStore } from "../../stores/useUserStore";
+import { useToastStore } from "../../stores/useToastStore";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -14,19 +15,24 @@ export default function Register() {
   
   const navigate = useNavigate();
   const register = useUserStore(state => state.register);
+  const { showSuccess, showError } = useToastStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate required fields
     if (!name.trim() || !email.trim() || !password.trim()) {
-      setErrors({ general: "Vui lòng điền đầy đủ thông tin bắt buộc" });
+      const errorMsg = "Vui lòng điền đầy đủ thông tin bắt buộc";
+      setErrors({ general: errorMsg });
+      showError("Thông tin chưa đầy đủ!", errorMsg);
       return;
     }
     
     // Validate password match
     if (password !== confirmPassword) {
-      setErrors({ confirmPassword: "Mật khẩu xác nhận không khớp" });
+      const errorMsg = "Mật khẩu xác nhận không khớp";
+      setErrors({ confirmPassword: errorMsg });
+      showError("Mật khẩu không khớp!", errorMsg);
       return;
     }
 
@@ -39,17 +45,21 @@ export default function Register() {
       
       if (result.success) {
         setMessage("Đăng ký thành công! Đang chuyển hướng...");
+        showSuccess("Đăng ký thành công!", "Chào mừng bạn đến với GreenMart!");
         // Navigate immediately on success
         navigate("/home");
       } else {
         setMessage(result.message);
+        showError("Đăng ký thất bại!", result.message || "Vui lòng kiểm tra lại thông tin");
         if (result.errors) {
           setErrors(result.errors);
         }
       }
     } catch (error) {
       console.error("Register error:", error);
-      setMessage("Lỗi kết nối. Vui lòng thử lại.");
+      const errorMsg = "Lỗi kết nối. Vui lòng thử lại.";
+      setMessage(errorMsg);
+      showError("Có lỗi xảy ra!", errorMsg);
     } finally {
       setIsLoading(false);
     }

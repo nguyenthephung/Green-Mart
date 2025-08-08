@@ -18,6 +18,7 @@ export interface PaymentResponse {
     transactionId?: string;
     redirectUrl?: string;
     payUrl?: string; // Add payUrl for MoMo compatibility
+    paymentUrl?: string; // Add paymentUrl for PayPal compatibility
     qrCode?: string;
     qrCodeUrl?: string; // Add qrCodeUrl for MoMo
     gatewayMessage?: string;
@@ -292,6 +293,58 @@ class PaymentService {
     };
 
     return statusMap[status as keyof typeof statusMap] || statusMap.pending;
+  }
+
+  // PayPal specific methods
+  async capturePayPalPayment(orderId: string): Promise<any> {
+    try {
+      console.log('PaymentService: Capturing PayPal payment with order ID:', orderId);
+      
+      const response = await apiClient<any>('/payments/paypal/capture', {
+        method: 'POST',
+        body: JSON.stringify({ orderId })
+      });
+      
+      console.log('PaymentService: PayPal capture response:', response);
+      return response;
+    } catch (error: any) {
+      console.error('PaymentService: PayPal capture error:', error);
+      throw new Error(error.message || 'Failed to capture PayPal payment');
+    }
+  }
+
+  // Create PayPal payment with proper return URLs
+  async createPayPalPayment(orderId: string, amount: number): Promise<PaymentResponse> {
+    const returnUrl = `${window.location.origin}/payment/paypal/success`;
+    const cancelUrl = `${window.location.origin}/payment/paypal/cancel`;
+
+    const paymentData: PaymentRequest = {
+      orderId,
+      paymentMethod: 'paypal',
+      amount,
+      returnUrl,
+      metadata: {
+        cancelUrl
+      }
+    };
+
+    return await this.createPayment(paymentData);
+  }
+
+  // Handle PayPal return from checkout
+  async handlePayPalReturn(token: string, PayerID?: string): Promise<any> {
+    try {
+      if (!PayerID) {
+        throw new Error('PayPal payment was cancelled');
+      }
+
+      // Capture the payment
+      const result = await this.capturePayPalPayment(token);
+      return result;
+    } catch (error: any) {
+      console.error('PayPal return handling error:', error);
+      throw new Error(error.message || 'Failed to complete PayPal payment');
+    }
   }
 }
 

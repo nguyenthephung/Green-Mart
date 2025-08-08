@@ -82,14 +82,8 @@ function getPaymentMethodLabel(method: string): string {
       return 'Chuyển khoản ngân hàng';
     case 'momo':
       return 'Ví MoMo';
-    case 'zalopay':
-      return 'Ví ZaloPay';
-    case 'vnpay':
-      return 'VNPay - Thanh toán online';
-    case 'credit_card':
-      return 'Thẻ tín dụng/Ghi nợ';
-    case 'shopeepay':
-      return 'Ví ShopeePay';
+    case 'paypal':
+      return 'PayPal - Thanh toán quốc tế';
     default:
       return 'Phương thức khác';
   }
@@ -115,12 +109,15 @@ const CheckoutSummary = ({
 
   // Khi payments thay đổi, đồng bộ lại localPayment
   useEffect(() => {
+    console.log('CheckoutSummary - Payments received:', payments); // Debug log
     let payment = payments.find(p => p.isSelected) || null;
+    console.log('CheckoutSummary - Selected payment found:', payment); // Debug log
     // Không tự động chọn payment nào, để user tự chọn
     setLocalPayment(payment);
   }, [payments]);
 
   const handlePaymentSelect = (method: string) => {
+    console.log('CheckoutSummary - Payment selected:', method); // Debug log
     // Immediately call parent handler to update global state
     if (onPaymentSelect) {
       onPaymentSelect(method);
@@ -235,11 +232,9 @@ const CheckoutSummary = ({
                     <div className="flex items-center gap-2">
                       <span className={`text-lg ${
                         payment.method === 'cod' ? '💵' :
-                        payment.method === 'vnpay' ? '🏛️' :
+                        payment.method === 'bank_transfer' ? '�' :
                         payment.method === 'momo' ? '📱' :
-                        payment.method === 'zalopay' ? '💜' :
-                        payment.method === 'bank_transfer' ? '🏦' :
-                        payment.method === 'credit_card' ? '💳' :
+                        payment.method === 'paypal' ? '💳' :
                         '💳'
                       }`}>
                       </span>

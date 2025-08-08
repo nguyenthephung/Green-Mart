@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useUserStore } from '../../stores/useUserStore';
+import { useToastStore } from '../../stores/useToastStore';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react';
 
@@ -12,6 +13,7 @@ interface LoginFormData {
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const login = useUserStore(state => state.login);
+  const { showSuccess, showError } = useToastStore();
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: '',
@@ -73,12 +75,16 @@ const LoginPage: React.FC = () => {
             navigate('/');
           } catch (error) {
             console.error('Error processing social login:', error);
-            setError('Đã có lỗi xảy ra khi xử lý đăng nhập');
+            const errorMsg = 'Đã có lỗi xảy ra khi xử lý đăng nhập';
+            setError(errorMsg);
+            showError('Đăng nhập thất bại!', errorMsg);
           }
         } else if (event.data.type === 'SOCIAL_LOGIN_ERROR') {
           window.removeEventListener('message', messageListener);
           popup.close();
-          setError(event.data.message || 'Đăng nhập thất bại');
+          const errorMsg = event.data.message || 'Đăng nhập thất bại';
+          setError(errorMsg);
+          showError('Đăng nhập thất bại!', errorMsg);
         }
       };
 
@@ -95,7 +101,9 @@ const LoginPage: React.FC = () => {
 
     } catch (error) {
       console.error('Social login error:', error);
-      setError(error instanceof Error ? error.message : 'Đăng nhập thất bại');
+      const errorMsg = error instanceof Error ? error.message : 'Đăng nhập thất bại';
+      setError(errorMsg);
+      showError('Đăng nhập thất bại!', errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -110,6 +118,7 @@ const LoginPage: React.FC = () => {
       // Gọi login từ zustand store
       const result = await login(formData.email, formData.password);
       if (result.success) {
+        showSuccess('Đăng nhập thành công!', 'Chào mừng bạn quay trở lại!');
         // Điều hướng theo role
         if (formData.email === 'admin@greenmart.com') {
           navigate('/admin/dashboard');
@@ -117,10 +126,14 @@ const LoginPage: React.FC = () => {
           navigate('/home');
         }
       } else {
-        setError(result.message || 'Email hoặc mật khẩu không đúng');
+        const errorMsg = result.message || 'Email hoặc mật khẩu không đúng';
+        setError(errorMsg);
+        showError('Đăng nhập thất bại!', errorMsg);
       }
     } catch (err) {
-      setError('Đã có lỗi xảy ra. Vui lòng thử lại.');
+      const errorMsg = 'Đã có lỗi xảy ra. Vui lòng thử lại.';
+      setError(errorMsg);
+      showError('Có lỗi xảy ra!', errorMsg);
     } finally {
       setIsLoading(false);
     }

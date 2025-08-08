@@ -6,7 +6,7 @@ export interface IPayment extends Document {
   userId: string;
   amount: number;
   currency: string;
-  paymentMethod: 'cod' | 'bank_transfer' | 'momo' | 'zalopay' | 'vnpay' | 'credit_card' | 'shopeepay';
+  paymentMethod: 'cod' | 'bank_transfer' | 'momo' | 'zalopay' | 'vnpay' | 'credit_card' | 'shopeepay' | 'paypal';
   status: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled' | 'refunded';
   transactionId?: string;
   gatewayTransactionId?: string;
@@ -60,7 +60,7 @@ const PaymentSchema: Schema = new Schema({
   paymentMethod: {
     type: String,
     required: true,
-    enum: ['cod', 'bank_transfer', 'momo', 'zalopay', 'vnpay', 'credit_card', 'shopeepay']
+    enum: ['cod', 'bank_transfer', 'momo', 'zalopay', 'vnpay', 'credit_card', 'shopeepay', 'paypal']
   },
   status: {
     type: String,

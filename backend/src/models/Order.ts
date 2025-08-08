@@ -40,7 +40,7 @@ export interface IOrder extends Document {
   totalAmount: number;
   shippingFee?: number;
   status: 'pending' | 'confirmed' | 'preparing' | 'shipping' | 'delivered' | 'cancelled' | 'returned';
-  paymentMethod: 'cash' | 'cod' | 'bank_transfer' | 'momo' | 'zalopay' | 'vnpay' | 'credit_card' | 'shopeepay';
+  paymentMethod: 'cash' | 'cod' | 'bank_transfer' | 'momo' | 'zalopay' | 'vnpay' | 'paypal' | 'shopeepay';
   paymentStatus: 'unpaid' | 'paid' | 'completed' | 'failed' | 'pending' | 'refunded' | 'partially_refunded';
   paymentInfo?: any;
   orderDate: Date;
@@ -189,7 +189,7 @@ const OrderSchema: Schema = new Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ['cash', 'cod', 'bank_transfer', 'momo', 'zalopay', 'vnpay', 'credit_card', 'shopeepay'],
+    enum: ['cash', 'cod', 'bank_transfer', 'momo', 'zalopay', 'vnpay', 'paypal', 'shopeepay'],
     required: true
   },
   paymentStatus: {

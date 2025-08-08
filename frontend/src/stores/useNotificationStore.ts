@@ -45,6 +45,7 @@ interface NotificationState {
   
   // Utility
   clearError: () => void;
+  clearNotifications: () => void;
   setFilter: (filter: NotificationFilter) => void;
   addNotification: (notification: Notification) => void;
   updateNotificationInList: (notificationId: string, updates: Partial<Notification>) => void;
@@ -285,6 +286,14 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
 
   // Utility actions
   clearError: () => set({ error: null }),
+  
+  clearNotifications: () => set({ 
+    notifications: [], 
+    unreadCount: 0,
+    currentPage: 1,
+    totalPages: 0,
+    hasMore: false
+  }),
   
   setFilter: (filter: NotificationFilter) => {
     set({ currentFilter: filter });

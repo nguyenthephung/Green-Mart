@@ -23,10 +23,8 @@ interface AddressInfo {
 }
 
 interface PaymentInfo {
-  id: number;
   method: string;
   isSelected: boolean;
-  expiry?: string;
 }
 
 interface CheckoutMainProps {
@@ -50,11 +48,8 @@ const CheckoutMain: FC<CheckoutMainProps> = ({ items, userInfo, address, payment
 
   // Khi context payments thay đổi, chỉ đồng bộ lại nếu context khác local
   useEffect(() => {
-    console.log('CheckoutMain - Payments received:', payments); // Debug log
     const selected = payments.find(p => p.isSelected)?.method || '';
-    console.log('CheckoutMain - Selected method found:', selected); // Debug log
     if (selected && selected !== localSelectedPayment) {
-      console.log('CheckoutMain - Updating local payment to:', selected); // Debug log
       setLocalSelectedPayment(selected);
     }
   }, [payments]);
@@ -63,12 +58,9 @@ const CheckoutMain: FC<CheckoutMainProps> = ({ items, userInfo, address, payment
   const remainingCount = items.length - visibleItems.length;
 
   // Khi chọn payment method, cập nhật local ngay, đồng thời gọi callback để cập nhật context
-  const handleSelectPayment = (method: string) => {
-    console.log('CheckoutMain - Payment selected:', method); // Debug log
-    setLocalSelectedPayment(method);
-    if (onPaymentChange) { 
-      onPaymentChange(method); 
-    }
+  const handleSelectPayment = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setLocalSelectedPayment(e.target.value);
+    if (onPaymentChange) { onPaymentChange(e.target.value); }
   };
 
   return (
@@ -120,7 +112,7 @@ const CheckoutMain: FC<CheckoutMainProps> = ({ items, userInfo, address, payment
                   ? 'border-green-500 bg-green-50 shadow-md'
                   : 'border-gray-200 hover:border-green-300'
               }`}
-              onClick={() => handleSelectPayment(option.value)}
+              onClick={() => handleSelectPayment({ target: { value: option.value } } as any)}
             >
               <div className="flex items-center gap-3">
                 <span className="text-2xl">{option.icon}</span>
@@ -131,6 +123,10 @@ const CheckoutMain: FC<CheckoutMainProps> = ({ items, userInfo, address, payment
                     {option.value === 'bank_transfer' && 'Chuyển khoản qua ngân hàng'}
                     {option.value === 'momo' && 'Thanh toán qua ví MoMo'}
                     {option.value === 'paypal' && 'Thanh toán quốc tế qua PayPal'}
+                    {option.value === 'zalopay' && 'Thanh toán qua ví ZaloPay'}
+                    {option.value === 'vnpay' && 'Cổng thanh toán VNPay'}
+                    {option.value === 'credit_card' && 'Visa, Mastercard, JCB'}
+                    {option.value === 'shopeepay' && 'Ví điện tử ShopeePay'}
                   </p>
                 </div>
                 {localSelectedPayment === option.value && (
@@ -160,7 +156,7 @@ const CheckoutMain: FC<CheckoutMainProps> = ({ items, userInfo, address, payment
                       <p>• BIDV: 1122334455</p>
                     </div>
                   )}
-                  {(option.value === 'momo') && (
+                  {(option.value === 'momo' || option.value === 'zalopay' || option.value === 'shopeepay') && (
                     <div className="text-xs text-purple-700">
                       <p>• Thanh toán nhanh chóng và bảo mật</p>
                       <p>• Nhận ưu đãi từ ví điện tử</p>
@@ -171,6 +167,18 @@ const CheckoutMain: FC<CheckoutMainProps> = ({ items, userInfo, address, payment
                       <p>• Thanh toán quốc tế an toàn</p>
                       <p>• Hỗ trợ nhiều loại tiền tệ</p>
                       <p>• Bảo vệ người mua toàn diện</p>
+                    </div>
+                  )}
+                  {option.value === 'vnpay' && (
+                    <div className="text-xs text-orange-700">
+                      <p>• Hỗ trợ nhiều ngân hàng</p>
+                      <p>• Bảo mật cao với 3D Secure</p>
+                    </div>
+                  )}
+                  {option.value === 'credit_card' && (
+                    <div className="text-xs text-indigo-700">
+                      <p>• Visa, Mastercard, JCB</p>
+                      <p>• Thanh toán trả góp 0%</p>
                     </div>
                   )}
                 </div>

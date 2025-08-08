@@ -58,7 +58,7 @@ export const useUserStore = create<UserState>()(
         { id: 1, method: 'cod', expiry: '', isSelected: false },
         { id: 2, method: 'bank_transfer', expiry: '', isSelected: false },
         { id: 3, method: 'momo', expiry: '', isSelected: false },
-        { id: 4, method: 'credit_card', expiry: '', isSelected: false },
+        { id: 4, method: 'paypal', expiry: '', isSelected: false },
       ],
       voucher: null,
 
@@ -187,6 +187,15 @@ export const useUserStore = create<UserState>()(
             guestStore.clearGuestInfo();
           } catch (error) {
             console.error('Error clearing guest info on logout:', error);
+          }
+          
+          // Clear notifications when user logs out
+          try {
+            const { useNotificationStore } = await import('./useNotificationStore');
+            const notificationStore = useNotificationStore.getState();
+            notificationStore.clearNotifications();
+          } catch (error) {
+            console.error('Error clearing notifications on logout:', error);
           }
           
           set({ 

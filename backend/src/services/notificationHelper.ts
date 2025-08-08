@@ -99,6 +99,50 @@ class NotificationHelper {
     });
   }
 
+  // Notification for successful online payment (PayPal, MoMo)
+  static async notifyPaymentCompleted(userId: string, orderData: any, paymentMethod: string) {
+    const methodNames: { [key: string]: string } = {
+      'paypal': 'PayPal',
+      'momo': 'MoMo',
+      'vnpay': 'VNPay'
+    };
+
+    const methodName = methodNames[paymentMethod.toLowerCase()] || paymentMethod.toUpperCase();
+
+    // User notification
+    await this.createUserNotification({
+      recipientId: userId,
+      type: 'payment',
+      title: 'Thanh toán thành công',
+      description: `Thanh toán ${methodName} cho đơn hàng #${orderData._id.toString().slice(-6)} đã hoàn tất. Đơn hàng sẽ được xử lý ngay.`,
+      priority: 'high',
+      actionUrl: '/myorder',
+      actionText: 'Xem đơn hàng',
+      metadata: {
+        orderId: orderData._id,
+        amount: orderData.totalAmount,
+        paymentMethod: paymentMethod
+      }
+    });
+
+    // Admin notification
+    await this.createGlobalNotification({
+      type: 'payment',
+      title: 'Thanh toán online hoàn tất',
+      description: `Đơn hàng #${orderData._id.toString().slice(-6)} đã được thanh toán qua ${methodName} - ${orderData.totalAmount.toLocaleString()}₫`,
+      priority: 'urgent',
+      targetRole: 'admin',
+      actionUrl: `/admin/orders/${orderData._id}`,
+      actionText: 'Xử lý đơn hàng',
+      metadata: {
+        orderId: orderData._id,
+        userId: userId,
+        amount: orderData.totalAmount,
+        paymentMethod: paymentMethod
+      }
+    });
+  }
+
   static async notifyOrderStatusChanged(userId: string, orderData: any, newStatus: string) {
     const statusMessages = {
       confirmed: 'đã được xác nhận',

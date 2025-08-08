@@ -3,14 +3,18 @@ import Order, { IOrder } from '../models/Order';
 import Payment, { IPayment } from '../models/Payment';
 import { MoMoService } from '../services/momoService';
 import { BankTransferService } from '../services/bankTransferService';
+import { PayPalService } from '../services/paypalService';
+import NotificationHelper from '../services/notificationHelper';
 
 export class PaymentController {
   private momoService: MoMoService;
   private bankTransferService: BankTransferService;
+  private paypalService: PayPalService;
 
   constructor() {
     this.momoService = new MoMoService();
     this.bankTransferService = new BankTransferService();
+    this.paypalService = new PayPalService();
   }
 
   // Tạo thanh toán
@@ -69,20 +73,19 @@ export class PaymentController {
         case 'banktransfer':
           paymentResult = await this.processBankTransfer(order, amount);
           break;
-        case 'credit_card':
-        case 'card':
+        case 'paypal':
           if (!returnUrl) {
             return res.status(400).json({
               success: false,
-              message: 'Return URL required for Credit Card payment'
+              message: 'Return URL required for PayPal payment'
             });
           }
-          paymentResult = await this.processCreditCard(order, amount, returnUrl);
+          paymentResult = await this.processPayPal(order, amount, returnUrl);
           break;
         default:
           return res.status(400).json({
             success: false,
-            message: 'Unsupported payment method. Supported methods: cod, momo, bank_transfer, credit_card'
+            message: 'Unsupported payment method. Supported methods: cod, momo, bank_transfer, paypal'
           });
       }
 
@@ -163,41 +166,33 @@ export class PaymentController {
       const momoResponse = await this.momoService.createPayment(paymentRequest);
 
       if (momoResponse.resultCode === 0) {
-        // Tạo payment record với trạng thái pending
-        const payment = new Payment({
-          orderId: order._id,
-          userId: order.userId,
-          paymentMethod: 'momo',
-          amount: actualAmount, // Sử dụng order.totalAmount
-          status: 'pending',
-          transactionId: momoResponse.requestId,
-          metadata: {
-            gatewayTransactionId: momoResponse.requestId
-          }
-        });
-
-        await payment.save();
-
-        // Cập nhật order
-        order.paymentStatus = 'unpaid';
+        // KHÔNG tạo payment record ngay - chỉ tạo khi có callback xác nhận
+        // Chỉ update order status và method
         order.paymentMethod = 'momo';
+        order.paymentStatus = 'pending'; // Đặt trạng thái chờ thanh toán
         await order.save();
+
+        console.log('MoMo payment URL created successfully, waiting for user to complete payment');
 
         return {
           success: true,
-          message: 'MoMo payment created successfully',
-          paymentId: payment._id,
-          paymentMethod: 'MoMo',
-          status: 'pending',
-          redirectUrl: momoResponse.payUrl,
-          transactionId: momoResponse.requestId
+          message: 'MoMo payment URL created - waiting for payment completion',
+          data: {
+            paymentMethod: 'MoMo',
+            status: 'pending',
+            redirectUrl: momoResponse.payUrl,
+            transactionId: momoResponse.requestId,
+            orderId: order._id,
+            amount: actualAmount,
+            note: 'Payment record will be created after successful payment'
+          }
         };
       } else {
         throw new Error(`MoMo payment creation failed: ${momoResponse.message}`);
       }
     } catch (error) {
       console.error('MoMo processing error:', error);
-      throw new Error('Failed to process MoMo payment');
+      throw new Error(`Failed to process MoMo payment: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -254,6 +249,89 @@ export class PaymentController {
     } catch (error) {
       console.error('Bank transfer processing error:', error);
       throw new Error('Failed to process bank transfer payment');
+    }
+  }
+
+  // Xử lý thanh toán PayPal
+  private async processPayPal(order: any, amount: number, returnUrl: string) {
+    try {
+      // Sử dụng totalAmount từ order thay vì amount từ request
+      const actualAmount = order.totalAmount;
+      
+      console.log('PaymentController processPayPal:');
+      console.log('Request amount:', amount);
+      console.log('Order totalAmount:', actualAmount);
+
+      // Convert VND to USD for PayPal (PayPal doesn't support VND)
+      const usdAmount = this.paypalService.convertVNDToUSD(actualAmount);
+      
+      const paypalOrderData = {
+        intent: 'CAPTURE' as const,
+        purchase_units: [{
+          amount: {
+            currency_code: 'USD',
+            value: usdAmount
+          },
+          description: `GreenMart Order #${order._id}`,
+          invoice_id: order._id.toString()
+        }],
+        application_context: {
+          return_url: returnUrl,
+          cancel_url: returnUrl.replace('?method=paypal', '?method=paypal&cancelled=true'),
+          brand_name: 'GreenMart',
+          landing_page: 'NO_PREFERENCE' as const,
+          shipping_preference: 'NO_SHIPPING' as const,
+          user_action: 'PAY_NOW' as const
+        }
+      };
+
+      const paypalOrderResult = await this.paypalService.createOrder(paypalOrderData);
+
+      // Lưu payment record với userId từ order
+      const payment = new Payment({
+        orderId: order._id,
+        userId: order.userId, // Thêm userId từ order
+        paymentMethod: 'paypal',
+        amount: actualAmount,
+        currency: 'VND',
+        paymentGateway: 'paypal',
+        transactionId: paypalOrderResult.id,
+        status: 'pending',
+        gatewayResponse: paypalOrderResult,
+        metadata: {
+          usdAmount: parseFloat(usdAmount),
+          exchangeRate: 24000
+        }
+      });
+
+      await payment.save();
+
+      // Tìm approve link từ PayPal response
+      const approveLink = paypalOrderResult.links.find(link => link.rel === 'approve');
+
+      if (!approveLink) {
+        throw new Error('PayPal approval link not found in response');
+      }
+
+      return {
+        success: true,
+        message: 'PayPal payment created successfully',
+        data: {
+          paymentId: payment._id,
+          paymentMethod: 'PayPal',
+          status: 'pending',
+          redirectUrl: approveLink.href,
+          transactionId: paypalOrderResult.id,
+          amount: actualAmount,
+          currency: 'VND',
+          usdAmount: parseFloat(usdAmount),
+          exchangeRate: 24000,
+          orderId: order._id
+        }
+      };
+    } catch (error) {
+      console.error('PayPal processing error:', error);
+      throw new Error(`Failed to process PayPal payment: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -566,11 +644,11 @@ export class PaymentController {
           icon: 'bank'
         },
         {
-          id: 'credit_card',
-          name: 'Credit/Debit Card',
-          description: 'Thanh toán bằng thẻ tín dụng/ghi nợ',
+          id: 'paypal',
+          name: 'PayPal',
+          description: 'Thanh toán an toàn qua PayPal',
           enabled: true,
-          icon: 'card'
+          icon: 'paypal'
         }
       ];
 
@@ -622,6 +700,244 @@ export class PaymentController {
         success: false,
         message: 'Internal server error'
       });
+    }
+  }
+
+  // PayPal capture payment (hoàn tất thanh toán)
+  async capturePayPalPayment(req: Request, res: Response) {
+    try {
+      const { orderId } = req.body;
+
+      if (!orderId) {
+        return res.status(400).json({
+          success: false,
+          message: 'PayPal order ID is required'
+        });
+      }
+
+      // Capture payment từ PayPal
+      const captureResult = await this.paypalService.captureOrder(orderId);
+
+      // Tìm payment record
+      const payment = await Payment.findOne({ transactionId: orderId });
+      if (!payment) {
+        return res.status(404).json({
+          success: false,
+          message: 'Payment record not found'
+        });
+      }
+
+      // Kiểm tra trạng thái capture
+      const captureStatus = captureResult.purchase_units[0]?.payments?.captures[0]?.status;
+      
+      if (captureStatus === 'COMPLETED') {
+        // Cập nhật payment status
+        payment.status = 'completed';
+        payment.gatewayResponse = captureResult;
+        payment.updatedAt = new Date();
+        await payment.save();
+
+        // Cập nhật order status
+        const order = await Order.findById(payment.orderId);
+        if (order) {
+          order.paymentStatus = 'paid';
+          order.status = 'confirmed';
+          order.updatedAt = new Date();
+          await order.save();
+
+          console.log('PayPal payment - Order details:', {
+            orderId: order._id,
+            userId: order.userId,
+            hasUserId: !!order.userId,
+            isGuestOrder: order.isGuestOrder
+          });
+
+          // Tạo notification sau khi thanh toán PayPal thành công
+          try {
+            if (order.userId) {
+              await NotificationHelper.notifyPaymentCompleted(order.userId.toString(), order, 'paypal');
+              console.log('Payment completion notification created for PayPal');
+            } else {
+              console.log('No userId found in order, skipping notification (likely guest order)');
+            }
+          } catch (notificationError) {
+            console.error('Error creating payment notification after PayPal payment:', notificationError);
+            // Don't fail the payment processing if notification fails
+          }
+        }
+
+        res.json({
+          success: true,
+          message: 'Payment completed successfully',
+          transactionId: orderId,
+          captureId: captureResult.purchase_units[0]?.payments?.captures[0]?.id,
+          status: 'completed'
+        });
+      } else {
+        // Payment failed
+        payment.status = 'failed';
+        payment.gatewayResponse = captureResult;
+        payment.updatedAt = new Date();
+        await payment.save();
+
+        res.status(400).json({
+          success: false,
+          message: 'Payment capture failed',
+          status: captureStatus
+        });
+      }
+    } catch (error) {
+      console.error('PayPal capture error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to capture PayPal payment',
+        error: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
+      });
+    }
+  }
+
+  // MoMo callback - xử lý callback từ MoMo sau khi thanh toán
+  async handleMoMoCallback(req: Request, res: Response) {
+    try {
+      const callbackData = req.body;
+      
+      console.log('MoMo callback received:', callbackData);
+
+      // Verify signature
+      const isValidSignature = this.momoService.verifyCallback(callbackData);
+      
+      if (!isValidSignature) {
+        console.error('Invalid MoMo callback signature');
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid signature'
+        });
+      }
+
+      const { orderId, resultCode, transId, amount, message } = callbackData;
+
+      // Tìm order
+      const order = await Order.findById(orderId);
+      if (!order) {
+        console.error('Order not found for MoMo callback:', orderId);
+        return res.status(404).json({
+          success: false,
+          message: 'Order not found'
+        });
+      }
+
+      if (resultCode === 0) {
+        // Thanh toán thành công - TẠO payment record
+        const payment = new Payment({
+          orderId: order._id,
+          userId: order.userId,
+          paymentMethod: 'momo',
+          amount: amount,
+          status: 'completed',
+          transactionId: transId,
+          metadata: {
+            gatewayTransactionId: transId,
+            resultCode: resultCode,
+            message: message
+          }
+        });
+
+        await payment.save();
+
+        // Cập nhật order status
+        order.paymentStatus = 'paid';
+        order.status = 'confirmed';
+        await order.save();
+
+        console.log('MoMo payment - Order details:', {
+          orderId: order._id,
+          userId: order.userId,
+          hasUserId: !!order.userId,
+          isGuestOrder: order.isGuestOrder
+        });
+
+        // Tạo notification sau khi thanh toán MoMo thành công
+        try {
+          if (order.userId) {
+            await NotificationHelper.notifyPaymentCompleted(order.userId.toString(), order, 'momo');
+            console.log('Payment completion notification created for MoMo');
+          } else {
+            console.log('No userId found in order, skipping notification (likely guest order)');
+          }
+        } catch (notificationError) {
+          console.error('Error creating payment notification after MoMo payment:', notificationError);
+          // Don't fail the payment processing if notification fails
+        }
+
+        console.log('MoMo payment completed successfully:', {
+          orderId,
+          transactionId: transId,
+          amount
+        });
+
+        res.status(200).json({
+          success: true,
+          message: 'Payment completed successfully'
+        });
+      } else {
+        // Thanh toán thất bại
+        console.log('MoMo payment failed:', {
+          orderId,
+          resultCode,
+          message
+        });
+
+        // Cập nhật order status
+        order.paymentStatus = 'failed';
+        order.status = 'cancelled';
+        await order.save();
+
+        res.status(200).json({
+          success: false,
+          message: 'Payment failed'
+        });
+      }
+    } catch (error) {
+      console.error('MoMo callback error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error'
+      });
+    }
+  }
+
+  // PayPal webhook (optional - để nhận thông báo từ PayPal)
+  async handlePayPalWebhook(req: Request, res: Response) {
+    try {
+      const event = req.body;
+      
+      console.log('PayPal webhook received:', event.event_type);
+
+      // Xử lý các event từ PayPal
+      switch (event.event_type) {
+        case 'CHECKOUT.ORDER.APPROVED':
+          // Order được approve bởi user
+          console.log('PayPal order approved:', event.resource.id);
+          break;
+          
+        case 'PAYMENT.CAPTURE.COMPLETED':
+          // Payment được capture thành công
+          console.log('PayPal payment captured:', event.resource.id);
+          break;
+          
+        case 'PAYMENT.CAPTURE.DENIED':
+          // Payment bị từ chối
+          console.log('PayPal payment denied:', event.resource.id);
+          break;
+          
+        default:
+          console.log('Unhandled PayPal webhook event:', event.event_type);
+      }
+
+      res.status(200).json({ status: 'success' });
+    } catch (error) {
+      console.error('PayPal webhook error:', error);
+      res.status(500).json({ status: 'error' });
     }
   }
 }

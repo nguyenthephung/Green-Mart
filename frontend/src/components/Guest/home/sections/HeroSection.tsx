@@ -11,10 +11,12 @@ const HeroSection: React.FC<HeroSectionProps> = ({ isScrolling }) => {
   const { fetchBanners, incrementClickCount } = useBannerStore();
   const [heroBanners, setHeroBanners] = useState<any[]>([]);
   const [currentHeroBanner, setCurrentHeroBanner] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadHeroBanners = async () => {
       try {
+        setIsLoading(true);
         console.log('Loading hero banners...');
         await fetchBanners('hero', true);
         const state = useBannerStore.getState();
@@ -31,6 +33,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({ isScrolling }) => {
         setHeroBanners(herobanners);
       } catch (error) {
         console.error('Failed to load hero banner:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -138,13 +142,18 @@ const HeroSection: React.FC<HeroSectionProps> = ({ isScrolling }) => {
         )}
       </div>
     ) : (
-      /* No Database Banners - Show Placeholder */
-      <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 to-green-100 flex items-center justify-center">
-        <div className="text-center p-8">
-          <div className="text-6xl mb-4">�</div>
-          <h2 className="text-2xl font-bold text-emerald-700 mb-2">Chưa có banner nào</h2>
-          <p className="text-emerald-600">Hệ thống chỉ hiển thị banner từ cơ sở dữ liệu</p>
-        </div>
+      /* Loading or no banners - show default gradient */
+      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center">
+        {!isLoading && (
+          <div className="text-center text-white p-8">
+            <h1 className="text-4xl md:text-6xl font-bold mb-4">
+              Green Mart
+            </h1>
+            <p className="text-xl md:text-2xl mb-8">
+              Nơi mua sắm xanh cho cuộc sống tốt đẹp hơn
+            </p>
+          </div>
+        )}
       </div>
     )}
 

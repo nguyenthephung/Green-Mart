@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface BannerImageProps {
   src?: string;
@@ -18,6 +18,14 @@ const BannerImage: React.FC<BannerImageProps> = ({
   const [imageError, setImageError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Reset states when src changes
+  useEffect(() => {
+    if (src) {
+      setImageError(false);
+      setIsLoading(true);
+    }
+  }, [src]);
+
   const handleImageError = () => {
     setImageError(true);
     setIsLoading(false);
@@ -25,7 +33,24 @@ const BannerImage: React.FC<BannerImageProps> = ({
 
   const handleImageLoad = () => {
     setIsLoading(false);
+    setImageError(false);
   };
+
+  // Check if image is already cached
+  useEffect(() => {
+    if (src) {
+      const img = new Image();
+      img.onload = () => {
+        setIsLoading(false);
+        setImageError(false);
+      };
+      img.onerror = () => {
+        setImageError(true);
+        setIsLoading(false);
+      };
+      img.src = src;
+    }
+  }, [src]);
 
   // If no src or image error, show fallback
   if (!src || imageError) {
@@ -57,6 +82,8 @@ const BannerImage: React.FC<BannerImageProps> = ({
         }`}
         onError={handleImageError}
         onLoad={handleImageLoad}
+        loading="eager"
+        decoding="async"
       />
     </div>
   );
