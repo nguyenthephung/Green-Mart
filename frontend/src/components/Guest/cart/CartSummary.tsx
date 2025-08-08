@@ -45,7 +45,11 @@ export default function CartSummary({ itemsTotal, deliveryFee, voucherDiscount =
     const coords = getLatLngFromAddress(address);
     if (coords) dynamicFee = calculateShippingFee(coords);
   }
-  const finalTotal = itemsTotal + dynamicFee - voucherDiscount;
+  
+  // Free shipping for orders >= 300k
+  const isEligibleForFreeShip = itemsTotal >= 300000;
+  const actualShippingFee = isEligibleForFreeShip ? 0 : dynamicFee;
+  const finalTotal = itemsTotal + actualShippingFee - voucherDiscount;
 
   return (
     <div className="bg-app-card shadow-lg rounded-2xl p-6 w-full border border-green-100">
@@ -80,8 +84,33 @@ export default function CartSummary({ itemsTotal, deliveryFee, voucherDiscount =
             </svg>
             Phí giao hàng
           </span>
-          <span className="font-medium text-app-primary break-all">{dynamicFee.toLocaleString()} ₫</span>
+          <span className={`font-medium break-all ${isEligibleForFreeShip ? 'text-green-600' : 'text-app-primary'}`}>
+            {isEligibleForFreeShip ? (
+              <span className="flex items-center gap-1">
+                <span className="line-through text-gray-400 text-sm">{dynamicFee.toLocaleString()} ₫</span>
+                <span className="text-green-600 font-semibold">Miễn phí</span>
+              </span>
+            ) : (
+              `${actualShippingFee.toLocaleString()} ₫`
+            )}
+          </span>
         </div>
+
+        {!isEligibleForFreeShip && (
+          <div className="flex justify-between items-center py-2 px-3 bg-yellow-50 rounded-lg border border-yellow-200">
+            <span className="text-yellow-700 text-sm flex items-center gap-1">
+              🚚 Mua thêm {(300000 - itemsTotal).toLocaleString()} ₫ để được miễn phí ship
+            </span>
+          </div>
+        )}
+
+        {isEligibleForFreeShip && (
+          <div className="flex justify-between items-center py-2 px-3 bg-green-50 rounded-lg border border-green-200">
+            <span className="text-green-700 text-sm flex items-center gap-1">
+              🎉 Chúc mừng! Bạn được miễn phí giao hàng
+            </span>
+          </div>
+        )}
 
         {voucher && voucherDiscount > 0 ? (
           <div className="flex justify-between items-start gap-2 py-3 px-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">

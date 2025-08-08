@@ -71,11 +71,8 @@ export default function FooterBanner({ className = '' }: FooterBannerProps) {
                 <div className="lg:col-span-2 space-y-4">
                   {/* Badge */}
                   <div className="flex items-center gap-4">
-                    <span className="bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wider">
-                      📄 Footer Banner
-                    </span>
-                    <span className="bg-red-500 px-3 py-1 rounded-full text-xs font-bold">
-                      #{banner.priority}
+                    <span className="bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wider">
+                      ✨ Ưu đãi đặc biệt
                     </span>
                   </div>
                   

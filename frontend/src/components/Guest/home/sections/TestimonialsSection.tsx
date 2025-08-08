@@ -20,12 +20,12 @@ const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ testimonials 
   return (
     <div className="bg-gradient-to-br from-emerald-50 to-green-100 dark:from-gray-900 dark:to-gray-800 py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
+        <div className="text-center mb-16 min-h-[200px] flex flex-col justify-center">
           <div className="inline-flex items-center gap-3 px-6 py-3 bg-white dark:bg-gray-800 rounded-full shadow-lg mb-6">
             <SparklesIcon className="w-6 h-6 text-emerald-500" />
             <span className="font-bold text-gray-700 dark:text-gray-300">Khách Hàng Nói Gì?</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-6">
+          <h2 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-6 leading-tight">
             Câu Chuyện Thành Công
           </h2>
           <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">

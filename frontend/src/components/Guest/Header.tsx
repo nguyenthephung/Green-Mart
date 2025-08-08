@@ -206,8 +206,8 @@ const Header: React.FC = memo(() => {
                 <span id="cart-fly-icon" className="inline-block relative">
                   <ShoppingCart size={20} />
                   {cartCount > 0 && (
-                    <span className="absolute top-0 right-0 translate-x-[80%] -translate-y-2/3 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center shadow-lg border-2 border-white dark:border-gray-800 font-bold min-w-[20px]">
-                      {cartCount}
+                    <span className="absolute top-0 right-0 translate-x-[80%] -translate-y-2/3 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center shadow-lg border-2 border-white dark:border-gray-800 font-bold min-w-[20px] transition-all duration-300 ease-out transform scale-100 animate-bounce-once">
+                      <span className="transition-all duration-200">{cartCount}</span>
                     </span>
                   )}
                 </span>

@@ -54,8 +54,54 @@ export const topDeals = [
 ];
 
 export const testimonials = [
-  { id: 1, name: 'Nguyễn Văn A', text: 'Rất hài lòng với dịch vụ, sản phẩm chất lượng tuyệt vời!', image: 'https://via.placeholder.com/50x50?text=NV+A' },
-  { id: 2, name: 'Trần Thị B', text: 'Giao hàng nhanh chóng, giá cả hợp lý!', image: 'https://via.placeholder.com/50x50?text=TT+B' },
+  { 
+    id: 1, 
+    name: 'Chị Phương - Mẹ 2 con ở Quận 3', 
+    text: 'Từ khi biết đến GreenMart, gia đình tôi đã hoàn toàn thay đổi thói quen ăn uống. Rau củ tươi ngon như vừa hái, thịt cá chất lượng cao, đặc biệt là giao hàng nhanh trong ngày. Con em từ kén ăn giờ ăn rau rất nhiều, sức khỏe cả nhà đều cải thiện rõ rệt. Tiết kiệm được 30% chi phí so với đi siêu thị!', 
+    image: 'https://via.placeholder.com/80x80?text=👩‍👧‍👦' 
+  },
+  { 
+    id: 2, 
+    name: 'Anh Minh - Chủ nhà hàng Bún Bò Huế Minh Khai', 
+    text: 'Là chủ nhà hàng 15 năm kinh nghiệm, tôi rất khó tính về chất lượng nguyên liệu. GreenMart đã giúp tôi tìm được nguồn cung ứng ổn định với giá cả hợp lý. Khách hàng khen ngợi món ăn ngon hơn hẳn, doanh thu tăng 30% so với trước. Đặc biệt thịt bò Úc ở đây tuyệt vời!', 
+    image: 'https://via.placeholder.com/80x80?text=👨‍🍳' 
+  },
+  { 
+    id: 3, 
+    name: 'Cô Lan - 65 tuổi, Quận 7', 
+    text: 'Ở tuổi 65, việc đi chợ trở nên khó khăn vì đau chân. GreenMart như người bạn đồng hành, giao hàng tận nhà, nhân viên lịch sự, còn giúp cô mang lên tận tầng 3. Rau củ luôn tươi ngon như chính tay tôi chọn. Cảm ơn GreenMart đã chăm sóc tôi chu đáo như người thân!', 
+    image: 'https://via.placeholder.com/80x80?text=👵' 
+  },
+  { 
+    id: 4, 
+    name: 'Chị Hương - Nhân viên văn phòng Bitexco', 
+    text: 'Công việc bận rộn 12 tiếng/ngày, tôi thường ăn uống không đều. Nhờ GreenMart, tôi có thể đặt hàng online dễ dàng, có cả thực phẩm đã chế biến sẵn healthy. Đã giảm được 5kg sau 3 tháng ăn uống khoa học. Người yêu khen da dẻ sáng hơn, tinh thần tốt hơn rất nhiều!', 
+    image: 'https://via.placeholder.com/80x80?text=👩‍💼' 
+  },
+  { 
+    id: 5, 
+    name: 'Anh Tuấn - HLV Gym California Fitness', 
+    text: 'Với nghề huấn luyện viên, tôi cần chế độ dinh dưỡng nghiêm ngặt. GreenMart cung cấp đầy đủ protein, rau hữu cơ, các loại hạt... đúng yêu cầu. Học viên của tôi cũng theo đặt hàng và đạt kết quả tập luyện tốt hơn 40%. Giá cả rẻ hơn các cửa hàng thực phẩm thể thao!', 
+    image: 'https://via.placeholder.com/80x80?text=💪' 
+  },
+  { 
+    id: 6, 
+    name: 'Bà Hiền - Bà nội bán kẹo ở Chợ Bến Thành', 
+    text: 'Cháu nội tôi rất kén ăn, chỉ thích đồ ăn vặt không bổ dưỡng. Nhưng từ khi đặt trái cây và sữa chua từ GreenMart, cháu ăn rất ngoan. Chất lượng tốt, bao bì đẹp, cháu vừa ăn ngon vừa bổ dưỡng. Giờ cháu cao lớn hơn, học giỏi hơn nhiều!', 
+    image: 'https://via.placeholder.com/80x80?text=👵👶' 
+  },
+  { 
+    id: 7, 
+    name: 'Chị Mai - Blogger ẩm thực @maifoodie_sg', 
+    text: 'Là food blogger với 50k followers, tôi đã review nhiều cửa hàng thực phẩm. GreenMart thực sự làm tôi ấn tượng: chất lượng cao, giá cả phải chăng, dịch vụ tuyệt vời. Video review của tôi về GreenMart đạt 100k views, nhiều bạn theo đặt hàng và đều hài lòng!', 
+    image: 'https://via.placeholder.com/80x80?text=📱' 
+  },
+  { 
+    id: 8, 
+    name: 'Anh Dũng - Tài xế Grab, ba của 3 em bé', 
+    text: 'Thu nhập không cao nhưng muốn cho con ăn uống tốt. GreenMart có chương trình khuyến mãi tuyệt vời, mua nhiều giảm giá, rau củ tươi giá rẻ. Vợ chồng tôi tiết kiệm được 1 triệu/tháng tiền chợ. Giờ có thể mua thêm sữa và trái cây cho các con!', 
+    image: 'https://via.placeholder.com/80x80?text=🏍️👨‍👩‍👧‍👦' 
+  }
 ];
 
 // Danh mục sản phẩm lấy từ các category có trong products

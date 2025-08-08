@@ -183,7 +183,7 @@ class OrderController {
       }
 
       // Calculate shipping (simple flat rate for demo)
-      const shippingFee = subtotal >= 500000 ? 0 : 30000; // Free shipping for orders >= 500k VND
+      const shippingFee = subtotal >= 300000 ? 0 : 30000; // Free shipping for orders >= 300k VND
 
       const totalAmount = subtotal - discount + shippingFee;
 

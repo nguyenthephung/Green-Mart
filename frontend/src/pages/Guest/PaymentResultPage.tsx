@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import orderService from '../../services/orderService';
 import paymentService from '../../services/paymentService';
 import { useCartStore } from '../../stores/useCartStore';
-import { CheckCircle, XCircle, AlertCircle, Loader, Home, ShoppingBag, Receipt, CreditCard } from 'lucide-react';
+import { CheckCircle, XCircle, AlertCircle, Home, ShoppingBag, Receipt, CreditCard } from 'lucide-react';
 
 interface PaymentResult {
   success: boolean;
@@ -22,12 +22,14 @@ const PaymentResultPage = () => {
   const [result, setResult] = useState<PaymentResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [order, setOrder] = useState<any>(null);
+  const [processingMessage, setProcessingMessage] = useState('Đang xử lý kết quả thanh toán...');
   const { clearCart } = useCartStore();
 
   useEffect(() => {
     const processPaymentResult = async () => {
       try {
         setLoading(true);
+        setProcessingMessage('Đang xác thực thông tin thanh toán...');
 
         // Lấy thông tin từ URL parameters
         const method = searchParams.get('method');
@@ -47,14 +49,18 @@ const PaymentResultPage = () => {
 
         // Xử lý các phương thức thanh toán khác nhau
         if (method === 'paypal' && paypalToken) {
+          setProcessingMessage('Đang xác nhận thanh toán PayPal...');
           paymentResult = await processPayPalResult(paypalToken, paypalPayerId);
         } else if (method === 'momo' || momoResult) {
+          setProcessingMessage('Đang xác nhận thanh toán MoMo...');
           paymentResult = await processMoMoResult();
         } else if (searchParams.get('vnp_TmnCode')) {
           // VNPay result
+          setProcessingMessage('Đang xác nhận thanh toán VNPay...');
           paymentResult = await processVNPayResult();
         } else if (searchParams.get('partnerCode')) {
           // Alternative MoMo result detection
+          setProcessingMessage('Đang xác nhận thanh toán MoMo...');
           paymentResult = await processMoMoResult();
         } else {
           // Unknown payment method - check for any pending order
@@ -77,11 +83,15 @@ const PaymentResultPage = () => {
           }
         }
 
-        setResult(paymentResult);
+        // Delay nhỏ để tránh flash effect
+        setTimeout(() => {
+          setResult(paymentResult);
+        }, 500);
 
         // Nếu thanh toán thành công, lấy thông tin chi tiết đơn hàng
         if (paymentResult.success && paymentResult.orderId) {
           try {
+            setProcessingMessage('Đang tải thông tin đơn hàng...');
             const orderDetails = await orderService.getOrder(paymentResult.orderId);
             setOrder(orderDetails);
           } catch (error) {
@@ -91,13 +101,17 @@ const PaymentResultPage = () => {
 
       } catch (error) {
         console.error('Error processing payment result:', error);
-        setResult({
-          success: false,
-          message: 'Có lỗi xảy ra khi xử lý kết quả thanh toán',
-          paymentMethod: searchParams.get('method') || 'unknown'
-        });
+        setTimeout(() => {
+          setResult({
+            success: false,
+            message: 'Có lỗi xảy ra khi xử lý kết quả thanh toán',
+            paymentMethod: searchParams.get('method') || 'unknown'
+          });
+        }, 500);
       } finally {
-        setLoading(false);
+        setTimeout(() => {
+          setLoading(false);
+        }, 800);
       }
     };
 
@@ -376,18 +390,26 @@ const PaymentResultPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <div className="text-center">
-          <Loader className="w-16 h-16 animate-spin text-green-600 mx-auto mb-6" />
-          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-3">
-            Đang xử lý kết quả thanh toán...
+          <div className="relative">
+            <div className="w-20 h-20 border-4 border-green-200 dark:border-green-800 rounded-full mx-auto mb-6 animate-pulse"></div>
+            <div className="absolute inset-0 w-20 h-20 border-4 border-transparent border-t-green-600 rounded-full mx-auto animate-spin"></div>
+          </div>
+          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-3 animate-fade-in">
+            {processingMessage}
           </h2>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-gray-600 dark:text-gray-400 animate-fade-in">
             Vui lòng đợi trong giây lát, chúng tôi đang xác minh giao dịch của bạn
           </p>
-          <div className="mt-6 animate-pulse">
-            <div className="w-64 h-2 bg-gray-200 dark:bg-gray-700 rounded-full mx-auto">
-              <div className="h-2 bg-green-600 rounded-full animate-pulse" style={{ width: '60%' }}></div>
+          <div className="mt-8 space-y-2">
+            <div className="flex justify-center space-x-1">
+              <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+              <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+              <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+            </div>
+            <div className="w-64 h-1 bg-gray-200 dark:bg-gray-700 rounded-full mx-auto overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full animate-progress"></div>
             </div>
           </div>
         </div>

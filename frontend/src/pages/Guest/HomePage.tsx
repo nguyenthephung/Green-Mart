@@ -2,7 +2,6 @@ import React, { useEffect, useState, useMemo, useCallback, memo } from 'react';
 
 import { useProductStore } from '../../stores/useProductStore';
 import { useCategoryStore } from '../../stores/useCategoryStore';
-import { useUserStore } from '../../stores/useUserStore';
 import HeroSection from '../../components/Guest/home/sections/HeroSection';
 import SectionBanner from '../../components/Guest/home/sections/SectionBanner';
 import SidebarBanner from '../../components/Guest/home/sections/SidebarBanner';
@@ -17,6 +16,7 @@ import TestimonialsSection from '../../components/Guest/home/sections/Testimonia
 import { useCartStore } from '../../stores/useCartStore';
 import { usePageLoading } from '../../components/Loading';
 import { LoadingSpinner } from '../../components/Loading';
+import { testimonials } from '../../data/Guest/Home';
 
 const Home: React.FC = memo(() => {
   const loading = usePageLoading(0);
@@ -154,7 +154,6 @@ const Home: React.FC = memo(() => {
 
   // Lấy dữ liệu từ store
   const products = useProductStore((state: any) => state.products);
-  const testimonials = useUserStore((state: any) => state.testimonials) || [];
 
 
 

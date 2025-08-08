@@ -154,10 +154,46 @@ const CheckoutMain: FC<CheckoutMainProps> = ({ items, userInfo, address, payment
                     </div>
                   )}
                   {option.value === 'bank_transfer' && (
-                    <div className="text-xs text-blue-700 space-y-1">
-                      <p>• Vietcombank: 1234567890</p>
-                      <p>• Techcombank: 0987654321</p>
-                      <p>• BIDV: 1122334455</p>
+                    <div className="text-xs space-y-3 bg-blue-50 p-3 rounded-lg border border-blue-200">
+                      <div className="font-semibold text-blue-800 mb-2">📌 Thông tin chuyển khoản:</div>
+                      
+                      <div className="space-y-2">
+                        <div className="bg-white p-2 rounded border border-blue-300">
+                          <div className="font-medium text-blue-700">🏦 Vietcombank</div>
+                          <div><strong>STK:</strong> 1034567890123</div>
+                          <div><strong>Chủ TK:</strong> CONG TY TNHH GREEN MART</div>
+                          <div><strong>Chi nhánh:</strong> Quận 5, Hồ Chí Minh</div>
+                        </div>
+                        
+                        <div className="bg-white p-2 rounded border border-blue-300">
+                          <div className="font-medium text-blue-700">🏦 Techcombank</div>
+                          <div><strong>STK:</strong> 19034567890</div>
+                          <div><strong>Chủ TK:</strong> CONG TY TNHH GREEN MART</div>
+                          <div><strong>Chi nhánh:</strong> Quận 5, Hồ Chí Minh</div>
+                        </div>
+                      </div>
+
+                      <div className="border-t border-blue-200 pt-2 space-y-1">
+                        <div className="font-medium text-blue-800">⏰ Thời hạn thanh toán: 24 giờ</div>
+                        <div className="font-medium text-blue-800">💬 Nội dung CK: [Mã đơn hàng] - [Họ tên]</div>
+                      </div>
+
+                      <div className="border-t border-blue-200 pt-2 space-y-1 text-blue-700">
+                        <div className="font-medium">📋 Hướng dẫn:</div>
+                        <div>1. Chuyển khoản theo đúng số tiền và nội dung</div>
+                        <div>2. Chụp ảnh biên lai gửi cho shop</div>
+                        <div>3. Admin sẽ kiểm tra và xác nhận trong 2-4h</div>
+                        <div>4. Đơn hàng được chuẩn bị sau khi xác nhận</div>
+                      </div>
+
+                      <div className="border-t border-blue-200 pt-2">
+                        <div className="font-medium text-blue-800">🤝 Cam kết:</div>
+                        <div className="text-blue-700">
+                          • Hoàn tiền 100% nếu không nhận được hàng<br/>
+                          • Hỗ trợ 24/7 qua hotline: <strong>1900-1234</strong><br/>
+                          • Giao hàng miễn phí đơn từ 300k
+                        </div>
+                      </div>
                     </div>
                   )}
                   {(option.value === 'momo') && (

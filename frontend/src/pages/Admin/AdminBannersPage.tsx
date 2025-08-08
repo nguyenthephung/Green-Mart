@@ -5,6 +5,7 @@ import type { Banner } from '../../services/bannerService';
 import Pagination from '../../components/Admin/Product/Pagination';
 import ImageUpload from '../../components/ui/ImageUpload';
 import { useErrorHandler } from '../../hooks/useErrorHandler';
+import { LoadingSpinner } from '../../components/Loading';
 import { 
   PlusIcon, 
   MagnifyingGlassIcon, 
@@ -695,13 +696,13 @@ const AdminBanners: React.FC = () => {
 
       {/* Loading indicator */}
       {loading && (
-        <div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 shadow-xl">
-            <div className="flex items-center gap-3">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
-              <span className="text-gray-700">Đang xử lý...</span>
-            </div>
-          </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm">
+          <LoadingSpinner
+            size="lg"
+            text="Đang xử lý..."
+            subText="Vui lòng chờ trong giây lát"
+            variant="primary"
+          />
         </div>
       )}
 

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import type { Order, ViewMode, SortField } from '../../types/order';
 import { useOrderManagement } from '../../hooks/useOrderManagement';
-import Pagination from '../../components/Admin/Product/Pagination';
+import { usePagination } from '../../hooks/usePagination';
+import PaginationControls from '../../components/ui/PaginationControls';
+import { LoadingSpinner } from '../../components/Loading';
 import OrderHeader from '../../components/Admin/Orders/OrderHeader';
 import OrderFilters from '../../components/Admin/Orders/OrderFilters';
 import OrderBulkActions from '../../components/Admin/Orders/OrderBulkActions';
@@ -44,9 +46,12 @@ const AdminOrders: React.FC = () => {
   // Dark mode state
   const [isDarkMode, setIsDarkMode] = useState(document.documentElement.classList.contains('dark'));
   
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  // Use pagination hook
+  const pagination = usePagination({
+    data: filteredAndSortedOrders,
+    itemsPerPage: 10,
+    initialPage: 1
+  });
 
   // Dark mode observer
   React.useEffect(() => {
@@ -56,18 +61,6 @@ const AdminOrders: React.FC = () => {
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     return () => observer.disconnect();
   }, []);
-
-  // Pagination calculations
-  const totalItems = filteredAndSortedOrders.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentOrders = filteredAndSortedOrders.slice(startIndex, endIndex);
-
-  // Reset to first page when filters change
-  React.useEffect(() => {
-    setCurrentPage(1);
-  }, [search, filterStatus, filterPayment, filterPaymentMethod, sortField, sortOrder]);
 
   // Handlers
   const handleSort = (field: SortField) => {
@@ -80,10 +73,10 @@ const AdminOrders: React.FC = () => {
   };
 
   const handleSelectAll = () => {
-    if (selectedOrders.length === currentOrders.length) {
+    if (selectedOrders.length === pagination.currentData.length) {
       setSelectedOrders([]);
     } else {
-      setSelectedOrders(currentOrders.map(order => order.id));
+      setSelectedOrders(pagination.currentData.map((order: Order) => order.id));
     }
   };
 
@@ -332,7 +325,7 @@ const AdminOrders: React.FC = () => {
       ) : viewMode === 'table' ? (
         <OrderTableView
           isDarkMode={isDarkMode}
-          currentOrders={currentOrders}
+          currentOrders={pagination.currentData}
           selectedOrders={selectedOrders}
           sortField={sortField}
           onSelectAll={handleSelectAll}
@@ -347,13 +340,13 @@ const AdminOrders: React.FC = () => {
           getPaymentText={getPaymentText}
           formatPrice={formatPrice}
           formatDateTime={formatDateTime}
-          totalItems={totalItems}
+          totalItems={filteredAndSortedOrders.length}
           search={search}
         />
       ) : (
         <OrderGridView
           isDarkMode={isDarkMode}
-          currentOrders={currentOrders}
+          currentOrders={pagination.currentData}
           selectedOrders={selectedOrders}
           onSelectOrder={handleSelectOrder}
           onStatusChange={handleStatusChange}
@@ -362,37 +355,42 @@ const AdminOrders: React.FC = () => {
           getPaymentText={getPaymentText}
           formatPrice={formatPrice}
           formatDate={formatDate}
-          totalItems={totalItems}
+          totalItems={filteredAndSortedOrders.length}
           search={search}
         />
       )}
 
       {/* Pagination */}
-      {!isLoading && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          totalItems={totalItems}
-          itemsPerPage={itemsPerPage}
-          startIndex={startIndex}
-          endIndex={endIndex}
-          onPageChange={setCurrentPage}
-          onItemsPerPageChange={(newItemsPerPage) => {
-            setItemsPerPage(newItemsPerPage);
-            setCurrentPage(1);
-          }}
+      {!isLoading && filteredAndSortedOrders.length > 0 && (
+        <PaginationControls
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          onPageChange={pagination.goToPage}
+          onFirstPage={pagination.goToFirst}
+          onLastPage={pagination.goToLast}
+          onPrevPage={pagination.prevPage}
+          onNextPage={pagination.nextPage}
+          hasNextPage={pagination.hasNextPage}
+          hasPrevPage={pagination.hasPrevPage}
+          itemsPerPage={pagination.itemsPerPage}
+          onItemsPerPageChange={pagination.setItemsPerPage}
+          totalItems={filteredAndSortedOrders.length}
+          startIndex={pagination.startIndex}
+          endIndex={pagination.endIndex}
+          showItemsPerPage={true}
+          className="mt-6 bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700"
         />
       )}
 
       {/* Loading indicator */}
       {isLoading && (
-        <div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 shadow-xl">
-            <div className="flex items-center gap-3">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
-              <span className="text-gray-700">Đang cập nhật...</span>
-            </div>
-          </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm">
+          <LoadingSpinner
+            size="lg"
+            text="Đang cập nhật..."
+            subText="Vui lòng chờ trong giây lát"
+            variant="primary"
+          />
         </div>
       )}
 

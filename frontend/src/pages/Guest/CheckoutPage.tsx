@@ -25,6 +25,7 @@ const Checkout = () => {
   const voucher = useUserStore(state => state.voucher);
   const setVoucher = useUserStore(state => state.setVoucher);
   const refreshUserData = useUserStore(state => state.refreshUserData);
+  const fetchAddresses = useUserStore(state => state.fetchAddresses);
   const vouchers = useVoucherStore(state => state.vouchers);
   const fetchVouchers = useVoucherStore(state => state.fetchVouchers);
   const [showVoucherModal, setShowVoucherModal] = useState(false);
@@ -53,6 +54,18 @@ const Checkout = () => {
     // Clean invalid items from cart on page load
     useCartStore.getState().cleanInvalidItems();
 
+    // Preload user data including addresses and payments
+    if (isAuthenticated) {
+      refreshUserData().catch(err => {
+        console.warn('Failed to refresh user data:', err);
+      });
+      
+      // Fetch addresses specifically
+      fetchAddresses().catch(err => {
+        console.warn('Failed to fetch addresses:', err);
+      });
+    }
+
     // Kiểm tra và sửa lại payments nếu có method cũ
     if (payments && payments.length > 0) {
       const hasOldMethod = payments.some(p => p.method === 'credit_card');
@@ -67,7 +80,7 @@ const Checkout = () => {
         setPayments(updatedPayments);
       }
     }
-  }, []); // Only run once on mount
+  }, [isAuthenticated]); // Re-run when auth status changes
 
   // Separate effect for payments
   useEffect(() => {
@@ -441,9 +454,15 @@ const Checkout = () => {
                 </span>
               )}
               {isAuthenticated && addresses.length === 0 && (
-                <span className="block text-red-600 text-base mt-2">
-                  ⚠️ Vui lòng thêm địa chỉ giao hàng để tiếp tục
-                </span>
+                <div className="block text-red-600 text-base mt-2">
+                  <span className="block mb-2">⚠️ Vui lòng thêm địa chỉ giao hàng để tiếp tục</span>
+                  <button
+                    onClick={() => navigate('/my-address')}
+                    className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+                  >
+                    Thêm địa chỉ ngay
+                  </button>
+                </div>
               )}
             </p>
           </div>

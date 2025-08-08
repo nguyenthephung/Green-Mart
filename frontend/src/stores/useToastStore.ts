@@ -39,40 +39,40 @@ export const useToastStore = create<ToastState>((set, get) => ({
     set({ toasts: [] });
   },
   
-  // Convenience methods
+  // Convenience methods - All disabled
   showSuccess: (title, message, duration = 4000) => {
-    get().addToast({
-      type: 'success',
-      title,
-      message,
-      duration,
-    });
+    // get().addToast({
+    //   type: 'success',
+    //   title,
+    //   message,
+    //   duration,
+    // });
   },
   
   showError: (title, message, duration = 6000) => {
-    get().addToast({
-      type: 'error',
-      title,
-      message,
-      duration,
-    });
+    // get().addToast({
+    //   type: 'error',
+    //   title,
+    //   message,
+    //   duration,
+    // });
   },
   
   showWarning: (title, message, duration = 5000) => {
-    get().addToast({
-      type: 'warning',
-      title,
-      message,
-      duration,
-    });
+    // get().addToast({
+    //   type: 'warning',
+    //   title,
+    //   message,
+    //   duration,
+    // });
   },
   
   showInfo: (title, message, duration = 4000) => {
-    get().addToast({
-      type: 'info',
-      title,
-      message,
-      duration,
-    });
+    // get().addToast({
+    //   type: 'info',
+    //   title,
+    //   message,
+    //   duration,
+    // });
   },
 }));

@@ -155,8 +155,12 @@ const CheckoutSummary = ({
     if (coords) dynamicDeliveryFee = calculateShippingFee(coords);
   }
 
+  // Free shipping for orders >= 300k
+  const isEligibleForFreeShip = itemsTotal >= 300000;
+  const actualDeliveryFee = isEligibleForFreeShip ? 0 : dynamicDeliveryFee;
+
   const total =
-    itemsTotal + dynamicDeliveryFee + serviceFee + (selectedTip || 0) - (voucherDiscount || 0);
+    itemsTotal + actualDeliveryFee + serviceFee + (selectedTip || 0) - (voucherDiscount || 0);
 
   // Debug voucher calculation
   console.log('CheckoutSummary calculation:', {
@@ -264,8 +268,33 @@ const CheckoutSummary = ({
             </svg>
             Phí giao hàng
           </span>
-          <span className="font-medium text-app-primary break-all">{formatVND(dynamicDeliveryFee)}</span>
+          <span className={`font-medium break-all ${isEligibleForFreeShip ? 'text-green-600' : 'text-app-primary'}`}>
+            {isEligibleForFreeShip ? (
+              <span className="flex items-center gap-1">
+                <span className="line-through text-gray-400 text-sm">{formatVND(dynamicDeliveryFee)}</span>
+                <span className="text-green-600 font-semibold">Miễn phí</span>
+              </span>
+            ) : (
+              formatVND(actualDeliveryFee)
+            )}
+          </span>
         </div>
+
+        {!isEligibleForFreeShip && (
+          <div className="flex justify-between items-center py-2 px-3 bg-yellow-50 rounded-lg border border-yellow-200 mb-2">
+            <span className="text-yellow-700 text-sm flex items-center gap-1">
+              🚚 Mua thêm {formatVND(300000 - itemsTotal)} để được miễn phí ship
+            </span>
+          </div>
+        )}
+
+        {isEligibleForFreeShip && (
+          <div className="flex justify-between items-center py-2 px-3 bg-green-50 rounded-lg border border-green-200 mb-2">
+            <span className="text-green-700 text-sm flex items-center gap-1">
+              🎉 Chúc mừng! Bạn được miễn phí giao hàng
+            </span>
+          </div>
+        )}
 
         <div className="flex justify-between items-center py-2">
           <span className="text-app-secondary">Phí dịch vụ</span>

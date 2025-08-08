@@ -12,13 +12,13 @@ const SaleSection: React.FC<SaleSectionProps> = ({ saleProducts, handleAddToCart
   if (!saleProducts.length) return null;
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
-      <div className="text-center mb-12">
+      <div className="text-center mb-12 min-h-[200px] flex flex-col justify-center">
         <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-red-500 to-pink-500 rounded-full text-white font-bold text-lg shadow-xl mb-4">
           <FireIcon className="w-7 h-7 animate-pulse" />
           <span>Ưu Đãi Hôm Nay</span>
           <div className="w-2 h-2 bg-yellow-300 rounded-full animate-ping"></div>
         </div>
-        <h2 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent mb-4">
+        <h2 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent mb-4 leading-tight">
           Flash Sale
         </h2>
         <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">

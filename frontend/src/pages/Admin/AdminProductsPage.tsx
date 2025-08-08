@@ -1,14 +1,16 @@
 import React, { useState, useMemo } from 'react';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { toast } from 'react-toastify';
+// import { ToastContainer } from 'react-toastify';
+// import 'react-toastify/dist/ReactToastify.css';
+// import { toast } from 'react-toastify';
 import type { AdminProduct } from '../../types/AdminProduct';
 import { useProductStore } from '../../stores/useProductStore';
 import { useCategoryStore } from '../../stores/useCategoryStore';
+import { usePagination } from '../../hooks/usePagination';
 import AddProductModal from '../../components/Admin/Product/AddProductModal';
 import EditProductModal from '../../components/Admin/Product/EditProductModal';
 import ConfirmDeleteModal from '../../components/Admin/Product/ConfirmDeleteModal';
-import Pagination from '../../components/Admin/Product/Pagination';
+import PaginationControls from '../../components/ui/PaginationControls';
+import { LoadingSpinner } from '../../components/Loading';
 
 type SortField = 'name' | 'category' | 'price' | 'stock' | 'brand';
 type SortOrder = 'asc' | 'desc';
@@ -53,10 +55,6 @@ const AdminProducts: React.FC = () => {
   const [filterSubCategory, setFilterSubCategory] = useState<string>('all');
   const [showFilters, setShowFilters] = useState(false);
   const isLoading = (fetchLoading || addLoading || editLoading || deleteLoading) && !fetchError;
-
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Filter and sort logic
   const filteredAndSortedProducts = useMemo(() => {
@@ -121,14 +119,14 @@ const AdminProducts: React.FC = () => {
     });
 
     return filtered;
-  }, [products, search, sortField, sortOrder, filterStatus, filterParentCategory, filterSubCategory]);
+  }, [products, search, sortField, sortOrder, filterStatus, filterParentCategory, filterSubCategory, categories]);
 
-  // Pagination calculations
-  const totalItems = filteredAndSortedProducts.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentProducts = filteredAndSortedProducts.slice(startIndex, endIndex);
+  // Use pagination hook
+  const pagination = usePagination({
+    data: filteredAndSortedProducts,
+    itemsPerPage: 10,
+    initialPage: 1
+  });
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -145,11 +143,11 @@ const AdminProducts: React.FC = () => {
     try {
       await add(newProduct);
       await fetchAll();
-      toast.success('Thêm sản phẩm thành công!');
+      // toast.success('Thêm sản phẩm thành công!');
       setShowAdd(false); // Chỉ đóng modal khi thành công
     } catch (err: any) {
       setActionError(err.message || 'Lỗi thêm sản phẩm');
-      toast.error('Thêm sản phẩm thất bại!');
+      // toast.error('Thêm sản phẩm thất bại!');
       // Không đóng modal, giữ lại thông tin nhập
     } finally {
       setAddLoading(false);
@@ -165,10 +163,10 @@ const AdminProducts: React.FC = () => {
       await fetchAll();
       setShowEdit(false);
       setEditProduct(null);
-      toast.success('Cập nhật sản phẩm thành công!');
+      // toast.success('Cập nhật sản phẩm thành công!');
     } catch (err: any) {
       setActionError(err.message || 'Lỗi cập nhật sản phẩm');
-      toast.error('Cập nhật sản phẩm thất bại!');
+      // toast.error('Cập nhật sản phẩm thất bại!');
     } finally {
       setEditLoading(false);
     }
@@ -177,7 +175,7 @@ const AdminProducts: React.FC = () => {
   const handleDeleteProduct = async () => {
     if (!deleteId || typeof deleteId !== 'string' || !deleteId.trim()) {
       setActionError('ID sản phẩm không hợp lệ');
-      toast.error('ID sản phẩm không hợp lệ!');
+      // toast.error('ID sản phẩm không hợp lệ!');
       return;
     }
     setDeleteLoading(true);
@@ -186,10 +184,10 @@ const AdminProducts: React.FC = () => {
       await remove(deleteId);
       await fetchAll();
       setDeleteId(null);
-      toast.success('Xóa sản phẩm thành công!');
+      // toast.success('Xóa sản phẩm thành công!');
     } catch (err: any) {
       setActionError(err.message || 'Lỗi xóa sản phẩm');
-      toast.error('Xóa sản phẩm thất bại!');
+      // toast.error('Xóa sản phẩm thất bại!');
     } finally {
       setDeleteLoading(false);
     }
@@ -205,10 +203,10 @@ const AdminProducts: React.FC = () => {
     try {
       await update(id, { status: newStatus });
       await fetchAll();
-      toast.success('Đổi trạng thái sản phẩm thành công!');
+      // toast.success('Đổi trạng thái sản phẩm thành công!');
     } catch (err: any) {
       setActionError(err.message || 'Lỗi đổi trạng thái sản phẩm');
-      toast.error('Đổi trạng thái sản phẩm thất bại!');
+      // toast.error('Đổi trạng thái sản phẩm thất bại!');
     } finally {
       setEditLoading(false);
     }
@@ -494,7 +492,44 @@ const openEditModal = (product: AdminProduct) => {
                 style={{ background: isDarkMode ? '#18181b' : '#fff' }}
                 className="divide-y divide-gray-200 dark:divide-gray-700"
               >
-                {currentProducts.map((product, idx) => {
+                {fetchLoading ? (
+                  // Show loading skeleton rows
+                  [...Array(pagination.itemsPerPage)].map((_, idx) => (
+                    <tr key={idx} className="animate-pulse">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="space-y-2">
+                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                          <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                          <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  pagination.currentData.map((product, idx) => {
                   const stockStatus = getStockStatus(product.stock);
                   // Sử dụng product.id nếu có, nếu không thì dùng idx làm key phụ
                   const key = product.id ?? idx;
@@ -560,7 +595,7 @@ const openEditModal = (product: AdminProduct) => {
                         <button
                           onClick={() => {
                             if (!product.id || typeof product.id !== 'string') {
-                              toast.error('ID sản phẩm không hợp lệ!');
+                              // toast.error('ID sản phẩm không hợp lệ!');
                               return;
                             }
                             handleToggleStatus(product.id);
@@ -591,7 +626,7 @@ const openEditModal = (product: AdminProduct) => {
                           <button
                             onClick={() => {
                               if (!product.id || typeof product.id !== 'string') {
-                                toast.error('ID sản phẩm không hợp lệ!');
+                                // toast.error('ID sản phẩm không hợp lệ!');
                                 return;
                               }
                               setDeleteId(product.id);
@@ -605,7 +640,8 @@ const openEditModal = (product: AdminProduct) => {
                       </td>
                     </tr>
                   );
-                })}
+                  })
+                )}
               </tbody>
             </table>
           </div>
@@ -623,7 +659,25 @@ const openEditModal = (product: AdminProduct) => {
       ) : (
         /* Grid View */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredAndSortedProducts.map((product, idx) => {
+          {fetchLoading ? (
+            // Show loading skeleton cards
+            [...Array(pagination.itemsPerPage)].map((_, idx) => (
+              <div key={idx} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden animate-pulse">
+                <div className="w-full h-48 bg-gray-200 dark:bg-gray-700"></div>
+                <div className="p-4 space-y-3">
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                  <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
+                  <div className="flex gap-2 mt-4">
+                    <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            pagination.currentData.map((product, idx) => {
             const stockStatus = getStockStatus(product.stock);
             // Sử dụng product.id nếu có, nếu không thì dùng idx làm key phụ
             const key = product.id ?? idx;
@@ -688,7 +742,7 @@ const openEditModal = (product: AdminProduct) => {
                     <button
                       onClick={() => {
                         if (!product.id || typeof product.id !== 'string') {
-                          toast.error('ID sản phẩm không hợp lệ!');
+                          // toast.error('ID sản phẩm không hợp lệ!');
                           return;
                         }
                         setDeleteId(product.id);
@@ -701,9 +755,10 @@ const openEditModal = (product: AdminProduct) => {
                 </div>
               </div>
             );
-          })}
+            })
+          )}
           
-          {filteredAndSortedProducts.length === 0 && (
+          {filteredAndSortedProducts.length === 0 && !fetchLoading && (
             <div className="col-span-full text-center py-12">
               <div className="text-gray-400 text-6xl mb-4">📦</div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">Không tìm thấy sản phẩm</h3>
@@ -716,30 +771,38 @@ const openEditModal = (product: AdminProduct) => {
       )}
 
       {/* Pagination */}
-      {totalItems > 0 && (
+      {filteredAndSortedProducts.length > 0 && !fetchLoading && (
         <div className="mt-8">
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            itemsPerPage={itemsPerPage}
-            totalItems={totalItems}
-            startIndex={startIndex}
-            endIndex={Math.min(endIndex, totalItems)}
-            onPageChange={setCurrentPage}
-            onItemsPerPageChange={setItemsPerPage}
+          <PaginationControls
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            onPageChange={pagination.goToPage}
+            onFirstPage={pagination.goToFirst}
+            onLastPage={pagination.goToLast}
+            onPrevPage={pagination.prevPage}
+            onNextPage={pagination.nextPage}
+            hasNextPage={pagination.hasNextPage}
+            hasPrevPage={pagination.hasPrevPage}
+            itemsPerPage={pagination.itemsPerPage}
+            onItemsPerPageChange={pagination.setItemsPerPage}
+            totalItems={filteredAndSortedProducts.length}
+            startIndex={pagination.startIndex}
+            endIndex={pagination.endIndex}
+            showItemsPerPage={true}
+            className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700"
           />
         </div>
       )}
 
       {/* Loading indicator */}
       {isLoading && (
-        <div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 shadow-xl">
-            <div className="flex items-center gap-3">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
-              <span className="text-gray-700">Đang xử lý...</span>
-            </div>
-          </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm">
+          <LoadingSpinner
+            size="lg"
+            text="Đang xử lý..."
+            subText="Vui lòng chờ trong giây lát"
+            variant="primary"
+          />
         </div>
       )}
       {fetchError && (
@@ -787,7 +850,8 @@ const openEditModal = (product: AdminProduct) => {
           textClassName="text-gray-900 dark:text-gray-100"
         />
       )}
-    <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover aria-label="Thông báo hệ thống" />
+    {/* Toast Container đã được tạm thời disable */}
+    {/* <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover aria-label="Thông báo hệ thống" /> */}
     </div>
   );
 };

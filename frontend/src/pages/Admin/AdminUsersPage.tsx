@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
 
 import { useAdminUserStore } from '../../stores/useAdminUserStore';
-import { useToastStore } from '../../stores/useToastStore';
+// import { useToastStore } from '../../stores/useToastStore';
+import { useToast } from '../../hooks/useNewToast';
 import type { User, CreateUserRequest } from '../../services/adminUserService';
 import Pagination from '../../components/Admin/Product/Pagination';
 import AddUserModal from '../../components/Admin/User/AddUserModal';
@@ -17,7 +18,8 @@ type FilterRole = 'all' | 'user' | 'admin';
 
 const AdminUsersPage: React.FC = () => {
   const { users, loading, error, fetchUsers, createUser, updateUser, deleteUser } = useAdminUserStore();
-  const { showSuccess, showError } = useToastStore();
+  // const { showSuccess, showError } = useToastStore();
+  const toast = useToast();
   
   const [sortField, setSortField] = useState<SortField>('createdAt');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
@@ -128,10 +130,10 @@ const AdminUsersPage: React.FC = () => {
     try {
       await createUser(userData);
       setShowAddModal(false);
-      showSuccess('Thành công!', 'Người dùng đã được thêm thành công');
+      toast.success('Thành công!', 'Người dùng đã được thêm thành công');
     } catch (error) {
       console.error('Error adding user:', error);
-      showError('Lỗi!', 'Không thể thêm người dùng. Vui lòng thử lại');
+      toast.error('Lỗi!', 'Không thể thêm người dùng. Vui lòng thử lại');
     }
   };
 
@@ -147,10 +149,10 @@ const AdminUsersPage: React.FC = () => {
       await updateUser(selectedUser._id, userData);
       setShowEditModal(false);
       setSelectedUser(null);
-      showSuccess('Thành công!', 'Thông tin người dùng đã được cập nhật');
+      toast.success('Thành công!', 'Thông tin người dùng đã được cập nhật');
     } catch (error) {
       console.error('Error updating user:', error);
-      showError('Lỗi!', 'Không thể cập nhật thông tin người dùng. Vui lòng thử lại');
+      toast.error('Lỗi!', 'Không thể cập nhật thông tin người dùng. Vui lòng thử lại');
     }
   };
 
@@ -165,10 +167,10 @@ const AdminUsersPage: React.FC = () => {
     try {
       await deleteUser(deleteId);
       setDeleteId(null);
-      showSuccess('Thành công!', 'Người dùng đã được xóa khỏi hệ thống');
+      toast.success('Thành công!', 'Người dùng đã được xóa khỏi hệ thống');
     } catch (error) {
       console.error('Error deleting user:', error);
-      showError('Lỗi!', 'Không thể xóa người dùng. Vui lòng thử lại');
+      toast.error('Lỗi!', 'Không thể xóa người dùng. Vui lòng thử lại');
     }
   };
 

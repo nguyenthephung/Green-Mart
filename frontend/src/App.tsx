@@ -6,8 +6,10 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import ProfilerWrapper from './components/ProfilerWrapper';
 import { useCategoryStore } from './stores/useCategoryStore';
 import { useVoucherStore } from './stores/useVoucherStore';
-import { useToastStore } from './stores/useToastStore';
-import ToastContainer from './components/ui/Toast/ToastContainer';
+// import { useToastStore } from './stores/useToastStore';
+// import ToastContainer from './components/ui/Toast/ToastContainer';
+import { useNewToastStore } from './stores/useNewToastStore';
+import NewToastContainer from './components/ui/Toast/NewToastContainer';
 import { useAuthSync } from './hooks/useAuthSync';
 
 const App = memo(() => {
@@ -15,7 +17,10 @@ const App = memo(() => {
   const fetchAll = useProductStore(state => state.fetchAll);
   const fetchCategories = useCategoryStore(state => state.fetchCategories);
   const fetchVouchers = useVoucherStore(state => state.fetchVouchers);
-  const { toasts, removeToast } = useToastStore();
+  // const { toasts, removeToast } = useToastStore();
+  
+  // New Toast System
+  const { toasts: newToasts, removeToast: removeNewToast } = useNewToastStore();
   
   // Hook để sync wishlist và cart khi user thay đổi
   useAuthSync();
@@ -73,11 +78,12 @@ const App = memo(() => {
         </ThemeProvider>
         {/* Đã xóa PerformanceDashboard */}
         
-        {/* Toast Notifications */}
-        <ToastContainer 
-          toasts={toasts} 
-          onClose={removeToast}
+        {/* New Toast System */}
+        <NewToastContainer 
+          toasts={newToasts} 
+          onClose={removeNewToast}
           position="top-right"
+          maxToasts={5}
         />
       </div>
     </ProfilerWrapper>

@@ -3,6 +3,58 @@ import { fetchCart, addToCart as apiAddToCart, updateCartItem, removeCartItem, c
 
 // Local storage key for guest cart
 const GUEST_CART_KEY = 'guest_cart';
+const CART_CACHE_KEY = 'cart_cache';
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+// Cache interface
+interface CartCache {
+  data: CartItem[];
+  timestamp: number;
+  userId?: string;
+}
+
+// Helper functions for cart caching
+const getCartCache = (): CartCache | null => {
+  try {
+    const stored = localStorage.getItem(CART_CACHE_KEY);
+    if (!stored) return null;
+    
+    const cache: CartCache = JSON.parse(stored);
+    const now = Date.now();
+    
+    // Check if cache is expired
+    if (now - cache.timestamp > CACHE_DURATION) {
+      localStorage.removeItem(CART_CACHE_KEY);
+      return null;
+    }
+    
+    return cache;
+  } catch {
+    localStorage.removeItem(CART_CACHE_KEY);
+    return null;
+  }
+};
+
+const setCartCache = (data: CartItem[], userId?: string) => {
+  try {
+    const cache: CartCache = {
+      data,
+      timestamp: Date.now(),
+      userId
+    };
+    localStorage.setItem(CART_CACHE_KEY, JSON.stringify(cache));
+  } catch (error) {
+    console.error('Failed to cache cart:', error);
+  }
+};
+
+const clearCartCache = () => {
+  try {
+    localStorage.removeItem(CART_CACHE_KEY);
+  } catch (error) {
+    console.error('Failed to clear cart cache:', error);
+  }
+};
 
 // Helper functions for guest cart
 const getGuestCart = (): CartItem[] => {
@@ -47,7 +99,7 @@ interface CartState {
   totalAmount: number;
   loading: boolean;
   error?: string;
-  fetchCart: () => Promise<void>;
+  fetchCart: (force?: boolean) => Promise<void>;
   addToCart: (item: Omit<CartItem, 'quantity'> & { quantity: number }) => Promise<void>;
   updateQuantity: (productId: string | number, value: number, unit?: string, type?: 'count' | 'weight') => Promise<void>;
   removeFromCart: (productId: string | number, unit?: string, type?: 'count' | 'weight') => Promise<void>;
@@ -84,7 +136,17 @@ export const useCartStore = create<CartState>((set, get) => ({
   totalAmount: 0,
   loading: false,
   error: undefined,
-  fetchCart: async () => {
+  fetchCart: async (force = false) => {
+    // Check cache first (unless forced refresh)
+    if (!force) {
+      const cached = getCartCache();
+      if (cached) {
+        const { totalItems, totalAmount } = calculateTotals(cached.data);
+        set({ items: cached.data, totalItems, totalAmount, loading: false });
+        return;
+      }
+    }
+
     set({ loading: true, error: undefined });
     try {
       const res = await fetchCart();
@@ -115,6 +177,10 @@ export const useCartStore = create<CartState>((set, get) => ({
         
         const { totalItems, totalAmount } = calculateTotals(items);
         console.log('Cart store: fetchCart calculated totals', { totalItems, totalAmount, itemsCount: items.length });
+        
+        // Cache the cart data
+        setCartCache(items);
+        
         set({ items, totalItems, totalAmount, loading: false });
       } else {
         // If fetch fails, check if we have guest cart
@@ -132,8 +198,11 @@ export const useCartStore = create<CartState>((set, get) => ({
     }
   },
   addToCart: async (item: Omit<CartItem, 'quantity'> & { quantity: number; weight?: number; type?: 'count' | 'weight' }) => {
+    console.log('Cart store: Adding item to cart:', item);
+    
     // Optimistic update - update UI immediately
     set((state) => {
+      console.log('Cart store: Current state before add:', state.items);
       const existingIndex = state.items.findIndex(cartItem => 
         String(cartItem.id) === String(item.id) && 
         cartItem.unit === item.unit &&
@@ -143,6 +212,7 @@ export const useCartStore = create<CartState>((set, get) => ({
       let newItems = [...state.items];
       
       if (existingIndex >= 0) {
+        console.log('Cart store: Updating existing item at index:', existingIndex);
         // Update existing item
         if (item.type === 'weight') {
           newItems[existingIndex] = {
@@ -156,6 +226,7 @@ export const useCartStore = create<CartState>((set, get) => ({
           };
         }
       } else {
+        console.log('Cart store: Adding new item');
         // Add new item
         newItems.push({
           id: item.id,
@@ -169,7 +240,12 @@ export const useCartStore = create<CartState>((set, get) => ({
         });
       }
       
+      console.log('Cart store: New items after add:', newItems);
       const { totalItems, totalAmount } = calculateTotals(newItems);
+      
+      // Clear cache since we're updating
+      clearCartCache();
+      
       return { 
         ...state,
         items: newItems, 
@@ -189,9 +265,13 @@ export const useCartStore = create<CartState>((set, get) => ({
         res = await apiAddToCart(String(item.id), item.quantity, item.unit, undefined, 'count');
       }
       
+      console.log('Cart store: API response:', res);
+      
       if (res.success) {
-        console.log('Cart store: addToCart success - optimistic update already applied');
-        // No need to fetchCart again since we already updated optimistically
+        console.log('Cart store: addToCart success - updating cache');
+        const currentState = get();
+        // Update cache with current state
+        setCartCache(currentState.items);
       } else if ((res as any)?.requireLogin) {
         // Guest user - sync with localStorage
         console.log('Syncing with guest cart (local storage)');
@@ -199,14 +279,14 @@ export const useCartStore = create<CartState>((set, get) => ({
         setGuestCart(currentState.items);
       } else {
         // API error - revert optimistic update by refetching
-        console.warn('API error, reverting optimistic update');
-        await get().fetchCart();
+        console.warn('API error, reverting optimistic update:', res.message);
+        await get().fetchCart(true); // Force refresh
         set({ error: res.message || 'Lỗi thêm sản phẩm' });
       }
     } catch (err: any) {
       console.error('Add to cart error, reverting optimistic update:', err);
       // Revert optimistic update on error
-      await get().fetchCart();
+      await get().fetchCart(true); // Force refresh
       set({ error: err.message || 'Lỗi thêm sản phẩm' });
     }
   },

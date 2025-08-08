@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import { authService } from '../services/authService';
 import type { User } from '../services/authService';
 import { tokenManager } from '../services/api';
+import { AddressService } from '../services/addressService';
 
 import type { AddressInfo, Voucher } from '../types/User';
 
@@ -37,6 +38,7 @@ interface UserState {
   logout: () => Promise<void>;
   checkAuthStatus: () => Promise<void>;
   refreshUserData: () => Promise<void>;
+  fetchAddresses: () => Promise<void>;
   setUser: (user: User | null) => void;
   setLoading: (loading: boolean) => void;
   setUserInfo: (userInfo: UserInfo | null) => void;
@@ -48,7 +50,7 @@ interface UserState {
 
 export const useUserStore = create<UserState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       isLoading: false,  // Tắt loading mặc định
       isAuthenticated: false,
@@ -273,6 +275,32 @@ export const useUserStore = create<UserState>()(
           }
         } catch (error) {
           console.error('Failed to refresh user data:', error);
+        }
+      },
+
+      fetchAddresses: async () => {
+        try {
+          const { user } = get();
+          if (user && user.id) {
+            const addresses = await AddressService.getUserAddresses(user.id);
+            // Convert AddressResponse to AddressInfo format
+            const formattedAddresses = addresses.map(addr => ({
+              id: addr.id,
+              fullName: addr.fullName,
+              phone: addr.phone,
+              address: addr.address,
+              ward: addr.ward,
+              wardName: addr.wardName,
+              district: addr.district,
+              districtName: addr.districtName,
+              street: addr.street,
+              isSelected: addr.isSelected,
+              label: addr.label
+            }));
+            set({ addresses: formattedAddresses });
+          }
+        } catch (error) {
+          console.error('Failed to fetch addresses:', error);
         }
       },
 

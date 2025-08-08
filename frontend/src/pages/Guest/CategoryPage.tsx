@@ -1,4 +1,4 @@
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import type { Product } from '../../types/Product';
 import { useProductStore } from '../../stores/useProductStore';
 import { useCategoryStore } from '../../stores/useCategoryStore';
@@ -28,6 +28,7 @@ export default function CategoryPage() {
   const addresses = useUserStore(state => state.addresses as AddressInfo[]);
   const { category } = useParams<{ category: string }>();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const addToCart = useCartStore(state => state.addToCart);
   const categories = useCategoryStore(state => state.categories);
   const [search, setSearch] = useState('');
@@ -201,8 +202,8 @@ export default function CategoryPage() {
             <div className="mb-4">
               <h3 className="text-lg font-semibold text-gray-700 mb-3">Danh mục chính:</h3>
               <div className="flex flex-wrap gap-3 justify-center">
-                <a
-                  href="/category"
+                <button
+                  onClick={() => navigate('/category')}
                   className={`px-4 py-2 rounded-full font-semibold text-sm transition-all duration-200 ${
                     !category
                       ? 'bg-emerald-600 text-white border-emerald-700 shadow-lg'
@@ -210,13 +211,13 @@ export default function CategoryPage() {
                   }`}
                 >
                   Tất Cả
-                </a>
+                </button>
                 {categories.map(cat => (
                   <button
                     key={cat._id}
                     onClick={() => {
                       // Navigate to parent category để hiển thị tất cả sản phẩm của parent
-                      window.location.href = `/category/${cat.name}`;
+                      navigate(`/category/${cat.name}`);
                     }}
                     className={`px-4 py-2 rounded-full font-semibold text-sm transition-all duration-200 ${
                       category === cat.name || currentParentCategory?._id === cat._id
@@ -236,9 +237,9 @@ export default function CategoryPage() {
                 <h3 className="text-lg font-semibold text-gray-700 mb-3">Danh mục con:</h3>
                 <div className="flex flex-wrap gap-3 justify-center">
                   {currentSubcategories.map(sub => (
-                    <a
+                    <button
                       key={sub}
-                      href={`/category/${sub}`}
+                      onClick={() => navigate(`/category/${sub}`)}
                       className={`px-4 py-2 rounded-full font-semibold text-sm transition-all duration-200 ${
                         sub === category
                           ? 'bg-blue-600 text-white border-blue-700 shadow-lg'
@@ -246,7 +247,7 @@ export default function CategoryPage() {
                       }`}
                     >
                       {sub}
-                    </a>
+                    </button>
                   ))}
                 </div>
               </div>

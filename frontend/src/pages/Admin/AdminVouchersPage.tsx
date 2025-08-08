@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useVoucherStore } from '../../stores/useVoucherStore';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+// import { ToastContainer, toast } from 'react-toastify';
+// import 'react-toastify/dist/ReactToastify.css';
 import NumberInput from '../../components/ui/NumberInput';
 
 interface VoucherForm {
@@ -74,11 +74,11 @@ const AdminVouchersPage: React.FC = () => {
       };
       await import('../../services/voucherService').then(s => s.voucherService.create(submitForm));
       await fetchVouchers();
-      toast.success('Thêm voucher thành công!');
+      // toast.success('Thêm voucher thành công!');
       setShowAdd(false);
       setForm(defaultForm);
     } catch (err: any) {
-      toast.error('Thêm voucher thất bại!');
+      // toast.error('Thêm voucher thất bại!');
     } finally {
       setActionLoading(false);
     }
@@ -96,12 +96,12 @@ const AdminVouchersPage: React.FC = () => {
       };
       await import('../../services/voucherService').then(s => s.voucherService.update(editVoucher.id, submitForm));
       await fetchVouchers();
-      toast.success('Cập nhật voucher thành công!');
+      // toast.success('Cập nhật voucher thành công!');
       setShowEdit(false);
       setEditVoucher(null);
       setForm(defaultForm);
     } catch (err: any) {
-      toast.error('Cập nhật voucher thất bại!');
+      // toast.error('Cập nhật voucher thất bại!');
     } finally {
       setActionLoading(false);
     }
@@ -111,11 +111,11 @@ const AdminVouchersPage: React.FC = () => {
     setActionLoading(true);
     try {
       await import('../../services/voucherService').then(s => s.voucherService.delete(id));
-      toast.success('Xóa voucher thành công!');
+      // toast.success('Xóa voucher thành công!');
       setDeleteId(null);
       await fetchVouchers();
     } catch (err: any) {
-      toast.error('Xóa voucher thất bại!');
+      // toast.error('Xóa voucher thất bại!');
     } finally {
       setActionLoading(false);
     }
@@ -183,8 +183,8 @@ const AdminVouchersPage: React.FC = () => {
 
   return (
     <div className="min-h-screen transition-colors duration-300 bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800 p-6">
-      {/* ToastContainer chỉ để 1 cái ở đầu file để tránh lặp thông báo */}
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover aria-label="Thông báo hệ thống" />
+      {/* ToastContainer đã được tạm thời disable */}
+      {/* <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover aria-label="Thông báo hệ thống" /> */}
       {/* Header */}
       <div className="rounded-xl shadow-sm border border-green-100 dark:border-gray-700 p-6 mb-6 bg-white dark:bg-gray-900">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">

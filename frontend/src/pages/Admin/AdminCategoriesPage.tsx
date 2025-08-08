@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+// import { ToastContainer, toast } from 'react-toastify';
+// import 'react-toastify/dist/ReactToastify.css';
 import { useCategoryStore } from '../../stores/useCategoryStore';
 import { useProductStore } from '../../stores/useProductStore';
+import { LoadingSpinner } from '../../components/Loading';
 // Category mới: name (tên cha), subs (mảng tên con), icon, description, ...
 type Category = {
   id: string;
@@ -174,14 +175,14 @@ const AdminCategories: React.FC = () => {
   // Add category
   const handleAddCategory = React.useCallback((newCategory: Omit<Category, 'id'>) => {
     setAddLoading(true);
-    toast.loading('Đang thêm danh mục...', { toastId: 'add-category' });
+    // toast.loading('Đang thêm danh mục...', { toastId: 'add-category' });
     add(newCategory)
       .then(() => {
-        toast.update('add-category', { render: 'Thêm danh mục thành công!', type: 'success', isLoading: false, autoClose: 2000 });
+        // toast.update('add-category', { render: 'Thêm danh mục thành công!', type: 'success', isLoading: false, autoClose: 2000 });
         setShowAdd(false);
       })
       .catch((err) => {
-        toast.update('add-category', { render: 'Thêm danh mục thất bại: ' + (err?.message || err), type: 'error', isLoading: false, autoClose: 4000 });
+        // toast.update('add-category', { render: 'Thêm danh mục thất bại: ' + (err?.message || err), type: 'error', isLoading: false, autoClose: 4000 });
       })
       .finally(() => setAddLoading(false));
   }, [add]);
@@ -189,15 +190,15 @@ const AdminCategories: React.FC = () => {
   // Edit category
   const handleEditCategory = React.useCallback((updatedCategory: Category) => {
     setEditLoading(true);
-    toast.loading('Đang cập nhật danh mục...', { toastId: 'edit-category' });
+    // toast.loading('Đang cập nhật danh mục...', { toastId: 'edit-category' });
     return edit(updatedCategory)
       .then(() => {
-        toast.update('edit-category', { render: 'Cập nhật danh mục thành công!', type: 'success', isLoading: false, autoClose: 2000 });
+        // toast.update('edit-category', { render: 'Cập nhật danh mục thành công!', type: 'success', isLoading: false, autoClose: 2000 });
         setShowEdit(false);
         setEditCategory(null);
       })
       .catch((err) => {
-        toast.update('edit-category', { render: 'Cập nhật danh mục thất bại: ' + (err?.message || err), type: 'error', isLoading: false, autoClose: 4000 });
+        // toast.update('edit-category', { render: 'Cập nhật danh mục thất bại: ' + (err?.message || err), type: 'error', isLoading: false, autoClose: 4000 });
       })
       .finally(() => setEditLoading(false));
   }, [edit]);
@@ -205,14 +206,14 @@ const AdminCategories: React.FC = () => {
   // Delete category
   const handleDeleteCategory = React.useCallback(() => {
     setDeleteLoading(true);
-    toast.loading('Đang xóa danh mục...', { toastId: 'delete-category' });
+    // toast.loading('Đang xóa danh mục...', { toastId: 'delete-category' });
     if (!deleteId) {
       setDeleteLoading(false);
       return Promise.resolve();
     }
     return remove(deleteId)
       .then(() => {
-        toast.update('delete-category', { render: 'Xóa danh mục thành công!', type: 'success', isLoading: false, autoClose: 2000 });
+        // toast.update('delete-category', { render: 'Xóa danh mục thành công!', type: 'success', isLoading: false, autoClose: 2000 });
         setDeleteId(null);
         // Force loading to false after deletion to prevent spinner flicker
         setTimeout(() => {
@@ -221,7 +222,7 @@ const AdminCategories: React.FC = () => {
         }, 500);
       })
       .catch((err) => {
-        toast.update('delete-category', { render: 'Xóa danh mục thất bại: ' + (err?.message || err), type: 'error', isLoading: false, autoClose: 4000 });
+        // toast.update('delete-category', { render: 'Xóa danh mục thất bại: ' + (err?.message || err), type: 'error', isLoading: false, autoClose: 4000 });
       })
       .finally(() => setDeleteLoading(false));
   }, [deleteId, remove]);
@@ -252,7 +253,8 @@ const AdminCategories: React.FC = () => {
 
   return (
     <div className="min-h-screen" style={isDarkMode ? { backgroundColor: '#111827', color: '#fff' } : {}}>
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover aria-label={undefined} />
+      {/* Toast Container đã được tạm thời disable */}
+      {/* <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover aria-label={undefined} /> */}
       {/* Header */}
       <div className="rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6" style={isDarkMode ? { backgroundColor: '#18181b' } : { backgroundColor: '#fff' }}>
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -601,13 +603,13 @@ const AdminCategories: React.FC = () => {
 
       {/* Loading indicator */}
       {showLoading && (
-        <div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 shadow-xl">
-            <div className="flex items-center gap-3">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
-              <span className="text-gray-700">Đang xử lý...</span>
-            </div>
-          </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm">
+          <LoadingSpinner
+            size="lg"
+            text="Đang xử lý..."
+            subText="Vui lòng chờ trong giây lát"
+            variant="primary"
+          />
         </div>
       )}
       {/* Error indicator */}

@@ -90,7 +90,7 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast }) => {
         transform transition-all duration-300 ease-out
         ${isVisible && !isRemoving ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}
         ${isRemoving ? 'scale-95' : 'scale-100'}
-        w-full p-4 min-w-0
+        p-4 min-w-[350px] max-w-[500px] w-auto
       `}
     >
       <div className="flex items-start gap-3">
@@ -98,11 +98,11 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast }) => {
           <IconComponent className={`w-5 h-5 ${styles.iconColor}`} />
         </div>
         
-        <div className="flex-1 min-w-0 break-words">
-          <h4 className={`text-sm font-semibold ${styles.titleColor} mb-1 break-words`}>
+        <div className="flex-1 pr-2">
+          <h4 className={`text-sm font-semibold ${styles.titleColor} mb-1`}>
             {toast.title}
           </h4>
-          <p className={`text-sm ${styles.messageColor} leading-relaxed break-words`}>
+          <p className={`text-sm ${styles.messageColor} leading-relaxed`}>
             {toast.message}
           </p>
         </div>

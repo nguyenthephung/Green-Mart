@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useUserStore } from '../../stores/useUserStore';
-import { useToastStore } from '../../stores/useToastStore';
+// import { useToastStore } from '../../stores/useToastStore';
+import { useToast } from '../../hooks/useNewToast';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react';
 
@@ -13,7 +14,8 @@ interface LoginFormData {
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const login = useUserStore(state => state.login);
-  const { showSuccess, showError } = useToastStore();
+  // const { showSuccess, showError } = useToastStore();
+  const toast = useToast();
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: '',
@@ -77,14 +79,14 @@ const LoginPage: React.FC = () => {
             console.error('Error processing social login:', error);
             const errorMsg = 'Đã có lỗi xảy ra khi xử lý đăng nhập';
             setError(errorMsg);
-            showError('Đăng nhập thất bại!', errorMsg);
+            toast.error('Đăng nhập thất bại!', errorMsg);
           }
         } else if (event.data.type === 'SOCIAL_LOGIN_ERROR') {
           window.removeEventListener('message', messageListener);
           popup.close();
           const errorMsg = event.data.message || 'Đăng nhập thất bại';
           setError(errorMsg);
-          showError('Đăng nhập thất bại!', errorMsg);
+          toast.error('Đăng nhập thất bại!', errorMsg);
         }
       };
 
@@ -103,7 +105,7 @@ const LoginPage: React.FC = () => {
       console.error('Social login error:', error);
       const errorMsg = error instanceof Error ? error.message : 'Đăng nhập thất bại';
       setError(errorMsg);
-      showError('Đăng nhập thất bại!', errorMsg);
+      toast.error('Đăng nhập thất bại!', errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -118,7 +120,7 @@ const LoginPage: React.FC = () => {
       // Gọi login từ zustand store
       const result = await login(formData.email, formData.password);
       if (result.success) {
-        showSuccess('Đăng nhập thành công!', 'Chào mừng bạn quay trở lại!');
+        toast.loginSuccess();
         // Điều hướng theo role
         if (formData.email === 'admin@greenmart.com') {
           navigate('/admin/dashboard');
@@ -128,12 +130,12 @@ const LoginPage: React.FC = () => {
       } else {
         const errorMsg = result.message || 'Email hoặc mật khẩu không đúng';
         setError(errorMsg);
-        showError('Đăng nhập thất bại!', errorMsg);
+        toast.error('Đăng nhập thất bại!', errorMsg);
       }
     } catch (err) {
       const errorMsg = 'Đã có lỗi xảy ra. Vui lòng thử lại.';
       setError(errorMsg);
-      showError('Có lỗi xảy ra!', errorMsg);
+      toast.error('Có lỗi xảy ra!', errorMsg);
     } finally {
       setIsLoading(false);
     }

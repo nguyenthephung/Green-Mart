@@ -2,7 +2,7 @@ import React, { createContext, useContext } from 'react';
 import type { ReactNode } from 'react';
 import { useToast } from '../hooks/useToast';
 import type { ToastMessage } from '../hooks/useToast';
-import ToastContainer from '../components/ui/ToastContainer';
+// import ToastContainer from '../components/ui/ToastContainer';
 
 interface ToastContextType {
   toasts: ToastMessage[];
@@ -34,7 +34,8 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
   return (
     <ToastContext.Provider value={toastManager}>
       {children}
-      <ToastContainer />
+      {/* ToastContainer đã được tạm thời disable */}
+      {/* <ToastContainer /> */}
     </ToastContext.Provider>
   );
 };
