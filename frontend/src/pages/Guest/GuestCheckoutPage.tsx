@@ -14,7 +14,7 @@ const GuestCheckoutPage: React.FC = () => {
   
   const [showGuestModal, setShowGuestModal] = useState(false);
   const [currentGuestInfo, setCurrentGuestInfo] = useState<GuestUser | null>(guestInfo);
-  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'momo' | 'bank_transfer'>('cod');
+  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'momo' | 'bank_transfer' | 'paypal'>('cod');
   const [notes, setNotes] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -74,11 +74,15 @@ const GuestCheckoutPage: React.FC = () => {
         clearCart();
         
         // Handle different payment methods
-        if (paymentMethod === 'momo' && response.data.paymentUrl) {
-          // For MoMo, redirect to payment QR page
+        if ((paymentMethod === 'momo' || paymentMethod === 'paypal') && response.data.paymentUrl) {
+          // For MoMo and PayPal, redirect to payment gateway
           window.location.href = response.data.paymentUrl;
+        } else if (paymentMethod === 'momo' || paymentMethod === 'paypal') {
+          // If no payment URL but payment method requires it, show error
+          alert('Không thể tạo liên kết thanh toán. Vui lòng thử lại hoặc chọn phương thức khác.');
+          return;
         } else {
-          // For other payment methods, navigate to success page
+          // For COD and bank transfer, navigate to success page
           navigate('/guest-order-success', {
             state: {
               orderId: response.data.orderId,
@@ -283,6 +287,28 @@ const GuestCheckoutPage: React.FC = () => {
                     </div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">
                       Chuyển khoản qua ngân hàng
+                    </div>
+                  </div>
+                </label>
+
+                <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="paypal"
+                    checked={paymentMethod === 'paypal'}
+                    onChange={(e) => setPaymentMethod(e.target.value as 'paypal')}
+                    className="mr-3"
+                  />
+                  <div className="w-5 h-5 mr-3 bg-blue-600 rounded flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">P</span>
+                  </div>
+                  <div>
+                    <div className="font-medium text-gray-900 dark:text-white">
+                      PayPal
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      Thanh toán qua PayPal
                     </div>
                   </div>
                 </label>

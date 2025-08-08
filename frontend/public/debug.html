@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GreenMart Payment Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .debug-info { background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .payment-option { padding: 10px; border: 1px solid #ccc; margin: 5px 0; border-radius: 5px; }
+        .highlight { background: yellow; }
+    </style>
+</head>
+<body>
+    <h1>GreenMart Payment Debug Page</h1>
+    
+    <div class="debug-info">
+        <h2>🔍 Debug Information</h2>
+        <p><strong>Current URL:</strong> <span id="currentUrl"></span></p>
+        <p><strong>Date:</strong> <span id="currentDate"></span></p>
+        <p><strong>Frontend Port:</strong> <span id="frontendPort"></span></p>
+        <p><strong>Backend Port:</strong> <span id="backendPort"></span></p>
+    </div>
+
+    <div class="debug-info">
+        <h2>🛍️ Checkout Pages Available</h2>
+        <div class="payment-option">
+            <strong>1. User Checkout (Logged In)</strong><br>
+            URL: <code>/checkout</code><br>
+            Payment Methods: COD, MoMo, Bank Transfer, <span class="highlight">PayPal</span>
+        </div>
+        <div class="payment-option">
+            <strong>2. Guest Checkout (Not Logged In)</strong><br>
+            URL: <code>/guest-checkout</code><br>
+            Payment Methods: COD, MoMo, Bank Transfer, <span class="highlight">PayPal</span>
+        </div>
+    </div>
+
+    <div class="debug-info">
+        <h2>📋 Testing Steps</h2>
+        <ol>
+            <li><strong>For Toast Test:</strong>
+                <ul>
+                    <li>Go to login page</li>
+                    <li>Login with valid credentials</li>
+                    <li>Check if success toast is wider and text doesn't wrap awkwardly</li>
+                </ul>
+            </li>
+            <li><strong>For Guest PayPal Test:</strong>
+                <ul>
+                    <li>Add items to cart (without logging in)</li>
+                    <li>Go to cart page</li>
+                    <li>Click <strong>"Mua ngay (Khách vãng lai)"</strong> (NOT "Tiến hành thanh toán")</li>
+                    <li>Should see PayPal option in payment methods</li>
+                    <li>Select PayPal and complete checkout</li>
+                    <li>Should redirect to PayPal sandbox</li>
+                </ul>
+            </li>
+            <li><strong>For User PayPal Test:</strong>
+                <ul>
+                    <li>Login first</li>
+                    <li>Add items to cart</li>
+                    <li>Go to cart page</li>
+                    <li>Click "Tiến hành thanh toán"</li>
+                    <li>Should also see PayPal option</li>
+                </ul>
+            </li>
+        </ol>
+    </div>
+
+    <div class="debug-info">
+        <h2>⚠️ Common Issues</h2>
+        <ul>
+            <li><strong>PayPal not showing:</strong> Make sure you're on the correct checkout page</li>
+            <li><strong>Toast too wide:</strong> Check if using latest build</li>
+            <li><strong>Payment not redirecting:</strong> Check browser console for errors</li>
+            <li><strong>Backend errors:</strong> Check if backend is running on port 5000</li>
+        </ul>
+    </div>
+
+    <div class="debug-info">
+        <h2>🔗 Quick Links</h2>
+        <p><a href="http://localhost:5173/" target="_blank">Frontend (Port 5173)</a></p>
+        <p><a href="http://localhost:5000/api" target="_blank">Backend API (Port 5000)</a></p>
+        <p><a href="http://localhost:5173/guest-checkout" target="_blank">Guest Checkout Page</a></p>
+        <p><a href="http://localhost:5173/checkout" target="_blank">User Checkout Page</a></p>
+    </div>
+
+    <script>
+        document.getElementById('currentUrl').textContent = window.location.href;
+        document.getElementById('currentDate').textContent = new Date().toLocaleString();
+        document.getElementById('frontendPort').textContent = '5173 (Vite)';
+        document.getElementById('backendPort').textContent = '5000 (Express)';
+    </script>
+</body>
+</html>

@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import Order from '../models/Order';
 import Product from '../models/Product';
-// import { MoMoService } from '../services/momoService';
+import { PayPalService } from '../services/paypalService';
+import { MoMoService } from '../services/momoService';
 // import { BankTransferService } from '../services/bankTransferService';
 
 interface GuestOrderItem {
@@ -23,7 +24,7 @@ interface GuestOrderRequest {
     email?: string;
   };
   deliveryType: 'pickup' | 'delivery';
-  paymentMethod: 'cod' | 'momo' | 'bank_transfer';
+  paymentMethod: 'cod' | 'momo' | 'bank_transfer' | 'paypal';
   totalAmount: number;
   shippingFee: number;
   notes?: string;
@@ -134,21 +135,75 @@ export const createGuestOrder = async (req: Request, res: Response) => {
 
     // Handle payment processing
     let paymentUrl;
+    const paypalService = new PayPalService();
+    const momoService = new MoMoService();
     
-    if (orderData.paymentMethod === 'momo') {
+    if (orderData.paymentMethod === 'paypal') {
       try {
-        // TODO: Implement MoMo payment
-        /*
+        // Convert VND to USD for PayPal (approximate rate: 1 USD = 24,000 VND)
+        const amountUSD = Math.round((orderData.totalAmount / 24000) * 100) / 100;
+        
+        // Ensure minimum amount for PayPal ($0.01)
+        const finalAmountUSD = Math.max(amountUSD, 0.01);
+        
+        console.log('Creating PayPal order with amount USD:', finalAmountUSD, 'from VND:', orderData.totalAmount);
+        
+        const paypalOrderRequest = {
+          intent: 'CAPTURE' as const,
+          purchase_units: [{
+            amount: {
+              currency_code: 'USD',
+              value: finalAmountUSD.toString()
+            },
+            description: `Guest Order ${orderNumber}`,
+            invoice_id: (order._id as any).toString()
+          }],
+          application_context: {
+            return_url: process.env.PAYPAL_RETURN_URL,
+            cancel_url: process.env.PAYPAL_CANCEL_URL,
+            brand_name: 'GreenMart',
+            landing_page: 'NO_PREFERENCE' as const,
+            user_action: 'PAY_NOW' as const
+          }
+        };
+        
+        const paypalOrder = await paypalService.createOrder(paypalOrderRequest);
+        
+        if (paypalOrder.links) {
+          const approveLink = paypalOrder.links.find((link: any) => link.rel === 'approve');
+          if (approveLink) {
+            paymentUrl = approveLink.href;
+            
+            // Update order with PayPal payment info
+            await Order.findByIdAndUpdate(order._id, {
+              paymentInfo: {
+                paypalOrderId: paypalOrder.id,
+                paypalStatus: paypalOrder.status,
+                originalAmountVND: orderData.totalAmount,
+                convertedAmountUSD: finalAmountUSD
+              }
+            });
+          }
+        }
+      } catch (error) {
+        console.error('PayPal payment error:', error);
+        // For debugging - return the error details
+        console.log('PayPal order data:', {
+          orderId: (order._id as any).toString(),
+          amount: orderData.totalAmount,
+          amountUSD: Math.round((orderData.totalAmount / 24000) * 100) / 100
+        });
+      }
+    } else if (orderData.paymentMethod === 'momo') {
+      try {
         const momoResult = await momoService.createPayment({
           orderId: (order._id as any).toString(),
-          orderNumber,
           amount: orderData.totalAmount,
           orderInfo: `Thanh toán đơn hàng ${orderNumber}`,
-          customerInfo: {
-            name: orderData.guestInfo.name,
-            phone: orderData.guestInfo.phone,
-            email: orderData.guestInfo.email
-          }
+          extraData: JSON.stringify({
+            guestInfo: orderData.guestInfo,
+            orderNumber
+          })
         });
         
         if (momoResult.payUrl) {
@@ -156,12 +211,12 @@ export const createGuestOrder = async (req: Request, res: Response) => {
           // Update order with payment info
           await Order.findByIdAndUpdate(order._id, {
             paymentInfo: {
-              momoTransId: momoResult.transId,
-              requestId: momoResult.requestId
+              momoTransId: momoResult.requestId,
+              requestId: momoResult.requestId,
+              momoOrderId: momoResult.orderId
             }
           });
         }
-        */
       } catch (error) {
         console.error('MoMo payment error:', error);
         // Continue without payment URL, user can pay later

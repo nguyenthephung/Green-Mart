@@ -17,7 +17,7 @@ export interface GuestOrder {
   }>;
   guestInfo: GuestUser;
   deliveryType: 'pickup' | 'delivery';
-  paymentMethod: 'cod' | 'momo' | 'bank_transfer';
+  paymentMethod: 'cod' | 'momo' | 'bank_transfer' | 'paypal';
   totalAmount: number;
   shippingFee: number;
   notes?: string;
