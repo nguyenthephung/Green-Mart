@@ -32,25 +32,28 @@ export default function SmartRecommendations({ maxItems = 10 }: SmartRecommendat
       })) || [];
     }
 
-    // Get categories from cart items
-    const cartCategories = new Set<string>();
+    // Get subcategories from cart items (more specific than main categories)
+    const cartSubCategories = new Set<string>();
     const cartProductIds = new Set<string>();
     
     cartItems.forEach(item => {
       const product = products.find(p => String(p.id) === String(item.id));
       if (product) {
-        cartCategories.add(product.category);
+        // Use subcategory if available, otherwise use main category
+        const targetCategory = product.subCategory || product.category;
+        cartSubCategories.add(targetCategory);
         cartProductIds.add(String(product.id));
       }
     });
 
-    // Find products in same categories, excluding items already in cart
+    // Find products in same subcategories, excluding items already in cart
     const categoryRecommendations = products
-      .filter(product => 
-        cartCategories.has(product.category) && 
-        !cartProductIds.has(String(product.id)) &&
-        product.stock > 0
-      )
+      .filter(product => {
+        const productSubCategory = product.subCategory || product.category;
+        return cartSubCategories.has(productSubCategory) && 
+               !cartProductIds.has(String(product.id)) &&
+               product.stock > 0;
+      })
       .map(p => ({
         id: p.id,
         name: p.name,
@@ -161,7 +164,7 @@ export default function SmartRecommendations({ maxItems = 10 }: SmartRecommendat
       >
         {recommendations.map((item) => (
           <div
-            key={item.id}
+            key={`recommendation-${item.id}`}
             onClick={() => handleProductClick(item.id)}
             className="min-w-[160px] max-w-[160px] bg-white dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600 p-3 cursor-pointer hover:shadow-lg transform hover:scale-105 transition-all duration-200"
           >
@@ -183,7 +186,7 @@ export default function SmartRecommendations({ maxItems = 10 }: SmartRecommendat
                 <span className="text-green-600 font-bold text-sm break-all">
                   {typeof item.price === 'number' ? item.price.toLocaleString('vi-VN') : '0'}₫
                 </span>
-                {item.originalPrice > item.price && (
+                {item.originalPrice && item.originalPrice > item.price && (
                   <span className="text-gray-400 line-through text-xs break-all">
                     {typeof item.originalPrice === 'number' ? item.originalPrice.toLocaleString('vi-VN') : '0'}₫
                   </span>

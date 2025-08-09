@@ -15,6 +15,7 @@ interface CategorySectionProps {
 
 const CategorySection: React.FC<CategorySectionProps> = ({
   title,
+  category,
   products,
   onAddToCart,
   viewMoreLink,
@@ -35,7 +36,7 @@ const CategorySection: React.FC<CategorySectionProps> = ({
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
         {products.map((product) => (
-          <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} />
+          <ProductCard key={`${category}-${product.id}`} product={product} onAddToCart={onAddToCart} />
         ))}
       </div>
       <div className="flex justify-center mt-6">

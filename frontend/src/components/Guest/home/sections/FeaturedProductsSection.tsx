@@ -26,7 +26,7 @@ const FeaturedProductsSection: React.FC<FeaturedProductsSectionProps> = ({ featu
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       {featuredProducts.map((product) => (
         <div key={product.id} className="relative transform-gpu">
-          <div className="absolute top-1 right-1 z-20">
+          <div className="absolute top-1 left-1 z-20">
             <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-1.5 py-0.5 rounded-md text-xs font-bold shadow-lg flex items-center gap-1">
               <StarIcon className="w-3 h-3" />
               HOT

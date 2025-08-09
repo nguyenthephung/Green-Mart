@@ -170,6 +170,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
       onAdd(newProduct);
       setIsLoading(false);
       resetForm();
+      onClose(); // Đóng modal sau khi thêm thành công
     }, 1000);
   };
 

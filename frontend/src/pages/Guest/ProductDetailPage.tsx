@@ -179,7 +179,7 @@ const ProductDetailPage: React.FC = () => {
             ref={imgRef}
             src={mainImage || product.image}
             alt={product.name}
-            className="w-full h-[400px] object-cover rounded-xl mb-4"
+            className="w-full h-[500px] object-contain rounded-xl mb-4 bg-gray-50"
           />
           
           {/* Image Gallery */}

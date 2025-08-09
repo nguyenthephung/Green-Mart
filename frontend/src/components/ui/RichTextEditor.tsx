@@ -45,9 +45,12 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const handleContentChange = useCallback(() => {
     if (editorRef.current) {
       const newContent = editorRef.current.innerHTML;
-      onChange(newContent);
+      // Only call onChange if content actually changed
+      if (newContent !== content) {
+        onChange(newContent);
+      }
     }
-  }, [onChange]);
+  }, [onChange, content]);
 
   // Handle keydown events for better image deletion
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -158,7 +161,33 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   // Initialize content
   useEffect(() => {
-    if (editorRef.current && content !== editorRef.current.innerHTML) {
+    if (editorRef.current && editorRef.current.innerHTML !== content) {
+      // Only update if content is different to prevent cursor jumping
+      const currentPos = document.getSelection()?.focusOffset;
+      editorRef.current.innerHTML = content;
+      
+      // Restore cursor position if possible
+      if (currentPos !== undefined && document.getSelection()) {
+        try {
+          const selection = document.getSelection();
+          const range = document.createRange();
+          const textNode = editorRef.current.firstChild;
+          if (textNode && textNode.nodeType === Node.TEXT_NODE) {
+            range.setStart(textNode, Math.min(currentPos, textNode.textContent?.length || 0));
+            range.collapse(true);
+            selection?.removeAllRanges();
+            selection?.addRange(range);
+          }
+        } catch (e) {
+          // Ignore cursor positioning errors
+        }
+      }
+    }
+  }, []);
+
+  // Set initial content when component mounts
+  useEffect(() => {
+    if (editorRef.current && content && !editorRef.current.innerHTML) {
       editorRef.current.innerHTML = content;
     }
   }, [content]);
@@ -335,7 +364,6 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             onInput={handleContentChange}
             onKeyDown={handleKeyDown}
             onClick={handleClick}
-            dangerouslySetInnerHTML={{ __html: content }}
             data-placeholder={placeholder}
             suppressContentEditableWarning={true}
           />

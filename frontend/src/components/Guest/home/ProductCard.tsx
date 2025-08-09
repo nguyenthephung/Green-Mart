@@ -52,9 +52,9 @@ const ProductCard: React.FC<ProductCardProps> = memo(({ product, onAddToCart, sh
     }
 
     try {
-      if (isInWishlist(product.id.toString())) {
+      if (product.id && isInWishlist(product.id.toString())) {
         await removeFromWishlist(product.id.toString());
-      } else {
+      } else if (product.id) {
         // Price is now number, handle salePrice which might be undefined
         const currentPrice = product.salePrice || product.price;
         const originalPrice = product.isSale ? product.price : undefined;
@@ -81,13 +81,13 @@ const ProductCard: React.FC<ProductCardProps> = memo(({ product, onAddToCart, sh
       <button
         onClick={handleWishlistToggle}
         className={`absolute top-2 right-2 p-2 rounded-full transition-all duration-200 z-10 ${
-          user && isInWishlist(product.id.toString())
+          user && product.id && isInWishlist(product.id.toString())
             ? 'bg-red-500 text-white hover:bg-red-600'
             : 'bg-white dark:bg-gray-700 text-gray-400 dark:text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20'
         } shadow-md hover:shadow-lg`}
-        title={user && isInWishlist(product.id.toString()) ? 'Xóa khỏi danh sách yêu thích' : 'Thêm vào danh sách yêu thích'}
+        title={user && product.id && isInWishlist(product.id.toString()) ? 'Xóa khỏi danh sách yêu thích' : 'Thêm vào danh sách yêu thích'}
       >
-        <Heart size={16} className={user && isInWishlist(product.id.toString()) ? 'fill-current' : ''} />
+        <Heart size={16} className={user && product.id && isInWishlist(product.id.toString()) ? 'fill-current' : ''} />
       </button>
 
       <Link to={`/productdetail/${product.id}`}>
@@ -115,7 +115,7 @@ const ProductCard: React.FC<ProductCardProps> = memo(({ product, onAddToCart, sh
       
       {/* Giá và badge: luôn chiếm cùng chiều cao */}
       <div className="min-h-[38px] flex items-end">
-        {product.isSale && showSaleBadge ? (
+        {product.isSale && showSaleBadge && product.salePrice && product.salePrice < product.price ? (
           <div className="flex flex-wrap items-center gap-1 mt-1 w-full">
             <span className="text-gray-400 dark:text-gray-500 line-through text-xs sm:text-sm truncate">
               {product.price.toLocaleString('vi-VN')}đ
@@ -125,7 +125,7 @@ const ProductCard: React.FC<ProductCardProps> = memo(({ product, onAddToCart, sh
             </span>
             <span className="bg-red-500 dark:bg-red-600 text-white text-xs font-semibold px-1 py-0.5 rounded whitespace-nowrap">SALE</span>
           </div>
-        ) : product.isSale ? (
+        ) : product.isSale && product.salePrice && product.salePrice < product.price ? (
           <div className="flex flex-wrap items-center gap-1 mt-1 w-full">
             <span className="text-gray-400 dark:text-gray-500 line-through text-xs sm:text-sm truncate">
               {product.price.toLocaleString('vi-VN')}đ
@@ -136,7 +136,7 @@ const ProductCard: React.FC<ProductCardProps> = memo(({ product, onAddToCart, sh
           </div>
         ) : (
           <p className="text-gray-600 dark:text-gray-300 mt-1 text-sm sm:text-base truncate w-full">
-            {product.price.toLocaleString('vi-VN')}đ
+            {(product.salePrice && product.salePrice < product.price ? product.salePrice : product.price).toLocaleString('vi-VN')}đ
           </p>
         )}
       </div>

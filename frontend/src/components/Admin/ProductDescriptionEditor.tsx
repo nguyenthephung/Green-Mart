@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import RichTextEditor from '../ui/RichTextEditor';
+import RichTextEditorModal from './RichTextEditorModal';
 import type { Product } from '../../types/Product';
 
 interface ProductDescriptionEditorProps {
@@ -14,20 +15,41 @@ const ProductDescriptionEditor: React.FC<ProductDescriptionEditorProps> = ({
   readOnly = false
 }) => {
   const [activeTab, setActiveTab] = useState<'basic' | 'rich'>('basic');
+  const [showRichTextModal, setShowRichTextModal] = useState(false);
+  const [modalContent, setModalContent] = useState('');
 
   // Handle basic description change
   const handleBasicDescriptionChange = useCallback((content: string) => {
     onChange('description', content);
   }, [onChange]);
 
-  // Handle rich description change
+  // Handle rich description change (from regular editor)
   const handleRichDescriptionChange = useCallback((content: string) => {
+    if (!showRichTextModal) { // Only update if modal is not open
+      onChange('richDescription', {
+        ...product.richDescription,
+        content,
+        format: 'html' as const
+      });
+    }
+  }, [onChange, product.richDescription, showRichTextModal]);
+
+  // Handle rich text modal save
+  const handleRichTextSave = useCallback((content: string) => {
     onChange('richDescription', {
       ...product.richDescription,
       content,
       format: 'html' as const
     });
+    setShowRichTextModal(false);
+    return Promise.resolve();
   }, [onChange, product.richDescription]);
+
+  // Handle modal open
+  const handleOpenModal = useCallback(() => {
+    setModalContent(product.richDescription?.content || '');
+    setShowRichTextModal(true);
+  }, [product.richDescription?.content]);
 
   return (
     <div className="space-y-6">
@@ -80,23 +102,62 @@ const ProductDescriptionEditor: React.FC<ProductDescriptionEditorProps> = ({
 
         {activeTab === 'rich' && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Mô tả chi tiết với định dạng
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Mô tả chi tiết với định dạng
+              </label>
+              {!readOnly && (
+                <button
+                  onClick={handleOpenModal}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                  </svg>
+                  Mở editor toàn màn hình
+                </button>
+              )}
+            </div>
+            
+            {/* Current content preview */}
+            <div className="mb-4 p-4 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
+              <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">Nội dung hiện tại:</div>
+              {product.richDescription?.content ? (
+                <div 
+                  className="text-sm text-gray-800 dark:text-gray-200 max-h-32 overflow-y-auto"
+                  dangerouslySetInnerHTML={{ __html: product.richDescription.content }}
+                />
+              ) : (
+                <div className="text-sm text-gray-500 dark:text-gray-400 italic">
+                  Chưa có nội dung mô tả chi tiết
+                </div>
+              )}
+            </div>
+
             <RichTextEditor
               content={product.richDescription?.content || ''}
               onChange={handleRichDescriptionChange}
               placeholder="Nhập mô tả chi tiết với định dạng phong phú..."
-              className="min-h-[400px]"
+              className="min-h-[200px]"
               readOnly={readOnly}
-              maxHeight="500px"
+              maxHeight="250px"
             />
             <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-              Mô tả chi tiết hỗ trợ định dạng HTML và sẽ hiển thị trong trang chi tiết sản phẩm.
+              💡 Sử dụng editor toàn màn hình để soạn thảo nội dung dài một cách thuận tiện hơn.
             </p>
           </div>
         )}
       </div>
+
+      {/* Rich Text Editor Modal */}
+      <RichTextEditorModal
+        show={showRichTextModal}
+        onClose={() => setShowRichTextModal(false)}
+        onSave={handleRichTextSave}
+        initialContent={modalContent}
+        title="Soạn thảo mô tả chi tiết sản phẩm"
+        placeholder="Nhập mô tả chi tiết với định dạng phong phú..."
+      />
     </div>
   );
 };

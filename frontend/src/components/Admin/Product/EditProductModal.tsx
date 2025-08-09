@@ -248,9 +248,10 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ show, product, onCl
               value={editProduct.type || 'count'}
               onChange={e => {
                 const type = e.target.value as 'count' | 'weight';
-                let unit = '';
-                if (type === 'weight') unit = 'kg';
-                if (type === 'count') unit = 'hộp';
+                // Only update unit if it's not already set or if it doesn't match the type
+                let unit = editProduct.unit || '';
+                if (type === 'weight' && (!unit || unit === 'hộp')) unit = 'kg';
+                if (type === 'count' && (!unit || unit === 'kg')) unit = 'hộp';
                 setEditProduct(prev => prev ? { ...prev, type, unit } : null);
               }}
               style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}

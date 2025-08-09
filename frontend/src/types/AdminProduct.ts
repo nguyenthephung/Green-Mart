@@ -33,4 +33,6 @@ export interface AdminProduct {
   averageRating?: number;
   totalRatings?: number;
   totalSold?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }

@@ -5,6 +5,7 @@ import CategorySection from '../CategorySection';
 interface CategorySectionConfig {
   title: string;
   category: string;
+  id: string; // Add id field
   titleClass: string;
   viewMoreLink: string;
   productCount: number;
@@ -35,7 +36,7 @@ const CategoriesSection: React.FC<CategoriesSectionProps> = ({ getProductsByCate
     <div className="space-y-20">
       {sections.map(cfg => (
         <CategorySection
-          key={cfg.category}
+          key={cfg.id}
           title={cfg.title}
           category={cfg.category}
           products={getProductsByCategory(cfg.category)}

@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
-// import { ToastContainer } from 'react-toastify';
-// import 'react-toastify/dist/ReactToastify.css';
-// import { toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import type { AdminProduct } from '../../types/AdminProduct';
 import { useProductStore } from '../../stores/useProductStore';
 import { useCategoryStore } from '../../stores/useCategoryStore';
@@ -12,7 +11,8 @@ import ConfirmDeleteModal from '../../components/Admin/Product/ConfirmDeleteModa
 import PaginationControls from '../../components/ui/PaginationControls';
 import { LoadingSpinner } from '../../components/Loading';
 
-type SortField = 'name' | 'category' | 'price' | 'stock' | 'brand';
+// Define types
+type SortField = 'name' | 'category' | 'price' | 'stock' | 'brand' | 'createdAt';
 type SortOrder = 'asc' | 'desc';
 type ViewMode = 'table' | 'grid';
 type FilterStatus = 'all' | 'active' | 'inactive';
@@ -94,8 +94,8 @@ const AdminProducts: React.FC = () => {
   const [editProduct, setEditProduct] = useState<AdminProduct | null>(null);
   const [showEdit, setShowEdit] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [sortField, setSortField] = useState<SortField>('name');
-  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
+  const [sortField, setSortField] = useState<SortField>('createdAt');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const [viewMode, setViewMode] = useState<ViewMode>('table');
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
   const [filterParentCategory, setFilterParentCategory] = useState<string>('all');
@@ -156,6 +156,10 @@ const AdminProducts: React.FC = () => {
           aValue = (a.brand || '').toLowerCase();
           bValue = (b.brand || '').toLowerCase();
           break;
+        case 'createdAt':
+          aValue = new Date(a.createdAt || 0).getTime();
+          bValue = new Date(b.createdAt || 0).getTime();
+          break;
         default:
           return 0;
       }
@@ -189,12 +193,13 @@ const AdminProducts: React.FC = () => {
     setActionError(null);
     try {
       await add(newProduct);
-      await fetchAll();
-      // toast.success('Thêm sản phẩm thành công!');
-      setShowAdd(false); // Chỉ đóng modal khi thành công
+      // Không cần fetchAll() ngay lập tức, store sẽ tự cập nhật
+      // await fetchAll(); 
+      toast.success('Thêm sản phẩm thành công!');
+      // Không setShowAdd(false) ở đây vì AddProductModal sẽ tự đóng
     } catch (err: any) {
       setActionError(err.message || 'Lỗi thêm sản phẩm');
-      // toast.error('Thêm sản phẩm thất bại!');
+      toast.error('Thêm sản phẩm thất bại!');
       // Không đóng modal, giữ lại thông tin nhập
     } finally {
       setAddLoading(false);
@@ -210,10 +215,10 @@ const AdminProducts: React.FC = () => {
       await fetchAll();
       setShowEdit(false);
       setEditProduct(null);
-      // toast.success('Cập nhật sản phẩm thành công!');
+      toast.success('Cập nhật sản phẩm thành công!');
     } catch (err: any) {
       setActionError(err.message || 'Lỗi cập nhật sản phẩm');
-      // toast.error('Cập nhật sản phẩm thất bại!');
+      toast.error('Cập nhật sản phẩm thất bại!');
     } finally {
       setEditLoading(false);
     }
@@ -222,7 +227,7 @@ const AdminProducts: React.FC = () => {
   const handleDeleteProduct = async () => {
     if (!deleteId || typeof deleteId !== 'string' || !deleteId.trim()) {
       setActionError('ID sản phẩm không hợp lệ');
-      // toast.error('ID sản phẩm không hợp lệ!');
+      toast.error('ID sản phẩm không hợp lệ!');
       return;
     }
     setDeleteLoading(true);
@@ -231,10 +236,10 @@ const AdminProducts: React.FC = () => {
       await remove(deleteId);
       await fetchAll();
       setDeleteId(null);
-      // toast.success('Xóa sản phẩm thành công!');
+      toast.success('Xóa sản phẩm thành công!');
     } catch (err: any) {
       setActionError(err.message || 'Lỗi xóa sản phẩm');
-      // toast.error('Xóa sản phẩm thất bại!');
+      toast.error('Xóa sản phẩm thất bại!');
     } finally {
       setDeleteLoading(false);
     }
@@ -303,6 +308,9 @@ const openEditModal = (product: AdminProduct) => {
       className="min-h-screen"
       style={{ background: isDarkMode ? '#18181b' : '#f9fafb' }}
     >
+      {/* Toast Container */}
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover />
+      
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">

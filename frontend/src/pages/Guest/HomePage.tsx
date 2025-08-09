@@ -199,6 +199,7 @@ const Home: React.FC = memo(() => {
       .map((cat) => ({
         title: cat.name,
         category: cat.name,
+        id: cat.id || cat.name, // Add unique id
         titleClass: 'text-left flex items-center gap-3 text-2xl font-bold text-emerald-700 dark:text-emerald-200',
         viewMoreLink: `/category/${cat.name}`,
         productCount: products.filter((p: any) => 
