@@ -34,7 +34,13 @@ export const useCategoryStore = create<CategoryStore>((set) => ({
             id: cat._id ? String(cat._id) : cat.id
           }))
         : [];
-      set({ categories: mapped, loading: false });
+      
+      // Remove duplicates based on id
+      const uniqueCategories = mapped.filter((cat, index, self) => 
+        index === self.findIndex(c => c.id === cat.id)
+      );
+      
+      set({ categories: uniqueCategories, loading: false });
     } catch (err: any) {
       set({ error: err.message, loading: false });
     }
@@ -48,7 +54,19 @@ export const useCategoryStore = create<CategoryStore>((set) => ({
         ...addedRaw,
         id: addedRaw._id ? String(addedRaw._id) : addedRaw.id
       };
-      set((state) => ({ categories: [...state.categories, added], loading: false }));
+      set((state) => {
+        // Check if category already exists
+        const existingIndex = state.categories.findIndex(c => c.id === added.id);
+        if (existingIndex >= 0) {
+          // Update existing category instead of adding duplicate
+          const updatedCategories = [...state.categories];
+          updatedCategories[existingIndex] = added;
+          return { categories: updatedCategories, loading: false };
+        } else {
+          // Add new category
+          return { categories: [...state.categories, added], loading: false };
+        }
+      });
     } catch (err: any) {
       set({ error: err.message, loading: false });
     }

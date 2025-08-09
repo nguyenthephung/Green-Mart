@@ -22,6 +22,42 @@ type FilterStatus = 'all' | 'active' | 'inactive';
 const AdminProducts: React.FC = () => {
   const { products, fetchAll, add, update, remove } = useProductStore();
   const { categories, fetchCategories } = useCategoryStore();
+  
+  // Helper function to check if category exists and get parent category info
+  const getCategoryInfo = (categoryName: string) => {
+    // Check if it's a direct parent category
+    const parentCategory = categories.find(cat => cat.name === categoryName);
+    if (parentCategory) {
+      return {
+        exists: true,
+        isParent: true,
+        parentName: categoryName,
+        displayName: categoryName,
+        status: 'parent'
+      };
+    }
+    
+    // Check if it's a subcategory
+    const parentWithSub = categories.find(cat => cat.subs?.includes(categoryName));
+    if (parentWithSub) {
+      return {
+        exists: true,
+        isParent: false,
+        parentName: parentWithSub.name,
+        displayName: categoryName,
+        status: 'sub'
+      };
+    }
+    
+    // Category doesn't exist (deleted)
+    return {
+      exists: false,
+      isParent: false,
+      parentName: null,
+      displayName: categoryName,
+      status: 'deleted'
+    };
+  };
   // Loading states for each action
   const [fetchLoading, setFetchLoading] = useState(false);
   const [addLoading, setAddLoading] = useState(false);
@@ -42,6 +78,17 @@ const AdminProducts: React.FC = () => {
       });
     }
   }, [fetchTried, fetchAll, fetchCategories]);
+
+  // Auto-refresh products when categories change (e.g., when category is deleted)
+  React.useEffect(() => {
+    if (fetchTried && categories.length > 0) {
+      // Debounce to avoid too many calls
+      const timer = setTimeout(() => {
+        fetchAll().catch(() => {});
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [categories, fetchTried, fetchAll]);
   const [search, setSearch] = useState('');
   const [showAdd, setShowAdd] = useState(false);
   const [editProduct, setEditProduct] = useState<AdminProduct | null>(null);
@@ -559,9 +606,36 @@ const openEditModal = (product: AdminProduct) => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          {product.category}
-                        </span>
+                        {(() => {
+                          const categoryInfo = getCategoryInfo(product.category);
+                          if (!categoryInfo.exists) {
+                            return (
+                              <div className="flex flex-col gap-1">
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                  ❌ {product.category}
+                                </span>
+                                <span className="text-xs text-red-600">Danh mục đã bị xóa</span>
+                              </div>
+                            );
+                          }
+                          
+                          return (
+                            <div className="flex flex-col gap-1">
+                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                categoryInfo.isParent 
+                                  ? 'bg-blue-100 text-blue-800' 
+                                  : 'bg-green-100 text-green-800'
+                              }`}>
+                                {categoryInfo.isParent ? '📁' : '📄'} {product.category}
+                              </span>
+                              {!categoryInfo.isParent && (
+                                <span className="text-xs text-gray-500">
+                                  Thuộc: {categoryInfo.parentName}
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
@@ -700,9 +774,36 @@ const openEditModal = (product: AdminProduct) => {
                 </div>
                 <div className="p-4">
                   <div className="mb-2">
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      {product.category}
-                    </span>
+                    {(() => {
+                      const categoryInfo = getCategoryInfo(product.category);
+                      if (!categoryInfo.exists) {
+                        return (
+                          <div className="flex flex-col gap-1">
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                              ❌ {product.category}
+                            </span>
+                            <span className="text-xs text-red-600">Danh mục đã bị xóa</span>
+                          </div>
+                        );
+                      }
+                      
+                      return (
+                        <div className="flex flex-col gap-1">
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            categoryInfo.isParent 
+                              ? 'bg-blue-100 text-blue-800' 
+                              : 'bg-green-100 text-green-800'
+                          }`}>
+                            {categoryInfo.isParent ? '📁' : '📄'} {product.category}
+                          </span>
+                          {!categoryInfo.isParent && (
+                            <span className="text-xs text-gray-500">
+                              Thuộc: {categoryInfo.parentName}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-1 line-clamp-2">
                     {product.name}

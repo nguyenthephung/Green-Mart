@@ -33,8 +33,25 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ show, product, onCl
     // Set parent/sub on open
     if (product) {
       const parent = categories.find((cat: any) => cat.subs.includes(product.category));
-      setParentCategory(parent ? parent.id : '');
-      setSubCategory(product.category || '');
+      if (parent) {
+        // Category exists as subcategory
+        setParentCategory(parent.id);
+        setSubCategory(product.category);
+      } else {
+        // Check if it's a parent category
+        const parentCat = categories.find((cat: any) => cat.name === product.category);
+        if (parentCat) {
+          setParentCategory(parentCat.id);
+          setSubCategory('');
+          // Update product category to use parent name
+          setEditProduct(prev => prev ? { ...prev, category: parentCat.name } : null);
+        } else {
+          // Category doesn't exist - reset to empty
+          setParentCategory('');
+          setSubCategory('');
+          // Keep original category name for display
+        }
+      }
     }
   }, [product, show, categories]);
   const [errors, setErrors] = useState<any>({});
@@ -53,7 +70,10 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ show, product, onCl
   const validate = (prod: AdminProduct | null) => {
     const err: any = {};
     if (!prod?.name) err.name = 'Tên sản phẩm bắt buộc';
-    if (!prod?.category) err.category = 'Chọn danh mục';
+    // Only require category if categories are available
+    if (Array.isArray(categories) && categories.length > 0 && !prod?.category) {
+      err.category = 'Chọn danh mục';
+    }
     if (!prod?.price || prod.price <= 0) err.price = 'Giá phải lớn hơn 0';
     if (!prod?.image) err.image = 'Chọn ảnh đại diện';
     if (!prod?.stock || prod.stock < 0) err.stock = 'Tồn kho không hợp lệ';
@@ -107,16 +127,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ show, product, onCl
   };
 
   if (!show || !editProduct) return null;
-  if (!Array.isArray(categories) || categories.length === 0) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-30 z-50 flex items-center justify-center">
-        <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-lg text-center">
-          <h2 className="text-xl font-bold mb-4 text-green-700">Không có dữ liệu danh mục</h2>
-          <button className="bg-green-600 text-white py-2 px-4 rounded font-semibold hover:bg-green-700 mt-4" onClick={onClose}>Đóng</button>
-        </div>
-      </div>
-    );
-  }
+  
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 z-50 flex items-start justify-center p-4 overflow-y-auto">
       <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-4xl my-8 animate-fadeIn">
@@ -128,24 +139,75 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ show, product, onCl
             <input className={`w-full border px-3 py-2 rounded ${errors.name ? 'border-red-400' : ''}`} placeholder="Tên sản phẩm" value={editProduct.name} onChange={e => setEditProduct(prev => prev ? { ...prev, name: e.target.value } : null)}
               style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}} />
             {errors.name && <div className="text-red-500 text-xs">{errors.name}</div>}
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Danh mục cha <span className="text-red-500">*</span></label>
-            <select
-              className={`w-full border px-3 py-2 rounded ${errors.category ? 'border-red-400' : ''}`}
-              value={parentCategory}
-              onChange={e => {
-                setParentCategory(e.target.value);
-                setSubCategory('');
-                setEditProduct(prev => prev ? { ...prev, category: '' } : null);
-              }}
-              disabled={!Array.isArray(categories) || categories.length === 0}
-              style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
-            >
-              <option value="">Chọn danh mục cha...</option>
-              {Array.isArray(categories) && categories.map((cat: any) => (
-                <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>
-              ))}
-            </select>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Danh mục cha {Array.isArray(categories) && categories.length > 0 && <span className="text-red-500">*</span>}
+            </label>
+            
+            {/* No categories warning */}
+            {(!Array.isArray(categories) || categories.length === 0) && (
+              <div className="mb-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="flex items-center gap-2 text-yellow-700">
+                  <span>⚠️</span>
+                  <span className="font-medium">Không có dữ liệu danh mục</span>
+                </div>
+                <p className="text-sm text-yellow-600 mt-1">
+                  Không thể tải danh mục. Bạn có thể chỉnh sửa các thông tin khác và lưu sản phẩm với danh mục hiện tại.
+                </p>
+              </div>
+            )}
+            
+            {/* Current category display when no categories available */}
+            {(!Array.isArray(categories) || categories.length === 0) && editProduct?.category && (
+              <div className="mb-3 p-2 bg-gray-100 border border-gray-300 rounded-lg">
+                <div className="text-sm text-gray-600">Danh mục hiện tại:</div>
+                <div className="font-medium text-gray-800">{editProduct.category}</div>
+              </div>
+            )}
+
             {(() => {
+              // Check if current product category is deleted
+              const currentCategoryExists = categories.some((cat: any) => 
+                cat.name === editProduct?.category || cat.subs?.includes(editProduct?.category)
+              );
+              
+              if (editProduct?.category && Array.isArray(categories) && categories.length > 0 && !currentCategoryExists) {
+                return (
+                  <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <div className="flex items-center gap-2 text-red-700">
+                      <span>⚠️</span>
+                      <span className="font-medium">Cảnh báo: Danh mục đã bị xóa</span>
+                    </div>
+                    <p className="text-sm text-red-600 mt-1">
+                      Danh mục "<strong>{editProduct.category}</strong>" đã bị xóa. Vui lòng chọn danh mục mới cho sản phẩm này.
+                    </p>
+                  </div>
+                );
+              }
+              return null;
+            })()}
+            
+            {/* Category select - only show if categories are available */}
+            {Array.isArray(categories) && categories.length > 0 && (
+              <select
+                className={`w-full border px-3 py-2 rounded ${errors.category ? 'border-red-400' : ''}`}
+                value={parentCategory}
+                onChange={e => {
+                  setParentCategory(e.target.value);
+                  setSubCategory('');
+                  setEditProduct(prev => prev ? { ...prev, category: '' } : null);
+                }}
+                style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
+              >
+                <option value="">Chọn danh mục cha...</option>
+                {categories.map((cat: any) => (
+                  <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>
+                ))}
+              </select>
+            )}
+            {(() => {
+              // Only show subcategory if categories are available
+              if (!Array.isArray(categories) || categories.length === 0) return null;
+              
               const parentCat = categories.find((cat: any) => cat.id === parentCategory);
               if (parentCategory && parentCat && Array.isArray(parentCat.subs) && parentCat.subs.length > 0) {
                 return (
@@ -158,7 +220,6 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ show, product, onCl
                         setSubCategory(e.target.value);
                         setEditProduct(prev => prev ? { ...prev, category: e.target.value } : null);
                       }}
-                      disabled={!Array.isArray(categories) || categories.length === 0}
                       style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
                     >
                       <option value="">Chọn danh mục con...</option>

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { fetchCart, addToCart as apiAddToCart, updateCartItem, removeCartItem, clearCart as apiClearCart } from '../services/cartService';
+import { useNewToastStore } from './useNewToastStore';
 
 // Local storage key for guest cart
 const GUEST_CART_KEY = 'guest_cart';
@@ -155,7 +156,6 @@ export const useCartStore = create<CartState>((set, get) => ({
       if (res.success && res.data) {
         // Check if this is a guest response
         if ((res.data as any)?.isGuest) {
-          console.log('Guest user detected, loading from localStorage');
           items = getGuestCart();
         } else if (res.data && typeof res.data === 'object' && 'items' in res.data) {
           // Regular user with cart data
@@ -176,7 +176,6 @@ export const useCartStore = create<CartState>((set, get) => ({
         }
         
         const { totalItems, totalAmount } = calculateTotals(items);
-        console.log('Cart store: fetchCart calculated totals', { totalItems, totalAmount, itemsCount: items.length });
         
         // Cache the cart data
         setCartCache(items);
@@ -272,6 +271,21 @@ export const useCartStore = create<CartState>((set, get) => ({
         const currentState = get();
         // Update cache with current state
         setCartCache(currentState.items);
+        
+        // Show success notification
+        useNewToastStore.getState().showSuccess(
+          'Thành công!',
+          `Đã thêm "${item.name}" vào giỏ hàng`,
+          3000,
+          [
+            {
+              label: 'Xem giỏ hàng',
+              action: () => {
+                window.location.href = '/cart';
+              }
+            }
+          ]
+        );
       } else if ((res as any)?.requireLogin) {
         // Guest user - sync with localStorage
         console.log('Syncing with guest cart (local storage)');

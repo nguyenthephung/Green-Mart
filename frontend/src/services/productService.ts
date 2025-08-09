@@ -29,3 +29,14 @@ export const deleteProduct = async (id: number | string): Promise<void> => {
     method: 'DELETE',
   });
 };
+
+export const checkProductCategory = async (id: number | string) => {
+  const res = await apiClient<{
+    productCategory: string;
+    productSubCategory?: string;
+    categoryExists: boolean;
+    categoryActive: boolean;
+    subcategoryExists: boolean;
+  }>(`/products/${id}/category-check`);
+  return res.data;
+};

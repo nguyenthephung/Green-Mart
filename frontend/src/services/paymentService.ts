@@ -75,15 +75,11 @@ class PaymentService {
   // Create a new payment
   async createPayment(paymentData: PaymentRequest): Promise<PaymentResponse> {
     try {
-      console.log('PaymentService: Creating payment with data:', paymentData);
       
       const response = await apiClient<any>(this.BASE_URL, {
         method: 'POST',
         body: JSON.stringify(paymentData)
       });
-      
-      console.log('PaymentService: Raw API response:', response);
-      console.log('PaymentService: Response keys:', Object.keys(response));
       
       // Handle different response structures
       let result: PaymentResponse;
@@ -107,7 +103,6 @@ class PaymentService {
         result = response as PaymentResponse;
       }
       
-      console.log('PaymentService: Final result:', result);
       return result;
     } catch (error: any) {
       console.error('PaymentService: Payment creation error:', error);
@@ -206,7 +201,6 @@ class PaymentService {
     try {
       // This would be implemented based on gateway requirements
       // For now, we'll just update the status
-      console.log('Payment cancellation requested for:', paymentId);
     } catch (error: any) {
       console.error('Payment cancellation error:', error);
       throw new Error('Failed to cancel payment');
@@ -298,14 +292,12 @@ class PaymentService {
   // PayPal specific methods
   async capturePayPalPayment(orderId: string): Promise<any> {
     try {
-      console.log('PaymentService: Capturing PayPal payment with order ID:', orderId);
       
       const response = await apiClient<any>('/payments/paypal/capture', {
         method: 'POST',
         body: JSON.stringify({ orderId })
       });
       
-      console.log('PaymentService: PayPal capture response:', response);
       return response;
     } catch (error: any) {
       console.error('PaymentService: PayPal capture error:', error);

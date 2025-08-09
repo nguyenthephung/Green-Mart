@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import type { ToastMessage } from '../../hooks/useToast';
+import type { ToastData } from './Toast/NewToast';
 import { useToastContext } from '../../contexts/ToastContext';
 import { 
   CheckCircleIcon, 
@@ -10,7 +10,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 interface ToastItemProps {
-  toast: ToastMessage;
+  toast: ToastData;
 }
 
 const ToastItem: React.FC<ToastItemProps> = ({ toast }) => {

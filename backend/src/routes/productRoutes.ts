@@ -5,6 +5,8 @@ const router = express.Router();
 
 // Lấy danh sách sản phẩm
 router.get('/', ProductController.getAllProducts as express.RequestHandler);
+// Kiểm tra category của sản phẩm
+router.get('/:id/category-check', ProductController.checkProductCategory as express.RequestHandler);
 // Thêm sản phẩm
 router.post('/', ProductController.createProduct as express.RequestHandler);
 // Sửa sản phẩm

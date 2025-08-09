@@ -1,15 +1,14 @@
 import React, { createContext, useContext } from 'react';
 import type { ReactNode } from 'react';
-import { useToast } from '../hooks/useToast';
-import type { ToastMessage } from '../hooks/useToast';
-// import ToastContainer from '../components/ui/ToastContainer';
+import { useNewToastStore } from '../stores/useNewToastStore';
+import type { ToastData } from '../components/ui/Toast/NewToast';
 
 interface ToastContextType {
-  toasts: ToastMessage[];
-  showSuccess: (title: string, message: string, duration?: number) => string;
-  showError: (title: string, message: string, duration?: number) => string;
-  showWarning: (title: string, message: string, duration?: number) => string;
-  showInfo: (title: string, message: string, duration?: number) => string;
+  toasts: ToastData[];
+  showSuccess: (title: string, message?: string, duration?: number) => string;
+  showError: (title: string, message?: string, duration?: number) => string;
+  showWarning: (title: string, message?: string, duration?: number) => string;
+  showInfo: (title: string, message?: string, duration?: number) => string;
   removeToast: (id: string) => void;
   clearAll: () => void;
 }
@@ -29,13 +28,30 @@ interface ToastProviderProps {
 }
 
 export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
-  const toastManager = useToast();
+  const { 
+    toasts, 
+    showSuccess, 
+    showError, 
+    showWarning, 
+    showInfo, 
+    removeToast, 
+    clearToasts 
+  } = useNewToastStore();
+
+  const toastManager: ToastContextType = {
+    toasts,
+    showSuccess,
+    showError,
+    showWarning,
+    showInfo,
+    removeToast,
+    clearAll: clearToasts,
+  };
 
   return (
     <ToastContext.Provider value={toastManager}>
       {children}
-      {/* ToastContainer đã được tạm thời disable */}
-      {/* <ToastContainer /> */}
+      {/* ToastContainer được quản lý bởi App.tsx */}
     </ToastContext.Provider>
   );
 };

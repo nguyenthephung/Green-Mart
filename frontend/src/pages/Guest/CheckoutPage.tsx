@@ -70,7 +70,6 @@ const Checkout = () => {
     if (payments && payments.length > 0) {
       const hasOldMethod = payments.some(p => p.method === 'credit_card');
       if (hasOldMethod) {
-        console.log('Found old payment methods, updating...');
         const updatedPayments = [
           { id: 1, method: 'cod', expiry: '', isSelected: false },
           { id: 2, method: 'bank_transfer', expiry: '', isSelected: false },
@@ -84,7 +83,6 @@ const Checkout = () => {
 
   // Separate effect for payments
   useEffect(() => {
-    console.log('CheckoutPage - Payments state changed:', payments); // Debug log
     // Nếu chưa có payment nào được chọn, để user tự chọn
     if (payments && payments.length > 0 && !payments.some(p => p.isSelected)) {
       // Không tự động chọn payment method nào cả
@@ -113,14 +111,11 @@ const Checkout = () => {
 
   // Hàm nhận payment method từ CheckoutMain và CheckoutSummary
   const handlePaymentChange = (method: string) => {
-    console.log('Payment method changed to:', method); // Debug log
-    console.log('Current payments before update:', payments); // Debug log
     if (setPayments && payments && payments.length > 0) {
       const updatedPayments = payments.map(p => ({ 
         ...p, 
         isSelected: p.method === method 
       }));
-      console.log('Updated payments:', updatedPayments); // Debug log
       setPayments(updatedPayments);
     }
   };
@@ -184,8 +179,6 @@ const Checkout = () => {
         return hasId && isValidObjectId && hasName && hasQuantity && hasPrice;
       });
       
-      console.log('Valid items after validation:', validItems);
-      
       if (validItems.length === 0) {
         alert('Không có sản phẩm hợp lệ trong giỏ hàng. Có thể do dữ liệu sản phẩm bị lỗi. Vui lòng thêm lại sản phẩm vào giỏ hàng.');
         return;
@@ -219,27 +212,12 @@ const Checkout = () => {
         notes: ''
       };
 
-      console.log('=== CHECKOUT DEBUG ===');
-      console.log('Subtotal calculated on frontend:', subtotal);
-      console.log('Voucher used:', voucher);
-      console.log('Voucher discount calculated on frontend:', voucherDiscount);
-      console.log('Expected total after discount:', subtotal - voucherDiscount);
-      console.log('Order data to send:', orderData);
-      console.log('======================');
-
       // Tạo đơn hàng
-      console.log('Creating order with data:', orderData);
       const orderResponse = await orderService.createOrder(orderData);
-      
-      console.log('Raw order response:', orderResponse);
-      console.log('Response type:', typeof orderResponse);
-      console.log('Response keys:', Object.keys(orderResponse || {}));
       
       // Check multiple possible response structures
       const isSuccess = orderResponse?.success === true || 
                        (orderResponse && 'orderId' in orderResponse && 'orderNumber' in orderResponse);
-      
-      console.log('Is success?', isSuccess);
       
       if (isSuccess) {
         // Handle different response structures
@@ -249,35 +227,16 @@ const Checkout = () => {
         const totalAmount = (data as any).totalAmount;
         const paymentMethod = (data as any).paymentMethod || orderData.paymentMethod;
         
-        console.log('=== ORDER CREATION RESULT ===');
-        console.log('Order created successfully:', { orderId, orderNumber, totalAmount, paymentMethod });
-        console.log('Frontend expected total:', expectedTotal);
-        console.log('Backend returned totalAmount:', totalAmount);
-        console.log('Difference:', expectedTotal - totalAmount);
-        console.log('Voucher discount applied by frontend:', voucherDiscount);
-        console.log('Shipping fee applied by frontend:', shippingFee);
-        console.log('==============================');
-        
         // Handle payment processing based on payment method
         if (paymentMethod === 'momo' || paymentMethod === 'paypal') {
           // For online payment methods (momo, paypal), create payment and redirect
           try {
-            console.log('Creating payment for online method:', paymentMethod);
             
             const paymentResponse = await paymentService.createPayment({
               orderId: orderId,
               paymentMethod: paymentMethod,
               amount: totalAmount,
               returnUrl: `${window.location.origin}/payment-result?method=${paymentMethod}`
-            });
-
-            console.log('Payment response:', paymentResponse);
-            console.log('Payment response structure check:', {
-              hasSuccess: 'success' in paymentResponse,
-              successValue: paymentResponse.success,
-              hasData: 'data' in paymentResponse,
-              dataKeys: paymentResponse.data ? Object.keys(paymentResponse.data) : 'no data',
-              fullResponse: JSON.stringify(paymentResponse, null, 2)
             });
 
             // Check for different possible redirect URL field names
@@ -288,19 +247,9 @@ const Checkout = () => {
                               paymentResponse.payUrl ||
                               (paymentResponse as any).redirectUrl ||
                               (paymentResponse as any).payUrl;
-
-            console.log('Final redirect URL found:', redirectUrl);
-            console.log('Payment success check:', {
-              paymentResponseSuccess: paymentResponse.success,
-              hasRedirectUrl: !!redirectUrl,
-              willRedirect: paymentResponse.success && !!redirectUrl
-            });
-
             if (paymentResponse.success && redirectUrl) {
               // KHÔNG hiển thị thông báo thành công và KHÔNG clear cart
               // Chỉ redirect - cart sẽ được clear sau khi payment thành công
-              console.log('✅ REDIRECTING TO PAYMENT GATEWAY - NOT SHOWING SUCCESS MESSAGE');
-              console.log('Payment URL:', redirectUrl);
               
               // Store order info to localStorage for later use
               localStorage.setItem('pendingOrder', JSON.stringify({
@@ -315,7 +264,6 @@ const Checkout = () => {
               return; // EXIT FUNCTION HERE - NO SUCCESS MESSAGE
             } else {
               console.error('❌ Payment creation failed - missing redirect URL or success=false');
-              console.error('paymentResponse.success:', paymentResponse.success);
               console.error('redirectUrl:', redirectUrl);
               alert(`Không thể tạo link thanh toán ${paymentMethod.toUpperCase()}. Vui lòng thử lại hoặc chọn phương thức thanh toán khác.`);
               setIsProcessingOrder(false);
@@ -332,7 +280,6 @@ const Checkout = () => {
         // For COD and Bank Transfer - create payment record and proceed to success page
         if (paymentMethod === 'cod' || paymentMethod === 'bank_transfer') {
           try {
-            console.log('Creating payment record for:', paymentMethod);
             
             const paymentResponse = await paymentService.createPayment({
               orderId: orderId,
@@ -340,22 +287,17 @@ const Checkout = () => {
               amount: totalAmount
             });
 
-            console.log('Payment record created:', paymentResponse);
-
             if (paymentResponse.success) {
               // Clear cart for both COD and Bank Transfer after successful order creation
               await useCartStore.getState().clearCart();
-              console.log('Cart cleared successfully');
               
               // Clear voucher after successful order
               if (voucher) {
                 setVoucher(null);
-                console.log('Voucher cleared from UI');
               }
               
               // Refresh user data to get updated voucher list
               await refreshUserData();
-              console.log('User data refreshed');
               
               // Show success message for COD and Bank Transfer
               alert(`Đặt hàng thành công! Mã đơn hàng: ${orderNumber}`);

@@ -37,7 +37,8 @@ export const getCategories = async (req: Request, res: Response) => {
 // Thêm mới hoặc cập nhật danh mục
 export const createOrUpdateCategory = async (req: Request, res: Response) => {
   try {
-    const { id, name, subs, icon, description, status } = req.body;
+    const { name, subs, icon, description, status } = req.body;
+    const id = req.params.id || req.body.id; // Lấy id từ params hoặc body
     if (id) {
       // Nếu có id, update danh mục cha (thêm danh mục con vào subs)
       const category = await Category.findById(id);

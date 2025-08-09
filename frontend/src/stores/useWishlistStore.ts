@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { WishlistService } from '../services/wishlistService';
 import type { WishlistItem } from '../types/Wishlist';
 import { useUserStore } from './useUserStore';
+import { useNewToastStore } from './useNewToastStore';
 
 interface WishlistState {
   items: WishlistItem[];
@@ -90,10 +91,30 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
         addedAt: new Date(newItem.createdAt)
       };
       set(prev => ({ items: [wishlistItem, ...prev.items] }));
+      
+      // Show success notification
+      useNewToastStore.getState().showSuccess(
+        'Thành công!',
+        `Đã thêm "${product.name}" vào danh sách yêu thích`,
+        5000,
+        [
+          {
+            label: 'Xem wishlist',
+            action: () => {
+              window.location.href = '/wishlist';
+            }
+          }
+        ]
+      );
     } catch (error: any) {
       // Nếu sản phẩm đã có trong wishlist, không hiển thị lỗi
       if (error.message === 'Product already in wishlist') {
-        console.log('Product already in wishlist, skipping...');
+        // Show info notification
+        useNewToastStore.getState().showInfo(
+          'Thông báo',
+          `"${product.name}" đã có trong danh sách yêu thích`,
+          3000
+        );
         // Load lại wishlist để đồng bộ trạng thái
         await get().loadWishlist();
       } else {
@@ -108,12 +129,30 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
   removeFromWishlist: async (productId: string) => {
     const user = useUserStore.getState().user;
     if (!user?.id) return;
+    
+    // Find the product name before removing
+    const productToRemove = get().items.find(item => item.productId === productId);
+    const productName = productToRemove?.productName || 'Sản phẩm';
+    
     set({ isLoading: true, error: null });
     try {
       await WishlistService.removeFromWishlist(parseInt(user.id), productId);
       set(prev => ({ items: prev.items.filter(item => item.productId !== productId) }));
+      
+      // Show success notification
+      useNewToastStore.getState().showSuccess(
+        'Đã xóa!',
+        `Đã xóa "${productName}" khỏi danh sách yêu thích`,
+        3000
+      );
     } catch (error) {
       set({ error: 'Không thể xóa khỏi danh sách yêu thích' });
+      // Show error notification
+      useNewToastStore.getState().showError(
+        'Lỗi!',
+        'Không thể xóa sản phẩm khỏi danh sách yêu thích',
+        5000
+      );
       throw error;
     } finally {
       set({ isLoading: false });
@@ -127,8 +166,21 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
     try {
       await WishlistService.clearWishlist(parseInt(user.id));
       set({ items: [] });
+      
+      // Show success notification
+      useNewToastStore.getState().showSuccess(
+        'Đã xóa!',
+        'Đã xóa toàn bộ danh sách yêu thích',
+        3000
+      );
     } catch (error) {
       set({ error: 'Không thể xóa danh sách yêu thích' });
+      // Show error notification
+      useNewToastStore.getState().showError(
+        'Lỗi!',
+        'Không thể xóa danh sách yêu thích',
+        5000
+      );
       throw error;
     } finally {
       set({ isLoading: false });

@@ -252,7 +252,7 @@ const AdminCategories: React.FC = () => {
   const totalProducts = categories.reduce((sum, c) => sum + c.productCount, 0);
 
   return (
-    <div className="min-h-screen" style={isDarkMode ? { backgroundColor: '#111827', color: '#fff' } : {}}>
+    <div className="min-h-screen relative" style={isDarkMode ? { backgroundColor: '#111827', color: '#fff' } : {}}>
       {/* Toast Container đã được tạm thời disable */}
       {/* <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover aria-label={undefined} /> */}
       {/* Header */}
@@ -393,6 +393,9 @@ const AdminCategories: React.FC = () => {
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Mô tả
                   </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Danh mục con
+                  </th>
                   <th 
                     className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                     onClick={() => handleSort('productCount')}
@@ -439,6 +442,30 @@ const AdminCategories: React.FC = () => {
                     <td className="px-6 py-4">
                       <div className="text-sm max-w-xs truncate" title={category.description} style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>
                         {category.description || 'Chưa có mô tả'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>
+                        {category.subs && category.subs.length > 0 ? (
+                          <div className="flex flex-wrap gap-1">
+                            {category.subs.map((sub, index) => (
+                              <span 
+                                key={index}
+                                className="inline-block px-2 py-1 text-xs rounded-full"
+                                style={isDarkMode 
+                                  ? { backgroundColor: '#374151', color: '#e5e7eb' }
+                                  : { backgroundColor: '#f3f4f6', color: '#6b7280' }
+                                }
+                              >
+                                {sub}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span style={isDarkMode ? { color: '#6b7280' } : { color: '#9ca3af' }}>
+                            Không có danh mục con
+                          </span>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -601,15 +628,17 @@ const AdminCategories: React.FC = () => {
         </div>
       )}
 
-      {/* Loading indicator */}
+      {/* Loading indicator - Centered in content area */}
       {showLoading && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm">
-          <LoadingSpinner
-            size="lg"
-            text="Đang xử lý..."
-            subText="Vui lòng chờ trong giây lát"
-            variant="primary"
-          />
+        <div className="absolute inset-x-0 top-1/2 transform -translate-y-1/2 z-50 flex items-center justify-center">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-xl border border-gray-200 dark:border-gray-700">
+            <LoadingSpinner
+              size="lg"
+              text="Đang xử lý..."
+              subText="Vui lòng chờ trong giây lát"
+              variant="primary"
+            />
+          </div>
         </div>
       )}
       {/* Error indicator */}
@@ -626,6 +655,7 @@ const AdminCategories: React.FC = () => {
         <AddCategoryModal
           show={showAdd}
           onAdd={handleAddCategory}
+          onEdit={handleEditCategory}
           onClose={() => setShowAdd(false)}
         />
       )}
@@ -667,7 +697,7 @@ const AdminCategories: React.FC = () => {
 // Modal components (simplified for now)
 
 
-const AddCategoryModal: React.FC<{show: boolean, onAdd: (cat: Omit<Category, 'id'>) => void, onClose: () => void}> = ({ show, onAdd, onClose }) => {
+const AddCategoryModal: React.FC<{show: boolean, onAdd: (cat: Omit<Category, 'id'>) => void, onEdit: (cat: Category) => void, onClose: () => void}> = ({ show, onAdd, onEdit, onClose }) => {
   const { categories, fetchCategories } = useCategoryStore();
   const [type, setType] = useState<'parent' | 'child'>('child');
   const [name, setName] = useState(''); // tên cha
@@ -709,10 +739,12 @@ const AddCategoryModal: React.FC<{show: boolean, onAdd: (cat: Omit<Category, 'id
       subs: [...parent.subs, subName.trim()],
       updatedAt: new Date().toISOString()
     };
-    await Promise.resolve(onAdd(updatedParent));
+    // Gọi edit thay vì add để cập nhật category hiện có
+    await Promise.resolve(onEdit(updatedParent));
     await fetchCategories();
     setSubName('');
     setParentId('');
+    onClose(); // Đóng modal sau khi thêm thành công
   };
 
   return (
@@ -813,6 +845,7 @@ const EditCategoryModal: React.FC<{show: boolean, category: Category, onSave: (c
   const [icon, setIcon] = useState(category.icon ?? '📁');
   const [description, setDescription] = useState(category.description ?? '');
   const [isSaving, setIsSaving] = useState(false);
+  const [newSubName, setNewSubName] = useState('');
   // Dark mode detection
   const isDarkMode = document.documentElement.classList.contains('dark');
 
@@ -830,6 +863,25 @@ const EditCategoryModal: React.FC<{show: boolean, category: Category, onSave: (c
       description: description.trim(),
       updatedAt: new Date().toISOString()
     })).finally(() => setIsSaving(false));
+  };
+
+  const handleAddSub = () => {
+    if (newSubName.trim() && !subs.includes(newSubName.trim())) {
+      setSubs([...subs, newSubName.trim()]);
+      setNewSubName('');
+    }
+  };
+
+  const handleRemoveSub = (index: number) => {
+    setSubs(subs.filter((_, i) => i !== index));
+  };
+
+  const handleEditSub = (index: number, newValue: string) => {
+    if (newValue.trim() && !subs.some((sub, i) => i !== index && sub === newValue.trim())) {
+      const newSubs = [...subs];
+      newSubs[index] = newValue.trim();
+      setSubs(newSubs);
+    }
   };
 
   return (
@@ -856,15 +908,62 @@ const EditCategoryModal: React.FC<{show: boolean, category: Category, onSave: (c
             style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
           />
           <div>
-            <label className="block mb-2">Danh mục con (cách nhau bởi dấu phẩy):</label>
-            <input
-              type="text"
-              value={subs.join(', ')}
-              onChange={(e) => setSubs(e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
-              placeholder="Tên các danh mục con, cách nhau bởi dấu phẩy"
-              className="w-full px-4 py-2 border rounded-lg"
-              style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
-            />
+            <label className="block mb-2 font-medium">Quản lý danh mục con:</label>
+            
+            {/* Add new subcategory */}
+            <div className="flex gap-2 mb-3">
+              <input
+                type="text"
+                value={newSubName}
+                onChange={(e) => setNewSubName(e.target.value)}
+                placeholder="Tên danh mục con mới"
+                className="flex-1 px-3 py-2 border rounded-lg text-sm"
+                style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddSub();
+                  }
+                }}
+              />
+              <button
+                type="button"
+                onClick={handleAddSub}
+                disabled={!newSubName.trim() || subs.includes(newSubName.trim())}
+                className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+              >
+                Thêm
+              </button>
+            </div>
+
+            {/* List existing subcategories */}
+            <div className="space-y-2 max-h-40 overflow-y-auto">
+              {subs.map((sub, index) => (
+                <div 
+                  key={index} 
+                  className="flex items-center gap-2 p-2 rounded-lg"
+                  style={isDarkMode ? { backgroundColor: '#374151' } : { backgroundColor: '#f3f4f6' }}
+                >
+                  <input
+                    type="text"
+                    value={sub}
+                    onChange={(e) => handleEditSub(index, e.target.value)}
+                    className="flex-1 px-2 py-1 border rounded text-sm"
+                    style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#4b5563' } : {}}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveSub(index)}
+                    className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs"
+                  >
+                    Xóa
+                  </button>
+                </div>
+              ))}
+              {subs.length === 0 && (
+                <p className="text-sm text-gray-500 italic">Chưa có danh mục con nào</p>
+              )}
+            </div>
           </div>
           <input
             type="text"
@@ -944,7 +1043,7 @@ const ConfirmDeleteCategoryModal: React.FC<{show: boolean, categoryName: string,
   );
 };
 
-// Products Modal Component
+// Products Modal Component with Pagination and Search
 const ProductsModal: React.FC<{
   show: boolean;
   onClose: () => void;
@@ -953,12 +1052,65 @@ const ProductsModal: React.FC<{
   products: any[];
   getProductsByCategory: (categoryName: string, subcategories?: string[]) => any[];
 }> = ({ show, onClose, categoryId, categories, products, getProductsByCategory }) => {
+  // Search and pagination states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [activeTab, setActiveTab] = useState<'all' | 'parent' | string>('all');
+  const itemsPerPage = 12;
+
+  // Reset states when modal opens
+  React.useEffect(() => {
+    if (show) {
+      setSearchTerm('');
+      setCurrentPage(1);
+      setActiveTab('all');
+    }
+  }, [show]);
+
   if (!show || !categoryId) return null;
   
   const category = categories.find(c => c.id === categoryId);
   if (!category) return null;
   
-  const categoryProducts = getProductsByCategory(category.name, category.subs || []);
+  // Lấy sản phẩm theo từng danh mục con
+  const parentProducts = getProductsByCategory(category.name, []);
+  const subCategoryProducts = (category.subs || []).map(subName => ({
+    subName,
+    products: getProductsByCategory(subName, [])
+  })).filter(item => item.products.length > 0);
+  
+  // Combine all products for "all" tab
+  const allProducts = [...parentProducts, ...subCategoryProducts.flatMap(item => item.products)];
+  
+  // Filter products based on active tab and search
+  const getFilteredProducts = () => {
+    let products: any[] = [];
+    
+    if (activeTab === 'all') {
+      products = allProducts;
+    } else if (activeTab === 'parent') {
+      products = parentProducts;
+    } else {
+      const subCategory = subCategoryProducts.find(item => item.subName === activeTab);
+      products = subCategory ? subCategory.products : [];
+    }
+    
+    if (searchTerm.trim()) {
+      products = products.filter(product => 
+        product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.category?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    return products;
+  };
+
+  const filteredProducts = getFilteredProducts();
+  const totalProducts = allProducts.length;
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedProducts = filteredProducts.slice(startIndex, startIndex + itemsPerPage);
+  
   const isDarkMode = document.documentElement.classList.contains('dark');
   
   return (
@@ -977,7 +1129,7 @@ const ProductsModal: React.FC<{
               <div>
                 <h2 className="text-2xl font-bold">Sản phẩm trong danh mục</h2>
                 <p className="text-emerald-100 text-lg">
-                  {category.name} • {categoryProducts.length} sản phẩm
+                  {category.name} • {totalProducts} sản phẩm
                 </p>
               </div>
             </div>
@@ -991,90 +1143,270 @@ const ProductsModal: React.FC<{
             </button>
           </div>
         </div>
-        
-        {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
-          {categoryProducts.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="text-6xl mb-4">📦</div>
-              <h3 className="text-xl font-semibold mb-2">Chưa có sản phẩm</h3>
-              <p style={isDarkMode ? { color: '#9ca3af' } : { color: '#6b7280' }}>
-                Danh mục này chưa có sản phẩm nào.
-              </p>
+
+        {/* Search and Filter Bar */}
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex flex-col lg:flex-row gap-4">
+            {/* Search Input */}
+            <div className="flex-1">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setCurrentPage(1); // Reset to first page when searching
+                  }}
+                  placeholder="Tìm kiếm sản phẩm..."
+                  className="w-full px-4 py-2 pl-10 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  style={isDarkMode ? { 
+                    backgroundColor: '#374151', 
+                    borderColor: '#4b5563', 
+                    color: '#fff' 
+                  } : {}}
+                />
+                <span className="absolute left-3 top-2.5 text-gray-400">🔍</span>
+              </div>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {categoryProducts.map((product) => (
-                <div 
-                  key={product.id} 
-                  className="border rounded-lg p-4 hover:shadow-lg transition-shadow"
-                  style={isDarkMode ? { borderColor: '#374151', backgroundColor: '#1f2937' } : { borderColor: '#e5e7eb' }}
+
+            {/* Category Tabs */}
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => {
+                  setActiveTab('all');
+                  setCurrentPage(1);
+                }}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  activeTab === 'all' 
+                    ? 'bg-emerald-600 text-white' 
+                    : isDarkMode 
+                      ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Tất cả ({allProducts.length})
+              </button>
+              
+              {parentProducts.length > 0 && (
+                <button
+                  onClick={() => {
+                    setActiveTab('parent');
+                    setCurrentPage(1);
+                  }}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    activeTab === 'parent' 
+                      ? 'bg-blue-600 text-white' 
+                      : isDarkMode 
+                        ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
                 >
-                  {/* Product Image */}
-                  <div className="aspect-square mb-3 overflow-hidden rounded-lg bg-gray-100">
-                    {product.images && product.images.length > 0 ? (
-                      <img 
-                        src={product.images[0]} 
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
-                        <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Product Info */}
-                  <h4 className="font-semibold mb-2 line-clamp-2" title={product.name}>
-                    {product.name}
-                  </h4>
-                  
-                  {/* Price */}
-                  <div className="mb-2">
-                    {product.salePrice && product.salePrice < product.price ? (
-                      <div>
-                        <span className="text-lg font-bold" style={{ color: '#ef4444' }}>
-                          {product.salePrice?.toLocaleString('vi-VN')}₫
-                        </span>
-                        <span className="ml-2 text-sm line-through" style={isDarkMode ? { color: '#9ca3af' } : { color: '#6b7280' }}>
-                          {product.price?.toLocaleString('vi-VN')}₫
-                        </span>
-                      </div>
-                    ) : (
-                      <span className="text-lg font-bold" style={isDarkMode ? { color: '#60a5fa' } : { color: '#2563eb' }}>
-                        {product.price?.toLocaleString('vi-VN')}₫
-                      </span>
-                    )}
-                  </div>
-                  
-                  {/* Stock */}
-                  <div className="text-sm" style={isDarkMode ? { color: '#9ca3af' } : { color: '#6b7280' }}>
-                    Kho: {product.stock || 0}
-                  </div>
-                  
-                  {/* Status */}
-                  <div className="mt-2">
-                    <span 
-                      className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-                        product.status === 'active' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
-                      }`}
-                    >
-                      {product.status === 'active' ? 'Đang bán' : 'Ngừng bán'}
-                    </span>
-                  </div>
-                </div>
+                  {category.name} ({parentProducts.length})
+                </button>
+              )}
+              
+              {subCategoryProducts.map(item => (
+                <button
+                  key={item.subName}
+                  onClick={() => {
+                    setActiveTab(item.subName);
+                    setCurrentPage(1);
+                  }}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    activeTab === item.subName 
+                      ? 'bg-green-600 text-white' 
+                      : isDarkMode 
+                        ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {item.subName} ({item.products.length})
+                </button>
               ))}
             </div>
+          </div>
+        </div>
+        
+        {/* Content */}
+        <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(95vh - 280px)' }}>
+          {filteredProducts.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">
+                {searchTerm ? '🔍' : '📦'}
+              </div>
+              <h3 className="text-xl font-semibold mb-2">
+                {searchTerm ? 'Không tìm thấy sản phẩm' : 'Chưa có sản phẩm'}
+              </h3>
+              <p style={isDarkMode ? { color: '#9ca3af' } : { color: '#6b7280' }}>
+                {searchTerm 
+                  ? `Không có sản phẩm nào khớp với "${searchTerm}"` 
+                  : 'Danh mục này chưa có sản phẩm nào.'
+                }
+              </p>
+              {searchTerm && (
+                <button
+                  onClick={() => {
+                    setSearchTerm('');
+                    setCurrentPage(1);
+                  }}
+                  className="mt-4 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+                >
+                  Xóa tìm kiếm
+                </button>
+              )}
+            </div>
+          ) : (
+            <>
+              {/* Products Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
+                {paginatedProducts.map((product: any) => (
+                  <ProductCard 
+                    key={`${activeTab}-${product.id}`} 
+                    product={product} 
+                    isDarkMode={isDarkMode} 
+                  />
+                ))}
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center gap-4">
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    style={isDarkMode ? { borderColor: '#4b5563', color: '#e5e7eb' } : {}}
+                  >
+                    ← Trước
+                  </button>
+                  
+                  <div className="flex items-center gap-2">
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      const page = currentPage <= 3 
+                        ? i + 1 
+                        : currentPage >= totalPages - 2 
+                          ? totalPages - 4 + i 
+                          : currentPage - 2 + i;
+                      
+                      if (page < 1 || page > totalPages) return null;
+                      
+                      return (
+                        <button
+                          key={page}
+                          onClick={() => setCurrentPage(page)}
+                          className={`w-10 h-10 rounded-lg font-medium transition-colors ${
+                            currentPage === page 
+                              ? 'bg-emerald-600 text-white' 
+                              : isDarkMode 
+                                ? 'text-gray-300 hover:bg-gray-700' 
+                                : 'text-gray-700 hover:bg-gray-100'
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    disabled={currentPage === totalPages}
+                    className="px-4 py-2 border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    style={isDarkMode ? { borderColor: '#4b5563', color: '#e5e7eb' } : {}}
+                  >
+                    Sau →
+                  </button>
+                </div>
+              )}
+
+              {/* Results info */}
+              <div className="mt-4 text-center text-sm" style={isDarkMode ? { color: '#9ca3af' } : { color: '#6b7280' }}>
+                Hiển thị {startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredProducts.length)} của {filteredProducts.length} sản phẩm
+                {searchTerm && ` (tìm kiếm: "${searchTerm}")`}
+              </div>
+            </>
           )}
         </div>
       </div>
     </div>
   );
 };
+
+// Component riêng cho product card để tái sử dụng
+const ProductCard: React.FC<{ product: any; isDarkMode: boolean }> = ({ product, isDarkMode }) => (
+  <div 
+    className="border rounded-lg p-4 hover:shadow-lg transition-shadow"
+    style={isDarkMode ? { borderColor: '#374151', backgroundColor: '#1f2937' } : { borderColor: '#e5e7eb' }}
+  >
+    {/* Product Image */}
+    <div className="aspect-square mb-3 overflow-hidden rounded-lg bg-gray-100">
+      {product.images && product.images.length > 0 ? (
+        <img 
+          src={product.images[0]} 
+          alt={product.name}
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center text-gray-400">
+          <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2v12a2 2 0 002 2z" />
+          </svg>
+        </div>
+      )}
+    </div>
+    
+    {/* Product Info */}
+    <h4 className="font-semibold mb-2 line-clamp-2" title={product.name}>
+      {product.name}
+    </h4>
+    
+    {/* Category Badge */}
+    <div className="mb-2">
+      <span 
+        className="inline-block px-2 py-1 text-xs rounded-full"
+        style={isDarkMode 
+          ? { backgroundColor: '#374151', color: '#e5e7eb' }
+          : { backgroundColor: '#f3f4f6', color: '#6b7280' }
+        }
+      >
+        {product.category}
+      </span>
+    </div>
+    
+    {/* Price */}
+    <div className="mb-2">
+      {product.salePrice && product.salePrice < product.price ? (
+        <div>
+          <span className="text-lg font-bold" style={{ color: '#ef4444' }}>
+            {product.salePrice?.toLocaleString('vi-VN')}₫
+          </span>
+          <span className="ml-2 text-sm line-through" style={isDarkMode ? { color: '#9ca3af' } : { color: '#6b7280' }}>
+            {product.price?.toLocaleString('vi-VN')}₫
+          </span>
+        </div>
+      ) : (
+        <span className="text-lg font-bold" style={isDarkMode ? { color: '#60a5fa' } : { color: '#2563eb' }}>
+          {product.price?.toLocaleString('vi-VN')}₫
+        </span>
+      )}
+    </div>
+    
+    {/* Stock & Status */}
+    <div className="flex justify-between items-center">
+      <div className="text-sm" style={isDarkMode ? { color: '#9ca3af' } : { color: '#6b7280' }}>
+        Kho: {product.stock || 0}
+      </div>
+      <span 
+        className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
+          product.status === 'active' 
+            ? 'bg-green-100 text-green-800' 
+            : 'bg-red-100 text-red-800'
+        }`}
+      >
+        {product.status === 'active' ? 'Đang bán' : 'Ngừng bán'}
+      </span>
+    </div>
+  </div>
+);
 
 export default AdminCategories;
