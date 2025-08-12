@@ -59,14 +59,18 @@ export const useAnalytics = (period: AnalyticsPeriod = '7days') => {
       const dateRange = generateDateRange(days);
 
       // Fetch orders data
+
+      // Chuẩn hóa startDate về 00:00:00 và endDate về 23:59:59
+      const startDateISO = dateRange[0] + 'T00:00:00.000Z';
+      const endDateISO = dateRange[dateRange.length - 1] + 'T23:59:59.999Z';
       const ordersResponse = await orderService.getAllOrders({ 
         page: 1, 
         limit: 1000,
-        startDate: dateRange[0],
-        endDate: dateRange[dateRange.length - 1]
+        startDate: startDateISO,
+        endDate: endDateISO
       });
 
-      const orders = ordersResponse?.orders || [];
+  const orders = ordersResponse?.orders || [];
 
       // Process sales data by date
       const salesByDate = dateRange.reduce((acc, date) => {

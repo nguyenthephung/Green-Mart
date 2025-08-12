@@ -1,9 +1,10 @@
-import React, { useRef, memo, useCallback } from 'react';
+import React, { useRef, memo, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { FaShoppingCart } from 'react-icons/fa';
 import { Heart } from 'lucide-react';
 import { useWishlistStore } from '../../../stores/useWishlistStore';
 import { useUserStore } from '../../../stores/useUserStore';
+import { useFlashSaleStore } from '../../../stores/useFlashSaleStore';
 import { useAddToCartAnimation } from '../../../hooks/useAddToCartAnimation';
 import StarRating from '../../ui/StarRating';
 import type { Product } from '../../../types/Product';
@@ -15,31 +16,83 @@ interface ProductCardProps {
   showHotBadge?: boolean;
   quantity?: number;
   onQuantityChange?: (value: number) => void;
+  imageHeight?: string; // tailwind height class, e.g. 'h-40', 'h-56'
 }
 
-const ProductCard: React.FC<ProductCardProps> = memo(({ product, onAddToCart, showSaleBadge = true, quantity = 1, onQuantityChange }) => {
+const ProductCard: React.FC<ProductCardProps> = memo(({ product, onAddToCart, showSaleBadge = true, quantity = 1, onQuantityChange, imageHeight = 'h-40' }) => {
   const imgRef = useRef<HTMLImageElement>(null);
   const { triggerAnimation } = useAddToCartAnimation();
   
   // Wishlist store hooks
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlistStore();
   const user = useUserStore(state => state.user);
+  
+  // Flash Sale store hooks
+  const { getFlashSaleForProduct } = useFlashSaleStore();
+  
+  // Check if product is in active Flash Sale
+  const flashSaleInfo = useMemo(() => {
+    if (!product.id) return null;
+    return getFlashSaleForProduct(product.id.toString());
+  }, [product.id, getFlashSaleForProduct]);
+  
+  // Calculate display price and discount info
+  const priceInfo = useMemo(() => {
+    if (flashSaleInfo) {
+      const { product: flashProduct } = flashSaleInfo;
+      return {
+        currentPrice: flashProduct.flashSalePrice,
+        originalPrice: flashProduct.originalPrice,
+        isFlashSale: true,
+        discountPercentage: flashProduct.discountPercentage,
+        remainingStock: flashProduct.quantity - flashProduct.sold
+      };
+    } else if (product.isSale && product.salePrice && product.salePrice < product.price) {
+      return {
+        currentPrice: product.salePrice,
+        originalPrice: product.price,
+        isFlashSale: false,
+        discountPercentage: Math.round((1 - product.salePrice / product.price) * 100),
+        remainingStock: null
+      };
+    } else {
+      return {
+        currentPrice: product.price,
+        originalPrice: null,
+        isFlashSale: false,
+        discountPercentage: 0,
+        remainingStock: null
+      };
+    }
+  }, [product, flashSaleInfo]);
 
-  // Memoize cart handler with modern animation
+  // Memoize cart handler with modern animation and Flash Sale support
   const handleAddToCart = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
+    
+    // Create product with correct price and Flash Sale info
+    const productToAdd = {
+      ...product,
+      price: priceInfo.currentPrice, // Use Flash Sale price if available
+      flashSale: flashSaleInfo ? {
+        flashSaleId: flashSaleInfo.flashSale._id,
+        isFlashSale: true,
+        originalPrice: priceInfo.originalPrice!,
+        discountPercentage: priceInfo.discountPercentage
+      } : undefined
+    };
     
     if (imgRef.current) {
       triggerAnimation({
         sourceElement: imgRef.current,
         onComplete: () => {
-          onAddToCart(product);
+          onAddToCart(productToAdd);
         }
       });
     } else {
-      onAddToCart(product);
+      onAddToCart(productToAdd);
     }
-  }, [product, onAddToCart, triggerAnimation]);
+  }, [product, onAddToCart, triggerAnimation, priceInfo, flashSaleInfo]);
 
   const handleWishlistToggle = useCallback(async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -55,16 +108,12 @@ const ProductCard: React.FC<ProductCardProps> = memo(({ product, onAddToCart, sh
       if (product.id && isInWishlist(product.id.toString())) {
         await removeFromWishlist(product.id.toString());
       } else if (product.id) {
-        // Price is now number, handle salePrice which might be undefined
-        const currentPrice = product.salePrice || product.price;
-        const originalPrice = product.isSale ? product.price : undefined;
-        
         await addToWishlist({
           id: product.id,
           name: product.name,
-          price: currentPrice,
-          originalPrice: originalPrice,
-          discount: product.isSale && originalPrice ? Math.round((1 - currentPrice / originalPrice) * 100) : undefined,
+          price: priceInfo.currentPrice,
+          originalPrice: priceInfo.originalPrice,
+          discount: priceInfo.originalPrice ? priceInfo.discountPercentage : undefined,
           image: product.image,
           category: product.category,
           inStock: true
@@ -73,7 +122,7 @@ const ProductCard: React.FC<ProductCardProps> = memo(({ product, onAddToCart, sh
     } catch (error) {
       console.error('Error toggling wishlist:', error);
     }
-  }, [user, isInWishlist, removeFromWishlist, addToWishlist, product]);
+  }, [user, isInWishlist, removeFromWishlist, addToWishlist, product, priceInfo]);
 
   return (
     <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-xl transform transition-all duration-400 hover:shadow-2xl dark:shadow-gray-900/50 hover:-translate-y-2 perspective-1000 relative flex flex-col h-full">
@@ -96,7 +145,7 @@ const ProductCard: React.FC<ProductCardProps> = memo(({ product, onAddToCart, sh
             ref={imgRef}
             src={product.image}
             alt={product.name}
-            className="w-full h-40 object-cover rounded-lg transform transition-transform duration-300 hover:scale-105"
+            className={`w-full ${imageHeight} object-cover rounded-lg transform transition-transform duration-300 hover:scale-105`}
           />
         ) : null}
       </Link>
@@ -115,28 +164,36 @@ const ProductCard: React.FC<ProductCardProps> = memo(({ product, onAddToCart, sh
       
       {/* Giá và badge: luôn chiếm cùng chiều cao */}
       <div className="min-h-[38px] flex items-end">
-        {product.isSale && showSaleBadge && product.salePrice && product.salePrice < product.price ? (
+          {(priceInfo.isFlashSale && priceInfo.remainingStock !== null && priceInfo.remainingStock > 0) ? (
+            <div className="flex flex-wrap items-center gap-1 mt-1 w-full">
+              <span className="text-gray-400 dark:text-gray-500 line-through text-xs sm:text-sm truncate">
+                {priceInfo.originalPrice?.toLocaleString('vi-VN')}đ
+              </span>
+              <span className="text-red-600 dark:text-red-400 font-bold text-sm sm:text-lg truncate">
+                {priceInfo.currentPrice.toLocaleString('vi-VN')}đ
+              </span>
+              <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full whitespace-nowrap animate-pulse">
+                ⚡ FLASH SALE
+              </span>
+              {priceInfo.remainingStock !== null && (
+                <span className="bg-orange-100 text-orange-800 text-xs px-1 py-0.5 rounded whitespace-nowrap">
+                  Còn {priceInfo.remainingStock}
+                </span>
+              )}
+            </div>
+          ) : priceInfo.originalPrice && showSaleBadge ? (
           <div className="flex flex-wrap items-center gap-1 mt-1 w-full">
             <span className="text-gray-400 dark:text-gray-500 line-through text-xs sm:text-sm truncate">
-              {product.price.toLocaleString('vi-VN')}đ
+              {priceInfo.originalPrice.toLocaleString('vi-VN')}đ
             </span>
             <span className="text-red-600 dark:text-red-400 font-bold text-sm sm:text-lg truncate">
-              {product.salePrice?.toLocaleString('vi-VN')}đ
+              {priceInfo.currentPrice.toLocaleString('vi-VN')}đ
             </span>
             <span className="bg-red-500 dark:bg-red-600 text-white text-xs font-semibold px-1 py-0.5 rounded whitespace-nowrap">SALE</span>
           </div>
-        ) : product.isSale && product.salePrice && product.salePrice < product.price ? (
-          <div className="flex flex-wrap items-center gap-1 mt-1 w-full">
-            <span className="text-gray-400 dark:text-gray-500 line-through text-xs sm:text-sm truncate">
-              {product.price.toLocaleString('vi-VN')}đ
-            </span>
-            <span className="text-red-600 dark:text-red-400 font-bold text-sm sm:text-lg truncate">
-              {product.salePrice?.toLocaleString('vi-VN')}đ
-            </span>
-          </div>
         ) : (
           <p className="text-gray-600 dark:text-gray-300 mt-1 text-sm sm:text-base truncate w-full">
-            {(product.salePrice && product.salePrice < product.price ? product.salePrice : product.price).toLocaleString('vi-VN')}đ
+            {priceInfo.currentPrice.toLocaleString('vi-VN')}đ
           </p>
         )}
       </div>

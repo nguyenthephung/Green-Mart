@@ -11,9 +11,17 @@ interface CartItemProps {
     unit?: string;
     type?: 'count' | 'weight';
     weight?: number;
+    flashSale?: {
+      flashSaleId: string;
+      isFlashSale: boolean;
+      originalPrice: number;
+      discountPercentage: number;
+      quantity?: number;
+      sold?: number;
+    };
   };
-  onQuantityChange: (id: string, value: number, unit?: string, type?: 'count' | 'weight') => void;
-  onRemove: (id: string, unit?: string, type?: 'count' | 'weight') => void;
+  onQuantityChange: (id: string, value: number, unit?: string, type?: 'count' | 'weight', flashSale?: any) => void;
+  onRemove: (id: string, unit?: string, type?: 'count' | 'weight', flashSale?: any) => void;
 }
 
 export default function CartItem({ item, onQuantityChange, onRemove }: CartItemProps) {
@@ -23,20 +31,25 @@ export default function CartItem({ item, onQuantityChange, onRemove }: CartItemP
   const handleDecrease = () => {
     if (item.type === 'weight') return;
     if (item.quantity === 1) {
-      onRemove(item.id, item.unit, item.type);
+      onRemove(item.id, item.unit, item.type, item.flashSale);
     } else {
-      onQuantityChange(item.id, item.quantity - 1, item.unit, item.type);
+      onQuantityChange(item.id, item.quantity - 1, item.unit, item.type, item.flashSale);
     }
   };
-  const handleIncrease = () => {
-    if (item.type === 'weight') return;
-    onQuantityChange(item.id, item.quantity + 1, item.unit, item.type);
-  };
+    const handleIncrease = () => {
+      if (item.type === 'weight') return;
+      // Nếu là flash sale, kiểm tra số lượng còn lại
+      if (item.flashSale?.isFlashSale) {
+        const maxQty = (item.flashSale.quantity || 0) - (item.flashSale.sold || 0);
+        if (item.quantity >= maxQty) return; // Không cho tăng vượt quá số lượng còn lại
+      }
+      onQuantityChange(item.id, item.quantity + 1, item.unit, item.type, item.flashSale);
+    };
   // Handler cho sản phẩm cân ký
   const handleWeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(e.target.value);
     if (!isNaN(value) && value > 0) {
-      onQuantityChange(item.id, value, item.unit, item.type);
+      onQuantityChange(item.id, value, item.unit, item.type, item.flashSale);
     }
   };
   return (
@@ -45,8 +58,31 @@ export default function CartItem({ item, onQuantityChange, onRemove }: CartItemP
         <img src={item.image} alt={item.name} className="w-16 h-16 object-contain" />
         <div className="min-w-0">
           <h3 className="font-medium text-app-primary break-words">{item.name}</h3>
-          <div className="text-sm text-app-muted line-through break-all">{item.originalPrice.toLocaleString()} ₫</div>
-          <div className="text-green-700 font-bold break-all">{item.price.toLocaleString()} ₫</div>
+          
+          {/* Flash Sale Badge */}
+          {item.flashSale?.isFlashSale && (
+            <div className="flex items-center gap-2 mb-1">
+              <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
+                FLASH SALE -{item.flashSale.discountPercentage}%
+              </span>
+            </div>
+          )}
+          
+          {/* Price Display */}
+          {item.flashSale?.isFlashSale ? (
+            <div className="flex items-center gap-2">
+              <div className="text-red-600 font-bold break-all">{item.price.toLocaleString()} ₫</div>
+              <div className="text-sm text-app-muted line-through break-all">{item.flashSale.originalPrice.toLocaleString()} ₫</div>
+            </div>
+          ) : item.originalPrice && item.originalPrice > item.price ? (
+            <div className="flex items-center gap-2">
+              <div className="text-sm text-app-muted line-through break-all">{item.originalPrice.toLocaleString()} ₫</div>
+              <div className="text-green-700 font-bold break-all">{item.price.toLocaleString()} ₫</div>
+            </div>
+          ) : (
+            <div className="text-green-700 font-bold break-all">{item.price.toLocaleString()} ₫</div>
+          )}
+          
           {item.unit && <div className="text-xs text-gray-500 break-words">Đơn vị: {item.unit}</div>}
         </div>
       </div>
@@ -90,10 +126,9 @@ export default function CartItem({ item, onQuantityChange, onRemove }: CartItemP
             <span className="w-12 text-center font-medium text-app-primary">{item.quantity}</span>
             <button
               onClick={handleIncrease}
-              className="w-8 h-8 flex items-center justify-center rounded-full text-white"
-              style={{ backgroundColor: '#16a34a' }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#15803d')}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#16a34a')}
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-app-card text-app-primary hover:bg-app-secondary"
+              aria-label="Tăng số lượng"
+              disabled={item.flashSale?.isFlashSale && item.quantity >= ((item.flashSale.quantity || 0) - (item.flashSale.sold || 0))}
             >
               <Plus className="w-5 h-5" />
             </button>

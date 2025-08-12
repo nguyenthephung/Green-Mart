@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { uploadService } from '../services/uploadService';
 
 interface UploadResponse {
   success: boolean;
@@ -6,12 +7,14 @@ interface UploadResponse {
   error?: string;
 }
 
-// Simple file upload service
-// In a production app, you would upload to a cloud storage service like AWS S3, Cloudinary, etc.
+// Enhanced file upload service with Cloudinary integration
 export const useFileUpload = () => {
   const [isUploading, setIsUploading] = useState(false);
 
-  const uploadFile = async (file: File): Promise<UploadResponse> => {
+  const uploadFile = async (
+    file: File, 
+    type: 'products' | 'banners' | 'avatars' | 'ratings' = 'products'
+  ): Promise<UploadResponse> => {
     try {
       setIsUploading(true);
 
@@ -20,36 +23,69 @@ export const useFileUpload = () => {
         throw new Error('Chỉ chấp nhận file hình ảnh');
       }
 
-      // Validate file size (5MB limit)
-      const maxSize = 5 * 1024 * 1024; // 5MB
-      if (file.size > maxSize) {
-        throw new Error('Kích thước file không được vượt quá 5MB');
+      // Validate file size based on type
+      const maxSizes = {
+        products: 5 * 1024 * 1024, // 5MB
+        banners: 10 * 1024 * 1024, // 10MB  
+        avatars: 2 * 1024 * 1024, // 2MB
+        ratings: 3 * 1024 * 1024, // 3MB
+      };
+
+      if (file.size > maxSizes[type]) {
+        throw new Error(`Kích thước file không được vượt quá ${maxSizes[type] / (1024 * 1024)}MB`);
       }
 
-      // For now, convert to base64 for demo purposes
-      // In production, you would upload to a server/cloud storage
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const base64 = e.target?.result as string;
-          resolve({
-            success: true,
-            url: base64
-          });
-        };
-        reader.onerror = () => {
-          resolve({
-            success: false,
-            error: 'Lỗi khi đọc file'
-          });
-        };
-        reader.readAsDataURL(file);
-      });
+      // Try to upload to Cloudinary first
+      let response;
+      try {
+        switch (type) {
+          case 'products':
+            response = await uploadService.uploadProductImage(file);
+            break;
+          case 'banners':
+            response = await uploadService.uploadBannerImage(file);
+            break;
+          case 'avatars':
+            response = await uploadService.uploadAvatarImage(file);
+            break;
+          case 'ratings':
+            response = await uploadService.uploadRatingImages([file]);
+            break;
+          default:
+            response = await uploadService.uploadProductImage(file);
+        }
 
-    } catch (error) {
+        if (response.success) {
+          return {
+            success: true,
+            url: (response.data as any).imageUrl || (response.data as any).imageUrls?.[0]
+          };
+        } else {
+          throw new Error(response.message || 'Upload failed');
+        }
+      } catch (cloudinaryError: any) {
+        console.warn('Cloudinary upload failed, falling back to base64:', cloudinaryError.message);
+        
+        // Fallback to base64 for demo purposes
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const base64 = e.target?.result as string;
+            resolve({
+              success: true,
+              url: base64
+            });
+          };
+          reader.onerror = () => {
+            reject(new Error('Lỗi đọc file'));
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+    } catch (error: any) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Lỗi không xác định'
+        error: error.message || 'Lỗi upload file'
       };
     } finally {
       setIsUploading(false);
@@ -57,23 +93,23 @@ export const useFileUpload = () => {
   };
 
   // Upload multiple files
-  const uploadFiles = async (files: File[]): Promise<UploadResponse[]> => {
+  const uploadFiles = async (files: File[], type: 'products' | 'banners' | 'avatars' | 'ratings' = 'products'): Promise<UploadResponse[]> => {
     const results: UploadResponse[] = [];
-    
     for (const file of files) {
-      const result = await uploadFile(file);
+      const result = await uploadFile(file, type);
       results.push(result);
     }
-    
     return results;
   };
 
-  // Delete file (placeholder for future implementation)
+  // Delete file from Cloudinary
   const deleteFile = async (url: string): Promise<boolean> => {
     try {
-      // In production, you would call an API to delete the file
-      console.log('Deleting file:', url);
-      return true;
+      if (url.includes('cloudinary.com')) {
+        await uploadService.deleteImage(url);
+        return true;
+      }
+      return true; // Base64 images don't need deletion
     } catch (error) {
       console.error('Error deleting file:', error);
       return false;
@@ -88,4 +124,16 @@ export const useFileUpload = () => {
   };
 };
 
-export default useFileUpload;
+// Utility to check if file is valid image
+export const isValidImageFile = (file: File): boolean => {
+  return file.type.startsWith('image/');
+};
+
+// Utility to format file size
+export const formatFileSize = (bytes: number): string => {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+};

@@ -1,4 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { useFileUpload } from '../../hooks/useFileUpload';
+import { uploadService } from '../../services/uploadService';
 
 interface RichTextEditorProps {
   content: string;
@@ -28,6 +30,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const [isFocused, setIsFocused] = useState(false);
   const [sections, setSections] = useState<EditorSection[]>([]);
   const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
+  const { uploadFile } = useFileUpload();
 
   // Toolbar actions
   const formatText = useCallback((command: string, value?: string) => {
@@ -113,28 +116,48 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     }
   }, [formatText, readOnly]);
 
-  // Insert image
-  const insertImage = useCallback(() => {
+  // Insert image with Cloudinary upload
+  const insertImage = useCallback(async () => {
     if (readOnly) return;
     
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-    input.onchange = (e) => {
+    input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const result = e.target?.result as string;
-          if (result) {
-            formatText('insertImage', result);
+        try {
+          // Upload to Cloudinary first
+          const result = await uploadFile(file, 'products');
+          if (result.success && result.url) {
+            formatText('insertImage', result.url);
+          } else {
+            // Fallback to base64 if upload fails
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              const result = e.target?.result as string;
+              if (result) {
+                formatText('insertImage', result);
+              }
+            };
+            reader.readAsDataURL(file);
           }
-        };
-        reader.readAsDataURL(file);
+        } catch (error) {
+          console.error('Image upload error:', error);
+          // Fallback to base64
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const result = e.target?.result as string;
+            if (result) {
+              formatText('insertImage', result);
+            }
+          };
+          reader.readAsDataURL(file);
+        }
       }
     };
     input.click();
-  }, [formatText, readOnly]);
+  }, [formatText, readOnly, uploadFile]);
 
   // Add section
   const addSection = useCallback((type: EditorSection['type']) => {

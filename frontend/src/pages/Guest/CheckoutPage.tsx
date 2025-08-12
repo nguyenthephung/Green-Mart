@@ -122,8 +122,10 @@ const Checkout = () => {
 
   // Tính tổng tiền hàng
   const subtotal = cart.reduce((sum, item) => {
+    // item.price already contains the correct price (flash sale or regular)
     const price = item.price || 0;
-    return sum + price * item.quantity;
+    const quantity = item.type === 'weight' ? (item.weight || 0) : (item.quantity || 0);
+    return sum + price * quantity;
   }, 0);
 
   // Tính giảm giá voucher
@@ -170,7 +172,9 @@ const Checkout = () => {
         const hasId = item.id && item.id !== '' && item.id !== 'undefined';
         const hasName = item.name && item.name.trim() !== '';
         const hasQuantity = item.quantity && item.quantity > 0;
-        const hasPrice = item.price && item.price > 0;
+        // item.price already contains the correct price (flash sale or regular)
+        const itemPrice = item.price || 0;
+        const hasPrice = itemPrice && itemPrice > 0;
         
         // Additional validation for MongoDB ObjectId (should be 24 hex characters)
         const idString = String(item.id).trim();
@@ -194,9 +198,12 @@ const Checkout = () => {
         items: validItems.map(item => ({
           productId: String(item.id).trim(), // Now using consistent id field
           quantity: Number(item.quantity) || 0,
+          // item.price already contains the correct price (flash sale or regular)
           price: Number(item.price) || 0,
           name: (item.name || '').trim(),
-          image: (item.image || '').trim()
+          image: (item.image || '').trim(),
+          // Include flash sale info if applicable
+          flashSale: item.flashSale
         })),
         shippingAddress: {
           fullName: selectedAddress.fullName,
@@ -289,7 +296,14 @@ const Checkout = () => {
 
             if (paymentResponse.success) {
               // Clear cart for both COD and Bank Transfer after successful order creation
-              await useCartStore.getState().clearCart();
+              try {
+                await useCartStore.getState().clearCart();
+                await useCartStore.getState().fetchCart(); // Force sync UI
+                console.log('Cart cleared and synced successfully after order creation');
+              } catch (clearError) {
+                console.error('Failed to clear cart after order:', clearError);
+                // Continue anyway as order was created successfully
+              }
               
               // Clear voucher after successful order
               if (voucher) {

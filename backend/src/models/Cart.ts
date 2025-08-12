@@ -9,6 +9,13 @@ export interface ICartItem {
   quantity?: number; // chỉ dùng cho sản phẩm đếm số lượng
   weight?: number;   // chỉ dùng cho sản phẩm cân ký
   unit: string;
+  flashSale?: {
+    isFlashSale: boolean;
+    originalPrice?: number;
+    discountPercent?: number;
+    discountPercentage?: number;
+    flashSaleId?: mongoose.Types.ObjectId;
+  };
 }
 
 export interface ICart extends Document {
@@ -57,6 +64,29 @@ const CartItemSchema: Schema = new Schema({
     type: String,
     required: true,
     trim: true
+  },
+  flashSale: {
+    isFlashSale: {
+      type: Boolean,
+      default: false
+    },
+    originalPrice: {
+      type: Number,
+      required: false
+    },
+    discountPercent: {
+      type: Number,
+      required: false
+    },
+    discountPercentage: {
+      type: Number,
+      required: false
+    },
+    flashSaleId: {
+      type: Schema.Types.ObjectId,
+      ref: 'FlashSale',
+      required: false
+    }
   }
 });
 

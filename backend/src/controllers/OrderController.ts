@@ -4,6 +4,7 @@ import Payment from '../models/Payment';
 import Product from '../models/Product';
 import Voucher from '../models/Voucher';
 import User from '../models/User';
+import FlashSale from '../models/FlashSale';
 import { Types } from 'mongoose';
 import NotificationHelper from '../services/notificationHelper';
 
@@ -13,6 +14,12 @@ interface OrderItem {
   price: number;
   name: string;
   image?: string;
+  flashSale?: {
+    flashSaleId: string;
+    isFlashSale: boolean;
+    originalPrice: number;
+    discountPercentage: number;
+  };
 }
 
 interface CreateOrderRequest {
@@ -54,6 +61,7 @@ class OrderController {
 
       // Validate products and calculate amounts
       let subtotal = 0;
+      let flashSaleDiscount = 0;
       const validatedItems = [];
 
       for (const item of items) {
@@ -74,15 +82,46 @@ class OrderController {
           return;
         }
 
-        const itemTotal = product.price * item.quantity;
-        subtotal += itemTotal;
+        // Luôn sử dụng giá gốc cho subtotal để thống kê chính xác
+        const itemSubtotal = product.price * item.quantity;
+        subtotal += itemSubtotal;
+
+        let flashSaleInfo = null;
+        
+        // Check if item has Flash Sale info
+        if (item.flashSale?.isFlashSale && item.flashSale.flashSaleId) {
+          // Validate Flash Sale is still active
+          const flashSale = await FlashSale.findById(item.flashSale.flashSaleId);
+          if (flashSale && flashSale.isActive) {
+            const now = new Date();
+            if (flashSale.startTime <= now && flashSale.endTime >= now && flashSale.status === 'active') {
+              // Find the product in Flash Sale
+              const flashSaleProduct = flashSale.products.find(p => p.productId === item.productId);
+              if (flashSaleProduct) {
+                const discountAmount = product.price - flashSaleProduct.flashSalePrice;
+                const totalDiscountForItem = discountAmount * item.quantity;
+                flashSaleDiscount += totalDiscountForItem;
+                
+                flashSaleInfo = {
+                  flashSaleId: item.flashSale.flashSaleId,
+                  flashSalePrice: flashSaleProduct.flashSalePrice,
+                  discountAmount: discountAmount,
+                  discountPercentage: flashSaleProduct.discountPercentage
+                };
+                
+                console.log(`Flash Sale applied for ${product.name}: ${product.price}₫ → ${flashSaleProduct.flashSalePrice}₫ (Discount: ${discountAmount}₫ x ${item.quantity} = ${totalDiscountForItem}₫)`);
+              }
+            }
+          }
+        }
 
         validatedItems.push({
           productId: new Types.ObjectId(item.productId),
           quantity: item.quantity,
-          price: product.price,
+          price: product.price, // Giá gốc để thống kê
           name: product.name,
-          image: product.images?.[0]
+          image: product.images?.[0],
+          flashSaleInfo: flashSaleInfo
         });
       }
 
@@ -185,11 +224,13 @@ class OrderController {
       // Calculate shipping (simple flat rate for demo)
       const shippingFee = subtotal >= 300000 ? 0 : 30000; // Free shipping for orders >= 300k VND
 
-      const totalAmount = subtotal - discount + shippingFee;
+      // Calculate final total: subtotal - voucherDiscount - flashSaleDiscount + shipping
+      const totalAmount = subtotal - discount - flashSaleDiscount + shippingFee;
 
       console.log('OrderController - Final calculation:', {
         subtotal,
-        discount,
+        voucherDiscount: discount,
+        flashSaleDiscount,
         shippingFee,
         totalAmount,
         voucherCode,
@@ -211,14 +252,16 @@ class OrderController {
           productId: item.productId,
           productName: item.name, // Map name to productName
           quantity: item.quantity,
-          price: item.price,
-          image: item.image
+          price: item.price, // Giá gốc để thống kê
+          image: item.image,
+          flashSaleInfo: item.flashSaleInfo
         })),
         subtotal,
         deliveryFee: shippingFee,
         serviceFee: 0, // Add if needed
         voucherDiscount: discount,
         voucherCode: voucherCode || undefined,
+        flashSaleDiscount: flashSaleDiscount,
         totalAmount,
         paymentMethod,
         paymentStatus: 'unpaid',
@@ -230,12 +273,30 @@ class OrderController {
 
       await order.save();
 
-      // Update product stock
+      // Update product stock and Flash Sale count
       for (const item of validatedItems) {
         await Product.findByIdAndUpdate(
           item.productId,
           { $inc: { stock: -item.quantity } }
         );
+        
+        // Update Flash Sale count if applicable
+        if (item.flashSaleInfo?.flashSaleId) {
+          try {
+            const flashSale = await FlashSale.findById(item.flashSaleInfo.flashSaleId);
+            if (flashSale) {
+              const flashSaleProduct = flashSale.products.find(p => p.productId === item.productId.toString());
+              if (flashSaleProduct) {
+                flashSaleProduct.sold = (flashSaleProduct.sold || 0) + item.quantity;
+                await flashSale.save();
+                console.log(`Updated Flash Sale count for product ${item.productId}: sold +${item.quantity}`);
+              }
+            }
+          } catch (flashSaleError) {
+            console.error('Error updating Flash Sale count:', flashSaleError);
+            // Don't fail the order if Flash Sale update fails
+          }
+        }
       }
 
       // Create notifications for order creation - ONLY for offline payment methods

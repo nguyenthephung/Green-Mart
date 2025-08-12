@@ -79,7 +79,7 @@ export default function CartPage() {
   // Cuộn lên đầu trang khi component được mount
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    fetchCart();
+    fetchCart(true); // Luôn lấy dữ liệu mới nhất từ backend
     fetchVouchers();
   }, [fetchCart, fetchVouchers]);
 
@@ -136,10 +136,13 @@ export default function CartPage() {
     // Lấy id đúng: ưu tiên productId nếu có, fallback sang id
     const id = String(item.productId || item.id);
     const product = products.find(p => String(p.id) === id);
-    let priceNumber = item.price;
-    let originalPrice = item.price;
+    
+    // Use flash sale price if available, otherwise use cart price or product price
+    let priceNumber = item.flashSale?.isFlashSale ? item.price : item.price;
+    let originalPrice = item.flashSale?.originalPrice || item.price;
     let category = '';
-    if (product) {
+    
+    if (product && !item.flashSale?.isFlashSale) {
       if (Array.isArray(product.units)) {
         const mainUnit = product.units.find((u: any) => u.type === item.unit) || product.units[0];
         priceNumber = mainUnit.price;
@@ -149,7 +152,11 @@ export default function CartPage() {
         originalPrice = product.price;
       }
       if (typeof product.category === 'string') category = product.category;
+    } else if (product && item.flashSale?.isFlashSale) {
+      // For flash sale items, keep the flash sale price but get category from product
+      if (typeof product.category === 'string') category = product.category;
     }
+    
     // Always include id, unit, and type from the original item
     return {
       ...item,
@@ -249,7 +256,12 @@ export default function CartPage() {
           <OptimizedCartList
             items={cartListItems}
             onQuantityChange={(id, value, unit, type) => {
-              updateQuantity(String(id), value, unit, type);
+              const item = cart.find(cartItem => 
+                String(cartItem.id) === String(id) && 
+                cartItem.unit === unit && 
+                cartItem.type === type
+              );
+              updateQuantity(String(id), value, unit, type, item?.flashSale);
             }}
             onRemove={(id, unit, type) => {
               if (!id || id === 'undefined') {
@@ -257,8 +269,13 @@ export default function CartPage() {
                 alert('Không thể xóa sản phẩm: ID không hợp lệ.');
                 return;
               }
-              console.log('[CartPage] removeFromCart called:', { id, unit, type });
-              removeFromCart(String(id), unit, type)
+              const item = cart.find(cartItem => 
+                String(cartItem.id) === String(id) && 
+                cartItem.unit === unit && 
+                cartItem.type === type
+              );
+              console.log('[CartPage] removeFromCart called:', { id, unit, type, flashSale: item?.flashSale });
+              removeFromCart(String(id), unit, type, item?.flashSale)
                 .then(() => {
                   console.log('[CartPage] removeFromCart success');
                 })

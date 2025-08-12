@@ -3,6 +3,8 @@ import type { AdminProduct } from '../../../types/AdminProduct';
 import { useCategoryStore } from '../../../stores/useCategoryStore';
 import NumberInput from '../../ui/NumberInput';
 import ProductDescriptionEditor from '../ProductDescriptionEditor';
+import ImageUpload from '../../ui/ImageUpload';
+import { useFileUpload } from '../../../hooks/useFileUpload';
 
 type AddProductModalProps = {
   show: boolean;
@@ -43,18 +45,16 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
   const [parentCategory, setParentCategory] = useState<string>('');
   const [subCategory, setSubCategory] = useState<string>('');
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [imagePreview, setImagePreview] = useState<string>('');
   const [imagesPreview, setImagesPreview] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const multiFileInputRef = useRef<HTMLInputElement>(null);
+  const { uploadFile } = useFileUpload();
   // Lấy danh mục từ store
   const { categories } = useCategoryStore();
 
   const resetForm = () => {
     setProduct(defaultProduct);
-    setImagePreview('');
     setImagesPreview([]);
     setErrors({});
     setCurrentStep(1);
@@ -77,57 +77,60 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
     return err;
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        setErrors(prev => ({ ...prev, image: 'Kích thước ảnh không được vượt quá 5MB' }));
-        return;
-      }
-      
-      const reader = new FileReader();
-      reader.onload = ev => {
-        const result = ev.target?.result as string;
-        setImagePreview(result);
-        setProduct(prev => ({ ...prev, image: result }));
-        setErrors(prev => ({ ...prev, image: '' }));
-      };
-      reader.readAsDataURL(file);
-    }
+  // Handle image upload from ImageUpload component
+  const handleMainImageUpload = (imageUrl: string) => {
+    setProduct(prev => ({ ...prev, image: imageUrl }));
+    setErrors(prev => ({ ...prev, image: '' }));
   };
 
-  const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle multiple images upload with Cloudinary
+  const handleImagesChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
+      try {
+        const fileArray = Array.from(files);
+        // Gắn index vào từng file để giữ thứ tự
+        const fileWithIndex = fileArray.map((file, idx) => ({ file, idx, name: file.name }));
 
-      const arr: string[] = [];
-      let loadedCount = 0;
+        // Upload song song, trả về kèm index
+        const uploadPromises = fileWithIndex.map(({ file, idx, name }) =>
+          uploadFile(file, 'products').then(result => ({ ...result, idx, name }))
+        );
+        const uploadResults = await Promise.all(uploadPromises);
 
-      Array.from(files).forEach(file => {
-        if (file.size > 5 * 1024 * 1024) {
-          setErrors(prev => ({ ...prev, images: 'Mỗi ảnh không được vượt quá 5MB' }));
-          return;
+        // Sắp xếp lại theo idx ban đầu
+        const sortedUploads = uploadResults
+          .filter(result => result && result.url)
+          .sort((a, b) => a.idx - b.idx)
+          .map(result => result.url)
+          .filter((url): url is string => typeof url === 'string' && !!url);
+
+        if (sortedUploads.length > 0) {
+          setImagesPreview(prev => prev.concat(sortedUploads));
+          setProduct(prev => ({
+            ...prev,
+            images: (prev.images || []).concat(sortedUploads)
+          }));
+          setErrors(prev => ({ ...prev, images: '' }));
         }
-
-        const reader = new FileReader();
-        reader.onload = ev => {
-          arr.push(ev.target?.result as string);
-          loadedCount++;
-          if (loadedCount === files.length) {
-            setImagesPreview(arr);
-            setProduct(prev => ({ ...prev, images: arr }));
-            setErrors(prev => ({ ...prev, images: '' }));
-          }
-        };
-        reader.readAsDataURL(file);
-      });
+      } catch (error) {
+        console.error('Error uploading additional images:', error);
+        setErrors(prev => ({ ...prev, images: 'Có lỗi xảy ra khi tải ảnh' }));
+      }
     }
+    // Always reset input so user can re-upload same files
+    if (multiFileInputRef.current) multiFileInputRef.current.value = '';
   };
 
+  // Remove additional image
   const removeImage = (index: number) => {
     const newImages = imagesPreview.filter((_, i) => i !== index);
     setImagesPreview(newImages);
     setProduct(prev => ({ ...prev, images: newImages }));
+    // If all images are removed, reset the file input
+    if (newImages.length === 0 && multiFileInputRef.current) {
+      multiFileInputRef.current.value = '';
+    }
   };
 
   const calculateSalePrice = () => {
@@ -155,7 +158,8 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
       images: product.images || [],
       stock: product.stock || 0,
       status: product.status || 'active',
-      description: product.description || '',
+  description: product.description || '',
+  richDescription: product.richDescription || undefined,
       brand: product.brand || '',
       unit: product.unit || '',
       isSale: !!product.isSale,
@@ -502,39 +506,13 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Ảnh đại diện <span className="text-red-500">*</span>
                   </label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-green-400 transition-colors">
-                    {imagePreview ? (
-                      <div className="relative">
-                        <img src={imagePreview} alt="Preview" className="w-full h-48 object-cover rounded-lg mb-3" />
-                        <button
-                          type="button"
-                          onClick={() => fileInputRef.current?.click()}
-                          className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors"
-                        >
-                          Thay đổi ảnh
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="py-8">
-                        <div className="text-6xl mb-3">📷</div>
-                        <p className="text-gray-500 mb-3">Chọn ảnh đại diện sản phẩm</p>
-                        <button
-                          type="button"
-                          onClick={() => fileInputRef.current?.click()}
-                          className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors"
-                        >
-                          Chọn ảnh
-                        </button>
-                      </div>
-                    )}
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="hidden"
-                    />
-                  </div>
+                  <ImageUpload
+                    value={product.image}
+                    onChange={handleMainImageUpload}
+                    placeholder="Chọn ảnh đại diện sản phẩm"
+                    maxSize={5}
+                    className="w-full"
+                  />
                   {errors.image && <p className="text-red-500 text-sm mt-1">{errors.image}</p>}
                 </div>
 

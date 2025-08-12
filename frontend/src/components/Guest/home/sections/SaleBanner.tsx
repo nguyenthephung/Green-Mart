@@ -105,7 +105,7 @@ export default function SaleBanner({ className = '' }: SaleBannerProps) {
 
             {/* Right Image */}
             <div className="flex-shrink-0 relative">
-              <div className="w-48 h-48 md:w-64 md:h-64 rounded-2xl overflow-hidden shadow-2xl group-hover:scale-110 transition-transform duration-500 relative">
+              <div className="w-56 h-64 md:w-80 md:h-80 rounded-2xl overflow-hidden shadow-2xl group-hover:scale-110 transition-transform duration-500 relative">
                 <img
                   src={banner.imageUrl}
                   alt={banner.title}

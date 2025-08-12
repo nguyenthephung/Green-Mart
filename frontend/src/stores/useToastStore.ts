@@ -15,7 +15,7 @@ interface ToastState {
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
-export const useToastStore = create<ToastState>((set, get) => ({
+export const useToastStore = create<ToastState>((set) => ({
   toasts: [],
   
   addToast: (toast) => {
@@ -40,7 +40,7 @@ export const useToastStore = create<ToastState>((set, get) => ({
   },
   
   // Convenience methods - All disabled
-  showSuccess: (title, message, duration = 4000) => {
+  showSuccess: () => {
     // get().addToast({
     //   type: 'success',
     //   title,
@@ -49,7 +49,7 @@ export const useToastStore = create<ToastState>((set, get) => ({
     // });
   },
   
-  showError: (title, message, duration = 6000) => {
+  showError: () => {
     // get().addToast({
     //   type: 'error',
     //   title,
@@ -58,7 +58,7 @@ export const useToastStore = create<ToastState>((set, get) => ({
     // });
   },
   
-  showWarning: (title, message, duration = 5000) => {
+  showWarning: () => {
     // get().addToast({
     //   type: 'warning',
     //   title,
@@ -67,7 +67,7 @@ export const useToastStore = create<ToastState>((set, get) => ({
     // });
   },
   
-  showInfo: (title, message, duration = 4000) => {
+  showInfo: () => {
     // get().addToast({
     //   type: 'info',
     //   title,

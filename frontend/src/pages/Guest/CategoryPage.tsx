@@ -1,8 +1,9 @@
-import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import type { Product } from '../../types/Product';
 import { useProductStore } from '../../stores/useProductStore';
 import { useCategoryStore } from '../../stores/useCategoryStore';
 import { useUserStore } from '../../stores/useUserStore';
+import { useFlashSaleStore } from '../../stores/useFlashSaleStore';
 
 // Extend AddressInfo locally to match actual usage
 type AddressInfo = {
@@ -16,13 +17,17 @@ type AddressInfo = {
   isSelected?: boolean;
   fullName?: string;
 };
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useCartStore } from '../../stores/useCartStore';
 import { StarIcon, FireIcon } from '@heroicons/react/24/solid';
 import ProductCard from '../../components/Guest/home/ProductCard';
 
 
 export default function CategoryPage() {
+  // All hooks must be inside the component
+  const fetchAllProducts = useProductStore(state => state.fetchAll);
+  const location = useLocation();
+
   // Lấy user và addresses từ store
   const user = useUserStore(state => state.user);
   const addresses = useUserStore(state => state.addresses as AddressInfo[]);
@@ -33,7 +38,20 @@ export default function CategoryPage() {
   const categories = useCategoryStore(state => state.categories);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState('default');
-  
+
+  // Flash Sale store
+  const { fetchActiveFlashSales, getFlashSaleForProduct } = useFlashSaleStore();
+
+  // Load Flash Sale data when component mounts
+  useEffect(() => {
+    fetchActiveFlashSales();
+  }, [fetchActiveFlashSales]);
+
+  // Fetch products when route changes (e.g. after add product)
+  useEffect(() => {
+    fetchAllProducts();
+  }, [location.pathname]);
+
   // Initialize filterType based on URL parameters
   const [filterType, setFilterType] = useState<'all' | 'sale' | 'featured'>(() => {
     if (searchParams.get('sale') === 'true') return 'sale';
@@ -103,18 +121,38 @@ export default function CategoryPage() {
     });
   }, [products, category, search, filterType, sort, categories]);
 
-  // Handle add to cart
+  // Handle add to cart with Flash Sale support
   // Thêm vào giỏ hàng luôn với số lượng mặc định 1
   const handleAddToCart = (item: Product) => {
+    const productId = String(item._id);
+    
+    // Check if product is in Flash Sale
+    const flashSaleInfo = getFlashSaleForProduct(productId);
+    
+    // Use Flash Sale price if available, otherwise use regular pricing logic
+    let price: number;
+    if (flashSaleInfo) {
+      price = flashSaleInfo.product.flashSalePrice;
+    } else {
+      price = typeof item.salePrice === 'number' ? item.salePrice : item.price;
+    }
+    
     addToCart({
-      id: String(item._id),
+      id: productId,
       name: item.name,
-      price: typeof item.salePrice === 'number' ? item.salePrice : item.price,
+      price,
       image: item.image,
       unit: item.unit || '',
       quantity: item.type === 'weight' ? 0 : 1,
       type: item.type,
-      weight: item.type === 'weight' ? 1 : undefined
+      weight: item.type === 'weight' ? 1 : undefined,
+      // Include Flash Sale info if applicable
+      flashSale: flashSaleInfo ? {
+        flashSaleId: flashSaleInfo.flashSale._id,
+        isFlashSale: true,
+        originalPrice: flashSaleInfo.product.originalPrice,
+        discountPercentage: flashSaleInfo.product.discountPercentage
+      } : undefined
     });
   };
 
@@ -126,7 +164,7 @@ export default function CategoryPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Page Header */}
         <div className="text-center mb-12 pt-8">
-          <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4 leading-tight overflow-hidden">
             {category ? (
               // Nếu category param là parent category, hiển thị tên parent
               categories.some(cat => cat.name === category) ? category :
@@ -317,12 +355,12 @@ export default function CategoryPage() {
                   product={{
                     id: product.id,
                     name: product.name,
-                    price: typeof product.salePrice === 'number' ? product.salePrice : product.price,
-                    image: product.image,
-                    category: product.category,
-                    unit: product.unit || "",
+                    price: product.price,
                     salePrice: product.salePrice,
                     isSale: product.isSale,
+                    image: product.image,
+                    category: product.category,
+                    unit: product.unit || '',
                     averageRating: product.averageRating,
                     totalRatings: product.totalRatings
                   }}

@@ -33,7 +33,7 @@ export const profileService = {
       const formData = new FormData();
       formData.append('avatar', file);
       
-      const response = await fetch('/api/auth/upload-avatar', {
+      const response = await fetch('/api/upload/avatar', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`

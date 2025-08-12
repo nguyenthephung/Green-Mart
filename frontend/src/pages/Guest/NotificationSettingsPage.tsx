@@ -17,10 +17,12 @@ const NotificationSettingsPage: React.FC = () => {
   }, [settings]);
 
   const handleChange = (key: string) => {
-    if (!localSettings) return;
+    if (!localSettings?.settings) return;
+    
+    console.log('Changing setting:', key, 'from', localSettings.settings[key as keyof typeof localSettings.settings], 'to', !localSettings.settings[key as keyof typeof localSettings.settings]);
     
     setLocalSettings(prev => {
-      if (!prev || !prev.settings) return prev;
+      if (!prev) return prev;
       return {
         ...prev,
         settings: {
@@ -156,7 +158,7 @@ const NotificationSettingsPage: React.FC = () => {
 
         <div className="bg-white dark:bg-gray-950 rounded-2xl shadow-lg p-8">
           <div className="space-y-6">
-            {notificationTypes.map(({ key, label, description, color, icon }) => {
+            {notificationTypes.map(({ key, label, description, icon }) => {
               const isEnabled = localSettings?.settings?.[key as keyof typeof localSettings.settings] || false;
               return (
                 <div key={key} className={`p-6 rounded-2xl transition-all duration-300 ${
@@ -171,10 +173,12 @@ const NotificationSettingsPage: React.FC = () => {
                           type="button"
                           className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                             isEnabled 
-                              ? `bg-${color}-600 dark:bg-gray-800 focus:ring-${color}-500 dark:focus:ring-gray-700` 
-                              : 'bg-gray-200 dark:bg-gray-800 focus:ring-gray-500 dark:focus:ring-gray-700'
+                              ? (key === 'order' ? 'bg-green-600 focus:ring-green-500' : 
+                                 key === 'promotion' ? 'bg-orange-600 focus:ring-orange-500' : 
+                                 'bg-blue-600 focus:ring-blue-500') 
+                              : 'bg-gray-200 dark:bg-gray-600 focus:ring-gray-500'
                           }`}
-                          onClick={() => handleChange(key as keyof typeof settings)}
+                          onClick={() => handleChange(key)}
                         >
                           <span
                             className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -186,7 +190,9 @@ const NotificationSettingsPage: React.FC = () => {
                       <p className="text-gray-600 dark:text-gray-400">{description}</p>
                       <div className="flex items-center gap-2 mt-3">
                         <div className={`w-2 h-2 rounded-full ${
-                          isEnabled ? `bg-${color}-500` : 'bg-gray-400'
+                          isEnabled ? (key === 'order' ? 'bg-green-500' : 
+                                      key === 'promotion' ? 'bg-orange-500' : 
+                                      'bg-blue-500') : 'bg-gray-400'
                         }`}></div>
                         <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
                           {isEnabled ? 'Đã bật' : 'Đã tắt'}

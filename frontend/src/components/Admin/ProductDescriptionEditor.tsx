@@ -134,17 +134,31 @@ const ProductDescriptionEditor: React.FC<ProductDescriptionEditorProps> = ({
               )}
             </div>
 
-            <RichTextEditor
-              content={product.richDescription?.content || ''}
-              onChange={handleRichDescriptionChange}
-              placeholder="Nhập mô tả chi tiết với định dạng phong phú..."
-              className="min-h-[200px]"
-              readOnly={readOnly}
-              maxHeight="250px"
-            />
-            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-              💡 Sử dụng editor toàn màn hình để soạn thảo nội dung dài một cách thuận tiện hơn.
-            </p>
+            {/* Inline editor - only show if modal is not being used or in readOnly mode */}
+            {(readOnly || !showRichTextModal) && (
+              <div>
+                <RichTextEditor
+                  content={product.richDescription?.content || ''}
+                  onChange={handleRichDescriptionChange}
+                  placeholder="Nhập mô tả chi tiết với định dạng phong phú..."
+                  className="min-h-[200px]"
+                  readOnly={readOnly}
+                  maxHeight="250px"
+                />
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                  💡 Sử dụng editor toàn màn hình để soạn thảo nội dung dài một cách thuận tiện hơn.
+                </p>
+              </div>
+            )}
+
+            {/* Show message when modal is preferred */}
+            {!readOnly && !showRichTextModal && (
+              <div className="text-center py-4">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                  Hoặc sử dụng editor inline bên dưới để chỉnh sửa nhanh
+                </p>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -4,13 +4,20 @@ export interface IOrderItem {
   productId: mongoose.Types.ObjectId;
   productName: string;
   quantity: number;
-  price: number;
+  price: number; // Luôn là giá gốc để thống kê chính xác
   image?: string;
   weight?: number;
   unit?: string;
   total?: number;
   product?: mongoose.Types.ObjectId;
   name?: string;
+  // Flash Sale info for discount calculation
+  flashSaleInfo?: {
+    flashSaleId: string;
+    flashSalePrice: number;
+    discountAmount: number; // = originalPrice - flashSalePrice
+    discountPercentage: number;
+  };
 }
 
 export interface IGuestInfo {
@@ -37,6 +44,7 @@ export interface IOrder extends Document {
   serviceFee: number;
   voucherDiscount: number;
   voucherCode?: string;
+  flashSaleDiscount: number; // Tổng discount từ Flash Sale
   totalAmount: number;
   shippingFee?: number;
   status: 'pending' | 'confirmed' | 'preparing' | 'shipping' | 'delivered' | 'cancelled' | 'returned';
@@ -78,6 +86,20 @@ const OrderItemSchema: Schema = new Schema({
     type: Number,
     required: true,
     min: 0
+  },
+  flashSaleInfo: {
+    flashSaleId: {
+      type: String
+    },
+    flashSalePrice: {
+      type: Number
+    },
+    discountAmount: {
+      type: Number
+    },
+    discountPercentage: {
+      type: Number
+    }
   },
   image: {
     type: String,
@@ -171,6 +193,11 @@ const OrderSchema: Schema = new Schema({
   voucherCode: {
     type: String,
     default: null
+  },
+  flashSaleDiscount: {
+    type: Number,
+    default: 0,
+    min: 0
   },
   totalAmount: {
     type: Number,

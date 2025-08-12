@@ -17,6 +17,7 @@ const adminMenu = [
   { label: 'Quản lý đơn hàng', path: '/admin/orders', icon: '🧾', color: 'from-pink-500 to-pink-600' },
   { label: 'Quản lý voucher', path: '/admin/vouchers', icon: '🎁', color: 'from-yellow-500 to-yellow-600' },
   { label: 'Quản lý banner', path: '/admin/banners', icon: '🖼️', color: 'from-indigo-500 to-indigo-600' },
+  { label: 'Quản lý Flash Sale', path: '/admin/flash-sales', icon: '⚡', color: 'from-red-500 to-red-600' },
 ];
 
 const AdminLayout: React.FC = () => {

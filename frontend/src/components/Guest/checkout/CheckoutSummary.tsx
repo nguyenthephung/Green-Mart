@@ -127,8 +127,10 @@ const CheckoutSummary = ({
   const itemsTotal = useMemo(
     () =>
       cart.reduce((sum, item) => {
+        // item.price already contains the correct price (flash sale or regular)
         const price = item.price || 0;
-        return sum + price * item.quantity;
+        const quantity = item.type === 'weight' ? (item.weight || 0) : (item.quantity || 0);
+        return sum + price * quantity;
       }, 0),
     [cart]
   );

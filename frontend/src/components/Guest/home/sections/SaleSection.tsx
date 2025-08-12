@@ -19,7 +19,7 @@ const SaleSection: React.FC<SaleSectionProps> = ({ saleProducts, handleAddToCart
           <div className="w-2 h-2 bg-yellow-300 rounded-full animate-ping"></div>
         </div>
         <h2 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent mb-4 leading-tight">
-          Flash Sale
+          Giảm giá
         </h2>
         <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">
           Cơ hội vàng! Giảm giá sốc chỉ có hôm nay. Nhanh tay trước khi hết hàng!
@@ -33,10 +33,22 @@ const SaleSection: React.FC<SaleSectionProps> = ({ saleProducts, handleAddToCart
                 🔥 SALE
               </span>
             </div>
-            <ProductCard 
-              product={product} 
-              onAddToCart={handleAddToCart} 
-              showSaleBadge={false}
+            <ProductCard
+              product={{
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                salePrice: product.salePrice,
+                isSale: product.isSale,
+                image: product.image,
+                category: product.category,
+                unit: product.unit || '',
+                averageRating: product.averageRating,
+                totalRatings: product.totalRatings
+              }}
+              onAddToCart={handleAddToCart}
+              showSaleBadge={true}
+              imageHeight="h-56"
             />
           </div>
         ))}

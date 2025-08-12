@@ -104,7 +104,7 @@ export default function FeaturedBanner({ className = '' }: FeaturedBannerProps) 
 
             {/* Image */}
             <div className="flex-shrink-0">
-              <div className="w-48 h-32 md:w-64 md:h-40 rounded-xl overflow-hidden shadow-lg group-hover:scale-105 transition-transform duration-300">
+              <div className="w-56 h-40 md:w-80 md:h-56 rounded-xl overflow-hidden shadow-lg group-hover:scale-105 transition-transform duration-300">
                 <img
                   src={banner.imageUrl}
                   alt={banner.title}

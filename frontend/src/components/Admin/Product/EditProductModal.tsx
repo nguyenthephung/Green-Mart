@@ -3,6 +3,8 @@ import type { AdminProduct } from '../../../types/AdminProduct';
 import { useCategoryStore } from '../../../stores/useCategoryStore';
 import NumberInput from '../../ui/NumberInput';
 import ProductDescriptionEditor from '../ProductDescriptionEditor';
+import ImageUpload from '../../ui/ImageUpload';
+import { useFileUpload } from '../../../hooks/useFileUpload';
 
 interface EditProductModalProps {
   show: boolean;
@@ -25,9 +27,10 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ show, product, onCl
   const [parentCategory, setParentCategory] = useState<string>('');
   const [subCategory, setSubCategory] = useState<string>('');
   const { categories = [] } = useCategoryStore();
+  const { uploadFile } = useFileUpload();
+  
   useEffect(() => {
     setEditProduct(product);
-    setEditImagePreview(product?.image || '');
     setEditImagesPreview(product?.images || []);
     setErrors({});
     // Set parent/sub on open
@@ -55,14 +58,11 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ show, product, onCl
     }
   }, [product, show, categories]);
   const [errors, setErrors] = useState<any>({});
-  const [editImagePreview, setEditImagePreview] = useState<string>('');
   const [editImagesPreview, setEditImagesPreview] = useState<string[]>([]);
-  const editFileInputRef = useRef<HTMLInputElement>(null);
   const editMultiFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setEditProduct(product);
-    setEditImagePreview(product?.image || '');
     setEditImagesPreview(product?.images || []);
     setErrors({});
   }, [product, show]);
@@ -80,34 +80,36 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ show, product, onCl
     return err;
   };
 
-  const handleEditImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = ev => {
-        setEditImagePreview(ev.target?.result as string);
-        setEditProduct(prev => prev ? { ...prev, image: ev.target?.result as string } : null);
-      };
-      reader.readAsDataURL(file);
-    }
+  // Handle main image upload using ImageUpload component
+  const handleMainImageUpload = (imageUrl: string) => {
+    setEditProduct(prev => prev ? { ...prev, image: imageUrl } : null);
   };
 
-  const handleEditImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEditImagesChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      const arr: string[] = [];
-      Array.from(files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = ev => {
-          arr.push(ev.target?.result as string);
-          if (arr.length === files.length) {
-            setEditImagesPreview(arr);
-            setEditProduct(prev => prev ? { ...prev, images: arr } : null);
-          }
-        };
-        reader.readAsDataURL(file);
-      });
+      try {
+        const fileArray = Array.from(files);
+        const uploadPromises = fileArray.map(file => uploadFile(file, 'products'));
+        const uploadResults = await Promise.all(uploadPromises);
+
+        const successfulUploads = uploadResults
+          .filter((result: any) => result && result.url)
+          .map((result: any) => result.url);
+
+        if (successfulUploads.length > 0) {
+          setEditImagesPreview(prev => prev.concat(successfulUploads));
+          setEditProduct(prev => prev ? {
+            ...prev,
+            images: (prev.images || []).concat(successfulUploads)
+          } : null);
+        }
+      } catch (error) {
+        console.error('Error uploading additional images:', error);
+      }
     }
+    // Always reset input so user can re-upload same files
+    if (editMultiFileInputRef.current) editMultiFileInputRef.current.value = '';
   };
 
   const handleSave = () => {
@@ -288,16 +290,13 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ show, product, onCl
           <div className="space-y-3">
             <div>
               <label className="block text-sm font-medium mb-1" style={isDarkMode ? { color: '#fff' } : {}}>Ảnh đại diện <span className="text-red-500">*</span></label>
-              <div className="flex items-center gap-2">
-                <input type="file" accept="image/*" className="hidden" ref={editFileInputRef} onChange={handleEditImageChange} />
-                <button
-                  type="button"
-                  className="border px-3 py-1 rounded text-sm"
-                  style={isDarkMode ? { backgroundColor: '#f3f4f6', color: '#23272f', borderColor: '#e5e7eb' } : {}}
-                  onClick={() => editFileInputRef.current?.click()}
-                >Chọn ảnh</button>
-                {editImagePreview && <img src={editImagePreview} alt="avatar" className="w-12 h-12 object-cover rounded border" />}
-              </div>
+              <ImageUpload
+                value={editProduct?.image || ''}
+                onChange={handleMainImageUpload}
+                placeholder="Chọn ảnh đại diện sản phẩm"
+                maxSize={5}
+                className="w-full"
+              />
               {errors.image && <div className="text-red-500 text-xs">{errors.image}</div>}
             </div>
             <div>
@@ -310,8 +309,28 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ show, product, onCl
                   style={isDarkMode ? { backgroundColor: '#f3f4f6', color: '#23272f', borderColor: '#e5e7eb' } : {}}
                   onClick={() => editMultiFileInputRef.current?.click()}
                 >Chọn ảnh</button>
-                <div className="flex gap-1 overflow-x-auto">
-                  {editImagesPreview.map((img, idx) => <img key={idx} src={img} alt="mô tả" className="w-10 h-10 object-cover rounded border" />)}
+                <div className="flex gap-3 overflow-x-auto py-2">
+                  {editImagesPreview.map((img, idx) => (
+                    <div key={idx} className="relative group w-24 h-24">
+                      <img src={img} alt="mô tả" className="w-full h-full object-cover rounded-lg border shadow" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newImages = editImagesPreview.filter((_, i) => i !== idx);
+                          setEditImagesPreview(newImages);
+                          setEditProduct(prev => prev ? { ...prev, images: newImages } : null);
+                          // If all images are removed, reset the file input
+                          if (newImages.length === 0 && editMultiFileInputRef.current) {
+                            editMultiFileInputRef.current.value = '';
+                          }
+                        }}
+                        className="absolute -top-3 -right-3 w-8 h-8 bg-red-500 text-white rounded-full text-base font-bold hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg flex items-center justify-center"
+                        title="Xóa ảnh"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

@@ -4,12 +4,10 @@ import { Heart, ShoppingCart, Trash2, Package } from 'lucide-react';
 // import { useWishlist } from '../../reduxSlice/WishlistContext';
 import { useCartStore } from '../../stores/useCartStore';
 import { useWishlistStore } from '../../stores/useWishlistStore';
-import { useToastStore } from '../../stores/useToastStore';
 
 const WishlistPage: React.FC = () => {
   const { items, removeFromWishlist, clearWishlist, isLoading } = useWishlistStore();
   const addToCart = useCartStore(state => state.addToCart);
-  const { showSuccess, showError } = useToastStore();
 
   const handleAddToCart = (item: any) => {
     try {
@@ -25,20 +23,8 @@ const WishlistPage: React.FC = () => {
         quantity: 1,
       };
       addToCart(cartItem);
-      
-      // Hiển thị thông báo thành công
-      showSuccess(
-        'Đã thêm vào giỏ hàng!',
-        `${cartItem.name} đã được thêm vào giỏ hàng của bạn.`,
-        3000
-      );
     } catch (error) {
-      // Hiển thị thông báo lỗi nếu có
-      showError(
-        'Lỗi!',
-        'Không thể thêm sản phẩm vào giỏ hàng. Vui lòng thử lại.',
-        3000
-      );
+      console.error('Error adding to cart:', error);
     }
   };
 

@@ -92,6 +92,12 @@ export interface CartItem {
   quantity: number; // cho sản phẩm đếm số lượng
   type?: 'count' | 'weight';
   weight?: number; // cho sản phẩm cân ký
+  flashSale?: {
+    flashSaleId: string;
+    isFlashSale: boolean;
+    originalPrice: number;
+    discountPercentage: number;
+  };
 }
 
 interface CartState {
@@ -102,8 +108,8 @@ interface CartState {
   error?: string;
   fetchCart: (force?: boolean) => Promise<void>;
   addToCart: (item: Omit<CartItem, 'quantity'> & { quantity: number }) => Promise<void>;
-  updateQuantity: (productId: string | number, value: number, unit?: string, type?: 'count' | 'weight') => Promise<void>;
-  removeFromCart: (productId: string | number, unit?: string, type?: 'count' | 'weight') => Promise<void>;
+  updateQuantity: (productId: string | number, value: number, unit?: string, type?: 'count' | 'weight', flashSale?: any) => Promise<void>;
+  removeFromCart: (productId: string | number, unit?: string, type?: 'count' | 'weight', flashSale?: any) => Promise<void>;
   clearCart: () => Promise<void>;
   clearAllCartData: () => void; // Clear both server and guest cart
   cleanInvalidItems: () => Promise<void>;
@@ -169,7 +175,9 @@ export const useCartStore = create<CartState>((set, get) => ({
             unit: item.unit,
             quantity: item.quantity || 0,
             type: item.type || 'count',
-            weight: item.weight || 0
+            weight: item.weight || 0,
+            // Preserve Flash Sale information
+            flashSale: item.flashSale || undefined
           }));
         } else if (Array.isArray(res.data)) {
           items = res.data as CartItem[];
@@ -205,7 +213,9 @@ export const useCartStore = create<CartState>((set, get) => ({
       const existingIndex = state.items.findIndex(cartItem => 
         String(cartItem.id) === String(item.id) && 
         cartItem.unit === item.unit &&
-        cartItem.type === item.type
+        cartItem.type === item.type &&
+        // Include Flash Sale status in matching to keep Flash Sale and regular items separate
+        Boolean(cartItem.flashSale?.isFlashSale) === Boolean(item.flashSale?.isFlashSale)
       );
       
       let newItems = [...state.items];
@@ -216,12 +226,16 @@ export const useCartStore = create<CartState>((set, get) => ({
         if (item.type === 'weight') {
           newItems[existingIndex] = {
             ...newItems[existingIndex],
-            weight: (newItems[existingIndex].weight || 0) + (item.weight || 0)
+            weight: (newItems[existingIndex].weight || 0) + (item.weight || 0),
+            // Update flash sale info if provided
+            ...(item.flashSale && { flashSale: item.flashSale })
           };
         } else {
           newItems[existingIndex] = {
             ...newItems[existingIndex],
-            quantity: newItems[existingIndex].quantity + item.quantity
+            quantity: newItems[existingIndex].quantity + item.quantity,
+            // Update flash sale info if provided
+            ...(item.flashSale && { flashSale: item.flashSale })
           };
         }
       } else {
@@ -235,7 +249,9 @@ export const useCartStore = create<CartState>((set, get) => ({
           unit: item.unit,
           quantity: item.quantity,
           type: item.type,
-          weight: item.weight
+          weight: item.weight,
+          // Include flash sale info if provided
+          ...(item.flashSale && { flashSale: item.flashSale })
         });
       }
       
@@ -259,9 +275,9 @@ export const useCartStore = create<CartState>((set, get) => ({
     try {
       let res;
       if (item.type === 'weight') {
-        res = await apiAddToCart(String(item.id), undefined, item.unit, item.weight, 'weight');
+        res = await apiAddToCart(String(item.id), undefined, item.unit, item.weight, 'weight', item.flashSale);
       } else {
-        res = await apiAddToCart(String(item.id), item.quantity, item.unit, undefined, 'count');
+        res = await apiAddToCart(String(item.id), item.quantity, item.unit, undefined, 'count', item.flashSale);
       }
       
       console.log('Cart store: API response:', res);
@@ -304,13 +320,32 @@ export const useCartStore = create<CartState>((set, get) => ({
       set({ error: err.message || 'Lỗi thêm sản phẩm' });
     }
   },
-  updateQuantity: async (productId: string | number, value: number, unit?: string, type?: 'count' | 'weight') => {
+  updateQuantity: async (productId: string | number, value: number, unit?: string, type?: 'count' | 'weight', flashSale?: any) => {
+  console.log('[useCartStore] CALL updateCartItem API:', { productId, value, unit, type, flashSale });
+    // Find the item to get its flashSale info first (include flashSaleId in matching)
+    const currentState = get();
+    const item = currentState.items.find(item => 
+      String(item.id) === String(productId) && 
+      item.unit === unit && 
+      item.type === type &&
+      (
+        (item.flashSale?.isFlashSale && flashSale?.isFlashSale && String(item.flashSale?.flashSaleId) === String(flashSale?.flashSaleId)) ||
+        (!item.flashSale?.isFlashSale && !flashSale?.isFlashSale)
+      )
+    );
+
     // Optimistic update - update UI immediately
     set((state) => {
       const newItems = state.items.map(item => {
-        if (String(item.id) === String(productId) && 
-            item.unit === unit && 
-            item.type === type) {
+        if (
+          String(item.id) === String(productId) &&
+          item.unit === unit &&
+          item.type === type &&
+          (
+            (item.flashSale?.isFlashSale && flashSale?.isFlashSale && String(item.flashSale?.flashSaleId) === String(flashSale?.flashSaleId)) ||
+            (!item.flashSale?.isFlashSale && !flashSale?.isFlashSale)
+          )
+        ) {
           if (type === 'weight') {
             return { ...item, weight: value };
           } else {
@@ -319,88 +354,75 @@ export const useCartStore = create<CartState>((set, get) => ({
         }
         return item;
       });
-      
       const { totalItems, totalAmount } = calculateTotals(newItems);
-      return { 
-        ...state,
-        items: newItems, 
-        totalItems, 
-        totalAmount, 
-        loading: false,
-        error: undefined
-      };
+      return { ...state, items: newItems, totalItems, totalAmount, loading: false, error: undefined };
     });
 
     // Then sync with server in background
     try {
       let res;
       if (type === 'weight') {
-        res = await updateCartItem(String(productId), undefined, unit, value, 'weight');
+        res = await updateCartItem(String(productId), undefined, unit, value, 'weight', flashSale);
       } else {
-        res = await updateCartItem(String(productId), value, unit, undefined, 'count');
+        res = await updateCartItem(String(productId), value, unit, undefined, 'count', flashSale);
       }
-      
-      if (res.success) {
-        console.log('Cart store: updateQuantity success - optimistic update already applied');
-        // No need to fetchCart again since we already updated optimistically
-      } else if ((res as any)?.requireLogin) {
+      // Không fetch lại cart sau thao tác
+      if ((res as any)?.requireLogin) {
         // Guest user - sync with localStorage  
         const currentState = get();
         setGuestCart(currentState.items);
-      } else {
-        // API error - revert optimistic update by refetching
-        console.warn('API error, reverting optimistic update');
-        await get().fetchCart();
+      } else if (!res.success) {
         set({ error: res.message || 'Lỗi cập nhật số lượng' });
       }
     } catch (err: any) {
-      console.error('Update quantity error, reverting optimistic update:', err);
       // Revert optimistic update on error
-      await get().fetchCart();
       set({ error: err.message || 'Lỗi cập nhật số lượng' });
     }
   },
-  removeFromCart: async (productId: string | number, unit?: string, type?: 'count' | 'weight') => {
+  removeFromCart: async (productId: string | number, unit?: string, type?: 'count' | 'weight', flashSale?: any) => {
+  console.log('[useCartStore] CALL removeCartItem API:', { productId, unit, type, flashSale });
+    // Find the item to get its flashSale info before removing (include flashSaleId in matching)
+    const currentState = get();
+    const item = currentState.items.find(item => 
+      String(item.id) === String(productId) && 
+      item.unit === unit && 
+      item.type === type &&
+      (
+        (item.flashSale?.isFlashSale && flashSale?.isFlashSale && String(item.flashSale?.flashSaleId) === String(flashSale?.flashSaleId)) ||
+        (!item.flashSale?.isFlashSale && !flashSale?.isFlashSale)
+      )
+    );
+
     // Optimistic update - update UI immediately
     set((state) => {
       const newItems = state.items.filter(item => {
-        const match = String(item.id) === String(productId) && 
-                      item.unit === unit && 
-                      item.type === type;
+        const match =
+          String(item.id) === String(productId) &&
+          item.unit === unit &&
+          item.type === type &&
+          (
+            (item.flashSale?.isFlashSale && flashSale?.isFlashSale && String(item.flashSale?.flashSaleId) === String(flashSale?.flashSaleId)) ||
+            (!item.flashSale?.isFlashSale && !flashSale?.isFlashSale)
+          );
         return !match;
       });
-      
       const { totalItems, totalAmount } = calculateTotals(newItems);
-      return { 
-        ...state,
-        items: newItems, 
-        totalItems, 
-        totalAmount, 
-        loading: false,
-        error: undefined
-      };
+      return { ...state, items: newItems, totalItems, totalAmount, loading: false, error: undefined };
     });
 
     // Then sync with server in background
     try {
-      const res = await removeCartItem(String(productId), unit, type);
-      if (res.success) {
-        console.log('Cart store: removeFromCart success - optimistic update already applied');
-        // No need to fetchCart again since we already updated optimistically
-      } else if ((res as any)?.requireLogin) {
+      const res = await removeCartItem(String(productId), unit, type, flashSale);
+      // Không fetch lại cart sau thao tác
+      if ((res as any)?.requireLogin) {
         // Guest user - sync with localStorage
         const currentState = get();
         setGuestCart(currentState.items);
-      } else {
-        // API error - revert optimistic update by refetching
-        console.warn('API error, reverting optimistic update');
-        await get().fetchCart();
+      } else if (!res.success) {
         set({ error: res.message || 'Lỗi xóa sản phẩm' });
       }
     } catch (err: any) {
-      console.error('Remove from cart error, reverting optimistic update:', err);
       // Revert optimistic update on error
-      await get().fetchCart();
       set({ error: err.message || 'Lỗi xóa sản phẩm' });
     }
   },

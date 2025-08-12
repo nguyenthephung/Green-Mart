@@ -8,6 +8,12 @@ export interface CreateOrderRequest {
     price: number;
     name: string;
     image?: string;
+    flashSale?: {
+      flashSaleId: string;
+      isFlashSale: boolean;
+      originalPrice: number;
+      discountPercentage: number;
+    };
   }>;
   shippingAddress: {
     fullName: string;
@@ -183,7 +189,6 @@ class OrderService {
 
       const url = `${this.BASE_URL}/all${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
       const response = await apiClient<any>(url);
-      
       // Handle the response structure from backend
       if ((response as any).orders && (response as any).pagination) {
         return {

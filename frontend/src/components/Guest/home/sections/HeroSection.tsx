@@ -51,13 +51,15 @@ const HeroSection: React.FC<HeroSectionProps> = ({ isScrolling }) => {
     }
   }, [heroBanners.length]);
 
-  const handleBannerClick = async () => {
+  const handleBannerClick = async (e?: React.MouseEvent) => {
+    // Ngăn sự kiện nổi bọt nếu click từ button
+    if (e) e.stopPropagation();
     const activeBanner = heroBanners[currentHeroBanner];
     if (activeBanner) {
       try {
         await incrementClickCount(activeBanner._id);
         if (activeBanner.linkUrl) {
-          window.open(activeBanner.linkUrl, '_blank');
+          window.location.href = activeBanner.linkUrl;
         }
       } catch (error) {
         console.error('Error tracking banner click:', error);
@@ -80,7 +82,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ isScrolling }) => {
       /* Hero Banner Mode - Only Database Banners */
       <div
         className="absolute inset-0 transition-all duration-1000 cursor-pointer"
-        onClick={handleBannerClick}
+        // Xóa onClick ở div để tránh double count
       >
         <BannerImage
           src={activeBanner.imageUrl}

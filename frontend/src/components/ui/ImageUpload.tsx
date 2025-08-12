@@ -30,6 +30,16 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   const { showSuccess, showError } = useToastStore();
   const { uploadFile } = useFileUpload();
 
+  // Determine upload type based on context
+  const getUploadType = (): 'products' | 'banners' | 'avatars' | 'ratings' => {
+    // Check if we're in a specific context based on URL or props
+    const currentPath = window.location.pathname;
+    if (currentPath.includes('/banner')) return 'banners';
+    if (currentPath.includes('/profile') || currentPath.includes('/avatar')) return 'avatars';
+    if (currentPath.includes('/rating') || currentPath.includes('/review')) return 'ratings';
+    return 'products'; // default
+  };
+
   // Handle file selection
   const handleFileSelect = async (file: File) => {
     if (disabled) return;
@@ -50,14 +60,15 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     try {
       setIsUploading(true);
 
-      // Use the upload service
-      const result = await uploadFile(file);
+      // Determine upload type and use the upload service
+      const uploadType = getUploadType();
+      const result = await uploadFile(file, uploadType);
       
       if (result.success && result.url) {
         // Create preview
         setPreview(result.url);
         onChange(result.url);
-        showSuccess('Thành công', 'Hình ảnh đã được tải lên thành công.');
+        showSuccess('Thành công', 'Hình ảnh đã được tải lên Cloudinary thành công.');
         
         if (onFileChange) {
           onFileChange(file);

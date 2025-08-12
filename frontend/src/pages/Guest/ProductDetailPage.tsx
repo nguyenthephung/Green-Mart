@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useCallback, useMemo, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { useProductStore } from '../../stores/useProductStore';
 import ProductDetailDisplay from '../../components/Guest/ProductDetailDisplay';
 
@@ -10,8 +10,12 @@ import BannerManager from '../../components/Guest/BannerManager';
 const ProductDetailPage: React.FC = () => {
   // 1. All hooks must be at the very top, no conditional logic before them
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
   const { products, fetchAll } = useProductStore();
   const addToCart = useCartStore(state => state.addToCart);
+  
+  // Get Flash Sale info from navigation state
+  const flashSaleInfo = location.state?.flashSale || null;
   
   // 2. All refs
   const imgRef = useRef<HTMLImageElement>(null);
@@ -33,12 +37,36 @@ const ProductDetailPage: React.FC = () => {
   }, [products, product, id]);
 
   const mainUnit = useMemo(() => {
-    if (!product) return { type: '', price: 0 };
-    if (product.unit === 'kg') {
-      return { type: 'kg', price: product.price };
+    if (!product) return { type: '', price: 0, originalPrice: 0, isFlashSale: false };
+    
+    // If coming from Flash Sale, use Flash Sale price
+    if (flashSaleInfo && flashSaleInfo.flashSalePrice) {
+      return { 
+        type: product.unit === 'kg' ? 'kg' : (product.unit || ''),
+        price: flashSaleInfo.flashSalePrice,
+        originalPrice: flashSaleInfo.originalPrice || product.price,
+        isFlashSale: true,
+        discountPercentage: flashSaleInfo.discountPercentage,
+        endTime: flashSaleInfo.endTime
+      };
     }
-    return { type: product.unit || '', price: product.price };
-  }, [product]);
+    
+    // Normal pricing logic
+    if (product.unit === 'kg') {
+      return { 
+        type: 'kg', 
+        price: typeof product.salePrice === 'number' ? product.salePrice : product.price,
+        originalPrice: product.price,
+        isFlashSale: false
+      };
+    }
+    return { 
+      type: product.unit || '', 
+      price: typeof product.salePrice === 'number' ? product.salePrice : product.price,
+      originalPrice: product.price,
+      isFlashSale: false
+    };
+  }, [product, flashSaleInfo]);
 
   const descriptionImages = useMemo(() => {
     return Array.isArray(product?.images) ? product.images : [];
@@ -101,15 +129,28 @@ const ProductDetailPage: React.FC = () => {
   const handleAddToCart = useCallback((e: React.MouseEvent) => {
     if (!product) return;
     e.stopPropagation();
+    
+    // Use Flash Sale price if available, otherwise use regular price logic
+    const finalPrice = mainUnit.isFlashSale 
+      ? mainUnit.price 
+      : (typeof product.salePrice === 'number' ? product.salePrice : product.price);
+    
     addToCart({
       id: String(product.id),
       name: product.name,
-      price: typeof product.salePrice === 'number' ? product.salePrice : product.price,
+      price: finalPrice,
       image: product.image,
       unit: product.unit || '',
       quantity: product.type === 'weight' ? 0 : 1,
       type: product.type,
-      weight: product.type === 'weight' ? 1 : undefined
+      weight: product.type === 'weight' ? 1 : undefined,
+      // Add Flash Sale info to cart item
+      flashSale: mainUnit.isFlashSale ? {
+        flashSaleId: flashSaleInfo?.flashSaleId,
+        isFlashSale: true,
+        originalPrice: mainUnit.originalPrice,
+        discountPercentage: mainUnit.discountPercentage
+      } : undefined
     });
 
     // Flying animation
@@ -146,7 +187,7 @@ const ProductDetailPage: React.FC = () => {
         }, 800);
       }
     }
-  }, [product, addToCart]);
+  }, [product, addToCart, mainUnit, flashSaleInfo]);
 
   const handleAddToCartRelated = useCallback((e: React.MouseEvent, item: any) => {
     e.stopPropagation();
@@ -221,9 +262,37 @@ const ProductDetailPage: React.FC = () => {
         <div className="bg-white p-8 rounded-2xl shadow-2xl">
           <h1 className="text-3xl font-bold text-gray-800 mb-4">{product.name}</h1>
           
-          <p className="text-2xl text-green-600 font-semibold mb-4">
-            {mainUnit.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
-          </p>
+          {/* Flash Sale Badge */}
+          {mainUnit.isFlashSale && (
+            <div className="bg-red-100 border border-red-300 rounded-lg p-3 mb-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="bg-red-500 text-white px-2 py-1 rounded text-sm font-bold">
+                  FLASH SALE -{mainUnit.discountPercentage}%
+                </span>
+                <span className="text-red-600 text-sm font-medium">
+                  Kết thúc: {new Date(mainUnit.endTime!).toLocaleString('vi-VN')}
+                </span>
+              </div>
+            </div>
+          )}
+          
+          {/* Price Display */}
+          <div className="mb-4">
+            {mainUnit.isFlashSale ? (
+              <div className="flex items-center gap-3">
+                <span className="text-3xl text-red-600 font-bold">
+                  {mainUnit.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                </span>
+                <span className="text-lg text-gray-400 line-through">
+                  {mainUnit.originalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                </span>
+              </div>
+            ) : (
+              <span className="text-2xl text-green-600 font-semibold">
+                {mainUnit.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+              </span>
+            )}
+          </div>
 
           <div className="flex items-center mb-6 text-sm text-gray-600 space-x-4">
             <span className="flex items-center">

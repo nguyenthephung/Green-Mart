@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useMemo, useCallback, memo } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import { useProductStore } from '../../stores/useProductStore';
 import { useCategoryStore } from '../../stores/useCategoryStore';
+import { useFlashSaleStore } from '../../stores/useFlashSaleStore';
 import HeroSection from '../../components/Guest/home/sections/HeroSection';
 import SectionBanner from '../../components/Guest/home/sections/SectionBanner';
 import SidebarBanner from '../../components/Guest/home/sections/SidebarBanner';
@@ -13,16 +15,26 @@ import SaleSection from '../../components/Guest/home/sections/SaleSection';
 import CategoriesSection from '../../components/Guest/home/sections/CategoriesSection';
 import FeaturedProductsSection from '../../components/Guest/home/sections/FeaturedProductsSection';
 import TestimonialsSection from '../../components/Guest/home/sections/TestimonialsSection';
+import FlashSaleSection from '../../components/Guest/FlashSale/FlashSaleSection';
 import { useCartStore } from '../../stores/useCartStore';
 import { usePageLoading } from '../../components/Loading';
 import { LoadingSpinner } from '../../components/Loading';
 import { testimonials } from '../../data/Guest/Home';
 
 const Home: React.FC = memo(() => {
+  const fetchAllProducts = useProductStore(state => state.fetchAll);
+  const location = useLocation();
+  // Fetch products when route changes (e.g. after add product)
+  useEffect(() => {
+    fetchAllProducts();
+  }, [location.pathname]);
   const loading = usePageLoading(0);
   const [isScrolling, setIsScrolling] = useState(false);
   const addToCart = useCartStore(state => state.addToCart);
   const fetchCategories = useCategoryStore(state => state.fetchCategories);
+  
+  // Flash Sale store
+  const { fetchActiveFlashSales, getFlashSaleForProduct } = useFlashSaleStore();
 
   // Create flying effect for add to cart animation - Optimized
   const createFlyingEffect = useCallback((event: React.MouseEvent, product: any) => {
@@ -90,13 +102,25 @@ const Home: React.FC = memo(() => {
     }
   }, [isScrolling]);
 
-  // Enhanced handleAddToCart with optimized flying animation
+  // Enhanced handleAddToCart with optimized flying animation and Flash Sale support
   const handleAddToCart = useCallback((product: any, event?: React.MouseEvent) => {
     // Chuẩn hóa dữ liệu giống CategoryPage
     const id = String(product._id || product.id);
     const type = product.type || (product.units && product.units[0]?.type) || 'count';
-    const price = typeof product.salePrice === 'number' ? product.salePrice : (typeof product.price === 'number' ? product.price : (product.units && product.units[0]?.price) || 0);
+    
+    // Check if product is in Flash Sale
+    const flashSaleInfo = getFlashSaleForProduct(id);
+    
+    // Use Flash Sale price if available, otherwise use regular pricing logic
+    let price: number;
+    if (flashSaleInfo) {
+      price = flashSaleInfo.product.flashSalePrice;
+    } else {
+      price = typeof product.salePrice === 'number' ? product.salePrice : (typeof product.price === 'number' ? product.price : (product.units && product.units[0]?.price) || 0);
+    }
+    
     const unit = product.unit || (product.units && product.units[0]?.type) || '';
+    
     addToCart({
       id,
       name: product.name,
@@ -105,13 +129,20 @@ const Home: React.FC = memo(() => {
       unit,
       quantity: type === 'weight' ? 0 : 1,
       type,
-      weight: type === 'weight' ? 1 : undefined
+      weight: type === 'weight' ? 1 : undefined,
+      // Include Flash Sale info if applicable
+      flashSale: flashSaleInfo ? {
+        flashSaleId: flashSaleInfo.flashSale._id,
+        isFlashSale: true,
+        originalPrice: flashSaleInfo.product.originalPrice,
+        discountPercentage: flashSaleInfo.product.discountPercentage
+      } : undefined
     });
     if (event) {
       createFlyingEffect(event, product);
     }
     triggerCartBounce();
-  }, [addToCart, createFlyingEffect, triggerCartBounce]);
+  }, [addToCart, createFlyingEffect, triggerCartBounce, getFlashSaleForProduct]);
 
   // Detect scrolling để tạm dừng animations khi scroll - Optimized
   useEffect(() => {
@@ -184,10 +215,11 @@ const Home: React.FC = memo(() => {
     [products]
   );
 
-  // Fetch categories when component mounts
+  // Fetch categories and Flash Sales when component mounts
   useEffect(() => {
     fetchCategories();
-  }, [fetchCategories]);
+    fetchActiveFlashSales();
+  }, [fetchCategories, fetchActiveFlashSales]);
 
   // Lấy danh sách parent categories từ category store thay vì từ products
   const categories = useCategoryStore(state => state.categories);
@@ -253,8 +285,13 @@ const Home: React.FC = memo(() => {
         isScrolling={isScrolling}
       />
       
-      {/* Sale Banner - Eye-catching sale section */}
+      {/* Flash Sale Section */}
       <div className="max-w-7xl mx-auto px-4 py-6">
+        <FlashSaleSection />
+      </div>
+      
+      {/* Sale Banner - Eye-catching sale section */}
+      <div className="max-w-7xl mx-auto px-4 py-8 mt-8">
         <SaleBanner className="mb-8" />
       </div>
       

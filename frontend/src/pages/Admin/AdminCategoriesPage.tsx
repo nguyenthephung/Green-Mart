@@ -1340,9 +1340,15 @@ const ProductCard: React.FC<{ product: any; isDarkMode: boolean }> = ({ product,
   >
     {/* Product Image */}
     <div className="aspect-square mb-3 overflow-hidden rounded-lg bg-gray-100">
-      {product.images && product.images.length > 0 ? (
-        <img 
-          src={product.images[0]} 
+      {product.image ? (
+        <img
+          src={product.image}
+          alt={product.name}
+          className="w-full h-full object-cover"
+        />
+      ) : product.images && product.images.length > 0 ? (
+        <img
+          src={product.images[0]}
           alt={product.name}
           className="w-full h-full object-cover"
         />

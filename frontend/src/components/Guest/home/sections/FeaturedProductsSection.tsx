@@ -32,10 +32,22 @@ const FeaturedProductsSection: React.FC<FeaturedProductsSectionProps> = ({ featu
               HOT
             </div>
           </div>
-          <ProductCard 
-            product={product} 
-            onAddToCart={handleAddToCart} 
+          <ProductCard
+            product={{
+              id: product.id,
+              name: product.name,
+              price: product.price,
+              salePrice: product.salePrice,
+              isSale: product.isSale,
+              image: product.image,
+              category: product.category,
+              unit: product.unit || '',
+              averageRating: product.averageRating,
+              totalRatings: product.totalRatings
+            }}
+            onAddToCart={handleAddToCart}
             showHotBadge={false}
+            imageHeight="h-56"
           />
         </div>
       ))}

@@ -12,8 +12,6 @@ const ProductDetailDisplay: React.FC<ProductDetailDisplayProps> = ({
   product,
   className = ""
 }) => {
-  const [activeTab, setActiveTab] = useState<'description' | 'specs' | 'reviews'>('description');
-
   // Check if product has content
   const hasDescription = product.description && product.description.trim().length > 0;
   const hasRichDescription = product.richDescription && 
@@ -21,6 +19,10 @@ const ProductDetailDisplay: React.FC<ProductDetailDisplayProps> = ({
       ? product.richDescription.content && product.richDescription.content.trim().length > 0
       : false);
   const hasSpecifications = product.specifications && Object.keys(product.specifications).length > 0;
+  
+  // If no description content, show reviews by default
+  const defaultTab = (hasDescription || hasRichDescription) ? 'description' : 'reviews';
+  const [activeTab, setActiveTab] = useState<'description' | 'specs' | 'reviews'>(defaultTab);
 
   return (
     <div className={`bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 ${className}`}>
@@ -61,7 +63,7 @@ const ProductDetailDisplay: React.FC<ProductDetailDisplayProps> = ({
                 : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
             }`}
           >
-            Đánh giá & Nhận xét ({product.totalRatings || 0})
+            Đánh giá & Nhận xét{product.totalRatings ? ` (${product.totalRatings})` : ''}
           </button>
         </nav>
       </div>

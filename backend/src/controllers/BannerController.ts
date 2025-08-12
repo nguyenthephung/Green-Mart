@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import Banner, { IBanner } from '../models/Banner';
 import { AuthRequest } from '../middlewares/auth';
+import ImageUploadService from '../services/imageUploadService';
 
 export class BannerController {
   // Get all banners (public)
@@ -110,19 +111,30 @@ export class BannerController {
       const { id } = req.params;
       const updateData = req.body;
 
-      const banner = await Banner.findByIdAndUpdate(
-        id,
-        updateData,
-        { new: true, runValidators: true }
-      );
-
-      if (!banner) {
+      // Lấy banner hiện tại để kiểm tra ảnh cũ
+      const existingBanner = await Banner.findById(id);
+      if (!existingBanner) {
         res.status(404).json({
           success: false,
           message: 'Không tìm thấy banner'
         });
         return;
       }
+
+      // Nếu có ảnh mới và khác ảnh cũ, xóa ảnh cũ từ Cloudinary
+      if (updateData.imageUrl && existingBanner.imageUrl && updateData.imageUrl !== existingBanner.imageUrl) {
+        try {
+          await ImageUploadService.deleteImage(existingBanner.imageUrl);
+        } catch (deleteErr) {
+          console.error('Lỗi xóa ảnh banner cũ:', deleteErr);
+        }
+      }
+
+      const banner = await Banner.findByIdAndUpdate(
+        id,
+        updateData,
+        { new: true, runValidators: true }
+      );
 
       res.json({
         success: true,
@@ -144,8 +156,7 @@ export class BannerController {
     try {
       const { id } = req.params;
       
-      const banner = await Banner.findByIdAndDelete(id);
-
+      const banner = await Banner.findById(id);
       if (!banner) {
         res.status(404).json({
           success: false,
@@ -153,6 +164,17 @@ export class BannerController {
         });
         return;
       }
+
+      // Xóa ảnh từ Cloudinary trước khi xóa banner
+      if (banner.imageUrl) {
+        try {
+          await ImageUploadService.deleteImage(banner.imageUrl);
+        } catch (deleteErr) {
+          console.error('Lỗi xóa ảnh banner:', deleteErr);
+        }
+      }
+
+      await Banner.findByIdAndDelete(id);
 
       res.json({
         success: true,

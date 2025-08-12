@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import Product from '../models/Product';
+import ImageUploadService from '../services/imageUploadService';
 
 const ProductController = {
   // Lấy tất cả sản phẩm
@@ -44,6 +45,27 @@ const ProductController = {
         return res.status(404).json({ success: false, message: 'Không tìm thấy sản phẩm', data: null });
       }
 
+      // Nếu có ảnh cũ và ảnh mới khác nhau, xóa ảnh cũ từ Cloudinary
+      if (req.body.image && existingProduct.image && req.body.image !== existingProduct.image) {
+        try {
+          await ImageUploadService.deleteImage(existingProduct.image);
+        } catch (deleteErr) {
+          console.error('Lỗi xóa ảnh cũ:', deleteErr);
+        }
+      }
+
+      // Xử lý xóa ảnh phụ cũ nếu có thay đổi
+      if (req.body.images && existingProduct.images) {
+        const oldImages = existingProduct.images.filter(img => !req.body.images.includes(img));
+        if (oldImages.length > 0) {
+          try {
+            await ImageUploadService.deleteImages(oldImages);
+          } catch (deleteErr) {
+            console.error('Lỗi xóa ảnh phụ cũ:', deleteErr);
+          }
+        }
+      }
+
       // Nếu không có category trong request body và sản phẩm hiện tại có category
       // thì giữ lại category cũ để tránh lỗi required
       if (!req.body.category && existingProduct.category) {
@@ -74,17 +96,34 @@ const ProductController = {
   // Xóa sản phẩm
   async deleteProduct(req: Request, res: Response) {
     try {
-      const deleted = await Product.findByIdAndDelete(req.params.id);
-      if (!deleted) return res.status(404).json({ success: false, message: 'Không tìm thấy sản phẩm', data: null });
+      const product = await Product.findById(req.params.id);
+      if (!product) {
+        return res.status(404).json({ success: false, message: 'Không tìm thấy sản phẩm', data: null });
+      }
+
+      // Xóa ảnh từ Cloudinary trước khi xóa sản phẩm
+      try {
+        if (product.image) {
+          await ImageUploadService.deleteImage(product.image);
+        }
+        if (product.images && product.images.length > 0) {
+          await ImageUploadService.deleteImages(product.images);
+        }
+      } catch (deleteErr) {
+        console.error('Lỗi xóa ảnh khi xóa sản phẩm:', deleteErr);
+      }
+
+      await Product.findByIdAndDelete(req.params.id);
+      
       // Giảm productCount của category nếu cần
       const Category = require('../models/Category').default;
-      if (deleted.category) {
+      if (product.category) {
         await Category.updateOne(
-          { name: deleted.category },
+          { name: product.category },
           { $inc: { productCount: -1 } }
         );
       }
-      res.json({ success: true, data: deleted });
+      res.json({ success: true, data: product });
     } catch (err) {
       res.status(500).json({ success: false, message: 'Lỗi xóa sản phẩm', data: null });
     }

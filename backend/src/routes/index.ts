@@ -15,6 +15,8 @@ import commentRoutes from './commentRoutes';
 import dashboardRoutes from './dashboardRoutes';
 import ratingRoutes from './ratingRoutes';
 import bannerRoutes from './bannerRoutes';
+import flashSaleRoutes from './flashSaleRoutes';
+import uploadRoutes from './uploadRoutes';
 
 const router = Router();
 
@@ -62,6 +64,12 @@ router.use('/dashboard', dashboardRoutes);
 
 // Banner routes
 router.use('/banners', bannerRoutes);
+
+// Flash Sale routes
+router.use('/flash-sales', flashSaleRoutes);
+
+// Upload routes
+router.use('/upload', uploadRoutes);
 
 // Category routes
 router.use(categoryRoutes);

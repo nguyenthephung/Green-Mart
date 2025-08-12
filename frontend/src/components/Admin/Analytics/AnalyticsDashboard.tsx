@@ -61,6 +61,8 @@ const AnalyticsDashboard: React.FC = () => {
     );
   }
 
+  // Debug: log dữ liệu analytics nhận được
+  console.log('[AnalyticsDashboard] analytics data:', data);
   if (!data) {
     return (
       <div className="p-8">

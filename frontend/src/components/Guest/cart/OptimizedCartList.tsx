@@ -1,14 +1,9 @@
 import React, { memo, useMemo } from 'react';
-import CartItem from "./CartItem";
+import CartItemComponent from "./CartItem";
 
-interface CartItemType {
-  id: string | number;
-  name: string;
-  price: number;
-  originalPrice: number;
-  image: string;
-  quantity: number;
-  unit: string;
+import type { CartItem } from '../../../types/CartItem';
+
+interface CartItemType extends CartItem {
   type?: 'count' | 'weight';
   weight?: number;
   category?: string;
@@ -16,12 +11,12 @@ interface CartItemType {
 
 interface OptimizedCartListProps {
   items: CartItemType[];
-  onQuantityChange: (id: string | number, value: number, unit?: string, type?: 'count' | 'weight') => void;
-  onRemove: (id: string | number, unit?: string, type?: 'count' | 'weight') => void;
+  onQuantityChange: (id: string | number, value: number, unit?: string, type?: 'count' | 'weight', flashSale?: any) => void;
+  onRemove: (id: string | number, unit?: string, type?: 'count' | 'weight', flashSale?: any) => void;
 }
 
 // Memoized CartItem component
-const MemoizedCartItem = memo(CartItem);
+const MemoizedCartItem = memo(CartItemComponent);
 
 // Memoized calculation for cart totals
 const useCartTotals = (items: CartItemType[]) => {
@@ -72,17 +67,16 @@ const OptimizedCartList: React.FC<OptimizedCartListProps> = memo(({
           <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 scroll-smooth">
             {displayItems.map((item) => (
               <MemoizedCartItem
-                key={`${item.id}-${item.unit}-${item.type}`}
-                item={{
-                  ...item,
-                  id: String(item.id) // Ensure id is string
-                }}
-                onQuantityChange={(id, value) => onQuantityChange(id, value, item.unit, item.type)}
-                onRemove={(id) => {
-                  console.log('[OptimizedCartList] onRemove called with:', { id, item, unit: item.unit, type: item.type });
-                  onRemove(id, item.unit, item.type);
-                }}
-              />
+                  key={`${item.id}-${item.unit}-${item.type}`}
+                  item={{
+                    ...item,
+                    id: String(item.id) // Ensure id is string
+                  }}
+                  onQuantityChange={(id, value, unit, type, flashSale) => onQuantityChange(id, value, unit ?? item.unit, type ?? item.type, item.flashSale)}
+                  onRemove={(id, unit, type, flashSale) => {
+                    onRemove(id, unit ?? item.unit, type ?? item.type, item.flashSale);
+                  }}
+                />
             ))}
           </div>
 

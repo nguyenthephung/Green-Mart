@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import connectDB from '@/config/database';
 import routes from '@/routes';
+import { startFlashSaleStatusUpdater } from '@/services/flashSaleScheduler';
 
 dotenv.config();
 
@@ -49,4 +50,7 @@ app.use('/api', routes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
+  
+  // Start flash sale status updater
+  startFlashSaleStatusUpdater();
 });

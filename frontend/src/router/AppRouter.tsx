@@ -47,6 +47,7 @@ import AdminUsers from '../pages/Admin/AdminUsersPage';
 import AdminOrders from '../pages/Admin/AdminOrdersPage';
 import AdminBanners from '../pages/Admin/AdminBannersPage';
 import AdminVouchersPage from '../pages/Admin/AdminVouchersPage';
+import AdminFlashSalePage from '../pages/Admin/AdminFlashSalePage';
 
 const AppRouter = () => (
   <BrowserRouter>
@@ -138,6 +139,7 @@ const AppRouter = () => (
             <Route path="orders" element={<AdminOrders />} />
             <Route path="banners" element={<AdminBanners />} />
             <Route path="vouchers" element={<AdminVouchersPage />} />
+            <Route path="flash-sales" element={<AdminFlashSalePage />} />
           </Route>
         </Routes>
       </BrowserRouter>
