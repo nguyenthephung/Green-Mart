@@ -256,6 +256,43 @@ const CheckoutSummary = ({
         </div>
       </div>
 
+      {/* Order Review Section */}
+      <div className="mb-6">
+        <h3 className="text-base font-semibold mb-3 text-app-primary flex items-center gap-2">
+          <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 7h18M3 12h18M3 17h18" />
+          </svg>
+          Sản phẩm trong đơn hàng
+        </h3>
+        <div className="divide-y divide-gray-100 bg-white rounded-xl border border-gray-100 overflow-hidden">
+          {cart.length === 0 ? (
+            <div className="p-4 text-center text-gray-400">Không có sản phẩm nào trong giỏ hàng.</div>
+          ) : (
+            cart.map((item) => (
+              <div key={item.id + '-' + item.unit} className="flex items-center gap-3 p-3">
+                <img src={item.image} alt={item.name} className="w-14 h-14 object-cover rounded-lg border border-gray-100" />
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-gray-900 truncate">{item.name}</div>
+                  <div className="text-xs text-gray-500 truncate">{item.unit}</div>
+                  <div className="text-xs text-gray-500">
+                    {item.type === 'weight' ? `${item.weight || 0} kg` : `${item.quantity} x`}
+                  </div>
+                </div>
+                <div className="flex flex-col items-end min-w-[90px]">
+                  <span className="text-sm font-semibold text-app-primary whitespace-nowrap">
+                    {formatVND(item.price)}
+                  </span>
+                  <span className="text-xs text-gray-400 whitespace-nowrap">Tạm tính</span>
+                  <span className="text-xs font-medium text-green-700 whitespace-nowrap">
+                    {formatVND(item.price * (item.type === 'weight' ? (item.weight || 0) : item.quantity))}
+                  </span>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
       {/* Price Breakdown */}
       <div className="space-y-3 mb-6">
         <div className="flex justify-between items-center py-2">
@@ -300,7 +337,7 @@ const CheckoutSummary = ({
 
         <div className="flex justify-between items-center py-2">
           <span className="text-app-secondary">Phí dịch vụ</span>
-          <span className="font-medium text-app-primary break-all">{formatVND(serviceFee)}</span>
+          <span className="font-medium text-app-primary whitespace-nowrap text-right">{formatVND(serviceFee)}</span>
         </div>
 
         {voucher && voucherDiscount > 0 ? (
@@ -317,7 +354,7 @@ const CheckoutSummary = ({
                 ✕
               </button>
             </span>
-            <span className="font-medium break-all">-{formatVND(voucherDiscount)}</span>
+            <span className="font-medium whitespace-nowrap text-right">-{formatVND(voucherDiscount)}</span>
           </div>
         ) : (
           <div className="flex justify-between items-center py-2">
@@ -342,7 +379,7 @@ const CheckoutSummary = ({
               </svg>
               Tiền tip tài xế
             </span>
-            <span className="font-medium">{formatVND(selectedTip)}</span>
+            <span className="font-medium whitespace-nowrap text-right">{formatVND(selectedTip)}</span>
           </div>
         )}
       </div>
@@ -382,7 +419,7 @@ const CheckoutSummary = ({
       <div className="border-t border-gray-200 pt-4 mb-6">
         <div className="flex justify-between items-center">
           <span className="text-xl font-bold text-gray-900">Tổng cộng</span>
-          <span className="text-2xl font-bold text-green-600 break-all">{formatVND(total)}</span>
+          <span className="text-2xl font-bold text-green-600 whitespace-nowrap text-right">{formatVND(total)}</span>
         </div>
       </div>
 
@@ -414,7 +451,7 @@ const CheckoutSummary = ({
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
               </svg>
               Đặt hàng ngay
-              <span className="bg-white/20 px-3 py-1 rounded-full text-sm break-all">
+              <span className="bg-white/20 px-3 py-1 rounded-full text-sm whitespace-nowrap text-right">
                 {formatVND(total)}
               </span>
             </>

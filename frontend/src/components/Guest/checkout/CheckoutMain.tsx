@@ -233,31 +233,7 @@ const CheckoutMain: FC<CheckoutMainProps> = ({ items, userInfo, address, payment
           </div>
         </div>
       </div>
-
-      {/* Review Order */}
-      <div className="bg-white rounded-xl p-4 border hover:border-green-700 transition cursor-pointer">
-        <div className="flex justify-between items-center mb-2">
-          <p className="text-sm font-bold text-gray-700">Review Order</p>
-        </div>
-        <div className="bg-green-50 rounded-lg p-2 justify-between flex items-center space-x-2">
-          <div className="flex items-center space-x-2">
-          {visibleItems.map((item, index) => (
-            <img
-              key={index}
-              src={item.image}
-              alt={item.name}
-              className="w-15 h-15 rounded object-cover"
-            />
-          ))}
-          {remainingCount > 0 && (
-            <div className="w-10 h-10 flex items-center justify-center bg-green-50 text-green-700 rounded text-sm font-medium">
-              +{remainingCount}
-            </div>
-          )}
-          </div>
-          <ChevronRight className="w-5 h-5 text-gray-500 hover:text-green-700" />
-        </div>
-      </div>
+     
     </div>
   );
 };
