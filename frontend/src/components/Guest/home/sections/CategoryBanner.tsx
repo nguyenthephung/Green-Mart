@@ -119,7 +119,7 @@ export default function CategoryBanner({ categoryId, className = '' }: CategoryB
 
                   {/* Action Buttons */}
                   <div className="flex gap-3">
-                    {banner.linkUrl && banner.buttonText && (
+                    {banner.linkUrl && banner.buttonText && banner.buttonText !== 'Xem thêm' && (
                       <button className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
                         {banner.buttonText}
                       </button>
@@ -130,7 +130,7 @@ export default function CategoryBanner({ categoryId, className = '' }: CategoryB
                         to={`/category/${linkedCategory.name.toLowerCase()}`}
                         className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 border border-white/30 hover:border-white/50"
                       >
-                        Xem {linkedCategory.name} →
+                        {linkedCategory.name} →
                       </Link>
                     )}
                   </div>

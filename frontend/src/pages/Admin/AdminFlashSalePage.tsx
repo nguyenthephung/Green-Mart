@@ -122,15 +122,18 @@ const AdminFlashSalePage: React.FC = () => {
     try {
       if (!selectedFlashSale) return;
 
-      console.log('Updating flash sale with data:', {
-        ...formData,
-        products: selectedProducts
-      });
+      // Convert startTime and endTime to ISO string if present
+      const startTimeISO = formData.startTime ? new Date(formData.startTime).toISOString() : '';
+      const endTimeISO = formData.endTime ? new Date(formData.endTime).toISOString() : '';
 
       const updateData = {
         ...formData,
+        startTime: startTimeISO,
+        endTime: endTimeISO,
         products: selectedProducts
       };
+
+      console.log('Updating flash sale with data:', updateData);
 
       await updateFlashSale(selectedFlashSale._id, updateData);
       toast.success('Cập nhật Flash Sale thành công!');

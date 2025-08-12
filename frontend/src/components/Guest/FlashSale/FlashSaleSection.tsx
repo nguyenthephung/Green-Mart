@@ -14,6 +14,7 @@ const FlashSaleSection: React.FC = () => {
     seconds: number;
   }>({ hours: 0, minutes: 0, seconds: 0 });
   const [currentProductIndex, setCurrentProductIndex] = useState(0);
+  const productsPerView = 4;
 
   useEffect(() => {
     fetchActiveFlashSales();
@@ -75,15 +76,16 @@ const FlashSaleSection: React.FC = () => {
     }
   };
 
+  // Slider logic
   const nextProducts = () => {
-    if (currentFlashSale && currentProductIndex < currentFlashSale.products.length - 4) {
-      setCurrentProductIndex(currentProductIndex + 4);
+    if (currentFlashSale && currentProductIndex < availableProducts.length - productsPerView) {
+      setCurrentProductIndex(currentProductIndex + 1);
     }
   };
 
   const prevProducts = () => {
     if (currentProductIndex > 0) {
-      setCurrentProductIndex(Math.max(0, currentProductIndex - 4));
+      setCurrentProductIndex(currentProductIndex - 1);
     }
   };
 
@@ -113,7 +115,7 @@ const FlashSaleSection: React.FC = () => {
   if (!currentFlashSale || availableProducts.length === 0) {
     return null; // Don't render anything when no flash sale or all sold out
   }
-  const visibleProducts = availableProducts.slice(currentProductIndex, currentProductIndex + 4);
+  const visibleProducts = availableProducts.slice(currentProductIndex, currentProductIndex + productsPerView);
 
   return (
     <div className="relative bg-gradient-to-r from-red-500 to-pink-600 rounded-2xl p-6 text-white mb-8 overflow-hidden">
@@ -164,15 +166,14 @@ const FlashSaleSection: React.FC = () => {
 
         {/* Products */}
         <div className="relative">
-          <div className="flex gap-4 overflow-hidden">
+          <div className="flex gap-4 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
             {visibleProducts.map((item) => {
-              // Nếu sản phẩm đã hết hàng, không render card
               if ((item.quantity || 0) - (item.sold || 0) <= 0) return null;
               return (
                 <div
                   key={`flash-sale-${item.productId}`}
                   onClick={() => handleProductClick(item.productId, item)}
-                  className="min-w-[200px] bg-white rounded-xl p-4 cursor-pointer hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+                  className="min-w-[200px] max-w-[200px] bg-white rounded-xl p-4 cursor-pointer hover:shadow-lg transform hover:scale-105 transition-all duration-200"
                 >
                   <div className="relative mb-3">
                     <img
@@ -188,7 +189,7 @@ const FlashSaleSection: React.FC = () => {
                     </div>
                   </div>
 
-                  <h3 className="font-medium text-gray-900 mb-2 text-sm line-clamp-2">
+                  <h3 className="font-medium text-gray-900 mb-2 text-sm truncate" title={item.product?.name || 'Sản phẩm không tên'}>
                     {item.product?.name || 'Sản phẩm không tên'}
                   </h3>
 
@@ -239,7 +240,7 @@ const FlashSaleSection: React.FC = () => {
           </div>
 
           {/* Navigation buttons */}
-          {availableProducts.length > 4 && (
+          {availableProducts.length > productsPerView && (
             <>
               <button
                 onClick={prevProducts}
@@ -250,7 +251,7 @@ const FlashSaleSection: React.FC = () => {
               </button>
               <button
                 onClick={nextProducts}
-                disabled={currentProductIndex >= currentFlashSale.products.length - 4}
+                disabled={currentProductIndex >= availableProducts.length - productsPerView}
                 className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-white/20 hover:bg-white/30 disabled:opacity-50 disabled:cursor-not-allowed rounded-full p-2 transition-all duration-200"
               >
                 <ChevronRight className="w-5 h-5" />
@@ -259,15 +260,7 @@ const FlashSaleSection: React.FC = () => {
           )}
         </div>
 
-        {/* View all button */}
-        <div className="flex justify-center mt-6">
-          <button
-            onClick={() => navigate('/flash-sale')}
-            className="bg-white/20 hover:bg-white/30 px-6 py-2 rounded-full text-sm font-medium transition-all duration-200"
-          >
-            Xem tất cả Flash Sale
-          </button>
-        </div>
+  {/* View all button removed as requested */}
       </div>
     </div>
   );

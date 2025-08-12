@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { Wheel } from 'react-custom-roulette';
 import { useVoucherStore } from '../../../stores/useVoucherStore';
 import { useUserStore } from '../../../stores/useUserStore';
 import { updateUserVouchers } from '../../../services/userService';
@@ -38,123 +39,131 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
     return isActive && notFullyUsed && notExpired;
   });
   
-  const prizes = [
-    ...validVouchers.map(v => ({ ...v, id: String(v.id || v._id) })),
-    { code: 'LUCKY', label: 'Chúc bạn may mắn lần sau', description: '', minOrder: 0, discountType: 'amount', discountValue: 0, expired: '', usedPercent: 0, isActive: false, id: '-1', note: '', currentUsage: 0, maxUsage: 0, onlyOn: '', disabled: false },
-  ];
+  // Tạo data cho react-custom-roulette
+  const wheelData = useMemo(() => {
+    const prizes = [
+      ...validVouchers.map(v => ({ ...v, id: String(v.id || v._id) })),
+      { code: 'LUCKY', label: 'Chúc bạn may mắn lần sau', description: '', minOrder: 0, discountType: 'amount', discountValue: 0, expired: '', usedPercent: 0, isActive: false, id: '-1', note: '', currentUsage: 0, maxUsage: 0, onlyOn: '', disabled: false },
+    ];
+
+    return prizes.map((prize, index) => {
+      let option = '';
+      if (String(prize.id) === '-1') {
+        option = 'May mắn lần sau';
+      } else if (prize.label) {
+        option = prize.label;
+      } else if (prize.code) {
+        option = prize.code;
+      } else if (prize.discountType === 'percent') {
+        option = `${prize.discountValue}%`;
+      } else {
+        option = `${(prize.discountValue/1000).toFixed(0)}K`;
+      }
+
+      // Màu sắc cho từng ô
+      const colors = [
+        '#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', 
+        '#8b5cf6', '#ec4899', '#f59e42', '#10b981', '#6366f1', '#f43f5e', 
+        '#fbbf24', '#14b8a6', '#a21caf', '#facc15'
+      ];
+
+      return {
+        option,
+        style: { 
+          backgroundColor: colors[index % colors.length],
+          textColor: '#ffffff',
+          fontSize: option.length > 10 ? 12 : 14
+        },
+        optionSize: 1,
+        prize: prize
+      };
+    });
+  }, [validVouchers]);
   
-  const [spinning, setSpinning] = useState(false);
+  const [mustSpin, setMustSpin] = useState(false);
+  const [prizeNumber, setPrizeNumber] = useState(0);
   const [result, setResult] = useState<any>(null);
-  const [rotation, setRotation] = useState(0);
   const [showFireworks, setShowFireworks] = useState(false);
   const [showVoucherModal, setShowVoucherModal] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const spin = async () => {
-    if (spinning || isUpdating) return;
-    setSpinning(true);
+  const handleSpinClick = () => {
+    if (mustSpin || isUpdating) return;
+    
     setResult(null);
     setShowFireworks(false);
     setShowVoucherModal(false);
-    
-    // Random prize index
-    let prizeIndex = Math.floor(Math.random() * prizes.length);
+
+    // Logic chọn giải thưởng
+    let selectedIndex = Math.floor(Math.random() * wheelData.length);
     
     // Skip logic for already owned vouchers
     let tries = 0;
-    const availableVoucherCount = prizes.filter(p => p.id !== '-1' && !(String(p.id) in userVouchers)).length;
+    const availableVoucherCount = wheelData.filter(item => 
+      item.prize.id !== '-1' && !(String(item.prize.id) in userVouchers)
+    ).length;
+    
     while (
-      prizes[prizeIndex].id !== '-1' &&
-      String(prizes[prizeIndex].id) in userVouchers &&
+      wheelData[selectedIndex].prize.id !== '-1' &&
+      String(wheelData[selectedIndex].prize.id) in userVouchers &&
       tries < 10 &&
       availableVoucherCount > 0
     ) {
-      prizeIndex = Math.floor(Math.random() * prizes.length);
+      selectedIndex = Math.floor(Math.random() * wheelData.length);
       tries++;
     }
+
+    setPrizeNumber(selectedIndex);
+    setMustSpin(true);
+  };
+
+  const handleStopSpinning = async () => {
+    setMustSpin(false);
+    const selectedPrize = wheelData[prizeNumber].prize;
+    setResult(selectedPrize);
     
-    // LOGIC TÍNH TOÁN GÓC QUAY CHÍNH XÁC
-    const segmentAngle = 360 / prizes.length;
-    
-    // Trong code render, ô được vẽ tại góc: index * segmentAngle + segmentAngle/2
-    const prizeCurrentAngle = prizeIndex * segmentAngle + segmentAngle / 2;
-    
-    // Kim ở vị trí 0° (12h), để kim chỉ vào ô prizeIndex:
-    // Ta cần quay wheel để đưa prizeCurrentAngle về vị trí 0°
-    // Vì wheel quay theo chiều dương (counter-clockwise), ta cần:
-    const targetAngle = (360 - prizeCurrentAngle) % 360;
-    
-    // Thêm số vòng quay để tạo hiệu ứng
-    const extraSpins = 8 + Math.floor(Math.random() * 5);
-    const finalRotation = 360 * extraSpins + targetAngle;
-    
-    console.log('=== LUCKY WHEEL SPIN DEBUG ===');
-    console.log('Total prizes:', prizes.length);
-    console.log('Segment angle:', segmentAngle, '°');
-    console.log('Selected prize index:', prizeIndex);
-    console.log('Selected prize:', prizes[prizeIndex]);
-    console.log('Prize current angle:', prizeCurrentAngle, '°');
-    console.log('Target angle to align with pointer:', targetAngle, '°');
-    console.log('Extra spins:', extraSpins);
-    console.log('Final rotation:', finalRotation, '°');
-    console.log('Total rotation:', rotation + finalRotation, '°');
-    
-    // Verify calculation
-    const finalWheelAngle = (rotation + finalRotation) % 360;
-    const expectedPrizeAngle = (prizeCurrentAngle - finalWheelAngle + 360) % 360;
-    console.log('After spin - Wheel angle:', finalWheelAngle, '°');
-    console.log('After spin - Prize will be at:', expectedPrizeAngle, '° (should be ~0°)');
-    console.log('===============================');
-    
-    setRotation(prev => prev + finalRotation);
-    
-    const selectedPrize = prizes[prizeIndex];
-    
-    setTimeout(async () => {
-      setSpinning(false);
-      setResult(selectedPrize);
+    if (String(selectedPrize.id) !== '-1') {
+      setShowFireworks(true);
+      setIsUpdating(true);
       
-      if (String(selectedPrize.id) !== '-1') {
-        setShowFireworks(true);
-        setIsUpdating(true);
-        try {
-          const voucherId = String(selectedPrize.id);
-          await updateUserVouchers(userId, voucherId);
-          
-          if (setUser && user) {
-            const updatedVouchers = { ...userVouchers };
-            updatedVouchers[voucherId] = (updatedVouchers[voucherId] || 0) + 1;
-            
-            setUser({
-              ...user,
-              vouchers: updatedVouchers
-            });
-            setUserVouchers(updatedVouchers);
-          }
-          
-          if (setVoucher && selectedPrize.code) {
-            const v = vouchers.find(vv => String(vv.id || vv._id) === String(selectedPrize.id));
-            if (v) {
-              setVoucher({
-                ...v,
-                createdAt: (v as any).createdAt || '',
-                updatedAt: (v as any).updatedAt || '',
-                currentUsage: (v as any).currentUsage || 0,
-                isActive: (v as any).isActive ?? true,
-              });
-            }
-          }
-        } catch (err) {
-          alert('Có lỗi khi cập nhật voucher cho tài khoản!');
-        }
-        setIsUpdating(false);
+      try {
+        const voucherId = String(selectedPrize.id);
+        await updateUserVouchers(userId, voucherId);
         
-        setTimeout(() => {
-          setShowFireworks(false);
-          setShowVoucherModal(true);
-        }, 2000);
+        if (setUser && user) {
+          const updatedVouchers = { ...userVouchers };
+          updatedVouchers[voucherId] = (updatedVouchers[voucherId] || 0) + 1;
+          
+          setUser({
+            ...user,
+            vouchers: updatedVouchers
+          });
+          setUserVouchers(updatedVouchers);
+        }
+        
+        if (setVoucher && selectedPrize.code) {
+          const v = vouchers.find(vv => String(vv.id || vv._id) === String(selectedPrize.id));
+          if (v) {
+            setVoucher({
+              ...v,
+              createdAt: (v as any).createdAt || '',
+              updatedAt: (v as any).updatedAt || '',
+              currentUsage: (v as any).currentUsage || 0,
+              isActive: (v as any).isActive ?? true,
+            });
+          }
+        }
+      } catch (err) {
+        alert('Có lỗi khi cập nhật voucher cho tài khoản!');
       }
-    }, 4100);
+      
+      setIsUpdating(false);
+      
+      setTimeout(() => {
+        setShowFireworks(false);
+        setShowVoucherModal(true);
+      }, 2000);
+    }
   };
 
   if (!isOpen && !showVoucherModal) return null;
@@ -263,117 +272,35 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
             <p className="text-gray-600 text-sm">Hãy thử vận may của bạn!</p>
           </div>
 
-          {/* Wheel */}
-          <div className="relative mx-auto w-80 h-80 mb-4">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-400 via-red-500 to-purple-600 p-1">
-              <div 
-                className="w-full h-full rounded-full relative transition-transform duration-[4000ms] ease-in-out"
-                style={{
-                  transform: `rotate(${rotation}deg)`,
-                  background: (() => {
-                    const colors = [
-                      '#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899',
-                      '#f59e42', '#10b981', '#6366f1', '#f43f5e', '#fbbf24', '#14b8a6', '#a21caf', '#facc15'
-                    ];
-                    const n = prizes.length;
-                    let stops = [];
-                    for (let i = 0; i < n; i++) {
-                      const start = (360 / n) * i;
-                      const end = (360 / n) * (i + 1);
-                      const color = colors[i % colors.length];
-                      stops.push(`${color} ${start}deg ${end}deg`);
-                    }
-                    return `conic-gradient(${stops.join(',')})`;
-                  })(),
-                  border: '2px solid white'
-                }}
-              >
-                {prizes.map((_, index) => (
-                  <div
-                    key={`divider-${index}`}
-                    className="absolute bg-white origin-center"
-                    style={{
-                      top: '50%',
-                      left: '50%',
-                      width: '4px',
-                      height: '50%',
-                      transform: `translate(-50%, -100%) rotate(${(360 / prizes.length) * index}deg)`,
-                      transformOrigin: 'center bottom',
-                      zIndex: 10
-                    }}
-                  />
-                ))}
-                
-                {prizes.map((prize, index) => {
-                  const angle = (360 / prizes.length) * index;
-                  let label = '';
-                  if (String(prize.id) === '-1') label = 'Chúc bạn may mắn lần sau';
-                  else if (prize.label) label = prize.label;
-                  else if (prize.code) label = prize.code;
-                  else if (prize.discountType === 'percent') label = `Voucher ${prize.discountValue}%`;
-                  else label = `Voucher ${(prize.discountValue/1000).toFixed(0)}K`;
-                  const isLongText = label.length > 15;
-                  return (
-                    <div
-                      key={index}
-                      className="absolute flex items-center justify-center"
-                      style={{
-                        top: '50%',
-                        left: '50%',
-                        width: '50%',
-                        height: '50%',
-                        transform: `translate(-50%, -50%) rotate(${angle + 360/prizes.length/2}deg)`,
-                        transformOrigin: 'center'
-                      }}
-                    >
-                      <div
-                        className="text-white font-bold text-center"
-                        style={{
-                          textShadow: '2px 2px 4px rgba(0,0,0,0.9)',
-                          transform: `translateY(-75px)`,
-                          fontSize: isLongText ? '12px' : '15px',
-                          lineHeight: isLongText ? '1.1' : '1.2',
-                          maxWidth: '80px',
-                          fontWeight: '900'
-                        }}
-                      >
-                        {label}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-            
-            {/* Pointer */}
-            <div 
-              className="absolute w-0 h-0 z-20"
-              style={{
-                top: '6px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                borderLeft: '20px solid transparent',
-                borderRight: '20px solid transparent',
-                borderTop: '35px solid #1f2937',
-                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
-              }}
-            />
-            
-            {/* Center circle */}
-            <div 
-              className="absolute bg-white rounded-full border-4 border-gray-800 z-20"
-              style={{
-                width: '28px',
-                height: '28px',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)'
-              }}
+          {/* Wheel using react-custom-roulette + Arrow + Glow */}
+          <div className="relative flex justify-center mb-4">
+            {/* Hiệu ứng sáng quanh vòng quay */}
+            <div className="absolute inset-0 rounded-full pointer-events-none animate-pulse" style={{
+              boxShadow: '0 0 60px 10px #facc15, 0 0 120px 30px #f472b6'
+            }} />
+            {/* Đã loại bỏ kim vàng ở hướng 12 giờ, chỉ dùng kim mặc định của Wheel */}
+            <Wheel
+              mustStartSpinning={mustSpin}
+              prizeNumber={prizeNumber}
+              data={wheelData}
+              onStopSpinning={handleStopSpinning}
+              backgroundColors={['#3e3e3e']}
+              textColors={['#ffffff']}
+              outerBorderColor="#f2f2f2"
+              outerBorderWidth={8}
+              innerBorderColor="#f2f2f2"
+              innerBorderWidth={2}
+              innerRadius={30}
+              radiusLineColor="#f2f2f2"
+              radiusLineWidth={2}
+              fontSize={14}
+              textDistance={65}
+              spinDuration={0.8}
             />
           </div>
 
           {/* Result */}
-          {result && !spinning && (
+          {result && !mustSpin && (
             <div className="mb-4 p-3 bg-green-50 rounded-lg border border-green-200">
               <p className="text-green-800 font-semibold text-sm">
                 {result.id === '-1' ? (
@@ -389,15 +316,15 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
 
           {/* Spin Button */}
           <button
-            onClick={spin}
-            disabled={spinning}
-            className={`w-full py-2 px-4 rounded-full font-semibold text-white transition-all text-sm ${
-              spinning
+            onClick={handleSpinClick}
+            disabled={mustSpin}
+            className={`w-full py-3 px-4 rounded-full font-bold text-lg shadow-lg transition-all duration-200
+              ${mustSpin
                 ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 transform hover:scale-105'
-            }`}
+                : 'bg-gradient-to-r from-pink-500 via-yellow-400 to-green-400 hover:from-pink-600 hover:to-green-500 animate-pulse'}
+            `}
           >
-            {spinning ? 'Đang quay...' : 'Quay ngay!'}
+            {mustSpin ? 'Đang quay...' : '🎯 Quay ngay!'}
           </button>
 
           <p className="text-xs text-gray-500 mt-3">
