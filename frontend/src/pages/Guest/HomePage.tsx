@@ -228,16 +228,24 @@ const Home: React.FC = memo(() => {
   const categorySections = useMemo(() =>
     categories
       .filter(cat => cat.status === 'active' && cat.subs && cat.subs.length > 0)
-      .map((cat) => ({
-        title: cat.name,
-        category: cat.name,
-        id: cat.id || cat.name, // Add unique id
-        titleClass: 'text-left flex items-center gap-3 text-2xl font-bold text-emerald-700 dark:text-emerald-200',
-        viewMoreLink: `/category/${cat.name}`,
-        productCount: products.filter((p: any) => 
-          p.status === 'active' && cat.subs.includes(p.category)
-        ).length
-      })),
+      .map((cat) => {
+        // Count all products in this category (with valid price), not just those displayed
+        const totalProducts = products.filter((product: any) => {
+          if (product.status !== 'active') return false;
+          const hasValidPrice = (typeof product.price === 'number') || 
+            (product.units && product.units.length > 0 && typeof product.units[0].price === 'number');
+          if (!hasValidPrice) return false;
+          return cat.subs.includes(product.category);
+        }).length;
+        return {
+          title: cat.name,
+          category: cat.name,
+          id: cat.id || cat.name, // Add unique id
+          titleClass: 'text-left flex items-center gap-3 text-2xl font-bold text-emerald-700 dark:text-emerald-200',
+          viewMoreLink: `/category/${cat.name}`,
+          productCount: totalProducts
+        };
+      }),
     [categories, products]
   );
 
