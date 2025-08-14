@@ -114,28 +114,12 @@ const CheckoutMain: FC<CheckoutMainProps> = ({ items, userInfo, address, payment
           <div className="p-2 bg-green-50 rounded-full border border-green-700">
             <CalendarDays className="h-5 w-5 text-green-700" />
           </div>
-          <h2 className="text-xl font-semibold">Checkout</h2>
-        </div>
-        <div className="text-sm text-gray-700 flex items-center gap-1">
-          <MapPin className="w-4 h-4 text-green-700" />
-          <span>{address ? address.address : 'Chưa chọn địa chỉ'}</span>
+          <h2 className="text-xl font-semibold">Thanh toán</h2>
         </div>
       </div>
 
       {/* Delivery Info */}
-      <div className="bg-white rounded-xl p-4 border hover:border-green-700 transition cursor-pointer">
-        <div className="flex justify-between items-center">
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-gray-700">Delivery info</p>
-            <div className="mt-1 text-sm text-green-700 flex items-center gap-1">
-              <MapPin className="w-4 h-4 flex-shrink-0" />
-              <span className="break-words">{userInfo.fullName} - {userInfo.phone}</span>
-            </div>
-            <div className="text-xs text-gray-500 ml-5 break-words">{address ? address.address : 'Chưa chọn địa chỉ'}</div>
-          </div>
-          <ChevronRight className="w-5 h-5 text-gray-500 hover:text-green-700 flex-shrink-0" />
-        </div>
-      </div>
+    {/* Đã xóa phần hiển thị địa chỉ giao hàng */}
 
       {/* Payment Method */}
       <div className="bg-white rounded-xl p-6 border hover:border-green-700 transition">

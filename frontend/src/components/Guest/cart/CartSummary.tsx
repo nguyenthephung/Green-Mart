@@ -17,25 +17,9 @@ interface CartSummaryProps {
 }
 
 export default function CartSummary({ itemsTotal, deliveryFee, voucherDiscount = 0, voucher, onRemoveVoucher, onShowVoucherModal, address }: CartSummaryProps) {
-  // Logic tính phí giao hàng dựa trên địa chỉ
-  const getDeliveryFee = (address?: { city?: string; district?: string }) => {
-    if (!address || !address.city || !address.district) return 35000;
-    const city = address.city.trim().toLowerCase();
-    const district = address.district.trim().toLowerCase();
-    if (city.includes('hồ chí minh') || city.includes('hcm')) {
-      const centralDistricts = ['quận 1', 'quận 3', 'quận 5', 'quận 10'];
-      if (centralDistricts.some(d => district === d)) {
-        return 15000;
-      }
-      return 25000;
-    }
-    return 35000;
-  };
-  const dynamicFee = getDeliveryFee(address);
   // Free shipping for orders >= 300k
   const isEligibleForFreeShip = itemsTotal >= 300000;
-  const actualShippingFee = isEligibleForFreeShip ? 0 : dynamicFee;
-  const finalTotal = itemsTotal + actualShippingFee - voucherDiscount;
+  const finalTotal = itemsTotal - voucherDiscount;
 
   return (
     <div className="bg-app-card shadow-lg rounded-2xl p-6 w-full border border-green-100">
@@ -63,24 +47,7 @@ export default function CartSummary({ itemsTotal, deliveryFee, voucherDiscount =
           <span className="font-medium text-app-primary break-all">{itemsTotal.toLocaleString()} ₫</span>
         </div>
         
-        <div className="flex justify-between items-center py-2">
-          <span className="text-app-secondary flex items-center gap-2">
-            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Phí giao hàng
-          </span>
-          <span className={`font-medium break-all ${isEligibleForFreeShip ? 'text-green-600' : 'text-app-primary'}`}>
-            {isEligibleForFreeShip ? (
-              <span className="flex items-center gap-1">
-                <span className="line-through text-gray-400 text-sm">{dynamicFee.toLocaleString()} ₫</span>
-                <span className="text-green-600 font-semibold">Miễn phí</span>
-              </span>
-            ) : (
-              `${actualShippingFee.toLocaleString()} ₫`
-            )}
-          </span>
-        </div>
+  {/* Chỉ hiển thị thông báo cần mua thêm để được miễn phí ship */}
 
         {!isEligibleForFreeShip && (
           <div className="flex justify-between items-center py-2 px-3 bg-yellow-50 rounded-lg border border-yellow-200">
