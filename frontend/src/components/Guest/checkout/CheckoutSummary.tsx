@@ -102,7 +102,7 @@ const CheckoutSummary = ({
     return 35000;
   };
   const deliveryFee = getDeliveryFee(address);
-  const serviceFee = 25000;
+  // Phí dịch vụ sẽ được tính sau khi có itemsTotal
 
   // Khi payments thay đổi, đồng bộ lại localPayment
   useEffect(() => {
@@ -142,6 +142,12 @@ const CheckoutSummary = ({
       }, 0),
     [cart, products]
   );
+
+  // Tính phí dịch vụ (2% tổng tiền hàng, min 15k)
+  let serviceFee = 15000;
+  const dynamicServiceFee = Math.round(itemsTotal * 0.02);
+  if (dynamicServiceFee > 15000) serviceFee = dynamicServiceFee;
+
 
   let dynamicDeliveryFee = deliveryFee;
   // Đã xóa logic phí vận chuyển động, chỉ dùng phí mặc định

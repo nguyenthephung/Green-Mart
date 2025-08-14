@@ -62,6 +62,7 @@ class OrderController {
       // Validate products and calculate amounts
       let subtotal = 0;
       let flashSaleDiscount = 0;
+      let saleDiscount = 0;
       const validatedItems = [];
 
       for (const item of items) {
@@ -82,43 +83,46 @@ class OrderController {
           return;
         }
 
-        // Luôn sử dụng giá gốc cho subtotal để thống kê chính xác
-        const itemSubtotal = product.price * item.quantity;
-        subtotal += itemSubtotal;
-
+        let itemPrice = product.price;
         let flashSaleInfo = null;
-        
-        // Check if item has Flash Sale info
+
+        // Flash Sale ưu tiên cao nhất
         if (item.flashSale?.isFlashSale && item.flashSale.flashSaleId) {
-          // Validate Flash Sale is still active
           const flashSale = await FlashSale.findById(item.flashSale.flashSaleId);
           if (flashSale && flashSale.isActive) {
             const now = new Date();
             if (flashSale.startTime <= now && flashSale.endTime >= now && flashSale.status === 'active') {
-              // Find the product in Flash Sale
               const flashSaleProduct = flashSale.products.find(p => p.productId === item.productId);
               if (flashSaleProduct) {
                 const discountAmount = product.price - flashSaleProduct.flashSalePrice;
                 const totalDiscountForItem = discountAmount * item.quantity;
                 flashSaleDiscount += totalDiscountForItem;
-                
+                itemPrice = flashSaleProduct.flashSalePrice;
                 flashSaleInfo = {
                   flashSaleId: item.flashSale.flashSaleId,
                   flashSalePrice: flashSaleProduct.flashSalePrice,
                   discountAmount: discountAmount,
                   discountPercentage: flashSaleProduct.discountPercentage
                 };
-                
                 console.log(`Flash Sale applied for ${product.name}: ${product.price}₫ → ${flashSaleProduct.flashSalePrice}₫ (Discount: ${discountAmount}₫ x ${item.quantity} = ${totalDiscountForItem}₫)`);
               }
             }
           }
+        } else if (product.isSale && typeof product.salePrice === 'number' && product.salePrice < product.price) {
+          // Nếu là sản phẩm sale thường
+          const discountAmount = product.price - product.salePrice;
+          const totalDiscountForItem = discountAmount * item.quantity;
+          saleDiscount += totalDiscountForItem;
+          itemPrice = product.salePrice;
         }
+
+        const itemSubtotal = itemPrice * item.quantity;
+        subtotal += itemSubtotal;
 
         validatedItems.push({
           productId: new Types.ObjectId(item.productId),
           quantity: item.quantity,
-          price: product.price, // Giá gốc để thống kê
+          price: itemPrice, // Giá thực tế (sale/flash sale/gốc)
           name: product.name,
           image: product.images?.[0],
           flashSaleInfo: flashSaleInfo
@@ -221,17 +225,26 @@ class OrderController {
         );
       }
 
-      // Calculate shipping (simple flat rate for demo)
-      const shippingFee = subtotal >= 300000 ? 0 : 30000; // Free shipping for orders >= 300k VND
+      // Phí dịch vụ: 2% tổng tiền hàng, tối thiểu 15k
+      let serviceFee = Math.round(subtotal * 0.02);
+      if (serviceFee < 15000) serviceFee = 15000;
 
-      // Calculate final total: subtotal - voucherDiscount - flashSaleDiscount + shipping
-      const totalAmount = subtotal - discount - flashSaleDiscount + shippingFee;
+      // Phí ship: nhận từ frontend nếu có, mặc định 30k
+      let shippingFee = 30000;
+      if (req.body.shippingFee && typeof req.body.shippingFee === 'number') {
+        shippingFee = req.body.shippingFee;
+      }
+
+      // Tổng tiền cuối cùng
+      const totalAmount = subtotal - discount + shippingFee + serviceFee;
 
       console.log('OrderController - Final calculation:', {
         subtotal,
         voucherDiscount: discount,
         flashSaleDiscount,
+        saleDiscount,
         shippingFee,
+        serviceFee,
         totalAmount,
         voucherCode,
         voucherId: voucherId?.toString()
@@ -243,30 +256,29 @@ class OrderController {
       // Create order
       const order = new Order({
         orderNumber,
-        userId: new Types.ObjectId(userId), // Sử dụng userId thực của user đã đăng nhập
+        userId: new Types.ObjectId(userId),
         customerName: shippingAddress.fullName,
-        customerEmail: user.email, // Sử dụng email thực của user
+        customerEmail: user.email,
         customerPhone: shippingAddress.phone,
         customerAddress: `${shippingAddress.address}, ${shippingAddress.ward}, ${shippingAddress.district}, ${shippingAddress.province}`,
         items: validatedItems.map(item => ({
           productId: item.productId,
-          productName: item.name, // Map name to productName
+          productName: item.name,
           quantity: item.quantity,
-          price: item.price, // Giá gốc để thống kê
+          price: item.price,
           image: item.image,
           flashSaleInfo: item.flashSaleInfo
         })),
         subtotal,
         deliveryFee: shippingFee,
-        serviceFee: 0, // Add if needed
+        serviceFee,
         voucherDiscount: discount,
         voucherCode: voucherCode || undefined,
         flashSaleDiscount: flashSaleDiscount,
         totalAmount,
         paymentMethod,
         paymentStatus: 'unpaid',
-        // Trạng thái order phụ thuộc vào phương thức thanh toán
-        status: paymentMethod === 'momo' || paymentMethod === 'paypal' ? 'pending' : 'pending', // Tất cả đều bắt đầu từ pending
+        status: paymentMethod === 'momo' || paymentMethod === 'paypal' ? 'pending' : 'pending',
         orderDate: new Date(),
         notes: notes || undefined
       });

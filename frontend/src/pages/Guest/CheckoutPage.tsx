@@ -159,6 +159,11 @@ const Checkout = () => {
     if (voucherDiscount > subtotal) voucherDiscount = subtotal;
   }
 
+  // Tính phí dịch vụ (mặc định 15k, hoặc động 2% tổng tiền hàng, min 15k)
+  let serviceFee = 15000;
+  const dynamicServiceFee = Math.round(subtotal * 0.02);
+  if (dynamicServiceFee > 15000) serviceFee = dynamicServiceFee;
+
 
   // Hàm xử lý đặt hàng và thanh toán
   const handleCheckout = async () => {
@@ -210,16 +215,30 @@ const Checkout = () => {
         alert(`Đã loại bỏ ${removedCount} sản phẩm không hợp lệ khỏi đơn hàng.`);
       }
 
+      // Tính phí giao hàng dựa trên địa chỉ đã chọn
+      const getDeliveryFee = (address) => {
+        if (!address || !address.city || !address.district) return 35000;
+        const city = address.city.trim().toLowerCase();
+        const district = address.district.trim().toLowerCase();
+        if (city.includes('hồ chí minh') || city.includes('hcm')) {
+          const centralDistricts = ['quận 1', 'quận 3', 'quận 5', 'quận 10'];
+          if (centralDistricts.some(d => district === d)) {
+            return 15000;
+          }
+          return 25000;
+        }
+        return 35000;
+      };
+      const deliveryFee = getDeliveryFee(selectedAddress);
+
       // Tạo order request
       const orderData: CreateOrderRequest = {
         items: validItems.map(item => ({
-          productId: String(item.id).trim(), // Now using consistent id field
+          productId: String(item.id).trim(),
           quantity: Number(item.quantity) || 0,
-          // item.price already contains the correct price (flash sale or regular)
           price: Number(item.price) || 0,
           name: (item.name || '').trim(),
           image: (item.image || '').trim(),
-          // Include flash sale info if applicable
           flashSale: item.flashSale
         })),
         shippingAddress: {
@@ -231,9 +250,9 @@ const Checkout = () => {
           province: selectedAddress.street || ''
         },
         paymentMethod: selectedPayment.method,
-        // Only include voucherCode if it exists and is not empty
         ...(voucher?.code && voucher.code.trim() ? { voucherCode: voucher.code.trim() } : {}),
-        notes: ''
+        notes: '',
+        shippingFee: deliveryFee
       };
 
       // Tạo đơn hàng
