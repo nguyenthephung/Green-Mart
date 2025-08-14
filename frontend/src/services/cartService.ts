@@ -68,6 +68,9 @@ export async function removeCartItem(
   });
 }
 
-export async function clearCart() {
-  return apiClient('/cart/clear', { method: 'DELETE' });
+export async function clearCart(userId?: string) {
+  return apiClient('/cart/clear', { 
+    method: 'DELETE',
+    body: JSON.stringify({ userId })
+  });
 }

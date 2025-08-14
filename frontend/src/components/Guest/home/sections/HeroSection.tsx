@@ -26,7 +26,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ isScrolling }) => {
         herobanners.sort((a: any, b: any) => a.priority - b.priority);
         setHeroBanners(herobanners);
       } catch (error) {
-        console.error('Failed to load hero banner:', error);
+  // ...existing code (đã xóa log)...
       } finally {
         setIsLoading(false);
       }
@@ -56,7 +56,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ isScrolling }) => {
           window.location.href = activeBanner.linkUrl;
         }
       } catch (error) {
-        console.error('Error tracking banner click:', error);
+  // ...existing code (đã xóa log)...
       }
     }
   };

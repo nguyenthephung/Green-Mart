@@ -14,11 +14,8 @@ const MyVoucherPage: React.FC = () => {
   const vouchers: Voucher[] = useMemo(() => {
     // Nếu user không có vouchers, trả về []
     if (!user || !user.vouchers || typeof user.vouchers !== 'object') {
-      console.log('MyVoucherPage: No user vouchers found');
       return [];
     }
-    
-    console.log('MyVoucherPage: Processing user vouchers:', user.vouchers);
     
     // Với cấu trúc mới đơn giản: vouchers: {[voucherId: string]: number}
     const uniqueVouchers: Voucher[] = [];
@@ -28,17 +25,9 @@ const MyVoucherPage: React.FC = () => {
       const quantityNum = Number(quantity);
       if (quantityNum && quantityNum > 0) {
         const voucher = rawVouchers.find(v => v._id === voucherId);
-        console.log('MyVoucherPage: Looking for voucher:', voucherId, 'found:', !!voucher, 'quantity:', quantityNum);
-        
         if (voucher) {
           // Check if voucher is not expired
           const notExpired = new Date(voucher.expired) >= new Date();
-          console.log(`MyVoucherPage: Voucher ${voucher.code} expired check:`, {
-            expired: voucher.expired,
-            notExpired,
-            isActive: voucher.isActive
-          });
-          
           // Only add if voucher is active and not expired
           if (voucher.isActive && notExpired) {
             uniqueVouchers.push({
@@ -49,15 +38,12 @@ const MyVoucherPage: React.FC = () => {
               isActive: (voucher as any).isActive ?? true,
               quantity: quantityNum, // Thêm trường quantity
             } as Voucher & { quantity: number });
-            console.log('MyVoucherPage: Added unique voucher:', voucher.code, 'quantity:', quantityNum);
-          } else {
-            console.log('MyVoucherPage: Skipped expired/inactive voucher:', voucher.code);
           }
         }
       }
     });
     
-    console.log('MyVoucherPage: Final unique vouchers:', uniqueVouchers);
+  // ...existing code (đã xóa log)...
     return uniqueVouchers;
   }, [rawVouchers, user?.vouchers]);
   const loading = useVoucherStore(state => state.loading);
@@ -69,11 +55,7 @@ const MyVoucherPage: React.FC = () => {
   // ...existing code...
 
   useEffect(() => {
-    if (!user || !user.id) return;
-    console.log('MyVoucherPage: User data:', user);
-    console.log('MyVoucherPage: User vouchers:', user.vouchers);
-    console.log('MyVoucherPage: User vouchers type:', typeof user.vouchers);
-    console.log('MyVoucherPage: User vouchers count:', user.vouchers ? Object.keys(user.vouchers).length : 0);
+  if (!user || !user.id) return;
     
     // Vouchers are already fetched in App.tsx, no need to fetch again here
     

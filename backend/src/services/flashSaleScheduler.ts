@@ -31,18 +31,18 @@ export const updateFlashSaleStatus = cron.schedule('* * * * *', async () => {
     );
 
   } catch (error) {
-    console.error('Error updating flash sale status:', error);
+    // ...existing code (đã xóa log)...
   }
 });
 
 // Start the cron job
 export const startFlashSaleStatusUpdater = () => {
   updateFlashSaleStatus.start();
-  console.log('Flash sale status updater started');
+  // ...existing code (đã xóa log)...
 };
 
 // Stop the cron job
 export const stopFlashSaleStatusUpdater = () => {
   updateFlashSaleStatus.stop();
-  console.log('Flash sale status updater stopped');
+  // ...existing code (đã xóa log)...
 };

@@ -26,7 +26,6 @@ export class NotificationService {
       // Check user notification settings
       const settings = await NotificationSettings.findOne({ userId });
       if (settings && !settings.settings[type as keyof typeof settings.settings]) {
-        console.log(`User ${userId} has disabled ${type} notifications`);
         return null;
       }
 
@@ -50,7 +49,7 @@ export class NotificationService {
       await notification.save();
       return notification;
     } catch (error) {
-      console.error('Create user notification error:', error);
+  // ...existing code (đã xóa log)...
       throw error;
     }
   }

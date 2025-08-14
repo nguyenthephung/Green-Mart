@@ -402,8 +402,7 @@ const MyAddresses: React.FC = () => {
         const convertedAddresses = apiAddresses.map(convertToAddressInfo);
         setAddresses(convertedAddresses);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Lỗi khi tải danh sách địa chỉ');
-        console.error('Error loading addresses:', err);
+  setError(err instanceof Error ? err.message : 'Lỗi khi tải danh sách địa chỉ');
       } finally {
         setLoading(false);
       }
@@ -432,8 +431,7 @@ const MyAddresses: React.FC = () => {
       setAddressData(prev => ({ ...prev, new: null }));
       handleModalToggle('add', false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Lỗi khi thêm địa chỉ mới');
-      console.error('Error adding address:', err);
+  setError(err instanceof Error ? err.message : 'Lỗi khi thêm địa chỉ mới');
     } finally {
       setLoading(false);
     }
@@ -465,8 +463,7 @@ const MyAddresses: React.FC = () => {
       setAddressData(prev => ({ ...prev, edit: null }));
       handleModalToggle('edit', undefined);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Lỗi khi cập nhật địa chỉ');
-      console.error('Error updating address:', err);
+  setError(err instanceof Error ? err.message : 'Lỗi khi cập nhật địa chỉ');
     } finally {
       setLoading(false);
     }
@@ -489,8 +486,7 @@ const MyAddresses: React.FC = () => {
         }))
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Lỗi khi đặt địa chỉ mặc định');
-      console.error('Error setting default address:', err);
+  setError(err instanceof Error ? err.message : 'Lỗi khi đặt địa chỉ mặc định');
     } finally {
       setLoading(false);
     }
@@ -508,8 +504,7 @@ const MyAddresses: React.FC = () => {
       
       setAddresses(addresses.filter((address: AddressInfo) => address.id !== id));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Lỗi khi xóa địa chỉ');
-      console.error('Error deleting address:', err);
+  setError(err instanceof Error ? err.message : 'Lỗi khi xóa địa chỉ');
     } finally {
       setLoading(false);
     }

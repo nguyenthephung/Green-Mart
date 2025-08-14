@@ -1,4 +1,5 @@
 import Notification from '../models/Notification';
+import NotificationSettings from '../models/NotificationSettings';
 
 interface CreateNotificationData {
   recipientId?: string;
@@ -19,8 +20,13 @@ class NotificationHelper {
   static async createUserNotification(data: CreateNotificationData) {
     try {
       // Bổ sung kiểm tra trạng thái notification settings của user
-      const NotificationSettings = require('../models/NotificationSettings');
-      const settings = await NotificationSettings.findOne({ userId: data.recipientId });
+  // Sử dụng import chuẩn thay cho require để lấy đúng model
+  // Đảm bảo import ở đầu file
+  // Nếu đã import ở đầu file thì bỏ dòng này
+  // Nếu chưa, thêm dòng sau ở đầu file:
+  // import NotificationSettings from '../models/NotificationSettings';
+  // Ở đây dùng lại biến đã import
+  const settings = await NotificationSettings.findOne({ userId: data.recipientId });
       if (settings && settings.settings && settings.settings[data.type] === false) {
         return null;
       }
@@ -42,7 +48,7 @@ class NotificationHelper {
   // ...existing code...
       return notification;
     } catch (error) {
-      console.error('Error creating user notification:', error);
+  // ...existing code (đã xóa log)...
       throw error;
     }
   }

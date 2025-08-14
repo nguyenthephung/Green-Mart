@@ -64,19 +64,9 @@ export class PayPalService {
     this.clientSecret = process.env.PAYPAL_CLIENT_SECRET || '';
 
     if (!this.clientId || !this.clientSecret) {
-      console.error('PayPal configuration missing:', {
-        clientId: !!this.clientId,
-        clientSecret: !!this.clientSecret,
-        mode: process.env.PAYPAL_MODE
-      });
       throw new Error('PayPal credentials are required. Please check PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET environment variables.');
     }
-
-    console.log('PayPal Service initialized:', {
-      baseURL: this.baseURL,
-      clientId: this.clientId?.slice(0, 10) + '...',
-      mode: process.env.PAYPAL_MODE || 'sandbox'
-    });
+    // ...existing code (đã xóa log)...
   }
 
   // Lấy access token từ PayPal

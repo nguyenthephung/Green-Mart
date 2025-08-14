@@ -28,28 +28,28 @@ const connectDB = async (): Promise<void> => {
       maxConnecting: 2,
     });
     
-    console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
-    console.log(`📊 Database: ${conn.connection.name}`);
+  console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+  console.log(`📊 Database: ${conn.connection.name}`);
     
     // Log connection events
     mongoose.connection.on('error', (err) => {
-      console.error('❌ MongoDB connection error:', err.message);
+  console.error('❌ MongoDB connection error:', err.message);
     });
     
     mongoose.connection.on('disconnected', () => {
-      console.log('⚠️ MongoDB disconnected');
+  console.log('⚠️ MongoDB disconnected');
     });
     
     mongoose.connection.on('reconnected', () => {
-      console.log('✅ MongoDB reconnected');
+  console.log('✅ MongoDB reconnected');
     });
     
   } catch (error: any) {
-    console.error('❌ MongoDB connection failed:', error.message);
+      // ...existing code (đã xóa log)...
     
     // Retry với cấu hình khác nếu lỗi SSL
     if (error.message.includes('SSL') || error.message.includes('TLS')) {
-      console.log('🔄 Retrying with different SSL configuration...');
+        // ...existing code (đã xóa log)...
       
       try {
         const conn = await mongoose.connect(process.env.MONGODB_URI as string, {
@@ -65,21 +65,16 @@ const connectDB = async (): Promise<void> => {
           retryWrites: true,
         });
         
-        console.log(`✅ MongoDB Connected (retry): ${conn.connection.host}`);
+          // ...existing code (đã xóa log)...
         return;
         
       } catch (retryError: any) {
-        console.error('❌ Retry failed:', retryError.message);
+          // ...existing code (đã xóa log)...
       }
     }
     
     // Nếu vẫn fail, log chi tiết và tiếp tục chạy server
-    console.error('⚠️ Starting server without database connection');
-    console.error('📝 Please check your MongoDB Atlas configuration:');
-    console.error('   1. Cluster is running');
-    console.error('   2. IP address is whitelisted');
-    console.error('   3. Username/password is correct');
-    console.error('   4. Network connectivity is stable');
+      // ...existing code (đã xóa log)...
     
     // Không exit process, để server vẫn chạy
     // process.exit(1);

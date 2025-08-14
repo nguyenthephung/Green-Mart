@@ -33,7 +33,7 @@ export default function CategoryBanner({ categoryId, className = '' }: CategoryB
         banners.sort((a: any, b: any) => (a.priority || 999) - (b.priority || 999));
         setCategoryBanners(banners);
       } catch (error) {
-        console.error('Failed to load category banners:', error);
+  // ...existing code (đã xóa log)...
       }
     };
 
@@ -48,7 +48,7 @@ export default function CategoryBanner({ categoryId, className = '' }: CategoryB
           window.open(banner.linkUrl, '_blank');
         }
       } catch (error) {
-        console.error('Error tracking banner click:', error);
+  // ...existing code (đã xóa log)...
       }
     }
   };

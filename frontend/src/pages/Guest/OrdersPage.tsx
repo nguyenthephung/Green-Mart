@@ -37,10 +37,9 @@ const OrdersPage = () => {
       try {
         setLoading(true);
         setError(null);
-        console.log('Fetching order history...');
+  // ...existing code (đã xóa log)...
         
-        const response = await orderService.getOrderHistory();
-        console.log('Order history response:', response);
+  const response = await orderService.getOrderHistory();
         
         if (response.orders) {
           // setRealOrders(response.orders);
@@ -64,11 +63,11 @@ const OrdersPage = () => {
             totalAmount: order.totalAmount || 0 // Add totalAmount from backend
           }));
           
-          console.log('Converted orders:', convertedOrders);
+          // ...existing code (đã xóa log)...
           setOrders(convertedOrders);
         }
       } catch (err: any) {
-        console.error('Failed to fetch orders:', err);
+  // ...existing code (đã xóa log)...
         setError(`Không thể tải danh sách đơn hàng: ${err.message}`);
         
         // Fallback to localStorage if API fails
@@ -76,7 +75,7 @@ const OrdersPage = () => {
         if (stored) {
           try {
             setOrders(JSON.parse(stored));
-            console.log('Using fallback localStorage orders');
+            // ...existing code (đã xóa log)...
           } catch (parseError) {
             console.error('Error parsing localStorage orders:', parseError);
             setOrders([]);

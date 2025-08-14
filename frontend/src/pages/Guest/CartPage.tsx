@@ -265,7 +265,6 @@ export default function CartPage() {
             }}
             onRemove={(id, unit, type) => {
               if (!id || id === 'undefined') {
-                console.warn('[CartPage] Tried to remove cart item with undefined id:', { id, unit, type });
                 alert('Không thể xóa sản phẩm: ID không hợp lệ.');
                 return;
               }
@@ -274,13 +273,11 @@ export default function CartPage() {
                 cartItem.unit === unit && 
                 cartItem.type === type
               );
-              console.log('[CartPage] removeFromCart called:', { id, unit, type, flashSale: item?.flashSale });
               removeFromCart(String(id), unit, type, item?.flashSale)
                 .then(() => {
-                  console.log('[CartPage] removeFromCart success');
+                  // ...existing code (đã xóa log)...
                 })
                 .catch((err) => {
-                  console.error('[CartPage] removeFromCart error:', err);
                   alert('Lỗi xóa sản phẩm: ' + (err?.message || err));
                 });
             }}

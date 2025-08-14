@@ -8,9 +8,6 @@ import { startFlashSaleStatusUpdater } from '@/services/flashSaleScheduler';
 
 dotenv.config();
 
-// Connect to database
-connectDB();
-
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -45,6 +42,20 @@ app.get('/api/health', (_req, res) => {
   });
 });
 
+// Start the server in an async IIFE
+(async () => {
+  await connectDB();
+
+  // API routes
+  app.use('/api', routes);
+
+  app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+    
+    // Start flash sale status updater
+    startFlashSaleStatusUpdater();
+  });
+})();
 // API routes
 app.use('/api', routes);
 

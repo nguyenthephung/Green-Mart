@@ -89,7 +89,7 @@ export const useUserStore = create<UserState>()(
               // Then fetch the updated cart
               await cartStore.fetchCart();
             } catch (cartError) {
-              console.error('Error handling cart after login:', cartError);
+              // ...existing code (đã xóa log)...
             }
             
             return {
@@ -138,7 +138,7 @@ export const useUserStore = create<UserState>()(
               // Then fetch the updated cart
               await cartStore.fetchCart();
             } catch (cartError) {
-              console.error('Error handling cart after register:', cartError);
+              // ...existing code (đã xóa log)...
             }
             
             return {

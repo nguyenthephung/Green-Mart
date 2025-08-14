@@ -58,14 +58,9 @@ const Checkout = () => {
 
     // Preload user data including addresses and payments
     if (isAuthenticated) {
-      refreshUserData().catch(err => {
-        console.warn('Failed to refresh user data:', err);
-      });
-      
-      // Fetch addresses specifically
-      fetchAddresses().catch(err => {
-        console.warn('Failed to fetch addresses:', err);
-      });
+  refreshUserData().catch(() => {});
+  // Fetch addresses specifically
+  fetchAddresses().catch(() => {});
     }
 
     // Kiểm tra và sửa lại payments nếu có method cũ
@@ -160,9 +155,7 @@ const Checkout = () => {
   }
 
   // Tính phí dịch vụ (mặc định 15k, hoặc động 2% tổng tiền hàng, min 15k)
-  let serviceFee = 15000;
-  const dynamicServiceFee = Math.round(subtotal * 0.02);
-  if (dynamicServiceFee > 15000) serviceFee = dynamicServiceFee;
+  // Xoá biến serviceFee không dùng
 
 
   // Hàm xử lý đặt hàng và thanh toán
@@ -216,7 +209,7 @@ const Checkout = () => {
       }
 
       // Tính phí giao hàng dựa trên địa chỉ đã chọn
-      const getDeliveryFee = (address) => {
+  const getDeliveryFee = (address: any) => {
         if (!address || !address.city || !address.district) return 35000;
         const city = address.city.trim().toLowerCase();
         const district = address.district.trim().toLowerCase();
@@ -307,14 +300,13 @@ const Checkout = () => {
               window.location.href = redirectUrl;
               return; // EXIT FUNCTION HERE - NO SUCCESS MESSAGE
             } else {
-              console.error('❌ Payment creation failed - missing redirect URL or success=false');
-              console.error('redirectUrl:', redirectUrl);
+              // ...existing code (đã xóa log)...
               alert(`Không thể tạo link thanh toán ${paymentMethod.toUpperCase()}. Vui lòng thử lại hoặc chọn phương thức thanh toán khác.`);
               setIsProcessingOrder(false);
               return;
             }
           } catch (paymentError) {
-            console.error('Payment creation failed:', paymentError);
+            // ...existing code (đã xóa log)...
             alert(`Thanh toán ${paymentMethod.toUpperCase()} thất bại: ${paymentError instanceof Error ? paymentError.message : 'Lỗi không xác định'}. Vui lòng thử lại hoặc chọn phương thức thanh toán khác.`);
             setIsProcessingOrder(false);
             return;
@@ -336,9 +328,8 @@ const Checkout = () => {
               try {
                 await useCartStore.getState().clearCart();
                 await useCartStore.getState().fetchCart(); // Force sync UI
-                console.log('Cart cleared and synced successfully after order creation');
               } catch (clearError) {
-                console.error('Failed to clear cart after order:', clearError);
+                // ...existing code (đã xóa log)...
                 // Continue anyway as order was created successfully
               }
               
@@ -357,15 +348,13 @@ const Checkout = () => {
               navigate(`/order-success?orderId=${orderId}&orderNumber=${orderNumber}`, { replace: true });
               return;
             } else {
-              console.error('Payment record creation failed:', paymentResponse);
+              // ...existing code (đã xóa log)...
               alert(`Không thể tạo bản ghi thanh toán. Đơn hàng đã được tạo nhưng có thể cần liên hệ admin.`);
               setIsProcessingOrder(false);
               return;
             }
           } catch (paymentError) {
-            console.error('Payment record creation failed:', paymentError);
-            // Still proceed since order was created, but log the error
-            console.warn('Order created but payment record failed. This may need manual admin intervention.');
+            // ...existing code (đã xóa log)...
             alert(`Đơn hàng đã được tạo nhưng có lỗi xử lý thanh toán. Vui lòng liên hệ admin với mã đơn hàng: ${orderNumber}`);
             setIsProcessingOrder(false);
             return;
@@ -373,13 +362,13 @@ const Checkout = () => {
         }
       } else {
         // Order creation failed
-        console.error('Order creation failed:', orderResponse);
+  // ...existing code (đã xóa log)...
         alert(`Tạo đơn hàng thất bại: ${(orderResponse as any)?.message || 'Lỗi không xác định'}`);
         setIsProcessingOrder(false);
         return;
       }
     } catch (error) {
-      console.error('Checkout error:', error);
+  // ...existing code (đã xóa log)...
       
       // Detailed error handling
       if (error instanceof Error) {
@@ -427,8 +416,8 @@ const Checkout = () => {
             <h1 className="text-4xl font-bold text-app-primary">
               💳 Thanh toán đơn hàng
             </h1>
-            
-            <p className="text-lg text-app-secondary break-words">
+            {/* Sửa lỗi: không đặt div bên trong p */}
+            <div className="text-lg text-app-secondary break-words">
               {cartLoading ? (
                 <span>🔄 Đang tải giỏ hàng...</span>
               ) : (
@@ -439,25 +428,25 @@ const Checkout = () => {
                       ⚠️ Vui lòng đăng nhập để hoàn tất đặt hàng
                     </span>
                   )}
+                  {!cartLoading && cart.length === 0 && (
+                    <span className="block text-red-600 text-base mt-2">
+                      ⚠️ Giỏ hàng trống - vui lòng thêm sản phẩm trước khi checkout
+                    </span>
+                  )}
+                  {isAuthenticated && addresses.length === 0 && (
+                    <div className="block text-red-600 text-base mt-2">
+                      <span className="block mb-2">⚠️ Vui lòng thêm địa chỉ giao hàng để tiếp tục</span>
+                      <button
+                        onClick={() => navigate('/my-address')}
+                        className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+                      >
+                        Thêm địa chỉ ngay
+                      </button>
+                    </div>
+                  )}
                 </>
               )}
-              {!cartLoading && cart.length === 0 && (
-                <span className="block text-red-600 text-base mt-2">
-                  ⚠️ Giỏ hàng trống - vui lòng thêm sản phẩm trước khi checkout
-                </span>
-              )}
-              {isAuthenticated && addresses.length === 0 && (
-                <div className="block text-red-600 text-base mt-2">
-                  <span className="block mb-2">⚠️ Vui lòng thêm địa chỉ giao hàng để tiếp tục</span>
-                  <button
-                    onClick={() => navigate('/my-address')}
-                    className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
-                  >
-                    Thêm địa chỉ ngay
-                  </button>
-                </div>
-              )}
-            </p>
+            </div>
           </div>
         </div>
       </div>

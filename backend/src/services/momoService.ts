@@ -45,11 +45,7 @@ export class MoMoService {
       ipnUrl: process.env.MOMO_IPN_URL!
     };
 
-    console.log('=== MoMo Config Loaded ===');
-    console.log('Partner Code:', this.config.partnerCode);
-    console.log('Endpoint:', this.config.endpoint);
-    console.log('Redirect URL:', this.config.redirectUrl);
-    console.log('IPN URL:', this.config.ipnUrl);
+  // ...existing code (đã xóa log)...
   }
 
   async createPayment(paymentRequest: MoMoPaymentRequest): Promise<MoMoPaymentResponse> {

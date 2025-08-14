@@ -10,8 +10,7 @@ const NotificationSettingsPage: React.FC = () => {
 
   // Log dữ liệu settings và localSettings để kiểm tra
   useEffect(() => {
-    console.log('settings from store:', settings);
-    console.log('localSettings state:', localSettings);
+  // ...existing code (đã xóa log)...
   }, [settings, localSettings]);
 
   useEffect(() => {
@@ -25,7 +24,7 @@ const NotificationSettingsPage: React.FC = () => {
   const handleChange = (key: string) => {
     if (!localSettings?.settings) return;
     
-    console.log('Changing setting:', key, 'from', localSettings.settings[key as keyof typeof localSettings.settings], 'to', !localSettings.settings[key as keyof typeof localSettings.settings]);
+  // ...existing code (đã xóa log)...
     
     setLocalSettings(prev => {
       if (!prev) return prev;
@@ -57,7 +56,7 @@ const NotificationSettingsPage: React.FC = () => {
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (error) {
-      console.error('Failed to save settings:', error);
+      // ...existing code (đã xóa log)...
     } finally {
       setSaving(false);
     }

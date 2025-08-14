@@ -37,7 +37,10 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
       return;
     }
 
+    // Đảm bảo luôn có trường _id và userId trên req.user
     req.user = user;
+    req.user._id = user._id;
+    req.user.userId = user._id;
     next();
   } catch (error) {
     res.status(401).json({ 
@@ -69,7 +72,10 @@ export const optionalAuthenticate = async (req: AuthRequest, res: Response, next
       return;
     }
 
+    // Đảm bảo luôn có trường _id và userId trên req.user
     req.user = user;
+    req.user._id = user._id;
+    req.user.userId = user._id;
     next();
   } catch (error) {
     // Token verification failed, continue without user info

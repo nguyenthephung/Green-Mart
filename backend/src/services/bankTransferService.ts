@@ -33,11 +33,7 @@ export class BankTransferService {
       branch: process.env.BANK_BRANCH || 'Chi nhánh Hà Nội'
     };
 
-    console.log('=== Bank Transfer Config Loaded ===');
-    console.log('Bank Name:', this.config.bankName);
-    console.log('Account Number:', this.config.accountNumber);
-    console.log('Account Name:', this.config.accountName);
-    console.log('Branch:', this.config.branch);
+  // ...existing code (đã xóa log)...
   }
 
   async createPayment(request: BankTransferRequest): Promise<BankTransferResponse> {
@@ -57,7 +53,7 @@ export class BankTransferService {
       message: 'Vui lòng chuyển khoản theo thông tin bên dưới và giữ lại biên lai để xác nhận.'
     };
 
-    console.log('=== Bank Transfer Payment Created ===');
+  // ...existing code (đã xóa log)...
     console.log('Order ID:', orderId);
     console.log('Amount:', amount.toLocaleString('vi-VN'), 'VND');
     console.log('Transfer Content:', transferContent);

@@ -13,6 +13,6 @@ router.put('/update', optionalAuthenticate, CartController.updateCartItem);
 // Remove item from cart - allow both authenticated and unauthenticated users
 router.delete('/remove', optionalAuthenticate, CartController.removeFromCart);
 // Clear cart - allow both authenticated and unauthenticated users
-router.delete('/clear', optionalAuthenticate, CartController.clearCart);
+router.delete('/clear', CartController.clearCart);
 
 export default router;

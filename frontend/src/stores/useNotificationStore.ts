@@ -94,7 +94,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
         error: null
       });
     } catch (error: any) {
-      console.error('Store: error in fetchNotifications:', error);
+  // ...existing code (đã xóa log)...
       set({ 
         loading: false, 
         error: error.message || 'Lỗi khi tải thông báo' 
@@ -222,7 +222,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
       const unreadCount = await notificationService.getUnreadCount();
       set({ unreadCount });
     } catch (error: any) {
-      console.error('Error fetching unread count:', error);
+  // ...existing code (đã xóa log)...
     }
   },
 

@@ -114,7 +114,7 @@ const AdminFlashSalePage: React.FC = () => {
       setShowCreateModal(false);
       resetForm();
     } catch (error) {
-      console.error('Error creating flash sale:', error);
+  // ...existing code (đã xóa log)...
     }
   };
 
@@ -133,7 +133,7 @@ const AdminFlashSalePage: React.FC = () => {
         products: selectedProducts
       };
 
-      console.log('Updating flash sale with data:', updateData);
+  // ...existing code (đã xóa log)...
 
       await updateFlashSale(selectedFlashSale._id, updateData);
       toast.success('Cập nhật Flash Sale thành công!');
@@ -141,7 +141,7 @@ const AdminFlashSalePage: React.FC = () => {
       resetForm();
       fetchAllFlashSales(); // Refresh list after update
     } catch (error) {
-      console.error('Error updating flash sale:', error);
+  // ...existing code (đã xóa log)...
       const errorMessage = error instanceof Error ? error.message : 'Lỗi không xác định';
       toast.error(`Lỗi cập nhật Flash Sale: ${errorMessage}`);
     }
@@ -156,7 +156,7 @@ const AdminFlashSalePage: React.FC = () => {
       setShowDeleteModal(false);
       setSelectedFlashSale(null);
     } catch (error) {
-      console.error('Error deleting flash sale:', error);
+  // ...existing code (đã xóa log)...
     }
   };
 
@@ -165,7 +165,7 @@ const AdminFlashSalePage: React.FC = () => {
       await toggleFlashSaleStatus(flashSale._id);
       toast.success(`${flashSale.isActive ? 'Tắt' : 'Bật'} Flash Sale thành công!`);
     } catch (error) {
-      console.error('Error toggling flash sale status:', error);
+  // ...existing code (đã xóa log)...
     }
   };
 

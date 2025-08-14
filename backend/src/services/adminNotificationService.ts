@@ -9,9 +9,7 @@ export class AdminNotificationService {
       const message = this.formatOrderNotification(order);
       
       // Log to console for now (có thể thay bằng email, SMS, webhook, etc.)
-      console.log('🔔 ADMIN NOTIFICATION - New Order Pending Confirmation:');
-      console.log(message);
-      console.log('─'.repeat(50));
+  // ...existing code (đã xóa log)...
       
       // TODO: Implement real notification methods
       // await this.sendEmail(adminEmail, 'New Order Pending', message);
@@ -19,7 +17,7 @@ export class AdminNotificationService {
       // await this.sendWebhook(order);
       
     } catch (error) {
-      console.error('Failed to send admin notification:', error);
+  // ...existing code (đã xóa log)...
     }
   }
   

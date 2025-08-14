@@ -22,12 +22,7 @@ export class PaymentController {
     try {
       const { orderId, paymentMethod, amount, returnUrl } = req.body;
 
-      console.log('PaymentController createPayment received:', {
-        orderId,
-        paymentMethod,
-        amount,
-        returnUrl
-      });
+  // ...existing code (đã xóa log)...
 
       // Validate input
       if (!orderId || !paymentMethod || !amount) {
@@ -46,13 +41,7 @@ export class PaymentController {
         });
       }
 
-      console.log('PaymentController found order:', {
-        orderId: order._id,
-        totalAmount: order.totalAmount,
-        voucherDiscount: order.voucherDiscount,
-        subtotal: order.subtotal,
-        requestedAmount: amount
-      });
+  // ...existing code (đã xóa log)...
 
       let paymentResult;
 

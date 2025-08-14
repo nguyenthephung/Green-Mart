@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { fetchCart, addToCart as apiAddToCart, updateCartItem, removeCartItem, clearCart as apiClearCart } from '../services/cartService';
+import { fetchCart, addToCart as apiAddToCart, updateCartItem, removeCartItem } from '../services/cartService';
 import { useNewToastStore } from './useNewToastStore';
 
 // Local storage key for guest cart
@@ -45,7 +45,7 @@ const setCartCache = (data: CartItem[], userId?: string) => {
     };
     localStorage.setItem(CART_CACHE_KEY, JSON.stringify(cache));
   } catch (error) {
-    console.error('Failed to cache cart:', error);
+    // ...existing code (đã xóa log)...
   }
 };
 
@@ -53,7 +53,7 @@ const clearCartCache = () => {
   try {
     localStorage.removeItem(CART_CACHE_KEY);
   } catch (error) {
-    console.error('Failed to clear cart cache:', error);
+    // ...existing code (đã xóa log)...
   }
 };
 
@@ -71,7 +71,7 @@ const setGuestCart = (items: CartItem[]) => {
   try {
     localStorage.setItem(GUEST_CART_KEY, JSON.stringify(items));
   } catch (error) {
-    console.error('Failed to save guest cart:', error);
+    // ...existing code (đã xóa log)...
   }
 };
 
@@ -79,7 +79,7 @@ const clearGuestCart = () => {
   try {
     localStorage.removeItem(GUEST_CART_KEY);
   } catch (error) {
-    console.error('Failed to clear guest cart:', error);
+    // ...existing code (đã xóa log)...
   }
 };
 
@@ -205,7 +205,6 @@ export const useCartStore = create<CartState>((set, get) => ({
     
     // Optimistic update - update UI immediately
     set((state) => {
-  // ...existing code...
       const existingIndex = state.items.findIndex(cartItem => 
         String(cartItem.id) === String(item.id) && 
         cartItem.unit === item.unit &&
@@ -217,7 +216,6 @@ export const useCartStore = create<CartState>((set, get) => ({
       let newItems = [...state.items];
       
       if (existingIndex >= 0) {
-  // ...existing code...
         // Update existing item
         if (item.type === 'weight') {
           newItems[existingIndex] = {
@@ -235,7 +233,6 @@ export const useCartStore = create<CartState>((set, get) => ({
           };
         }
       } else {
-  // ...existing code...
         // Add new item
         newItems.push({
           id: item.id,
@@ -251,7 +248,6 @@ export const useCartStore = create<CartState>((set, get) => ({
         });
       }
       
-  // ...existing code...
       const { totalItems, totalAmount } = calculateTotals(newItems);
       
       // Clear cache since we're updating
@@ -276,12 +272,9 @@ export const useCartStore = create<CartState>((set, get) => ({
         res = await apiAddToCart(String(item.id), item.quantity, item.unit, undefined, 'count', item.flashSale);
       }
       
-  // ...existing code...
-      
       if (res.success) {
-  // ...existing code...
-        const currentState = get();
         // Update cache with current state
+        const currentState = get();
         setCartCache(currentState.items);
         
         // Show success notification
@@ -300,20 +293,17 @@ export const useCartStore = create<CartState>((set, get) => ({
         );
       } else if ((res as any)?.requireLogin) {
         // Guest user - sync with localStorage
-  // ...existing code...
         const currentState = get();
         setGuestCart(currentState.items);
       } else {
-        // API error - revert optimistic update by refetching
-        console.warn('API error, reverting optimistic update:', res.message);
-        await get().fetchCart(true); // Force refresh
-        set({ error: res.message || 'Lỗi thêm sản phẩm' });
+  // API error - revert optimistic update by refetching
+  await get().fetchCart(true); // Force refresh
+  set({ error: res.message || 'Lỗi thêm sản phẩm' });
       }
     } catch (err: any) {
-      console.error('Add to cart error, reverting optimistic update:', err);
-      // Revert optimistic update on error
-      await get().fetchCart(true); // Force refresh
-      set({ error: err.message || 'Lỗi thêm sản phẩm' });
+  // Revert optimistic update on error
+  await get().fetchCart(true); // Force refresh
+  set({ error: err.message || 'Lỗi thêm sản phẩm' });
     }
   },
   updateQuantity: async (productId: string | number, value: number, unit?: string, type?: 'count' | 'weight', flashSale?: any) => {
@@ -406,25 +396,32 @@ export const useCartStore = create<CartState>((set, get) => ({
   clearCart: async () => {
     try {
       set({ loading: true, error: undefined });
-      
-      // Try to call API to clear cart in database
+      // Lấy userId từ store nếu có
+      let userId: string | undefined;
       try {
-        const res = await apiClearCart();
-  // ...existing code...
-      } catch (apiError: any) {
-  // ...existing code...
-        // This is okay for guest users or when logged out
+        const { useUserStore } = await import('./useUserStore');
+        const user = useUserStore.getState().user;
+        userId = user?.id;
+      } catch (e) {
+        userId = undefined;
       }
-      
-      // Always clear guest cart from localStorage
+      // Gọi API backend để clear cart nếu là user
+      let apiResult;
+      try {
+        apiResult = await import('../services/cartService').then(m => m.clearCart(userId)).catch(() => null);
+        if (apiResult && apiResult.success) {
+          console.log('[DEBUG][useCartStore] clearCart: Backend clear thành công', apiResult);
+        } else {
+          console.warn('[DEBUG][useCartStore] clearCart: Backend clear thất bại hoặc không trả về success', apiResult);
+        }
+      } catch (apiError) {
+        console.error('[DEBUG][useCartStore] clearCart: Lỗi gọi API backend', apiError);
+      }
+      // Luôn clear guest cart và local state
       clearGuestCart();
-      
-      // Always clear local state regardless of API result
       set({ items: [], totalItems: 0, totalAmount: 0, loading: false });
-      
     } catch (err: any) {
       console.error('Clear cart error:', err);
-      // Even if everything fails, clear local state
       clearGuestCart();
       set({ items: [], totalItems: 0, totalAmount: 0, error: err.message || 'Lỗi xóa giỏ hàng', loading: false });
     }
@@ -449,7 +446,6 @@ export const useCartStore = create<CartState>((set, get) => ({
       if (validItems.length !== currentItems.length) {
         const { totalItems, totalAmount } = calculateTotals(validItems);
         set({ items: validItems, totalItems, totalAmount, loading: false });
-  // ...existing code...
       } else {
         set({ loading: false });
       }
@@ -466,8 +462,6 @@ export const useCartStore = create<CartState>((set, get) => ({
     try {
       const guestItems = getGuestCart();
       if (guestItems.length === 0) return;
-      
-  // ...existing code...
       
       // Add each guest item to server cart
       for (const item of guestItems) {
@@ -488,7 +482,8 @@ export const useCartStore = create<CartState>((set, get) => ({
       // Refresh cart from server
       await get().fetchCart();
       
-  // ...existing code...
+      // Notify success
+      useNewToastStore.getState().showSuccess('Đồng bộ giỏ hàng thành công', '', 3000);
     } catch (error) {
       console.error('Failed to sync guest cart:', error);
     }

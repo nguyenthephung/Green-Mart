@@ -26,6 +26,7 @@ export interface CreateOrderRequest {
   paymentMethod: string;
   voucherCode?: string;
   notes?: string;
+  shippingFee?: number;
 }
 
 export interface OrderResponse {
@@ -103,11 +104,9 @@ class OrderService {
         method: 'POST',
         body: JSON.stringify(orderData)
       });
-      console.log('Raw API response:', response);
       // Return the response directly as it already has the correct structure
       return response as OrderResponse;
     } catch (error: any) {
-      console.error('Order creation error:', error);
       throw new Error(error.message || 'Failed to create order');
     }
   }
@@ -119,13 +118,11 @@ class OrderService {
       const response = await apiClient<OrderDetails>(`${this.BASE_URL}/track/${orderId}`);
       return response.data!;
     } catch (error: any) {
-      console.error('Get order error:', error);
       // If tracking fails, try authenticated route as fallback
       try {
         const authResponse = await apiClient<OrderDetails>(`${this.BASE_URL}/${orderId}`);
         return authResponse.data!;
       } catch (authError: any) {
-        console.error('Get order with auth error:', authError);
         throw new Error(error.message || 'Failed to get order details');
       }
     }
@@ -146,10 +143,8 @@ class OrderService {
       if (params?.paymentStatus) queryParams.append('paymentStatus', params.paymentStatus);
       
       const url = `${this.BASE_URL}/history${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
-      console.log('Fetching from URL:', url);
       
       const response = await apiClient<{success: boolean, data: OrderHistory}>(url);
-      console.log('Raw order history response:', response);
       
       // Handle different response structures
       if ((response as any).data?.orders) {
@@ -164,7 +159,6 @@ class OrderService {
         return { orders: [], pagination: { page: 1, limit: 20, total: 0, pages: 0 } };
       }
     } catch (error: any) {
-      console.error('Get order history error:', error);
       throw new Error(error.message || 'Failed to get order history');
     }
   }
@@ -178,7 +172,7 @@ class OrderService {
     startDate?: string; 
     endDate?: string; 
   }): Promise<OrderHistory> {
-    try {
+  try {
       const queryParams = new URLSearchParams();
       if (params?.page) queryParams.append('page', params.page.toString());
       if (params?.limit) queryParams.append('limit', params.limit.toString());
@@ -207,7 +201,6 @@ class OrderService {
         return { orders: [], pagination: { page: 1, limit: 20, total: 0, pages: 0 } };
       }
     } catch (error: any) {
-      console.error('Get all orders error:', error);
       throw new Error(error.message || 'Failed to get all orders');
     }
   }
@@ -220,7 +213,6 @@ class OrderService {
         body: JSON.stringify({ status })
       });
     } catch (error: any) {
-      console.error('Update order status error:', error);
       throw new Error(error.message || 'Failed to update order status');
     }
   }
@@ -233,7 +225,6 @@ class OrderService {
         body: JSON.stringify({ reason })
       });
     } catch (error: any) {
-      console.error('Cancel order error:', error);
       throw new Error(error.message || 'Failed to cancel order');
     }
   }

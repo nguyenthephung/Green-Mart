@@ -102,7 +102,7 @@ const GuestCheckoutPage: React.FC = () => {
         }
       }
     } catch (error) {
-      console.error('Error creating guest order:', error);
+  // ...existing code (đã xóa log)...
       alert('Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.');
     } finally {
       setIsProcessing(false);

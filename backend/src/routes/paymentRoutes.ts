@@ -9,7 +9,6 @@ router.post('/momo/callback', async (req, res) => {
   try {
     await paymentController.handleMoMoCallback(req, res);
   } catch (error) {
-    console.error('MoMo callback error:', error);
     if (!res.headersSent) {
       res.status(500).json({ success: false, message: 'Internal server error' });
     }
@@ -21,7 +20,6 @@ router.post('/paypal/capture', async (req, res) => {
   try {
     await paymentController.capturePayPalPayment(req, res);
   } catch (error) {
-    console.error('PayPal capture error:', error);
     if (!res.headersSent) {
       res.status(500).json({ success: false, message: 'Internal server error' });
     }
@@ -32,7 +30,6 @@ router.post('/paypal/webhook', async (req, res) => {
   try {
     await paymentController.handlePayPalWebhook(req, res);
   } catch (error) {
-    console.error('PayPal webhook error:', error);
     if (!res.headersSent) {
       res.status(500).json({ success: false, message: 'Internal server error' });
     }

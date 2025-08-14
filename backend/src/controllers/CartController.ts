@@ -351,9 +351,9 @@ const CartController = {
   // Xóa toàn bộ giỏ hàng
   async clearCart(req: Request, res: Response): Promise<void> {
     try {
-      const userId = req.user?._id;
-      
-      // Nếu user chưa đăng nhập, trả về thành công nhưng không cần xử lý gì
+      // Lấy userId trực tiếp từ query hoặc body (không dùng token)
+      const userId = req.body.userId || req.query.userId;
+      // ...existing code không log chi tiết cart...
       if (!userId) {
         res.json({ 
           success: true, 
@@ -363,17 +363,17 @@ const CartController = {
         });
         return;
       }
-      
       const cart = await Cart.findOne({ userId });
       if (!cart) {
         res.json({ success: true, message: 'Giỏ hàng đã trống', data: { items: [] } });
         return;
       }
-      
       cart.items = [];
       await cart.save();
-      res.json({ success: true, message: 'Xóa toàn bộ giỏ hàng thành công', data: cart });
+      const cartAfter = await Cart.findOne({ userId });
+      res.json({ success: true, message: 'Xóa toàn bộ giỏ hàng thành công', data: cartAfter });
     } catch (err) {
+      console.error('[DEBUG][CartController] clearCart error:', err);
       res.status(500).json({ success: false, message: 'Không xóa được giỏ hàng', data: null });
     }
   },
