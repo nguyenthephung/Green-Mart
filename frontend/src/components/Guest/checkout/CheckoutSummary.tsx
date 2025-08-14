@@ -1,7 +1,8 @@
+
 import type { CartItem } from "../../../stores/useCartStore";
 import { useMemo, useState, useEffect } from "react";
-import haversine from "haversine-distance";
-import { districts } from "../../../data/Guest/hcm_districts_sample";
+import { useProductStore } from '../../../stores/useProductStore';
+
 
 // Define interfaces locally instead of importing from removed UserContext
 interface UserInfo {
@@ -37,6 +38,7 @@ const tipOptions = [5000, 10000, 15000, 20000, 30000, 40000, 50000];
 
 interface CheckoutSummaryProps {
   cart: CartItem[];
+  subtotal?: number;
   address?: AddressInfo;
   payments: PaymentInfo[]; // nhận mảng payments
   userInfo?: UserInfo | null;
@@ -49,31 +51,11 @@ interface CheckoutSummaryProps {
   isProcessing?: boolean;
 }
 
-const STORE_LOCATION = {
-  latitude: 10.754027, // Quận 5, TP.HCM
-  longitude: 106.663874,
-};
 
-function getLatLngFromAddress(address: { district: string; ward: string }) {
-  if (!address) return null;
-  const district = districts.find((d) => d.name === address.district);
-  const ward = district?.wards.find((w) => w.name === address.ward);
-  if (ward) {
-    return { latitude: ward.latitude, longitude: ward.longitude };
-  }
-  return null;
-}
 
-function calculateShippingFee(
-  userCoords: { latitude: number; longitude: number } | null
-) {
-  if (!userCoords) return 0;
-  const distance = haversine(userCoords, STORE_LOCATION) / 1000; // km
-  if (distance <= 3) return 15000;
-  if (distance <= 7) return 25000;
-  return 35000;
-}
 
+
+// ...existing code...
 function getPaymentMethodLabel(method: string): string {
   switch (method) {
     case 'cod':
@@ -96,6 +78,7 @@ const CheckoutSummary = ({
   userInfo, 
   voucherDiscount = 0, 
   voucher, 
+  subtotal,
   onRemoveVoucher, 
   onShowVoucherModal,
   onCheckout,
@@ -104,7 +87,21 @@ const CheckoutSummary = ({
 }: CheckoutSummaryProps) => {
   const [selectedTip, setSelectedTip] = useState<number | null>(null);
   const [localPayment, setLocalPayment] = useState<PaymentInfo | null>(null);
-  const deliveryFee = 15000;
+  // Logic tính phí giao hàng dựa trên địa chỉ
+  const getDeliveryFee = (address?: AddressInfo) => {
+    if (!address || !address.city || !address.district) return 35000;
+    const city = address.city.trim().toLowerCase();
+    const district = address.district.trim().toLowerCase();
+    if (city.includes('hồ chí minh') || city.includes('hcm')) {
+      const centralDistricts = ['quận 1', 'quận 3', 'quận 5', 'quận 10'];
+      if (centralDistricts.some(d => district === d)) {
+        return 15000;
+      }
+      return 25000;
+    }
+    return 35000;
+  };
+  const deliveryFee = getDeliveryFee(address);
   const serviceFee = 25000;
 
   // Khi payments thay đổi, đồng bộ lại localPayment
@@ -124,41 +121,36 @@ const CheckoutSummary = ({
     }
   };
 
-  const itemsTotal = useMemo(
+  // Lấy products từ ProductStore
+  const products = useProductStore.getState().products;
+  // Dùng subtotal truyền từ CheckoutPage để đồng bộ logic miễn phí ship
+  const itemsTotal = typeof subtotal === 'number' ? subtotal : useMemo(
     () =>
       cart.reduce((sum, item) => {
-        // item.price already contains the correct price (flash sale or regular)
-        const price = item.price || 0;
+        const id = String(item.id);
+        const product = products.find((p: any) => String(p.id) === id);
+        let priceNumber = item.price;
+        // Flash sale ưu tiên cao nhất
+        if (item.flashSale?.isFlashSale) {
+          priceNumber = item.price;
+        } else if (product) {
+          if (product.isSale && typeof product.salePrice === 'number' && product.salePrice < product.price) {
+            priceNumber = product.salePrice;
+          } else if (typeof product.price === 'number') {
+            priceNumber = product.price;
+          }
+        }
         const quantity = item.type === 'weight' ? (item.weight || 0) : (item.quantity || 0);
-        return sum + price * quantity;
+        return sum + priceNumber * quantity;
       }, 0),
-    [cart]
+    [cart, products]
   );
 
   let dynamicDeliveryFee = deliveryFee;
-  if (address && address.district && address.ward) {
-    let districtName: string;
-    if (typeof address.district === "string") {
-      districtName = address.district;
-    } else if (address.district && typeof address.district === "object" && "name" in address.district) {
-      districtName = (address.district as { name: string }).name;
-    } else {
-      districtName = "";
-    }
-    let wardName: string;
-    if (typeof address.ward === "string") {
-      wardName = address.ward;
-    } else if (address.ward && typeof address.ward === "object" && "name" in address.ward) {
-      wardName = (address.ward as { name: string }).name;
-    } else {
-      wardName = "";
-    }
-    const coords = getLatLngFromAddress({ district: districtName, ward: wardName });
-    if (coords) dynamicDeliveryFee = calculateShippingFee(coords);
-  }
+  // Đã xóa logic phí vận chuyển động, chỉ dùng phí mặc định
 
-  // Free shipping for orders >= 300k
-  const isEligibleForFreeShip = itemsTotal >= 300000;
+  // Free shipping for orders >= 300k (đồng bộ với cart)
+  const isEligibleForFreeShip = typeof subtotal === 'number' ? subtotal >= 300000 : itemsTotal >= 300000;
   const actualDeliveryFee = isEligibleForFreeShip ? 0 : dynamicDeliveryFee;
 
   const total =
@@ -256,42 +248,7 @@ const CheckoutSummary = ({
         </div>
       </div>
 
-      {/* Order Review Section */}
-      <div className="mb-6">
-        <h3 className="text-base font-semibold mb-3 text-app-primary flex items-center gap-2">
-          <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3 7h18M3 12h18M3 17h18" />
-          </svg>
-          Sản phẩm trong đơn hàng
-        </h3>
-        <div className="divide-y divide-gray-100 bg-white rounded-xl border border-gray-100 overflow-hidden">
-          {cart.length === 0 ? (
-            <div className="p-4 text-center text-gray-400">Không có sản phẩm nào trong giỏ hàng.</div>
-          ) : (
-            cart.map((item) => (
-              <div key={item.id + '-' + item.unit} className="flex items-center gap-3 p-3">
-                <img src={item.image} alt={item.name} className="w-14 h-14 object-cover rounded-lg border border-gray-100" />
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-gray-900 truncate">{item.name}</div>
-                  <div className="text-xs text-gray-500 truncate">{item.unit}</div>
-                  <div className="text-xs text-gray-500">
-                    {item.type === 'weight' ? `${item.weight || 0} kg` : `${item.quantity} x`}
-                  </div>
-                </div>
-                <div className="flex flex-col items-end min-w-[90px]">
-                  <span className="text-sm font-semibold text-app-primary whitespace-nowrap">
-                    {formatVND(item.price)}
-                  </span>
-                  <span className="text-xs text-gray-400 whitespace-nowrap">Tạm tính</span>
-                  <span className="text-xs font-medium text-green-700 whitespace-nowrap">
-                    {formatVND(item.price * (item.type === 'weight' ? (item.weight || 0) : item.quantity))}
-                  </span>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
+
 
       {/* Price Breakdown */}
       <div className="space-y-3 mb-6">

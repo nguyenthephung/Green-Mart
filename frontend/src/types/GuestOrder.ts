@@ -3,6 +3,9 @@ export interface GuestUser {
   phone: string;
   address: string;
   email?: string;
+  latitude?: number;
+  longitude?: number;
+  shippingFee?: number;
 }
 
 export interface GuestOrder {

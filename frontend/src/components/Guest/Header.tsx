@@ -20,20 +20,23 @@ const Header: React.FC = memo(() => {
   // Use cartCount selector so Header re-renders when cart changes
   const cartCount = useCartStore(state => state.totalItems);
   const fetchCart = useCartStore(state => state.fetchCart);
-  
-  // Get notification store
-  const { unreadCount, fetchUnreadCount } = useNotificationStore();
-  
-  // Fetch cart on mount to ensure cart count is up-to-date after reload
-  useEffect(() => {
-    fetchCart();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  
-  // Use reactive wishlist count instead of function
-  const wishlistCount = useWishlistStore(state => state.items.length);
   const user = useUserStore(state => state.user);
   const logout = useUserStore(state => state.logout);
+  // Get notification store
+  const { unreadCount, fetchUnreadCount } = useNotificationStore();
+  // Use reactive wishlist count instead of function
+  const wishlistCount = useWishlistStore(state => state.items.length);
+  // Fetch cart on mount và khi user thay đổi để đảm bảo count luôn đúng
+  useEffect(() => {
+    fetchCart(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  // Fetch cart on mount and khi user thay đổi để đảm bảo count luôn đúng
+  useEffect(() => {
+    fetchCart(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   // Fetch unread notifications count when user is available
   useEffect(() => {

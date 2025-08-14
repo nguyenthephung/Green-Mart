@@ -285,17 +285,18 @@ export const useUserStore = create<UserState>()(
             const addresses = await AddressService.getUserAddresses(user.id);
             // Convert AddressResponse to AddressInfo format
             const formattedAddresses = addresses.map(addr => ({
-              id: addr.id,
-              fullName: addr.fullName,
-              phone: addr.phone,
-              address: addr.address,
-              ward: addr.ward,
-              wardName: addr.wardName,
-              district: addr.district,
-              districtName: addr.districtName,
-              street: addr.street,
-              isSelected: addr.isSelected,
-              label: addr.label
+        id: addr.id,
+        fullName: addr.fullName,
+        phone: addr.phone,
+        city: addr.city,
+        address: addr.address,
+        ward: addr.ward,
+        wardName: addr.wardName,
+        district: addr.district,
+        districtName: addr.districtName,
+        street: addr.street,
+        isSelected: addr.isSelected,
+        label: addr.label
             }));
             set({ addresses: formattedAddresses });
           }

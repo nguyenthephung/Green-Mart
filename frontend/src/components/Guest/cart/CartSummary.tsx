@@ -1,28 +1,5 @@
-import haversine from "haversine-distance";
-import { districts } from "../../../data/Guest/hcm_districts_sample";
 
-const STORE_LOCATION = {
-  latitude: 10.754027, // Quận 5, TP.HCM
-  longitude: 106.663874,
-};
 
-function getLatLngFromAddress(address: { district: string; ward: string }) {
-  if (!address) return null;
-  const district = districts.find((d) => d.name === address.district);
-  const ward = district?.wards.find((w) => w.name === address.ward);
-  if (ward) {
-    return { latitude: ward.latitude, longitude: ward.longitude };
-  }
-  return null;
-}
-
-function calculateShippingFee(userCoords: { latitude: number; longitude: number } | null) {
-  if (!userCoords) return 0;
-  const distance = haversine(userCoords, STORE_LOCATION) / 1000; // km
-  if (distance <= 3) return 15000;
-  if (distance <= 7) return 25000;
-  return 35000;
-}
 
 interface CartSummaryProps {
   itemsTotal: number;
@@ -40,12 +17,21 @@ interface CartSummaryProps {
 }
 
 export default function CartSummary({ itemsTotal, deliveryFee, voucherDiscount = 0, voucher, onRemoveVoucher, onShowVoucherModal, address }: CartSummaryProps) {
-  let dynamicFee = deliveryFee;
-  if (address) {
-    const coords = getLatLngFromAddress(address);
-    if (coords) dynamicFee = calculateShippingFee(coords);
-  }
-  
+  // Logic tính phí giao hàng dựa trên địa chỉ
+  const getDeliveryFee = (address?: { city?: string; district?: string }) => {
+    if (!address || !address.city || !address.district) return 35000;
+    const city = address.city.trim().toLowerCase();
+    const district = address.district.trim().toLowerCase();
+    if (city.includes('hồ chí minh') || city.includes('hcm')) {
+      const centralDistricts = ['quận 1', 'quận 3', 'quận 5', 'quận 10'];
+      if (centralDistricts.some(d => district === d)) {
+        return 15000;
+      }
+      return 25000;
+    }
+    return 35000;
+  };
+  const dynamicFee = getDeliveryFee(address);
   // Free shipping for orders >= 300k
   const isEligibleForFreeShip = itemsTotal >= 300000;
   const actualShippingFee = isEligibleForFreeShip ? 0 : dynamicFee;

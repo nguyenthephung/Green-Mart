@@ -7,6 +7,7 @@ import GuestInfoModal from '../../components/ui/GuestInfoModal';
 import { Truck, Store, CreditCard, Banknote, Smartphone } from 'lucide-react';
 import type { GuestUser, GuestOrder } from '../../types/GuestOrder';
 
+
 const GuestCheckoutPage: React.FC = () => {
   const navigate = useNavigate();
   const { items, clearCart } = useCartStore();
@@ -28,7 +29,8 @@ const GuestCheckoutPage: React.FC = () => {
     }, 0);
   }, [items]);
 
-  const shippingFee = deliveryType === 'delivery' ? 30000 : 0;
+  // Lấy phí ship từ guestInfo nếu có (đã được tính trong modal)
+  const shippingFee = deliveryType === 'delivery' ? (currentGuestInfo?.shippingFee ?? 30000) : 0;
   const finalTotal = subtotal + shippingFee;
 
   const handleGuestInfoSave = (info: GuestUser) => {
@@ -49,6 +51,11 @@ const GuestCheckoutPage: React.FC = () => {
     setIsProcessing(true);
 
     try {
+      // Nếu chọn PayPal, chuyển đổi VNĐ sang USD theo tỷ giá 1 USD = 26,290 VNĐ
+      let totalAmount = finalTotal;
+      if (paymentMethod === 'paypal') {
+        totalAmount = Number((finalTotal / 26290).toFixed(2));
+      }
       const orderData: GuestOrder = {
         items: items.map(item => ({
           productId: String(item.id),
@@ -62,7 +69,7 @@ const GuestCheckoutPage: React.FC = () => {
         guestInfo: currentGuestInfo,
         deliveryType,
         paymentMethod,
-        totalAmount: finalTotal,
+        totalAmount,
         shippingFee,
         notes: notes.trim() || undefined,
       };

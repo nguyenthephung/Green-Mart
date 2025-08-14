@@ -3,10 +3,22 @@ import { MapPin, CreditCard, ChevronRight, CalendarDays } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 interface Item {
-  id: number;
+  id: string | number;
   name: string;
   image: string;
+  price: number;
+  unit: string;
   quantity: number;
+  type?: 'count' | 'weight';
+  weight?: number;
+  isSale?: boolean;
+  salePrice?: number;
+  flashSale?: {
+    flashSaleId: string;
+    isFlashSale: boolean;
+    originalPrice: number;
+    discountPercentage: number;
+  };
 }
 
 interface UserInfo {
@@ -59,8 +71,7 @@ const CheckoutMain: FC<CheckoutMainProps> = ({ items, userInfo, address, payment
     }
   }, [payments]);
 
-  const visibleItems = items.slice(0, 10);
-  const remainingCount = items.length - visibleItems.length;
+
 
   // Khi chọn payment method, cập nhật local ngay, đồng thời gọi callback để cập nhật context
   const handleSelectPayment = (method: string) => {
@@ -73,6 +84,34 @@ const CheckoutMain: FC<CheckoutMainProps> = ({ items, userInfo, address, payment
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-md space-y-6 w-full">
+      {/* Order Review Section */}
+      <div className="mb-6">
+        <h3 className="text-base font-semibold mb-3 text-app-primary flex items-center gap-2">
+          <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 7h18M3 12h18M3 17h18" />
+          </svg>
+          Sản phẩm trong đơn hàng
+        </h3>
+        <div className="divide-y divide-gray-100 bg-white rounded-xl border border-gray-100 overflow-hidden">
+          {items.length === 0 ? (
+            <div className="p-4 text-center text-gray-400">Không có sản phẩm nào trong giỏ hàng.</div>
+          ) : (
+            items.map((item) => (
+              <div key={item.id + '-' + (item.unit || '')} className="flex items-center gap-3 p-3">
+                <img src={item.image} alt={item.name} className="w-14 h-14 object-cover rounded-lg border border-gray-100" />
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-gray-900 truncate">{item.name}</div>
+                  <div className="text-xs text-gray-500 truncate">{item.unit || ''}</div>
+                  <div className="text-xs text-gray-500">
+                    {item.type === 'weight' ? `${item.weight || 0} kg` : `Số lượng: ${item.quantity}`}
+                  </div>
+                </div>
+                {/* Ẩn toàn bộ phần giá và tạm tính */}
+              </div>
+            ))
+          )}
+        </div>
+      </div>
       {/* Checkout Header */}
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">

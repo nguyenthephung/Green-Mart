@@ -82,8 +82,10 @@ const GuestInfoModal: React.FC<GuestInfoModalProps> = ({ isOpen, onClose, onSave
         ...formData,
         phone: formData.phone.replace(/\s/g, ''),
         address: fullAddress,
+        latitude: addressData.latitude,
+        longitude: addressData.longitude,
+        shippingFee: shippingFee,
       };
-      
       setGuestInfo(cleanedData);
       onSave(cleanedData);
       onClose();

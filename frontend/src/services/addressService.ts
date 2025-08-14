@@ -7,6 +7,7 @@ export interface AddressResponse {
   userId: string;
   fullName: string;
   phone: string;
+  city?: string;
   district: string;
   ward: string;
   street: string;

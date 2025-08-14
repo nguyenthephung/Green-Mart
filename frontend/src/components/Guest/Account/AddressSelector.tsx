@@ -9,6 +9,7 @@ export interface UserAddress {
   wardName?: string;
   phone: string;
   fullName: string;
+  city?: string;
   district: string;
   ward: string;
   street: string;
@@ -51,6 +52,7 @@ export default function AddressSelector({
       const districtData = typedDistricts.find((d: District) => d.name === newDistrict);
       if (districtData) {
         onChange({
+          city: "TP. Hồ Chí Minh", // hoặc lấy từ props nếu đa tỉnh
           district: newDistrict,
           ward: "",
           street: street,
@@ -74,6 +76,7 @@ export default function AddressSelector({
       
       if (districtData && wardData) {
         onChange({
+          city: "TP. Hồ Chí Minh", // hoặc lấy từ props nếu đa tỉnh
           district: selectedDistrict,
           ward: newWard,
           street: street,
@@ -97,6 +100,7 @@ export default function AddressSelector({
       
       if (districtData && wardData) {
         onChange({
+          city: "TP. Hồ Chí Minh", // hoặc lấy từ props nếu đa tỉnh
           district: selectedDistrict,
           ward: selectedWard,
           street: newStreet,

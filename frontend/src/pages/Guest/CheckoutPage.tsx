@@ -6,6 +6,7 @@ import { useCartStore } from '../../stores/useCartStore';
 import { useUserStore } from '../../stores/useUserStore';
 import CheckoutSummary from '../../components/Guest/checkout/CheckoutSummary';
 import { useVoucherStore } from '../../stores/useVoucherStore';
+import { useProductStore } from '../../stores/useProductStore';
 import ShopeeVoucherModal from '../../components/Guest/cart/CartVoucherModal';
 import orderService from '../../services/orderService';
 import type { CreateOrderRequest } from '../../services/orderService';
@@ -15,6 +16,7 @@ import BannerManager from '../../components/Guest/BannerManager';
 const Checkout = () => {
   const navigate = useNavigate();
   const cart = useCartStore(state => state.items);
+  const products = useProductStore.getState().products;
   const cartLoading = useCartStore(state => state.loading);
   const user = useUserStore(state => state.user);
   const isAuthenticated = useUserStore(state => state.isAuthenticated);
@@ -95,10 +97,12 @@ const Checkout = () => {
     name: item.name,
     image: item.image,
     quantity: item.quantity,
+    price: item.price, // Add price property
+    unit: item.unit || '', // Add unit property, fallback to empty string if undefined
   }));
 
   // Lấy địa chỉ và payment đang chọn trực tiếp từ context
-  const selectedAddress = addresses.find(a => a.isSelected) || addresses[0];
+  const selectedAddress = addresses.find(a => a.isSelected) || addresses[0] || null;
 
   // Kiểm tra điều kiện để checkout
   const canCheckout = isAuthenticated && user && addresses.length > 0;
@@ -120,12 +124,28 @@ const Checkout = () => {
     }
   };
 
-  // Tính tổng tiền hàng
+  // Tính tổng tiền hàng (đồng bộ với CartPage: flash sale > sale > giá gốc)
   const subtotal = cart.reduce((sum, item) => {
-    // item.price already contains the correct price (flash sale or regular)
-    const price = item.price || 0;
-    const quantity = item.type === 'weight' ? (item.weight || 0) : (item.quantity || 0);
-    return sum + price * quantity;
+    const id = String(item.id);
+    const product = products.find((p: any) => String(p.id) === id);
+    let priceNumber = item.price;
+    // Flash sale ưu tiên cao nhất
+    if (item.flashSale?.isFlashSale) {
+      priceNumber = item.price;
+    } else if (product) {
+      if (product.isSale && typeof product.salePrice === 'number' && product.salePrice < product.price) {
+        priceNumber = product.salePrice;
+      } else if (typeof product.price === 'number') {
+        priceNumber = product.price;
+      }
+    }
+    let itemTotal = 0;
+    if (item.type === 'weight') {
+      itemTotal = priceNumber * (item.weight || 0);
+    } else {
+      itemTotal = priceNumber * (item.quantity || 0);
+    }
+    return sum + itemTotal;
   }, 0);
 
   // Tính giảm giá voucher
@@ -139,9 +159,6 @@ const Checkout = () => {
     if (voucherDiscount > subtotal) voucherDiscount = subtotal;
   }
 
-  // Tính phí ship theo logic backend (dựa trên subtotal trước discount)
-  const shippingFee = subtotal >= 500000 ? 0 : 30000;
-  const expectedTotal = subtotal - voucherDiscount + shippingFee;
 
   // Hàm xử lý đặt hàng và thanh toán
   const handleCheckout = async () => {
@@ -238,11 +255,14 @@ const Checkout = () => {
         if (paymentMethod === 'momo' || paymentMethod === 'paypal') {
           // For online payment methods (momo, paypal), create payment and redirect
           try {
-            
+            let paymentAmount = totalAmount;
+            if (paymentMethod === 'paypal') {
+              paymentAmount = Number((totalAmount / 26290).toFixed(2));
+            }
             const paymentResponse = await paymentService.createPayment({
               orderId: orderId,
               paymentMethod: paymentMethod,
-              amount: totalAmount,
+              amount: paymentAmount,
               returnUrl: `${window.location.origin}/payment-result?method=${paymentMethod}`
             });
 
@@ -257,7 +277,6 @@ const Checkout = () => {
             if (paymentResponse.success && redirectUrl) {
               // KHÔNG hiển thị thông báo thành công và KHÔNG clear cart
               // Chỉ redirect - cart sẽ được clear sau khi payment thành công
-              
               // Store order info to localStorage for later use
               localStorage.setItem('pendingOrder', JSON.stringify({
                 orderId,
@@ -265,7 +284,6 @@ const Checkout = () => {
                 paymentMethod,
                 timestamp: Date.now()
               }));
-              
               // Redirect without clearing cart or showing success message
               window.location.href = redirectUrl;
               return; // EXIT FUNCTION HERE - NO SUCCESS MESSAGE
@@ -605,7 +623,8 @@ const Checkout = () => {
                 code: voucher.code,
                 description: voucher.description,
                 discount: voucher.discountValue
-              } : null}
+              } : undefined}
+              subtotal={subtotal}
               onRemoveVoucher={() => setVoucher(null)}
               onShowVoucherModal={() => setShowVoucherModal(true)}
               onPaymentSelect={handlePaymentChange}

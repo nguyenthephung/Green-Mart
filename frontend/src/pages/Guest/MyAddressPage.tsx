@@ -25,6 +25,7 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
   const [formData, setFormData] = useState<UserAddress>({
     fullName: address?.fullName || '',
     phone: address?.phone || '',
+    city: address?.city || '',
     district: address?.district || '',
     ward: address?.ward || '',
     street: address?.street || '',
@@ -104,12 +105,13 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
     const ward = LocationService.getWardByCode(selectedWard);
 
     if (province && district) {
-      setFormData(prev => ({
-        ...prev,
-        district: district.name,
-        ward: ward?.name || '',
-        wardName: ward?.name || ''
-      }));
+        setFormData(prev => ({
+          ...prev,
+          city: province.name,
+          district: district.name,
+          ward: ward?.name || '',
+          wardName: ward?.name || ''
+        }));
     }
   }, [selectedProvince, selectedDistrict, selectedWard]);
 
@@ -130,7 +132,7 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      const fullAddress = `${formData.street}, ${formData.ward}, ${formData.district}`;
+    const fullAddress = `${formData.street}, ${formData.ward}, ${formData.district}, ${formData.city || ''}`;
       const submittedData = {
         ...formData,
         address: fullAddress,

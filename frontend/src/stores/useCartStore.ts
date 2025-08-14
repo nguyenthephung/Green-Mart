@@ -158,7 +158,8 @@ export const useCartStore = create<CartState>((set, get) => ({
     try {
       const res = await fetchCart();
       let items: CartItem[] = [];
-      
+      // Debug: log raw backend cart data
+      console.log('[CartStore] Backend cart response:', res);
       if (res.success && res.data) {
         // Check if this is a guest response
         if ((res.data as any)?.isGuest) {
@@ -166,6 +167,8 @@ export const useCartStore = create<CartState>((set, get) => ({
         } else if (res.data && typeof res.data === 'object' && 'items' in res.data) {
           // Regular user with cart data
           const rawItems = (res.data as { items: any[] }).items || [];
+          // Debug: log rawItems from backend
+          console.log('[CartStore] rawItems:', rawItems);
           // Map backend cart items to frontend format
           items = rawItems.map((item: any) => ({
             id: item.productId || item.id, // Map productId to id for consistency
@@ -176,6 +179,8 @@ export const useCartStore = create<CartState>((set, get) => ({
             quantity: item.quantity || 0,
             type: item.type || 'count',
             weight: item.weight || 0,
+            isSale: item.isSale ?? false,
+            salePrice: typeof item.salePrice === 'number' ? item.salePrice : undefined,
             // Preserve Flash Sale information
             flashSale: item.flashSale || undefined
           }));
@@ -323,16 +328,7 @@ export const useCartStore = create<CartState>((set, get) => ({
   updateQuantity: async (productId: string | number, value: number, unit?: string, type?: 'count' | 'weight', flashSale?: any) => {
   console.log('[useCartStore] CALL updateCartItem API:', { productId, value, unit, type, flashSale });
     // Find the item to get its flashSale info first (include flashSaleId in matching)
-    const currentState = get();
-    const item = currentState.items.find(item => 
-      String(item.id) === String(productId) && 
-      item.unit === unit && 
-      item.type === type &&
-      (
-        (item.flashSale?.isFlashSale && flashSale?.isFlashSale && String(item.flashSale?.flashSaleId) === String(flashSale?.flashSaleId)) ||
-        (!item.flashSale?.isFlashSale && !flashSale?.isFlashSale)
-      )
-    );
+
 
     // Optimistic update - update UI immediately
     set((state) => {
@@ -382,17 +378,7 @@ export const useCartStore = create<CartState>((set, get) => ({
   removeFromCart: async (productId: string | number, unit?: string, type?: 'count' | 'weight', flashSale?: any) => {
   console.log('[useCartStore] CALL removeCartItem API:', { productId, unit, type, flashSale });
     // Find the item to get its flashSale info before removing (include flashSaleId in matching)
-    const currentState = get();
-    const item = currentState.items.find(item => 
-      String(item.id) === String(productId) && 
-      item.unit === unit && 
-      item.type === type &&
-      (
-        (item.flashSale?.isFlashSale && flashSale?.isFlashSale && String(item.flashSale?.flashSaleId) === String(flashSale?.flashSaleId)) ||
-        (!item.flashSale?.isFlashSale && !flashSale?.isFlashSale)
-      )
-    );
-
+  
     // Optimistic update - update UI immediately
     set((state) => {
       const newItems = state.items.filter(item => {

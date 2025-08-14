@@ -45,6 +45,7 @@ export interface AddressInfo {
   wardName?: string;
   phone: string;
   fullName: string;
+  city?: string;
   district?: string;
   ward?: string;
   street?: string;

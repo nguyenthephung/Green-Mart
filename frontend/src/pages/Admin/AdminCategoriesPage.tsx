@@ -102,9 +102,6 @@ const AdminCategories: React.FC = () => {
   };
 
   // Function để lấy productCount thực tế
-  const getRealProductCount = (categoryName: string, subcategories: string[] = []) => {
-    return getProductsByCategory(categoryName, subcategories).length;
-  };
 
   // Function để hiển thị sản phẩm của category
   const handleShowProducts = (categoryId: string, categoryName: string) => {

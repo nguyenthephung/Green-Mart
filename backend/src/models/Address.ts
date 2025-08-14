@@ -5,6 +5,7 @@ export interface Address {
   userId: string; // ObjectId dạng string
   fullName: string;
   phone: string;
+  city?: string;
   district: string;
   ward: string;
   street: string;
@@ -24,6 +25,7 @@ export interface AddressDocument extends Document {
   userId: mongoose.Schema.Types.ObjectId;
   fullName: string;
   phone: string;
+  city?: string;
   district: string;
   ward: string;
   street: string;
@@ -51,6 +53,11 @@ const AddressSchema = new Schema<AddressDocument>({
   phone: {
     type: String,
     required: true,
+    trim: true
+  },
+  city: {
+    type: String,
+    required: false,
     trim: true
   },
   district: {
@@ -91,6 +98,7 @@ export const AddressModel = mongoose.model<AddressDocument>('Address', AddressSc
 export interface CreateAddressRequest {
   fullName: string;
   phone: string;
+  city?: string;
   district: string;
   ward: string;
   street: string;
@@ -102,6 +110,7 @@ export interface CreateAddressRequest {
 export interface UpdateAddressRequest {
   fullName?: string;
   phone?: string;
+  city?: string;
   district?: string;
   ward?: string;
   street?: string;
@@ -115,6 +124,7 @@ export interface AddressResponse {
   userId: string;
   fullName: string;
   phone: string;
+  city?: string;
   district: string;
   ward: string;
   street: string;

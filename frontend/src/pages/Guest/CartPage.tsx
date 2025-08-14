@@ -1,7 +1,6 @@
 
 import { useCartStore } from '../../stores/useCartStore';
 import { useUserStore } from '../../stores/useUserStore';
-import { useToastStore } from '../../stores/useToastStore';
 import { useEffect, useState } from "react";
 import CartSummary from "../../components/Guest/cart/CartSummary";
 import MarketInfo from "../../components/Guest/cart/MarketInfo";
@@ -136,14 +135,20 @@ export default function CartPage() {
     // Lấy id đúng: ưu tiên productId nếu có, fallback sang id
     const id = String(item.productId || item.id);
     const product = products.find(p => String(p.id) === id);
-    
-    // Use flash sale price if available, otherwise use cart price or product price
-    let priceNumber = item.flashSale?.isFlashSale ? item.price : item.price;
-    let originalPrice = item.flashSale?.originalPrice || item.price;
+    let priceNumber = item.price;
+    let originalPrice = item.price;
     let category = '';
-    
-    if (product && !item.flashSale?.isFlashSale) {
-      if (Array.isArray(product.units)) {
+    // Flash sale ưu tiên cao nhất
+    if (item.flashSale?.isFlashSale) {
+      priceNumber = item.price;
+      originalPrice = item.flashSale.originalPrice || item.price;
+      if (product && typeof product.category === 'string') category = product.category;
+    } else if (product) {
+      // Nếu là sale thường (isSale=true, salePrice < price)
+      if (product.isSale && typeof product.salePrice === 'number' && product.salePrice < product.price) {
+        priceNumber = product.salePrice;
+        originalPrice = product.price;
+      } else if (Array.isArray(product.units)) {
         const mainUnit = product.units.find((u: any) => u.type === item.unit) || product.units[0];
         priceNumber = mainUnit.price;
         originalPrice = mainUnit.price;
@@ -152,16 +157,11 @@ export default function CartPage() {
         originalPrice = product.price;
       }
       if (typeof product.category === 'string') category = product.category;
-    } else if (product && item.flashSale?.isFlashSale) {
-      // For flash sale items, keep the flash sale price but get category from product
-      if (typeof product.category === 'string') category = product.category;
     }
-    
-    // Always include id, unit, and type from the original item
     return {
       ...item,
-      id, // luôn là string, đúng productId
-      unit: item.unit || '', // Ensure unit is always string
+      id,
+      unit: item.unit || '',
       type: item.type,
       price: priceNumber,
       originalPrice,
@@ -244,7 +244,7 @@ export default function CartPage() {
               🛒 Giỏ hàng của bạn
             </h1>
             <p className="text-lg text-app-secondary break-words">
-              {cart.length} sản phẩm đã chọn • Tổng: <span className="font-semibold">{subtotal.toLocaleString()}</span> ₫
+              {cart.length} sản phẩm đã chọn
             </p>
           </div>
         </div>
@@ -409,7 +409,10 @@ export default function CartPage() {
             <button
               className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-4 px-6 rounded-2xl font-semibold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-200 flex items-center justify-center gap-3"
               disabled={cart.length === 0}
-              onClick={() => navigate('/checkout')}
+              onClick={async () => {
+                await fetchCart(true);
+                navigate('/checkout');
+              }}
             >
               <svg className="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5H4M7 13l-2.293 2.293c-.39.39-.39 1.02 0 1.41L6.4 18H20M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z" />

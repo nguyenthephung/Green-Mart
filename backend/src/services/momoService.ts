@@ -53,8 +53,10 @@ export class MoMoService {
   }
 
   async createPayment(paymentRequest: MoMoPaymentRequest): Promise<MoMoPaymentResponse> {
-    const { orderId, amount, orderInfo, extraData = '', requestType = 'captureWallet' } = paymentRequest;
-    const requestId = `${orderId}-${Date.now()}`;
+  const { orderId, amount: rawAmount, orderInfo, extraData = '', requestType = 'captureWallet' } = paymentRequest;
+  // Ensure amount is always an integer for MoMo
+  const amount = Math.round(rawAmount);
+  const requestId = `${orderId}-${Date.now()}`;
 
     // Try URL encoding the parameters for signature calculation as per some MoMo examples
     const encodedOrderInfo = encodeURIComponent(orderInfo);
@@ -63,10 +65,10 @@ export class MoMoService {
     const encodedExtraData = encodeURIComponent(extraData);
 
     // Create raw signature with URL-encoded values (some examples suggest this)
-    const rawSignatureEncoded = `accessKey=${this.config.accessKey}&amount=${amount}&extraData=${encodedExtraData}&ipnUrl=${encodedIpnUrl}&orderId=${orderId}&orderInfo=${encodedOrderInfo}&partnerCode=${this.config.partnerCode}&redirectUrl=${encodedRedirectUrl}&requestId=${requestId}&requestType=${requestType}`;
+  const rawSignatureEncoded = `accessKey=${this.config.accessKey}&amount=${amount}&extraData=${encodedExtraData}&ipnUrl=${encodedIpnUrl}&orderId=${orderId}&orderInfo=${encodedOrderInfo}&partnerCode=${this.config.partnerCode}&redirectUrl=${encodedRedirectUrl}&requestId=${requestId}&requestType=${requestType}`;
 
-    // Also try without encoding (original approach)
-    const rawSignature = `accessKey=${this.config.accessKey}&amount=${amount}&extraData=${extraData}&ipnUrl=${this.config.ipnUrl}&orderId=${orderId}&orderInfo=${orderInfo}&partnerCode=${this.config.partnerCode}&redirectUrl=${this.config.redirectUrl}&requestId=${requestId}&requestType=${requestType}`;
+  // Also try without encoding (original approach)
+  const rawSignature = `accessKey=${this.config.accessKey}&amount=${amount}&extraData=${extraData}&ipnUrl=${this.config.ipnUrl}&orderId=${orderId}&orderInfo=${orderInfo}&partnerCode=${this.config.partnerCode}&redirectUrl=${this.config.redirectUrl}&requestId=${requestId}&requestType=${requestType}`;
 
     const signature = crypto
       .createHmac('sha256', this.config.secretKey)
@@ -82,7 +84,7 @@ export class MoMoService {
       partnerCode: this.config.partnerCode,
       accessKey: this.config.accessKey,
       requestId,
-      amount,
+      amount, // integer
       orderId,
       orderInfo,
       redirectUrl: this.config.redirectUrl,
