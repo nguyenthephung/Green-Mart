@@ -8,6 +8,12 @@ const NotificationSettingsPage: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
+  // Log dữ liệu settings và localSettings để kiểm tra
+  useEffect(() => {
+    console.log('settings from store:', settings);
+    console.log('localSettings state:', localSettings);
+  }, [settings, localSettings]);
+
   useEffect(() => {
     fetchSettings();
   }, [fetchSettings]);
@@ -36,10 +42,18 @@ const NotificationSettingsPage: React.FC = () => {
 
   const handleSave = async () => {
     if (!localSettings) return;
-    
+
     setSaving(true);
     try {
-      await updateSettings(localSettings);
+      // Chỉ truyền đúng các trường backend yêu cầu
+      const payload = {
+        settings: localSettings.settings,
+        pushNotifications: localSettings.pushNotifications,
+        emailNotifications: localSettings.emailNotifications,
+        smsNotifications: localSettings.smsNotifications
+      };
+      await updateSettings(payload);
+      await fetchSettings(); // Fetch lại settings từ backend sau khi lưu
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (error) {

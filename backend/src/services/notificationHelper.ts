@@ -18,8 +18,16 @@ class NotificationHelper {
   // Create notification for specific user
   static async createUserNotification(data: CreateNotificationData) {
     try {
+      // Bổ sung kiểm tra trạng thái notification settings của user
+      const NotificationSettings = require('../models/NotificationSettings');
+      const settings = await NotificationSettings.findOne({ userId: data.recipientId });
+      if (settings && settings.settings && settings.settings[data.type] === false) {
+        console.log(`User ${data.recipientId} has disabled ${data.type} notifications`);
+        return null;
+      }
+
       const notification = new Notification({
-        userId: data.recipientId, // Fix: use userId instead of recipientId
+        userId: data.recipientId,
         type: data.type,
         title: data.title,
         description: data.description,

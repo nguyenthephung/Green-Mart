@@ -76,9 +76,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
     
     try {
       const mergedFilter = { ...state.currentFilter, ...filter };
-      console.log('Store: calling notificationService.getNotifications with filter:', mergedFilter);
       const response = await notificationService.getNotifications(mergedFilter);
-      console.log('Store: received response:', response);
       
       // Response structure: {success: true, data: {notifications: [], pagination: {}, unreadCount: number}}
       const newNotifications = append 

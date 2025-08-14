@@ -14,10 +14,10 @@ const api = {
     return await apiClient(url, { method: 'GET' });
   },
   post: async (url: string, data?: any) => {
-    return await apiClient(url, { method: 'POST', body: data });
+    return await apiClient(url, { method: 'POST', body: data ? JSON.stringify(data) : undefined });
   },
   put: async (url: string, data?: any) => {
-    return await apiClient(url, { method: 'PUT', body: data });
+    return await apiClient(url, { method: 'PUT', body: data ? JSON.stringify(data) : undefined });
   },
   delete: async (url: string) => {
     return await apiClient(url, { method: 'DELETE' });
@@ -81,7 +81,8 @@ class NotificationService {
   async getSettings(): Promise<NotificationSettings> {
     try {
       const response = await api.get('/notifications/settings');
-      return (response.data as any).data;
+
+      return (response as any).data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Lỗi khi lấy cài đặt thông báo');
     }
