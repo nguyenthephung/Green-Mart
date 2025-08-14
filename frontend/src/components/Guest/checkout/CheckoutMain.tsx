@@ -62,11 +62,8 @@ const CheckoutMain: FC<CheckoutMainProps> = ({ items, userInfo, address, payment
 
   // Khi context payments thay đổi, chỉ đồng bộ lại nếu context khác local
   useEffect(() => {
-    console.log('CheckoutMain - Payments received:', payments); // Debug log
     const selected = payments.find(p => p.isSelected)?.method || '';
-    console.log('CheckoutMain - Selected method found:', selected); // Debug log
     if (selected && selected !== localSelectedPayment) {
-      console.log('CheckoutMain - Updating local payment to:', selected); // Debug log
       setLocalSelectedPayment(selected);
     }
   }, [payments]);
@@ -75,7 +72,6 @@ const CheckoutMain: FC<CheckoutMainProps> = ({ items, userInfo, address, payment
 
   // Khi chọn payment method, cập nhật local ngay, đồng thời gọi callback để cập nhật context
   const handleSelectPayment = (method: string) => {
-    console.log('CheckoutMain - Payment selected:', method); // Debug log
     setLocalSelectedPayment(method);
     if (onPaymentChange) { 
       onPaymentChange(method); 

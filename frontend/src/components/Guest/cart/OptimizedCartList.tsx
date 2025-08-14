@@ -1,4 +1,5 @@
 import React, { memo, useMemo } from 'react';
+import { useFlashSaleStore } from '../../../stores/useFlashSaleStore';
 import CartItemComponent from "./CartItem";
 
 import type { CartItem } from '../../../types/CartItem';
@@ -37,15 +38,31 @@ const OptimizedCartList: React.FC<OptimizedCartListProps> = memo(({
   onQuantityChange, 
   onRemove 
 }) => {
-  const total = useCartTotals(items);
+  // Lọc sản phẩm flash sale đã hết hạn dựa vào store
+  const filteredItems = useMemo(() => {
+    const now = Date.now();
+    const getFlashSaleForProduct = useFlashSaleStore.getState().getFlashSaleForProduct;
+    return items.filter(item => {
+      if (item.flashSale && item.flashSale.isFlashSale) {
+        const flashSaleInfo = getFlashSaleForProduct(String(item.id));
+        if (flashSaleInfo && flashSaleInfo.flashSale && flashSaleInfo.flashSale.endTime) {
+          const end = Date.parse(flashSaleInfo.flashSale.endTime);
+          return end > now;
+        }
+      }
+      return true;
+    });
+  }, [items]);
+
+  const total = useCartTotals(filteredItems);
 
   // Virtual scrolling for large lists
   const maxDisplayItems = 50; // Show max 50 items at once
   const displayItems = useMemo(() => {
-    return items.slice(0, maxDisplayItems);
-  }, [items, maxDisplayItems]);
+    return filteredItems.slice(0, maxDisplayItems);
+  }, [filteredItems, maxDisplayItems]);
 
-  const remainingItems = items.length - maxDisplayItems;
+  const remainingItems = filteredItems.length - maxDisplayItems;
 
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6 border border-green-100">
@@ -72,8 +89,8 @@ const OptimizedCartList: React.FC<OptimizedCartListProps> = memo(({
                     ...item,
                     id: String(item.id) // Ensure id is string
                   }}
-                  onQuantityChange={(id, value, unit, type, flashSale) => onQuantityChange(id, value, unit ?? item.unit, type ?? item.type, item.flashSale)}
-                  onRemove={(id, unit, type, flashSale) => {
+                  onQuantityChange={(id, value, unit, type) => onQuantityChange(id, value, unit ?? item.unit, type ?? item.type, item.flashSale)}
+                  onRemove={(id, unit, type) => {
                     onRemove(id, unit ?? item.unit, type ?? item.type, item.flashSale);
                   }}
                 />

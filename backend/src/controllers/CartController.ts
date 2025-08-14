@@ -29,15 +29,22 @@ const CartController = {
         return;
       }
 
-      // Kiểm tra sản phẩm trong giỏ hàng có còn tồn tại không
+      // Kiểm tra sản phẩm trong giỏ hàng có còn tồn tại không và loại bỏ sản phẩm flash sale đã hết hạn
       const validItems = [];
       for (const item of cart.items) {
         const product = await Product.findById(item.productId);
-        if (product) {
-          validItems.push(item);
+        if (!product) continue;
+        // Nếu là sản phẩm flash sale, kiểm tra thời gian kết thúc
+        if (item.flashSale && item.flashSale.isFlashSale && item.flashSale.flashSaleId) {
+          const flashSaleDoc = await FlashSale.findById(item.flashSale.flashSaleId);
+          if (!flashSaleDoc || !flashSaleDoc.endTime) continue;
+          const endTime = new Date(flashSaleDoc.endTime).getTime();
+          const now = Date.now();
+          if (endTime <= now) continue; // Đã hết hạn flash sale, loại khỏi giỏ hàng
         }
+        validItems.push(item);
       }
-      // Nếu có sản phẩm đã bị xóa, cập nhật lại cart.items
+      // Nếu có sản phẩm đã bị xóa hoặc hết hạn flash sale, cập nhật lại cart.items
       if (validItems.length !== cart.items.length) {
         cart.items = validItems;
         await cart.save();

@@ -17,19 +17,13 @@ const HeroSection: React.FC<HeroSectionProps> = ({ isScrolling }) => {
     const loadHeroBanners = async () => {
       try {
         setIsLoading(true);
-        console.log('Loading hero banners...');
         await fetchBanners('hero', true);
         const state = useBannerStore.getState();
-        console.log('All banners:', state.banners);
-        
         const herobanners = state.banners.filter((b: any) => 
           b.position === 'hero' && b.isActive
         );
-        
         // Sort by priority (lower number = higher priority)
         herobanners.sort((a: any, b: any) => a.priority - b.priority);
-        
-        console.log('Hero banners found:', herobanners);
         setHeroBanners(herobanners);
       } catch (error) {
         console.error('Failed to load hero banner:', error);

@@ -30,7 +30,6 @@ export const updateFlashSaleStatus = cron.schedule('* * * * *', async () => {
       }
     );
 
-    console.log('Flash sale status updated successfully');
   } catch (error) {
     console.error('Error updating flash sale status:', error);
   }

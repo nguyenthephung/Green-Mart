@@ -106,15 +106,12 @@ const CheckoutSummary = ({
 
   // Khi payments thay đổi, đồng bộ lại localPayment
   useEffect(() => {
-    console.log('CheckoutSummary - Payments received:', payments); // Debug log
     let payment = payments.find(p => p.isSelected) || null;
-    console.log('CheckoutSummary - Selected payment found:', payment); // Debug log
     // Không tự động chọn payment nào, để user tự chọn
     setLocalPayment(payment);
   }, [payments]);
 
   const handlePaymentSelect = (method: string) => {
-    console.log('CheckoutSummary - Payment selected:', method); // Debug log
     // Immediately call parent handler to update global state
     if (onPaymentSelect) {
       onPaymentSelect(method);
@@ -157,15 +154,6 @@ const CheckoutSummary = ({
     itemsTotal + actualDeliveryFee + serviceFee + (selectedTip || 0) - (voucherDiscount || 0);
 
   // Debug voucher calculation
-  console.log('CheckoutSummary calculation:', {
-    itemsTotal,
-    dynamicDeliveryFee,
-    serviceFee,
-    selectedTip,
-    voucherDiscount,
-    total,
-    voucher
-  });
 
   const formatVND = (value: number) =>
     value.toLocaleString("vi-VN", { style: "currency", currency: "VND" });

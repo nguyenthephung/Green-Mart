@@ -22,7 +22,6 @@ class NotificationHelper {
       const NotificationSettings = require('../models/NotificationSettings');
       const settings = await NotificationSettings.findOne({ userId: data.recipientId });
       if (settings && settings.settings && settings.settings[data.type] === false) {
-        console.log(`User ${data.recipientId} has disabled ${data.type} notifications`);
         return null;
       }
 
@@ -40,7 +39,7 @@ class NotificationHelper {
       });
 
       await notification.save();
-      console.log('User notification created:', notification);
+  // ...existing code...
       return notification;
     } catch (error) {
       console.error('Error creating user notification:', error);
@@ -65,7 +64,7 @@ class NotificationHelper {
       });
 
       await notification.save();
-      console.log('Global notification created:', notification);
+  // ...existing code...
       return notification;
     } catch (error) {
       console.error('Error creating global notification:', error);

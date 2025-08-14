@@ -25,18 +25,12 @@ export default function CategoryBanner({ categoryId, className = '' }: CategoryB
           b.position === 'category' && b.isActive
         );
         
-        console.log('All category banners found:', banners);
-        console.log('CategoryId filter:', categoryId);
-        
         // If categoryId is specified, filter by that category
         if (categoryId) {
           banners = banners.filter((b: any) => b.categoryId === categoryId);
-          console.log('Filtered banners by categoryId:', banners);
         }
-        
         // Sort by priority
         banners.sort((a: any, b: any) => (a.priority || 999) - (b.priority || 999));
-        console.log('Final banners to display:', banners);
         setCategoryBanners(banners);
       } catch (error) {
         console.error('Failed to load category banners:', error);

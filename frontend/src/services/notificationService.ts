@@ -34,9 +34,7 @@ class NotificationService {
       if (filter.type) params.append('type', filter.type);
       if (filter.isRead !== undefined) params.append('isRead', filter.isRead.toString());
 
-      console.log('Getting notifications with filter:', filter);
       const response = await api.get(`/notifications?${params.toString()}`);
-      console.log('Notifications response:', response);
       
       // Return the full response structure to match NotificationResponse type
       if (response.success && response.data) {
@@ -45,7 +43,6 @@ class NotificationService {
         throw new Error('Invalid response format');
       }
     } catch (error: any) {
-      console.error('Error getting notifications:', error);
       throw new Error(error.response?.data?.message || 'Lỗi khi lấy danh sách thông báo');
     }
   }
@@ -111,10 +108,7 @@ class NotificationService {
   // Get unread count only
   async getUnreadCount(): Promise<number> {
     try {
-      console.log('Getting unread count...');
       const response = await api.get('/notifications/unread-count');
-      console.log('Unread count response:', response);
-      
       // Handle different response formats - use type assertion for flexibility
       const data = response as any;
       
@@ -128,11 +122,9 @@ class NotificationService {
       } else if (typeof data.unreadCount === 'number') {
         return data.unreadCount;
       } else {
-        console.warn('Unread count not found in response, returning 0');
         return 0;
       }
     } catch (error) {
-      console.error('Error getting unread count:', error);
       return 0; // Return 0 instead of throwing error
     }
   }

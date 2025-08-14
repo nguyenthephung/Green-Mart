@@ -82,7 +82,6 @@ export class NotificationController {
         return;
       }
 
-      console.log('Getting unread count for user:', userId);
       
       const count = await Notification.countDocuments({
         $and: [
@@ -102,7 +101,6 @@ export class NotificationController {
         ]
       });
 
-      console.log('Unread count:', count);
       
       res.json({ 
         success: true,

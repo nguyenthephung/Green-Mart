@@ -158,8 +158,6 @@ export const useCartStore = create<CartState>((set, get) => ({
     try {
       const res = await fetchCart();
       let items: CartItem[] = [];
-      // Debug: log raw backend cart data
-      console.log('[CartStore] Backend cart response:', res);
       if (res.success && res.data) {
         // Check if this is a guest response
         if ((res.data as any)?.isGuest) {
@@ -167,8 +165,6 @@ export const useCartStore = create<CartState>((set, get) => ({
         } else if (res.data && typeof res.data === 'object' && 'items' in res.data) {
           // Regular user with cart data
           const rawItems = (res.data as { items: any[] }).items || [];
-          // Debug: log rawItems from backend
-          console.log('[CartStore] rawItems:', rawItems);
           // Map backend cart items to frontend format
           items = rawItems.map((item: any) => ({
             id: item.productId || item.id, // Map productId to id for consistency
@@ -189,20 +185,15 @@ export const useCartStore = create<CartState>((set, get) => ({
         }
         
         const { totalItems, totalAmount } = calculateTotals(items);
-        
         // Cache the cart data
         setCartCache(items);
-        
         set({ items, totalItems, totalAmount, loading: false });
       } else {
-        // If fetch fails, check if we have guest cart
-        console.log('Cart fetch failed, checking guest cart');
         const guestItems = getGuestCart();
         const { totalItems, totalAmount } = calculateTotals(guestItems);
         set({ items: guestItems, totalItems, totalAmount, loading: false });
       }
     } catch (err: any) {
-      console.log('Cart fetch error, loading guest cart as fallback:', err.message);
       // Load guest cart as fallback
       const guestItems = getGuestCart();
       const { totalItems, totalAmount } = calculateTotals(guestItems);
@@ -210,11 +201,11 @@ export const useCartStore = create<CartState>((set, get) => ({
     }
   },
   addToCart: async (item: Omit<CartItem, 'quantity'> & { quantity: number; weight?: number; type?: 'count' | 'weight' }) => {
-    console.log('Cart store: Adding item to cart:', item);
+  // ...existing code...
     
     // Optimistic update - update UI immediately
     set((state) => {
-      console.log('Cart store: Current state before add:', state.items);
+  // ...existing code...
       const existingIndex = state.items.findIndex(cartItem => 
         String(cartItem.id) === String(item.id) && 
         cartItem.unit === item.unit &&
@@ -226,7 +217,7 @@ export const useCartStore = create<CartState>((set, get) => ({
       let newItems = [...state.items];
       
       if (existingIndex >= 0) {
-        console.log('Cart store: Updating existing item at index:', existingIndex);
+  // ...existing code...
         // Update existing item
         if (item.type === 'weight') {
           newItems[existingIndex] = {
@@ -244,7 +235,7 @@ export const useCartStore = create<CartState>((set, get) => ({
           };
         }
       } else {
-        console.log('Cart store: Adding new item');
+  // ...existing code...
         // Add new item
         newItems.push({
           id: item.id,
@@ -260,7 +251,7 @@ export const useCartStore = create<CartState>((set, get) => ({
         });
       }
       
-      console.log('Cart store: New items after add:', newItems);
+  // ...existing code...
       const { totalItems, totalAmount } = calculateTotals(newItems);
       
       // Clear cache since we're updating
@@ -285,10 +276,10 @@ export const useCartStore = create<CartState>((set, get) => ({
         res = await apiAddToCart(String(item.id), item.quantity, item.unit, undefined, 'count', item.flashSale);
       }
       
-      console.log('Cart store: API response:', res);
+  // ...existing code...
       
       if (res.success) {
-        console.log('Cart store: addToCart success - updating cache');
+  // ...existing code...
         const currentState = get();
         // Update cache with current state
         setCartCache(currentState.items);
@@ -309,7 +300,7 @@ export const useCartStore = create<CartState>((set, get) => ({
         );
       } else if ((res as any)?.requireLogin) {
         // Guest user - sync with localStorage
-        console.log('Syncing with guest cart (local storage)');
+  // ...existing code...
         const currentState = get();
         setGuestCart(currentState.items);
       } else {
@@ -326,7 +317,7 @@ export const useCartStore = create<CartState>((set, get) => ({
     }
   },
   updateQuantity: async (productId: string | number, value: number, unit?: string, type?: 'count' | 'weight', flashSale?: any) => {
-  console.log('[useCartStore] CALL updateCartItem API:', { productId, value, unit, type, flashSale });
+  // ...existing code...
     // Find the item to get its flashSale info first (include flashSaleId in matching)
 
 
@@ -376,7 +367,7 @@ export const useCartStore = create<CartState>((set, get) => ({
     }
   },
   removeFromCart: async (productId: string | number, unit?: string, type?: 'count' | 'weight', flashSale?: any) => {
-  console.log('[useCartStore] CALL removeCartItem API:', { productId, unit, type, flashSale });
+  // ...existing code...
     // Find the item to get its flashSale info before removing (include flashSaleId in matching)
   
     // Optimistic update - update UI immediately
@@ -419,13 +410,9 @@ export const useCartStore = create<CartState>((set, get) => ({
       // Try to call API to clear cart in database
       try {
         const res = await apiClearCart();
-        if (res.success) {
-          console.log('Server cart cleared successfully');
-        } else {
-          console.log('Server cart clear response:', res.message);
-        }
+  // ...existing code...
       } catch (apiError: any) {
-        console.log('Server cart clear failed (user may not be authenticated):', apiError.message);
+  // ...existing code...
         // This is okay for guest users or when logged out
       }
       
@@ -462,7 +449,7 @@ export const useCartStore = create<CartState>((set, get) => ({
       if (validItems.length !== currentItems.length) {
         const { totalItems, totalAmount } = calculateTotals(validItems);
         set({ items: validItems, totalItems, totalAmount, loading: false });
-        console.log(`Removed ${currentItems.length - validItems.length} invalid items from cart`);
+  // ...existing code...
       } else {
         set({ loading: false });
       }
@@ -480,7 +467,7 @@ export const useCartStore = create<CartState>((set, get) => ({
       const guestItems = getGuestCart();
       if (guestItems.length === 0) return;
       
-      console.log('Syncing guest cart to server:', guestItems);
+  // ...existing code...
       
       // Add each guest item to server cart
       for (const item of guestItems) {
@@ -501,7 +488,7 @@ export const useCartStore = create<CartState>((set, get) => ({
       // Refresh cart from server
       await get().fetchCart();
       
-      console.log('Guest cart synced successfully');
+  // ...existing code...
     } catch (error) {
       console.error('Failed to sync guest cart:', error);
     }

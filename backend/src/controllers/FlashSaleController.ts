@@ -229,17 +229,12 @@ export class FlashSaleController {
       const updates = req.body;
 
       // Log kiểm tra kiểu dữ liệu và giá trị thời gian
-      console.log('DEBUG: updates.startTime:', updates.startTime, 'typeof:', typeof updates.startTime);
-      console.log('DEBUG: updates.endTime:', updates.endTime, 'typeof:', typeof updates.endTime);
-
       // Nếu là string thì chuyển sang Date
       if (updates.startTime && typeof updates.startTime === 'string') {
         updates.startTime = new Date(updates.startTime);
-        console.log('DEBUG: startTime sau khi chuyển:', updates.startTime, 'typeof:', typeof updates.startTime);
       }
       if (updates.endTime && typeof updates.endTime === 'string') {
         updates.endTime = new Date(updates.endTime);
-        console.log('DEBUG: endTime sau khi chuyển:', updates.endTime, 'typeof:', typeof updates.endTime);
       }
 
       // Validate flash sale exists

@@ -64,7 +64,6 @@ export const validateRegister = (req: Request, res: Response, next: NextFunction
 };
 
 export const validateLogin = (req: Request, res: Response, next: NextFunction): void => {
-  console.log('Login validation - Request body:', req.body);
   
   const { email, password } = req.body;
   
