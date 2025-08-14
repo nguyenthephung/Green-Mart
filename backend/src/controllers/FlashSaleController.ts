@@ -228,7 +228,19 @@ export class FlashSaleController {
       const { id } = req.params;
       const updates = req.body;
 
-      console.log('Updating flash sale:', id, 'with data:', updates);
+      // Log kiểm tra kiểu dữ liệu và giá trị thời gian
+      console.log('DEBUG: updates.startTime:', updates.startTime, 'typeof:', typeof updates.startTime);
+      console.log('DEBUG: updates.endTime:', updates.endTime, 'typeof:', typeof updates.endTime);
+
+      // Nếu là string thì chuyển sang Date
+      if (updates.startTime && typeof updates.startTime === 'string') {
+        updates.startTime = new Date(updates.startTime);
+        console.log('DEBUG: startTime sau khi chuyển:', updates.startTime, 'typeof:', typeof updates.startTime);
+      }
+      if (updates.endTime && typeof updates.endTime === 'string') {
+        updates.endTime = new Date(updates.endTime);
+        console.log('DEBUG: endTime sau khi chuyển:', updates.endTime, 'typeof:', typeof updates.endTime);
+      }
 
       // Validate flash sale exists
       const existingFlashSale = await FlashSale.findById(id);
@@ -239,49 +251,41 @@ export class FlashSaleController {
         });
       }
 
-      // If updating products, validate them
+      // Gán các trường mới vào bản ghi rồi gọi save để validate đúng
       if (updates.products && Array.isArray(updates.products)) {
         const productIds = updates.products.map((p: any) => p.productId);
         const existingProducts = await Product.find({ _id: { $in: productIds } });
-        
         if (existingProducts.length !== productIds.length) {
           return res.status(400).json({
             success: false,
             message: 'Một số sản phẩm không tồn tại'
           });
         }
-
         // Recalculate discount percentages
         updates.products = updates.products.map((item: any) => {
           const product = existingProducts.find(p => (p as any)._id.toString() === item.productId);
           const discountPercentage = Math.round(((product!.price - item.flashSalePrice) / product!.price) * 100);
-          
           return {
             ...item,
             originalPrice: product!.price,
             discountPercentage: discountPercentage,
-            sold: item.sold || 0 // Keep existing sold value
+            sold: item.sold || 0
           };
         });
       }
 
-      const flashSale = await FlashSale.findByIdAndUpdate(
-        id,
-        updates,
-        { new: true, runValidators: true }
-      );
+      // Gán các trường mới vào bản ghi
+      Object.keys(updates).forEach((key) => {
+        (existingFlashSale as any)[key] = updates[key];
+      });
 
-      if (!flashSale) {
-        return res.status(404).json({
-          success: false,
-          message: 'Không tìm thấy flash sale'
-        });
-      }
+      // Lưu lại bản ghi để validate đúng
+      await existingFlashSale.save();
 
       res.json({
         success: true,
         message: 'Cập nhật flash sale thành công',
-        data: flashSale
+        data: existingFlashSale
       });
     } catch (error) {
       console.error('Error updating flash sale:', error);
