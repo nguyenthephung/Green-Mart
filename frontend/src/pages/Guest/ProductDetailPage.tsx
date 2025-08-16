@@ -191,15 +191,16 @@ const ProductDetailPage: React.FC = () => {
 
   const handleAddToCartRelated = useCallback((e: React.MouseEvent, item: any) => {
     e.stopPropagation();
-    
-    const relatedUnit = item.unit === 'kg' ? { type: 'kg', price: item.price } : { type: item.unit || '', price: item.price };
+    // Truyền đúng dữ liệu cho backend
     addToCart({
-      id: Number(item.id),
+      id: item.id || item._id,
       name: item.name,
-      price: relatedUnit.price,
+      price: item.price,
       image: item.image,
-      quantity: 1,
-      unit: relatedUnit.type
+      quantity: item.type === 'count' ? 1 : 0,
+      weight: item.type === 'weight' ? 1 : 0,
+      unit: item.unit,
+      type: item.type
     });
   }, [addToCart]);
 

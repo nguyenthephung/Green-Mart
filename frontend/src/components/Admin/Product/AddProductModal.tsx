@@ -143,11 +143,10 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
   const handleAdd = async () => {
     const err = validate(product);
     setErrors(err);
-    
     if (Object.keys(err).length > 0) return;
 
     setIsLoading(true);
-    
+
     // Calculate sale price if needed
     const newProduct: AdminProduct = {
       id: typeof product.id === 'string' && product.id ? product.id : `${Date.now()}`,
@@ -158,11 +157,12 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
       images: product.images || [],
       stock: product.stock || 0,
       status: product.status || 'active',
-  description: product.description || '',
-  richDescription: product.richDescription || undefined,
+      description: product.description || '',
+      richDescription: product.richDescription || undefined,
       brand: product.brand || '',
       unit: product.unit || '',
       isSale: !!product.isSale,
+      isFeatured: !!product.isFeatured,
       discountAmount: product.discountAmount || 0,
       salePrice: product.isSale ? calculateSalePrice() : undefined,
       descriptionImages: [],

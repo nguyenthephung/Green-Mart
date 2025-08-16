@@ -93,7 +93,7 @@ const CheckoutMain: FC<CheckoutMainProps> = ({ items, userInfo, address, payment
             <div className="p-4 text-center text-gray-400">Không có sản phẩm nào trong giỏ hàng.</div>
           ) : (
             items.map((item) => (
-              <div key={item.id + '-' + (item.unit || '')} className="flex items-center gap-3 p-3">
+              <div key={(item.id && item.id !== 'NaN' && item.id !== undefined && item.id !== null ? item.id : Math.random()) + '-' + (item.unit || '')} className="flex items-center gap-3 p-3">
                 <img src={item.image} alt={item.name} className="w-14 h-14 object-cover rounded-lg border border-gray-100" />
                 <div className="flex-1 min-w-0">
                   <div className="font-medium text-gray-900 truncate">{item.name}</div>
