@@ -44,8 +44,6 @@ export class MoMoService {
       redirectUrl: process.env.MOMO_REDIRECT_URL!,
       ipnUrl: process.env.MOMO_IPN_URL!
     };
-
-  // ...existing code (đã xóa log)...
   }
 
   async createPayment(paymentRequest: MoMoPaymentRequest): Promise<MoMoPaymentResponse> {
@@ -91,41 +89,15 @@ export class MoMoService {
       lang: 'vi'
     };
 
-    console.log('=== MoMo Payment Request Debug ===');
-    console.log('Endpoint:', this.config.endpoint);
-    console.log('Partner Code:', this.config.partnerCode);
-    console.log('Access Key:', this.config.accessKey);
-    console.log('Secret Key Length:', this.config.secretKey?.length || 'undefined');
-    console.log('Amount:', amount);
-    console.log('Order ID:', orderId);
-    console.log('Request ID:', requestId);
-    console.log('Order Info:', orderInfo);
-    console.log('Extra Data:', extraData);
-    console.log('Request Type:', requestType);
-    console.log('Redirect URL:', this.config.redirectUrl);
-    console.log('IPN URL:', this.config.ipnUrl);
-    console.log('RawSignature (original):', rawSignature);
-    console.log('RawSignature (encoded):', rawSignatureEncoded);
-    console.log('Signature (original):', signature);
-    console.log('Signature (encoded):', signatureEncoded);
     
-    // Try alternative signature calculations for debugging
     const altSignature1 = crypto.createHmac('sha256', this.config.secretKey).update(rawSignature, 'utf8').digest('hex');
     const altSignature2 = crypto.createHmac('sha256', this.config.secretKey).update(rawSignature, 'ascii').digest('hex');
-    console.log('Alternative signature 1 (utf8):', altSignature1);
-    console.log('Alternative signature 2 (ascii):', altSignature2);
-    
-    console.log('RequestBody:', JSON.stringify(requestBody, null, 2));
 
     try {
       const response = await axios.post(this.config.endpoint, requestBody, {
         headers: { 'Content-Type': 'application/json' },
         timeout: 30000
       });
-
-      console.log('=== MoMo Response Debug ===');
-      console.log(JSON.stringify(response.data, null, 2));
-
       return response.data as MoMoPaymentResponse;
     } catch (err: any) {
       console.error('MoMo API Error:', err.response?.data || err.message);
