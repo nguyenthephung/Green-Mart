@@ -27,7 +27,7 @@ interface Order {
 const OrdersPage = () => {
   const [activeTab, setActiveTab] = useState("Tất cả");
   const [orders, setOrders] = useState<Order[]>([]);
-  // const [realOrders, setRealOrders] = useState<OrderDetails[]>([]);
+  const [orderTrackingMap] = useState<Record<string, { status: string; address: string }>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -217,20 +217,24 @@ const OrdersPage = () => {
               </div>
             ) : (
               <div className="space-y-6">
-                {filteredOrders.map((order) => (
-                  <OrderCard
-                    key={order.id}
-                    id={order.id}
-                    status={order.status}
-                    date={order.date}
-                    total={order.totalAmount} // Use totalAmount from backend (already includes voucher discount)
-                    items={order.items}
-                    deliveryFee={order.deliveryFee}
-                    payWith={order.payWith}
-                    deliveryAddress={order.deliveryAddress}
-                    shippingStatus={order.status === 'Chờ giao hàng' ? 'Đơn hàng đã rời kho phân loại tới HCM Mega SOC' : ''}
-                  />
-                ))}
+                {filteredOrders.map((order) => {
+                  const tracking = orderTrackingMap[order.id];
+                  const shippingStatus = tracking ? `${tracking.status} tại ${tracking.address}` : '';
+                  return (
+                    <OrderCard
+                      key={order.id}
+                      id={order.id}
+                      status={order.status}
+                      date={order.date}
+                      total={order.totalAmount}
+                      items={order.items}
+                      deliveryFee={order.deliveryFee}
+                      payWith={order.payWith}
+                      deliveryAddress={order.deliveryAddress}
+                      shippingStatus={shippingStatus}
+                    />
+                  );
+                })}
               </div>
             )}
           </div>

@@ -260,7 +260,16 @@ const FlashSaleSection: React.FC = () => {
           )}
         </div>
 
-  {/* View all button removed as requested */}
+        {/* Nút xem thêm các sản phẩm flash sale */}
+        <div className="w-full flex justify-end mt-6">
+          <button
+            onClick={() => navigate('/flash-sale')}
+            className="flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold text-lg shadow-lg hover:from-orange-600 hover:to-red-700 transition-all duration-200"
+          >
+            <Flame className="w-5 h-5" />
+            Xem thêm các sản phẩm flash sale
+          </button>
+        </div>
       </div>
     </div>
   );

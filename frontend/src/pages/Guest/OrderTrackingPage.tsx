@@ -5,6 +5,8 @@ import { Link, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import orderService from '../../services/orderService';
 import { tokenManager } from '../../services/api';
+import { getOrderTrackingHistory } from '../../services/orderTrackingService';
+import OrderTrackingTimeline from '../../components/OrderTracking/OrderTrackingTimeline';
 
 interface OrderItem {
   name: string;
@@ -30,6 +32,8 @@ export default function OrderTrackingPage() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [trackingHistory, setTrackingHistory] = useState([]);
+  const [trackingLoading, setTrackingLoading] = useState(false);
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -41,11 +45,9 @@ export default function OrderTrackingPage() {
 
       try {
         setLoading(true);
-        
         // Check if user is logged in
         if (!tokenManager.exists()) {
-          console.log('No auth token, checking localStorage for order');
-          // Try localStorage first for non-authenticated users
+          // ...existing code...
           const stored = localStorage.getItem('orders');
           if (stored) {
             const orders = JSON.parse(stored);
@@ -62,8 +64,6 @@ export default function OrderTrackingPage() {
         }
 
         const orderData = await orderService.getOrder(orderId);
-        
-        // Convert to legacy format using any type to handle backend data structure
         const convertedOrder: Order = {
           id: orderData._id,
           status: getStatusText(orderData.status),
@@ -80,46 +80,24 @@ export default function OrderTrackingPage() {
           payWith: getPaymentMethodText(orderData.paymentMethod),
           deliveryAddress: (orderData as any).customerAddress || 'Chưa có địa chỉ'
         };
-        
         setOrder(convertedOrder);
-      } catch (err: any) {
-        console.error('Failed to fetch order:', err);
-        
-        // Handle authentication errors specially
-        if (err.message && err.message.includes('Unauthorized')) {
-          setError('Bạn cần đăng nhập để xem chi tiết đơn hàng');
-          
-          // Try localStorage as fallback
-          const stored = localStorage.getItem('orders');
-          if (stored) {
-            const orders = JSON.parse(stored);
-            const foundOrder = orders.find((o: Order) => o.id === orderId);
-            if (foundOrder) {
-              setOrder(foundOrder);
-              setError(null);
-              setLoading(false);
-              return;
-            }
-          }
-        } else {
-          setError('Không thể tải thông tin đơn hàng');
-          
-          // Fallback to localStorage
-          const stored = localStorage.getItem('orders');
-          if (stored) {
-            const orders = JSON.parse(stored);
-            const foundOrder = orders.find((o: Order) => o.id === orderId);
-            if (foundOrder) {
-              setOrder(foundOrder);
-              setError(null);
-            }
-          }
+
+        // Lấy lịch sử tracking thật sự
+        setTrackingLoading(true);
+        try {
+          const trackingRes = await getOrderTrackingHistory(orderData._id);
+          setTrackingHistory(trackingRes.data);
+        } catch (err) {
+          setTrackingHistory([]);
+        } finally {
+          setTrackingLoading(false);
         }
+      } catch (err: any) {
+        // ...existing code...
       } finally {
         setLoading(false);
       }
     };
-
     fetchOrder();
   }, [orderId]);
 
@@ -223,26 +201,16 @@ export default function OrderTrackingPage() {
             <span className="font-medium">Ngày đặt:</span> {date}
           </div>
         </div>
-        
-        <div className="bg-brand-green/5 rounded-lg p-4 border border-brand-green/20">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-brand-green rounded-full flex items-center justify-center">
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
-            <div>
-              <span className="text-brand-green font-semibold text-sm">
-                Đơn hàng đã rời kho phân loại tới HCM Mega SOC
-              </span>
-              <div className="text-xs text-brand-green/80 mt-1">
-                Dự kiến giao hàng trong 1-2 ngày
-              </div>
-            </div>
-            <span className="ml-auto px-3 py-1 bg-orange-100 text-orange-700 font-bold text-xs rounded-full border border-orange-200">
-              CHỜ GIAO HÀNG
-            </span>
-          </div>
+        {/* Timeline tracking thật sự */}
+        <div className="mt-6">
+          <h3 className="text-base font-semibold mb-2 text-app-primary">Lịch sử trạng thái & vị trí đơn hàng</h3>
+          {trackingLoading ? (
+            <div className="text-sm text-app-muted">Đang tải lịch sử tracking...</div>
+          ) : trackingHistory && trackingHistory.length > 0 ? (
+            <OrderTrackingTimeline history={trackingHistory} />
+          ) : (
+            <div className="text-sm text-app-muted">Chưa có lịch sử vị trí/trạng thái cho đơn hàng này.</div>
+          )}
         </div>
       </div>
       

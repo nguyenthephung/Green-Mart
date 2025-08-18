@@ -19,7 +19,7 @@ interface ProductCardProps {
   imageHeight?: string; // tailwind height class, e.g. 'h-40', 'h-56'
 }
 
-const ProductCard: React.FC<ProductCardProps> = memo(({ product, onAddToCart, showSaleBadge = true, quantity = 1, onQuantityChange, imageHeight = 'h-40' }) => {
+const ProductCard: React.FC<ProductCardProps> = memo(({ product, onAddToCart, showSaleBadge = true, showHotBadge = false, quantity = 1, onQuantityChange, imageHeight = 'h-40' }) => {
   const imgRef = useRef<HTMLImageElement>(null);
   const { triggerAnimation } = useAddToCartAnimation();
   
@@ -125,7 +125,15 @@ const ProductCard: React.FC<ProductCardProps> = memo(({ product, onAddToCart, sh
   }, [user, isInWishlist, removeFromWishlist, addToWishlist, product, priceInfo]);
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-xl transform transition-all duration-400 hover:shadow-2xl dark:shadow-gray-900/50 hover:-translate-y-2 perspective-1000 relative flex flex-col h-full">
+    <div className={`bg-white dark:bg-gray-800 p-4 rounded-xl shadow-xl transform transition-all duration-400 hover:shadow-2xl dark:shadow-gray-900/50 hover:-translate-y-2 perspective-1000 relative flex flex-col h-full ${showHotBadge ? 'border-4 border-yellow-400 animate-pulse' : ''}`}> 
+      {showHotBadge && (
+        <div className="absolute top-2 left-2 z-20 flex items-center gap-1">
+          <span className="bg-yellow-400 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-lg flex items-center">
+            <svg className="w-4 h-4 mr-1 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.122-6.545L.488 6.91l6.561-.955L10 0l2.951 5.955 6.561.955-4.756 4.635 1.122 6.545z"/></svg>
+            Nổi bật
+          </span>
+        </div>
+      )}
       {/* Wishlist Button */}
       <button
         onClick={handleWishlistToggle}

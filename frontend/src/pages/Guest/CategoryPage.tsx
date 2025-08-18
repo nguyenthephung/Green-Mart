@@ -349,6 +349,7 @@ export default function CategoryPage() {
               // Ensure _id is string and remove descriptionImages function for handleAddToCart
               const { descriptionImages, ...rest } = product;
               const productForCart = { ...rest, _id: String(product._id), unit: product.unit || "" };
+              const isHot = filterType === 'featured' || product.isFeatured;
               return (
                 <ProductCard
                   key={String(product._id)}
@@ -367,6 +368,7 @@ export default function CategoryPage() {
                   quantity={1}
                   onAddToCart={() => handleAddToCart(productForCart)}
                   showSaleBadge={true}
+                  showHotBadge={isHot}
                 />
               );
             })}

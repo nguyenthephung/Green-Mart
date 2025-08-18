@@ -1,4 +1,7 @@
-import React from 'react';
+// import OrderTrackingTimeline from '../../OrderTracking/OrderTrackingTimeline';
+import React, { useEffect, useState } from 'react';
+import { addOrderTracking, getOrderTrackingHistory, updateOrderTracking, deleteOrderTracking } from '../../../services/orderTrackingService';
+import OrderTrackingTimeline from '../../OrderTracking/OrderTrackingTimeline';
 import type { Order } from '../../../types/order';
 
 // Export Modal Component
@@ -102,6 +105,72 @@ interface ViewOrderModalProps {
 }
 
 const ViewOrderModal: React.FC<ViewOrderModalProps> = ({ show, order, isDarkMode, onClose }) => {
+  const [trackingHistory, setTrackingHistory] = useState([]);
+  const [editId, setEditId] = useState<string|null>(null);
+  const [editLat, setEditLat] = useState('');
+  const [editLng, setEditLng] = useState('');
+  const [editAddress, setEditAddress] = useState('');
+  const [editStatus, setEditStatus] = useState('');
+  const handleEditTracking = (item: any) => {
+    setEditId(item._id);
+    setEditLat(item.location.lat.toString());
+    setEditLng(item.location.lng.toString());
+    setEditAddress(item.location.address || '');
+    setEditStatus(item.status);
+  };
+
+  const handleUpdateTracking = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editId) return;
+    setLoading(true);
+    await updateOrderTracking(editId, {
+      lat: Number(editLat),
+      lng: Number(editLng),
+      address: editAddress,
+      status: editStatus,
+    });
+  const trackingId = String(order.orderNumber || '');
+  const res = await getOrderTrackingHistory(trackingId);
+    setTrackingHistory(res.data);
+    setEditId(null);
+    setLoading(false);
+  };
+
+  const handleDeleteTracking = async (id: string) => {
+    setLoading(true);
+    await deleteOrderTracking(id);
+  const trackingId = String(order.orderNumber || '');
+  const res = await getOrderTrackingHistory(trackingId);
+    setTrackingHistory(res.data);
+    setLoading(false);
+  };
+  const [lat, setLat] = useState('');
+  const [lng, setLng] = useState('');
+  const [address, setAddress] = useState('');
+  const [status, setStatus] = useState('');
+  const [loading, setLoading] = useState(false);
+
+
+  useEffect(() => {
+  const trackingId = String(order.orderNumber || '');
+    if (trackingId.length > 0) {
+      getOrderTrackingHistory(trackingId).then(res => setTrackingHistory(res.data));
+    }
+  }, [order]);
+
+  const handleAddTracking = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    const trackingId = order.orderNumber;
+    if (typeof trackingId === 'string' && trackingId.length > 0) {
+      await addOrderTracking({ orderId: trackingId, lat: Number(lat), lng: Number(lng), address, status });
+      const res = await getOrderTrackingHistory(trackingId);
+      setTrackingHistory(res.data);
+    }
+    setLat(''); setLng(''); setAddress(''); setStatus('');
+    setLoading(false);
+  };
+
   if (!show) return null;
 
   const formatPrice = (price: number) => {
@@ -236,6 +305,75 @@ const ViewOrderModal: React.FC<ViewOrderModalProps> = ({ show, order, isDarkMode
                 <span>{formatPrice(order.totalAmount)}</span>
               </div>
             </div>
+          </div>
+
+          {/* Order Tracking Section */}
+          <div className="mt-8">
+            <h3 className="text-lg font-semibold mb-3" style={isDarkMode ? { color: '#fff' } : { color: '#111827' }}>
+              Lịch sử vị trí đơn hàng
+            </h3>
+            <div className="space-y-4">
+              {trackingHistory.map((item: any) => (
+                <div key={item._id} className="bg-white dark:bg-slate-800 rounded-lg shadow p-4 flex flex-col md:flex-row md:items-center md:gap-4">
+                  <div className="flex-1">
+                    <div className="font-semibold text-emerald-700 dark:text-emerald-300">{item.status}</div>
+                    <div className="text-gray-600 dark:text-gray-300 text-sm">{item.location.address || `${item.location.lat}, ${item.location.lng}`}</div>
+                    <div className="text-xs text-gray-400 mt-1">{new Date(item.updatedAt).toLocaleString()}</div>
+                  </div>
+                  <div className="flex gap-2 mt-2 md:mt-0">
+                    <button className="px-3 py-1 bg-blue-500 text-white rounded" onClick={() => handleEditTracking(item)}>Sửa</button>
+                    <button className="px-3 py-1 bg-red-500 text-white rounded" onClick={() => handleDeleteTracking(item._id)}>Xóa</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {editId && (
+              <form className="mt-4 space-y-3" onSubmit={handleUpdateTracking}>
+                <div className="flex gap-2">
+                  <div className="flex flex-col w-1/4">
+                    <input className="p-2 border rounded" placeholder="Vĩ độ (Latitude)" value={editLat} onChange={e => setEditLat(e.target.value)} required />
+                  </div>
+                  <div className="flex flex-col w-1/4">
+                    <input className="p-2 border rounded" placeholder="Kinh độ (Longitude)" value={editLng} onChange={e => setEditLng(e.target.value)} required />
+                  </div>
+                  <div className="flex flex-col w-1/3">
+                    <input className="p-2 border rounded" placeholder="Địa chỉ chi tiết" value={editAddress} onChange={e => setEditAddress(e.target.value)} />
+                  </div>
+                  <div className="flex flex-col w-1/4">
+                    <input className="p-2 border rounded" placeholder="Trạng thái đơn" value={editStatus} onChange={e => setEditStatus(e.target.value)} required />
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded font-bold" disabled={loading}>{loading ? 'Đang lưu...' : 'Lưu thay đổi'}</button>
+                  <button type="button" className="bg-gray-400 text-white px-6 py-2 rounded font-bold" onClick={() => setEditId(null)}>Hủy</button>
+                </div>
+              </form>
+            )}
+            {order.status === 'shipping' && (
+              <form className="mt-6 space-y-3" onSubmit={handleAddTracking}>
+                <div className="flex gap-2">
+                  <div className="flex flex-col w-1/4">
+                    <input className="p-2 border rounded" placeholder="Vĩ độ (Latitude)" value={lat} onChange={e => setLat(e.target.value)} required />
+                    <span className="text-xs text-gray-500 mt-1">Nhập vĩ độ GPS, ví dụ: 10.762622</span>
+                  </div>
+                  <div className="flex flex-col w-1/4">
+                    <input className="p-2 border rounded" placeholder="Kinh độ (Longitude)" value={lng} onChange={e => setLng(e.target.value)} required />
+                    <span className="text-xs text-gray-500 mt-1">Nhập kinh độ GPS, ví dụ: 106.660172</span>
+                  </div>
+                  <div className="flex flex-col w-1/3">
+                    <input className="p-2 border rounded" placeholder="Địa chỉ chi tiết" value={address} onChange={e => setAddress(e.target.value)} />
+                    <span className="text-xs text-gray-500 mt-1">Nhập địa chỉ cụ thể (tùy chọn)</span>
+                  </div>
+                  <div className="flex flex-col w-1/4">
+                    <input className="p-2 border rounded" placeholder="Trạng thái đơn" value={status} onChange={e => setStatus(e.target.value)} required />
+                    <span className="text-xs text-gray-500 mt-1">Ví dụ: Đang giao, Đã đến kho, Đang chuyển phát...</span>
+                  </div>
+                </div>
+                <button type="submit" className="bg-emerald-600 text-white px-6 py-2 rounded font-bold" disabled={loading}>
+                  {loading ? 'Đang cập nhật...' : 'Cập nhật vị trí'}
+                </button>
+              </form>
+            )}
           </div>
         </div>
       </div>

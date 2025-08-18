@@ -24,6 +24,7 @@ import CartPage from '../pages/Guest/CartPage';
 import Checkout from '../pages/Guest/CheckoutPage';
 import GuestCheckoutPage from '../pages/Guest/GuestCheckoutPage';
 import GuestOrderSuccessPage from '../pages/Guest/GuestOrderSuccessPage';
+import GuestFlashSalePage from '../pages/Guest/GuestFlashSalePage';
 import Home from '../pages/Guest/HomePage';
 import ProductDetailPage from '../pages/Guest/ProductDetailPage';
 import CategoryPage from '../pages/Guest/CategoryPage';
@@ -70,6 +71,7 @@ const AppRouter = () => (
             <Route path="payment-test" element={<PaymentTestPage />} />
             <Route path="about" element={<AboutPage />} />
             <Route path="policy/:section" element={<PolicyPage />} />
+            <Route path="flash-sale" element={<GuestFlashSalePage />} />
           </Route>
           <Route path="accountdetail" element={
             <ProtectedRoute>

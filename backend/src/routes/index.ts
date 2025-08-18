@@ -17,6 +17,7 @@ import ratingRoutes from './ratingRoutes';
 import bannerRoutes from './bannerRoutes';
 import flashSaleRoutes from './flashSaleRoutes';
 import uploadRoutes from './uploadRoutes';
+import orderTrackingRoutes from './orderTrackingRoutes';
 
 const router = Router();
 
@@ -49,6 +50,7 @@ router.use('/orders', guestOrderRoutes);
 
 // Order routes (authenticated)
 router.use('/orders', orderRoutes);
+router.use('/order-tracking', orderTrackingRoutes);
 
 // Notification routes
 router.use('/notifications', notificationRoutes);

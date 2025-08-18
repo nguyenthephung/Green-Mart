@@ -70,7 +70,8 @@ export const useAnalytics = (period: AnalyticsPeriod = '7days') => {
         endDate: endDateISO
       });
 
-  const orders = ordersResponse?.orders || [];
+  // Chỉ lấy đơn hàng giao thành công
+  const orders = (ordersResponse?.orders || []).filter((order: any) => order.status === 'delivered');
 
       // Process sales data by date
       const salesByDate = dateRange.reduce((acc, date) => {

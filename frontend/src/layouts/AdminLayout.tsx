@@ -9,7 +9,7 @@ import AdminSettingsModal from '../components/Admin/Profile/AdminSettingsModal';
 import { useAdminAutoScroll } from '../hooks/useAdminAutoScroll';
 
 const adminMenu = [
-  { label: 'Thống kê', path: '/admin/dashboard', icon: '📊', color: 'from-blue-500 to-blue-600' },
+  { label: 'Thống kê trong ngày', path: '/admin/dashboard', icon: '📊', color: 'from-blue-500 to-blue-600' },
   { label: 'Phân tích & Báo cáo', path: '/admin/analytics', icon: '📈', color: 'from-cyan-500 to-cyan-600' },
   { label: 'Quản lý sản phẩm', path: '/admin/products', icon: '📦', color: 'from-green-500 to-green-600' },
   { label: 'Quản lý danh mục', path: '/admin/categories', icon: '🗂️', color: 'from-purple-500 to-purple-600' },
