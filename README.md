@@ -74,4 +74,4 @@ GreenMart tích hợp với 3 cổng thanh toán chính của Việt Nam:
 3. Cấu hình file `.env` với thông tin API
 4. Truy cập `/payment-test` để test các gateway
 
-**Lưu ý:** Tất cả 3 nhà cung cấp đều hỗ trợ đăng ký miễn phí và môi trường sandbox để test.
+**Lưu ý:** Tất cả 3 nhà cung cấp đều hỗ trợ đăng ký miễn phí và môi trường sandbox để test."## Contribution log - $(date)" 
