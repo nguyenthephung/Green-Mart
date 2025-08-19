@@ -49,7 +49,8 @@ export const addTracking = async (req: Request, res: Response) => {
 export const getTrackingHistory = async (req: Request, res: Response) => {
   try {
     const { orderId } = req.params;
-    const history = await OrderTracking.find({ orderId }).sort({ updatedAt: 1 });
+  // Giới hạn tối đa 100 bản ghi lịch sử để tránh tràn RAM
+  const history = await OrderTracking.find({ orderId }).sort({ updatedAt: 1 }).limit(100);
     res.json(history);
   } catch (err) {
     res.status(500).json({ error: 'Không thể lấy lịch sử vị trí đơn hàng' });

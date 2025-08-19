@@ -189,6 +189,7 @@ const AdminOrders: React.FC = () => {
       case 'paid': return 'Đã thanh toán';
       case 'pending': return 'Chờ thanh toán';
       case 'failed': return 'Thanh toán thất bại';
+      case 'unpaid': return 'Chưa thanh toán';
       default: return status;
     }
   };

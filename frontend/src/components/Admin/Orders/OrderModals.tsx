@@ -1,7 +1,7 @@
 // import OrderTrackingTimeline from '../../OrderTracking/OrderTrackingTimeline';
 import React, { useEffect, useState } from 'react';
 import { addOrderTracking, getOrderTrackingHistory, updateOrderTracking, deleteOrderTracking } from '../../../services/orderTrackingService';
-import OrderTrackingTimeline from '../../OrderTracking/OrderTrackingTimeline';
+
 import type { Order } from '../../../types/order';
 
 // Export Modal Component
