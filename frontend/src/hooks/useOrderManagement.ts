@@ -45,7 +45,7 @@ export const useOrderManagement = () => {
         const convertedOrders = validOrders.map((order: any, index: number) => {
           try {
             return {
-              id: parseInt(order._id?.slice(-6), 16) || index + 1000,
+              id: order._id,
               orderNumber: order._id || `ORDER-${index}`,
               orderDate: order.createdAt || order.orderDate || new Date().toISOString(),
               // Handle both user orders and guest orders
@@ -55,7 +55,7 @@ export const useOrderManagement = () => {
               customerAddress: order.customerAddress || order.guestInfo?.address || '',
               items: (order.items || []).map((item: any) => ({
                 // Handle both populated and non-populated productId
-                id: item.productId?._id ? parseInt(item.productId._id.slice(-6), 16) : Math.random(),
+                id: item.productId?._id ? item.productId._id : Math.random().toString(),
                 productName: item.productName || item.name || item.productId?.name || 'Sản phẩm',
                 price: item.price || 0,
                 quantity: item.quantity || 1,

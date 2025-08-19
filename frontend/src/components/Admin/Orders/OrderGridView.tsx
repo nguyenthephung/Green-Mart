@@ -4,9 +4,9 @@ import type { Order } from '../../../types/order';
 interface OrderGridViewProps {
   isDarkMode: boolean;
   currentOrders: Order[];
-  selectedOrders: number[];
-  onSelectOrder: (orderId: number) => void;
-  onStatusChange: (orderId: number, status: Order['status']) => void;
+  selectedOrders: (string | number)[];
+  onSelectOrder: (orderId: string | number) => void;
+  onStatusChange: (orderId: string | number, status: Order['status']) => void;
   onViewOrder: (order: Order) => void;
   getStatusText: (status: string) => string;
   getPaymentText: (status: string) => string;

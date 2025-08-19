@@ -4,12 +4,12 @@ import type { Order, SortField } from '../../../types/order';
 interface OrderTableViewProps {
   isDarkMode: boolean;
   currentOrders: Order[];
-  selectedOrders: number[];
+    selectedOrders: (string | number)[];
   sortField: SortField;
   onSelectAll: () => void;
-  onSelectOrder: (orderId: number) => void;
+    onSelectOrder: (orderId: string | number) => void;
   onSort: (field: SortField) => void;
-  onStatusChange: (orderId: number, status: Order['status']) => void;
+    onStatusChange: (orderId: string | number, status: Order['status']) => void;
   onViewOrder: (order: Order) => void;
   getSortIcon: (field: SortField) => string;
   getPaymentMethodText: (method: Order['paymentMethod']) => string;

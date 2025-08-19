@@ -40,7 +40,7 @@ const AdminOrders: React.FC = () => {
   const [showView, setShowView] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('table');
   const [showFilters, setShowFilters] = useState(false);
-  const [selectedOrders, setSelectedOrders] = useState<number[]>([]);
+  const [selectedOrders, setSelectedOrders] = useState<(string|number)[]>([]);
   const [showExportModal, setShowExportModal] = useState(false);
   
   // Dark mode state
@@ -80,7 +80,7 @@ const AdminOrders: React.FC = () => {
     }
   };
 
-  const handleSelectOrder = (orderId: number) => {
+  const handleSelectOrder = (orderId: string | number) => {
     if (selectedOrders.includes(orderId)) {
       setSelectedOrders(selectedOrders.filter(id => id !== orderId));
     } else {
@@ -93,7 +93,7 @@ const AdminOrders: React.FC = () => {
     
     try {
       await Promise.all(selectedOrders.map(async (orderId) => {
-        await handleStatusChange(orderId, newStatus);
+        await handleStatusChange(typeof orderId === 'string' ? parseInt(orderId) : orderId, newStatus);
       }));
       setSelectedOrders([]);
     } catch (err: any) {
@@ -332,7 +332,7 @@ const AdminOrders: React.FC = () => {
           onSelectAll={handleSelectAll}
           onSelectOrder={handleSelectOrder}
           onSort={handleSort}
-          onStatusChange={handleStatusChange}
+          onStatusChange={(orderId, status) => handleStatusChange(typeof orderId === 'string' ? parseInt(orderId) : orderId, status)}
           onViewOrder={openViewModal}
           getSortIcon={getSortIcon}
           getPaymentMethodText={getPaymentMethodText}
@@ -350,7 +350,7 @@ const AdminOrders: React.FC = () => {
           currentOrders={pagination.currentData}
           selectedOrders={selectedOrders}
           onSelectOrder={handleSelectOrder}
-          onStatusChange={handleStatusChange}
+          onStatusChange={(orderId, status) => handleStatusChange(typeof orderId === 'string' ? parseInt(orderId) : orderId, status)}
           onViewOrder={openViewModal}
           getStatusText={getStatusText}
           getPaymentText={getPaymentText}

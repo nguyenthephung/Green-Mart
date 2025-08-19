@@ -3,7 +3,7 @@ import type { Order } from '../../../types/order';
 
 interface OrderBulkActionsProps {
   isDarkMode: boolean;
-  selectedOrders: number[];
+  selectedOrders: (string | number)[];
   onClearSelection: () => void;
   onBulkStatusUpdate: (status: Order['status']) => void;
 }
