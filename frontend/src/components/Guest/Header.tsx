@@ -8,6 +8,7 @@ import { useWishlistStore } from '../../stores/useWishlistStore';
 import { useNotificationStore } from '../../stores/useNotificationStore';
 import NotificationDropdownContent from './Notification/NotificationDropdownContent';
 import ThemeToggle from '../ui/ThemeToggle';
+import CategoryBar from './CategoryBar';
 
 const Header: React.FC = memo(() => {
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -26,6 +27,7 @@ const Header: React.FC = memo(() => {
   const { unreadCount, fetchUnreadCount } = useNotificationStore();
   // Use reactive wishlist count instead of function
   const wishlistCount = useWishlistStore(state => state.items.length);
+  
   // Fetch cart on mount và khi user thay đổi để đảm bảo count luôn đúng
   useEffect(() => {
     fetchCart(true);
@@ -62,7 +64,6 @@ const Header: React.FC = memo(() => {
     };
   }, []);
 
-
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (searchTerm.trim() !== '') {
@@ -85,7 +86,7 @@ const Header: React.FC = memo(() => {
   };
 
   return (
-    <header className="sticky top-0 left-0 w-full z-50 bg-app-header/70 backdrop-blur-sm border-b border-app-border">
+    <header className="sticky top-0 left-0 w-full z-50 bg-app-header border-b border-app-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo Section */}
@@ -348,6 +349,9 @@ const Header: React.FC = memo(() => {
             )}
           </div>
         </div>
+        
+        {/* Category Bar - Moved outside the main flex container */}
+        <CategoryBar />
       </div>
     </header>
   );

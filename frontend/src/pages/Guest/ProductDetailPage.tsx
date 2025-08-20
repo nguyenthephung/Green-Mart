@@ -308,7 +308,7 @@ const ProductDetailPage: React.FC = () => {
           </div>
 
           <p className="text-gray-700 leading-relaxed mb-6">
-            Mô tả chi tiết sản phẩm sẽ được hiển thị tại đây. Bạn có thể cung cấp thêm thông tin như thành phần, cách bảo quản, nguồn gốc,...
+           Sản phẩm được chọn lọc từ những nguyên liệu tươi ngon, đảm bảo chất lượng và an toàn cho sức khỏe. Hương vị tự nhiên, giàu dinh dưỡng, phù hợp cho mọi bữa ăn trong ngày. Hãy trải nghiệm sự tiện lợi và tươi ngon ngay tại nhà bạn.
           </p>
 
           {/* Không còn selector số lượng cho sản phẩm kg */}
