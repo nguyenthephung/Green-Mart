@@ -19,7 +19,20 @@ export class AuthController {
         return;
       }
 
-      const { name, phone, avatar, currentPassword, newPassword } = req.body;
+  const { name, phone, avatar, currentPassword, newPassword, email } = req.body;
+      // Kiểm tra email trùng nếu có yêu cầu cập nhật email
+      if (email && email !== user.email) {
+        const emailExists = await User.findOne({ email: email.toLowerCase().trim() });
+        if (emailExists) {
+          res.status(400).json({
+            success: false,
+            message: 'Email đã được sử dụng.',
+            errors: { email: 'Email này đã có tài khoản' }
+          });
+          return;
+        }
+        user.email = email.toLowerCase().trim();
+      }
 
       // If password change is requested, validate current password
       if (newPassword) {
@@ -61,10 +74,10 @@ export class AuthController {
         }
       }
 
-      // Update other profile fields
-      if (name !== undefined) user.name = name;
-      if (phone !== undefined) user.phone = phone;
-      if (avatar !== undefined) user.avatar = avatar;
+  // Update other profile fields
+  if (name !== undefined) user.name = name;
+  if (phone !== undefined) user.phone = phone;
+  if (avatar !== undefined) user.avatar = avatar;
 
       await user.save();
 

@@ -27,6 +27,7 @@ const AccountDetails: React.FC = () => {
         phone: user.phone || '',
         avatar: user.avatar || ''
       });
+      // Luôn ưu tiên Cloudinary URL khi load lại trang
       setAvatar(user.avatar || `https://i.pravatar.cc/120?u=${user.email || 'user'}`);
     }
   }, [user]);
@@ -58,13 +59,18 @@ const AccountDetails: React.FC = () => {
   const handleSave = async () => {
     setLoading(true);
     try {
-      // Call API to update profile
+      // Kiểm tra avatar có phải Cloudinary URL không
+      const avatarUrl = tempInfo.avatar;
+      if (avatarUrl && avatarUrl.startsWith('blob:')) {
+        alert('Vui lòng chọn và upload lại ảnh đại diện!');
+        setLoading(false);
+        return;
+      }
       const result = await profileService.updateProfile({
         name: tempInfo.fullName,
         phone: tempInfo.phone,
-        avatar: avatar
+        avatar: avatarUrl // luôn lấy từ tempInfo, đã được cập nhật Cloudinary URL
       });
-      
       if (result.success) {
         setEditMode(false);
         console.log('Profile updated successfully');
@@ -81,10 +87,24 @@ const AccountDetails: React.FC = () => {
       setLoading(false);
     }
   };
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const url = URL.createObjectURL(e.target.files[0]);
-      setAvatar(url);
+      const file = e.target.files[0];
+      // Show temporary preview
+      const tempUrl = URL.createObjectURL(file);
+      setAvatar(tempUrl);
+      // Upload to Cloudinary
+      try {
+        const res = await profileService.uploadAvatar(file);
+        if (res.success && res.data && res.data.imageUrl) {
+          setAvatar(res.data.imageUrl);
+          setTempInfo(prev => ({ ...prev, avatar: res.data.imageUrl }));
+        } else {
+          console.error('Avatar upload failed:', res.message);
+        }
+      } catch (err) {
+        console.error('Avatar upload error:', err);
+      }
     }
   };
 
@@ -177,7 +197,7 @@ const AccountDetails: React.FC = () => {
               <label htmlFor="mobile-number" className="flex items-center gap-3 font-semibold text-app-primary mb-3">
                 <div className="w-8 h-8 bg-blue-500/10 rounded-lg flex items-center justify-center">
                   <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 002-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
                 </div>
                 Số điện thoại

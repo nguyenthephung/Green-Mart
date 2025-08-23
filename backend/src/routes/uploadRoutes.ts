@@ -92,6 +92,7 @@ router.post('/avatar',
       return;
     }
     const imageUrl = ImageUploadService.getImageUrl(req.file);
+    console.log('[Avatar Upload] imageUrl:', imageUrl);
     res.json({
       success: true,
       message: 'Upload ảnh avatar thành công',
