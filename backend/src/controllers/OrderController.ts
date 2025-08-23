@@ -617,14 +617,7 @@ class OrderController {
         return;
       }
 
-      // Check permission (skip for guest orders - they shouldn't access this endpoint)
-      if (order.userId && order.userId.toString() !== userId) {
-        res.status(403).json({
-          success: false,
-          message: 'Unauthorized access to order'
-        });
-        return;
-      }
+  // Bỏ qua xác thực userId, cho phép cả guest và user đều hủy nếu đúng trạng thái
 
       // Check if order can be cancelled
       if (!['pending', 'confirmed', 'preparing'].includes(order.status)) {

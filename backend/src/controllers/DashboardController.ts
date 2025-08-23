@@ -27,7 +27,8 @@ export class DashboardController {
         todayOrders,
         outOfStockProducts,
         newUsersToday,
-        newCommentsToday
+        newCommentsToday,
+        todayRatings
       ] = await Promise.all([
         Product.countDocuments(),
         Category.countDocuments(),
@@ -39,7 +40,8 @@ export class DashboardController {
           role: { $ne: 'admin' },
           createdAt: { $gte: startOfDay }
         }),
-        Comment.countDocuments({ createdAt: { $gte: startOfDay } })
+        Comment.countDocuments({ createdAt: { $gte: startOfDay } }),
+        (await import('../models/Rating')).default.countDocuments({ createdAt: { $gte: startOfDay } })
       ]);
 
       // Revenue calculations
@@ -103,7 +105,7 @@ export class DashboardController {
         },
         {
           label: 'Đánh giá mới',
-          value: newCommentsToday,
+          value: todayRatings,
           icon: '⭐',
           color: 'text-yellow-600'
         }

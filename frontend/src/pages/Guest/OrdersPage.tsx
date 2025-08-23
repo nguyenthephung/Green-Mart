@@ -30,6 +30,10 @@ const OrdersPage = () => {
   const [orderTrackingMap] = useState<Record<string, { status: string; address: string }>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+    // Xử lý khi hủy đơn thành công
+    const handleOrderCancelled = (orderId: string) => {
+      setOrders(prev => prev.map(order => order.id === orderId ? { ...order, status: 'Đã hủy' } : order));
+    };
 
   // Fetch real orders from API
   useEffect(() => {
@@ -232,6 +236,7 @@ const OrdersPage = () => {
                       payWith={order.payWith}
                       deliveryAddress={order.deliveryAddress}
                       shippingStatus={shippingStatus}
+                            onCancelSuccess={handleOrderCancelled}
                     />
                   );
                 })}

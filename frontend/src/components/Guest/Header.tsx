@@ -11,9 +11,12 @@ import ThemeToggle from '../ui/ThemeToggle';
 import CategoryBar from './CategoryBar';
 
 const Header: React.FC = memo(() => {
+  const hiddenOnRoutes = ['/login', '/register', '/admin', '/checkout', '/category', '/accountdetail', '/myorder', '/myaddress', '/notification-settings', '/myvoucher'];
+  const location = window.location;
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [showDropdown, setShowDropdown] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showCategoryBar, setShowCategoryBar] = useState(true);
   const userMenuRef = useRef<HTMLDivElement>(null);
   let dropdownTimeout: NodeJS.Timeout | null = null;
   const navigate = useNavigate();
@@ -190,7 +193,7 @@ const Header: React.FC = memo(() => {
                 <div 
                   onMouseEnter={handleDropdownEnter} 
                   onMouseLeave={handleDropdownLeave}
-                  className="absolute top-full right-0 mt-2 transform transition-all duration-200 ease-out opacity-100 scale-100"
+                  className="absolute top-full right-0 mt-2 z-60 transform transition-all duration-200 ease-out opacity-100 scale-100 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700"
                   style={{
                     animation: showDropdown ? 'fadeInDown 0.2s ease-out' : 'fadeOutUp 0.2s ease-in'
                   }}
@@ -350,8 +353,18 @@ const Header: React.FC = memo(() => {
           </div>
         </div>
         
-        {/* Category Bar - Moved outside the main flex container */}
-        <CategoryBar />
+        {/* Nút ẩn/hiện CategoryBar nằm ở góc phải phía trên header */}
+        {!hiddenOnRoutes.some(route => location.pathname.startsWith(route)) && (
+          <div className="flex justify-end items-center w-full mb-1">
+            <button
+              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl shadow-lg transition-all duration-200"
+              onClick={() => setShowCategoryBar((prev) => !prev)}
+            >
+              {showCategoryBar ? 'Ẩn danh mục' : 'Hiện danh mục'}
+            </button>
+          </div>
+        )}
+        {showCategoryBar && <CategoryBar />}
       </div>
     </header>
   );

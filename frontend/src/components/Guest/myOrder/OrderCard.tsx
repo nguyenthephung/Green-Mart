@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import orderService from '../../../services/orderService';
 
 export type OrderItem = {
   name: string;
@@ -19,6 +21,7 @@ export type OrderCardProps = {
   payWith: string;
   deliveryAddress: string;
   shippingStatus?: string;
+  onCancelSuccess?: (orderId: string) => void;
 };
 
 const statusConfig: Record<string, { color: string; bg: string; icon: string }> = {
@@ -56,11 +59,28 @@ export default function OrderCard({
   total,
   items,
   shippingStatus = "Đơn hàng đã rời kho phân loại tới HCM Mega SOC",
+  onCancelSuccess,
 }: OrderCardProps) {
   const statusInfo = statusConfig[status] || { 
     color: "text-app-secondary", 
     bg: "bg-app-secondary border-app-border", 
     icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" 
+  };
+
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState<string | null>(null);
+
+  const handleCancelOrder = async () => {
+    setIsCancelling(true);
+    setCancelError(null);
+    try {
+      await orderService.cancelOrder(id);
+      if (onCancelSuccess) onCancelSuccess(id);
+    } catch (err: any) {
+      setCancelError(err.message || 'Hủy đơn hàng thất bại');
+    } finally {
+      setIsCancelling(false);
+    }
   };
 
   return (
@@ -157,6 +177,18 @@ export default function OrderCard({
           </svg>
           Xem Chi Tiết
         </Link>
+        {status === 'Chờ xác nhận' && (
+          <button
+            onClick={handleCancelOrder}
+            className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl group-hover:scale-105 transform flex items-center gap-2 hover:-translate-y-0.5"
+            disabled={isCancelling}
+          >
+            {isCancelling ? 'Đang hủy...' : 'Hủy đơn hàng'}
+          </button>
+        )}
+        {cancelError && (
+          <div className="text-red-500 font-medium mt-2">{cancelError}</div>
+        )}
       </div>
     </div>
   );

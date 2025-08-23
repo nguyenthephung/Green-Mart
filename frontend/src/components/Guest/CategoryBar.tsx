@@ -3,7 +3,7 @@ import { useCategoryStore } from '../../stores/useCategoryStore';
 import { useState, useEffect, useRef } from 'react';
 import { ChevronDown, Menu, X, Tag } from 'lucide-react';
 
-const hiddenOnRoutes = ['/login', '/register', '/admin', '/checkout', '/category'];
+const hiddenOnRoutes = ['/login', '/register', '/admin', '/checkout', '/category', '/accountdetail', '/myorder', '/myaddress', '/notification-settings', '/myvoucher'];
 
 const CategoryBar: React.FC = () => {
   const location = useLocation();
@@ -57,7 +57,7 @@ const CategoryBar: React.FC = () => {
   return (
     <div className="relative">
       {/* Category Bar */}
-      <div className="z-40 w-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm shadow-lg border-b border-gray-200 dark:border-gray-700 transition-all duration-300">
+      <div className="z-30 w-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm shadow-lg border-b border-gray-200 dark:border-gray-700 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Mobile Menu Button */}
           <div className="lg:hidden flex items-center justify-between py-3">
