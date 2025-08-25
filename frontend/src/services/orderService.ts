@@ -182,7 +182,9 @@ class OrderService {
       if (params?.endDate) queryParams.append('endDate', params.endDate);
 
       const url = `${this.BASE_URL}/all${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      console.log('[OrderService] Fetching orders with url:', url);
       const response = await apiClient<any>(url);
+      console.log('[OrderService] Response:', response);
       // Handle the response structure from backend
       if ((response as any).orders && (response as any).pagination) {
         return {

@@ -60,6 +60,7 @@ export const useAnalytics = (period: AnalyticsPeriod = '7days') => {
 
       // Fetch orders data
 
+      // Khôi phục logic lọc theo thời gian
       // Chuẩn hóa startDate về 00:00:00 và endDate về 23:59:59
       const startDateISO = dateRange[0] + 'T00:00:00.000Z';
       const endDateISO = dateRange[dateRange.length - 1] + 'T23:59:59.999Z';
@@ -69,9 +70,23 @@ export const useAnalytics = (period: AnalyticsPeriod = '7days') => {
         startDate: startDateISO,
         endDate: endDateISO
       });
-
-  // Chỉ lấy đơn hàng giao thành công
-  const orders = (ordersResponse?.orders || []).filter((order: any) => order.status === 'delivered');
+      // Debug toàn bộ đơn hàng trả về từ backend
+      console.log('[Analytics] ordersResponse:', ordersResponse);
+      // Debug từng đơn hàng, chú ý trường id, _id, orderNumber, status
+      (ordersResponse?.orders || []).forEach((order: any, idx: number) => {
+        console.log(`[Analytics] Order[${idx}]:`, {
+          _id: order._id,
+          id: order.id,
+          orderNumber: order.orderNumber,
+          status: order.status,
+          createdAt: order.createdAt,
+          orderDate: order.orderDate,
+          deliveryDate: order.deliveryDate
+        });
+      });
+      // Chỉ lấy đơn hàng giao thành công
+      const orders = (ordersResponse?.orders || []).filter((order: any) => order.status === 'delivered');
+      console.log('[Analytics] orders after delivered filter:', orders);
 
       // Process sales data by date
       const salesByDate = dateRange.reduce((acc, date) => {

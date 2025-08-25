@@ -7,6 +7,7 @@ import LoadingSpinner from '../../Loading/LoadingSpinner';
 const AnalyticsDashboard: React.FC = () => {
   const [period, setPeriod] = useState<AnalyticsPeriod>('7days');
   const { data, loading, error } = useAnalytics(period);
+  console.log('[AnalyticsDashboard] period:', period, 'data:', data, 'loading:', loading, 'error:', error);
 
   const formatCurrency = (value: number) => {
     if (value >= 1000000000) {
