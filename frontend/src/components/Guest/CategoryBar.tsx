@@ -3,7 +3,7 @@ import { useCategoryStore } from '../../stores/useCategoryStore';
 import { useState, useEffect, useRef } from 'react';
 import { ChevronDown, Menu, X, Tag } from 'lucide-react';
 
-const hiddenOnRoutes = ['/login', '/register', '/admin', '/checkout', '/category', '/accountdetail', '/myorder', '/myaddress', '/notification-settings', '/myvoucher'];
+const hiddenOnRoutes = ['/login', '/register', '/admin', '/checkout', '/category', '/accountdetail', '/myorder', '/myaddress', '/notification-settings', '/myvoucher','/mycart'];
 
 const CategoryBar: React.FC = () => {
   const location = useLocation();

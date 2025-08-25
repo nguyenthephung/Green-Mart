@@ -498,8 +498,11 @@ class OrderController {
       const { status } = req.body;
       const userId = req.user?._id;
 
+      console.log('[Order Status Update] orderId:', orderId);
       const order = await Order.findById(orderId);
+      console.log('[Order Status Update] order:', order);
       if (!order) {
+        console.log('[Order Status Update] Không tìm thấy đơn hàng với orderId:', orderId);
         res.status(404).json({
           success: false,
           message: 'Order not found'

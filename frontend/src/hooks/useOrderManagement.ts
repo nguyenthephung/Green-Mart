@@ -168,8 +168,9 @@ export const useOrderManagement = () => {
   };
 
   // Update order status
-  const handleStatusChange = async (orderId: number, newStatus: Order['status']) => {
-    const orderToUpdate = orders.find((order: Order) => order.id === orderId);
+  const handleStatusChange = async (orderId: string, newStatus: Order['status']) => {
+    const orderToUpdate = orders.find((order: Order) => order.id === orderId || order.orderNumber === orderId);
+    console.log('[Order Status Change] orderId:', orderId, 'newStatus:', newStatus, 'orderToUpdate:', orderToUpdate);
     if (!orderToUpdate || !orderToUpdate.orderNumber) {
       setError('Không tìm thấy đơn hàng để cập nhật');
       return;
@@ -190,12 +191,7 @@ export const useOrderManagement = () => {
     } catch (err: any) {
       console.error('Failed to update order status:', err);
       setError(`Không thể cập nhật trạng thái: ${err.message}`);
-      
-      // Revert the optimistic update on error
-      setOrders(orders);
-      
-      // Optionally refresh data to ensure consistency
-      setTimeout(() => refreshData(), 1000);
+      await refreshData();
     }
   };
 

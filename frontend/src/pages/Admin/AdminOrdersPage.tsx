@@ -93,7 +93,7 @@ const AdminOrders: React.FC = () => {
     
     try {
       await Promise.all(selectedOrders.map(async (orderId) => {
-        await handleStatusChange(typeof orderId === 'string' ? parseInt(orderId) : orderId, newStatus);
+        await handleStatusChange(orderId.toString(), newStatus);
       }));
       setSelectedOrders([]);
     } catch (err: any) {
@@ -332,7 +332,7 @@ const AdminOrders: React.FC = () => {
           onSelectAll={handleSelectAll}
           onSelectOrder={handleSelectOrder}
           onSort={handleSort}
-          onStatusChange={(orderId, status) => handleStatusChange(typeof orderId === 'string' ? parseInt(orderId) : orderId, status)}
+          onStatusChange={(orderId, status) => handleStatusChange(orderId.toString(), status)}
           onViewOrder={openViewModal}
           getSortIcon={getSortIcon}
           getPaymentMethodText={getPaymentMethodText}
@@ -350,7 +350,7 @@ const AdminOrders: React.FC = () => {
           currentOrders={pagination.currentData}
           selectedOrders={selectedOrders}
           onSelectOrder={handleSelectOrder}
-          onStatusChange={(orderId, status) => handleStatusChange(typeof orderId === 'string' ? parseInt(orderId) : orderId, status)}
+          onStatusChange={(orderId, status) => handleStatusChange(orderId.toString(), status)}
           onViewOrder={openViewModal}
           getStatusText={getStatusText}
           getPaymentText={getPaymentText}

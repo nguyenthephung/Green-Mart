@@ -11,7 +11,7 @@ import ThemeToggle from '../ui/ThemeToggle';
 import CategoryBar from './CategoryBar';
 
 const Header: React.FC = memo(() => {
-  const hiddenOnRoutes = ['/login', '/register', '/admin', '/checkout', '/category', '/accountdetail', '/myorder', '/myaddress', '/notification-settings', '/myvoucher'];
+  const hiddenOnRoutes = ['/login', '/register', '/admin', '/checkout', '/category', '/accountdetail', '/myorder', '/myaddress', '/notification-settings', '/myvoucher','/mycart','/guest-checkout'];
   const location = window.location;
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [showDropdown, setShowDropdown] = useState(false);
