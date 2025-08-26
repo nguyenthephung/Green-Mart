@@ -11,7 +11,7 @@ import ThemeToggle from '../ui/ThemeToggle';
 import CategoryBar from './CategoryBar';
 
 const Header: React.FC = memo(() => {
-  const hiddenOnRoutes = ['/login', '/register', '/admin', '/checkout', '/category', '/accountdetail', '/myorder', '/myaddress', '/notification-settings', '/myvoucher','/mycart','/guest-checkout'];
+  const hiddenOnRoutes = ['/login', '/register', '/admin', '/checkout', '/category', '/accountdetail', '/myorder', '/myaddress', '/notification-settings', '/myvoucher','/mycart','/guest-checkout','/payment-result'];
   const location = window.location;
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [showDropdown, setShowDropdown] = useState(false);
@@ -309,22 +309,6 @@ const Header: React.FC = memo(() => {
                         )}
                       </button>
 
-                      {user.role === 'admin' && (
-                        <button
-                          onClick={() => {
-                            navigate('/admin/dashboard');
-                            setShowUserMenu(false);
-                          }}
-                          className="dropdown-item text-app-primary"
-                        >
-                          <div className="icon-wrapper">
-                            <svg className="w-4 h-4 group-hover:text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
-                            </svg>
-                          </div>
-                          <span className="font-medium">Quản trị viên</span>
-                        </button>
-                      )}
                     </div>
                     
                     <div className="border-t border-app-border pt-2">

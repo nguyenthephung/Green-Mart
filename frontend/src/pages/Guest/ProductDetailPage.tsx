@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useCallback, useMemo, useState } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { useProductStore } from '../../stores/useProductStore';
-import ProductDetailDisplay from '../../components/Guest/ProductDetailDisplay';
+import ProductDetailDisplay from '../../components/Guest/productDetail/ProductDetailDisplay';
 
 import { FaShoppingCart, FaCheckCircle, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { useCartStore } from '../../stores/useCartStore';

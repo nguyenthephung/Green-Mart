@@ -231,22 +231,22 @@ const AdminVouchersPage: React.FC = () => {
           <table className="w-full text-sm text-gray-900 dark:text-gray-100">
             <thead className="border-b border-green-100 dark:border-gray-700 bg-green-50 dark:bg-gray-800">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-medium text-green-800 dark:text-green-200 uppercase tracking-wider cursor-pointer hover:bg-green-100 dark:hover:bg-gray-700 transition-colors" onClick={() => { setSortField('label'); setSortOrder(sortField === 'label' && sortOrder === 'asc' ? 'desc' : 'asc'); }}>
+                <th className="px-6 py-4 font-mono dark:text-gray-200 align-middle" onClick={() => { setSortField('label'); setSortOrder(sortField === 'label' && sortOrder === 'asc' ? 'desc' : 'asc'); }}>
                   <div className="flex items-center gap-1">Tên {getSortIcon('label')}</div>
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-green-800 dark:text-green-200 uppercase tracking-wider">Mã</th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-green-800 dark:text-green-200 uppercase tracking-wider">Mô tả</th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-green-800 dark:text-green-200 uppercase tracking-wider">Đơn tối thiểu</th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-green-800 dark:text-green-200 uppercase tracking-wider cursor-pointer hover:bg-green-100 dark:hover:bg-gray-700 transition-colors" onClick={() => { setSortField('discountValue'); setSortOrder(sortField === 'discountValue' && sortOrder === 'asc' ? 'desc' : 'asc'); }}>
+                <th className="px-6 py-4 font-mono dark:text-gray-200 align-middle">Mã</th>
+                <th className="px-6 py-4 font-mono dark:text-gray-200 align-middle">Mô tả</th>
+                <th className="px-6 py-4 font-mono dark:text-gray-200 align-middle">Đơn tối thiểu</th>
+                <th className="px-6 py-4 font-mono dark:text-gray-200 align-middle" onClick={() => { setSortField('discountValue'); setSortOrder(sortField === 'discountValue' && sortOrder === 'asc' ? 'desc' : 'asc'); }}>
                   <div className="flex items-center gap-1">Giá trị {getSortIcon('discountValue')}</div>
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-green-800 dark:text-green-200 uppercase tracking-wider cursor-pointer hover:bg-green-100 dark:hover:bg-gray-700 transition-colors" onClick={() => { setSortField('expired'); setSortOrder(sortField === 'expired' && sortOrder === 'asc' ? 'desc' : 'asc'); }}>
+                <th className="px-6 py-4 font-mono dark:text-gray-200 align-middle" onClick={() => { setSortField('expired'); setSortOrder(sortField === 'expired' && sortOrder === 'asc' ? 'desc' : 'asc'); }}>
                   <div className="flex items-center gap-1">HSD {getSortIcon('expired')}</div>
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-green-800 dark:text-green-200 uppercase tracking-wider cursor-pointer hover:bg-green-100 dark:hover:bg-gray-700 transition-colors" onClick={() => { setSortField('isActive'); setSortOrder(sortField === 'isActive' && sortOrder === 'asc' ? 'desc' : 'asc'); }}>
+                <th className="px-6 py-4 font-mono dark:text-gray-200 align-middle" onClick={() => { setSortField('isActive'); setSortOrder(sortField === 'isActive' && sortOrder === 'asc' ? 'desc' : 'asc'); }}>
                   <div className="flex items-center gap-1">Trạng thái {getSortIcon('isActive')}</div>
                 </th>
-                <th className="px-6 py-4 text-right text-xs font-medium text-green-800 dark:text-green-200 uppercase tracking-wider">Thao tác</th>
+                <th className="px-6 py-4 font-mono dark:text-gray-200 align-middle">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-green-100 dark:divide-gray-700 bg-white dark:bg-gray-900">
@@ -259,7 +259,7 @@ const AdminVouchersPage: React.FC = () => {
                 const isExpired = new Date(v.expired) < now;
                 return (
                   <tr key={v.id || index} className="transition-colors bg-white dark:bg-gray-900 hover:bg-green-50 dark:hover:bg-gray-800 border-b border-green-100 dark:border-gray-800">
-                    <td className="px-6 py-4 font-semibold text-green-900 dark:text-green-200 align-middle">{v.label}</td>
+                    <td className="px-6 py-4 font-mono dark:text-gray-200 align-middle">{v.label}</td>
                     <td className="px-6 py-4 font-mono dark:text-gray-200 align-middle">{v.code}</td>
                     <td className="px-6 py-4 max-w-xs truncate dark:text-gray-200 align-middle" title={v.description}>{v.description}</td>
                     <td className="px-6 py-4 dark:text-gray-200 align-middle">{typeof v.minOrder === 'number' ? v.minOrder.toLocaleString('vi-VN') : v.minOrder}₫</td>

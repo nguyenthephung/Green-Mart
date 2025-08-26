@@ -200,38 +200,38 @@ export default function CategoryPage() {
         <div className="bg-white rounded-2xl shadow-xl p-6 mb-8">
           {/* Special Product Type Filters */}
           <div className="flex flex-wrap gap-4 mb-6 justify-center">
-            <button
-              onClick={() => setFilterType('all')}
-              className={`px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 ${
-                filterType === 'all'
-                  ? 'bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-lg scale-105'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              Tất Cả Sản Phẩm
-            </button>
-            <button
-              onClick={() => setFilterType('sale')}
-              className={`px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 flex items-center gap-2 ${
-                filterType === 'sale'
-                  ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg scale-105'
-                  : 'bg-gray-100 text-gray-700 hover:bg-red-50 hover:text-red-600'
-              }`}
-            >
-              <FireIcon className="w-5 h-5" />
-              Sản Phẩm Sale
-            </button>
-            <button
-              onClick={() => setFilterType('featured')}
-              className={`px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 flex items-center gap-2 ${
-                filterType === 'featured'
-                  ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg scale-105'
-                  : 'bg-gray-100 text-gray-700 hover:bg-yellow-50 hover:text-yellow-600'
-              }`}
-            >
-              <StarIcon className="w-5 h-5" />
-              Sản Phẩm Nổi Bật
-            </button>
+              <button
+                onClick={() => setFilterType('all')}
+                className={`px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 ${
+                  filterType === 'all'
+                    ? 'bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-lg scale-105'
+                    : 'bg-app-card dark:bg-app-card text-gray-700 dark:text-gray-200 hover:bg-app-secondary dark:hover:bg-app-secondary'
+                }`}
+              >
+                Tất Cả Sản Phẩm
+              </button>
+              <button
+                onClick={() => setFilterType('sale')}
+                className={`px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 flex items-center gap-2 ${
+                  filterType === 'sale'
+                    ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg scale-105'
+                    : 'bg-app-card dark:bg-app-card text-gray-700 dark:text-gray-200 hover:bg-red-50 dark:hover:bg-app-secondary hover:text-red-600 dark:hover:text-red-400'
+                }`}
+              >
+                <FireIcon className="w-5 h-5" />
+                Sản Phẩm Sale
+              </button>
+              <button
+                onClick={() => setFilterType('featured')}
+                className={`px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 flex items-center gap-2 ${
+                  filterType === 'featured'
+                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg scale-105'
+                    : 'bg-app-card dark:bg-app-card text-gray-700 dark:text-gray-200 hover:bg-yellow-50 dark:hover:bg-app-secondary hover:text-yellow-600 dark:hover:text-yellow-400'
+                }`}
+              >
+                <StarIcon className="w-5 h-5" />
+                Sản Phẩm Nổi Bật
+              </button>
           </div>
 
           {/* Category Navigation */}

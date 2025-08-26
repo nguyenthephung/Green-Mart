@@ -32,7 +32,9 @@ interface GuestOrderRequest {
 
 export const createGuestOrder = async (req: Request, res: Response) => {
   try {
-    const orderData: GuestOrderRequest = req.body;
+  const orderData: GuestOrderRequest = req.body;
+  // Log chi tiết dữ liệu nhận từ frontend
+  console.log('orderData nhận từ frontend:', JSON.stringify(orderData, null, 2));
 
     // Validate required fields
     if (!orderData.items || orderData.items.length === 0) {

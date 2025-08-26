@@ -45,9 +45,6 @@ const AdminLayout: React.FC = () => {
     navigate('/');
   };
 
-  const handleBackToHome = () => {
-    navigate('/');
-  };
 
   // Fetch unread notifications count
   useEffect(() => {
@@ -154,14 +151,6 @@ const AdminLayout: React.FC = () => {
           
           {/* Utility buttons */}
           <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600 space-y-2">
-            <button
-              onClick={handleBackToHome}
-              className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'gap-4'} px-4 py-3 rounded-xl font-medium transition-all duration-200 text-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900 dark:hover:text-white hover:text-gray-900 group`}
-            >
-              <span className="text-2xl transition-transform duration-200 group-hover:scale-110">🏠</span>
-              {!isCollapsed && <span className="font-semibold">Về trang chủ</span>}
-            </button>
-            
             <button
               onClick={handleLogout}
               className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'gap-4'} px-4 py-3 rounded-xl font-medium transition-all duration-200 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 dark:hover:text-red-400 group`}

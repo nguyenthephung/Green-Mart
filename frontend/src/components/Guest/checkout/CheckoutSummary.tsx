@@ -180,7 +180,7 @@ const CheckoutSummary = ({
       </h2>
 
       {/* Customer Information Card */}
-      <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-100">
+  <div className="mb-6 p-4 bg-app-card dark:bg-app-card rounded-xl border border-green-100 dark:border-gray-700">
         <h3 className="font-semibold text-app-primary mb-3 flex items-center gap-2">
           <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />

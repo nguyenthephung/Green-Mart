@@ -35,12 +35,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Kiểm tra role (nếu có yêu cầu)
   if (requiredRole && user.role !== requiredRole) {
-    // Admin có thể truy cập mọi trang user
-    if (user.role === 'admin' && requiredRole === 'user') {
-      // Admin được phép truy cập trang user
-      return <>{children}</>;
+    // Nếu là admin nhưng truy cập route user/guest thì chuyển về admin dashboard
+    if (user.role === 'admin') {
+      return <Navigate to="/admin/dashboard" replace />;
     }
-    
     // Nếu không phải admin nhưng cố truy cập admin -> về home
     if (requiredRole === 'admin') {
       return <Navigate to="/home" replace />;

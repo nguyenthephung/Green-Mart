@@ -3,7 +3,7 @@ import { useCategoryStore } from '../../stores/useCategoryStore';
 import { useState, useEffect, useRef } from 'react';
 import { ChevronDown, Menu, X, Tag } from 'lucide-react';
 
-const hiddenOnRoutes = ['/login', '/register', '/admin', '/checkout', '/category', '/accountdetail', '/myorder', '/myaddress', '/notification-settings', '/myvoucher','/mycart'];
+const hiddenOnRoutes = ['/login', '/register', '/admin', '/checkout', '/category', '/accountdetail', '/myorder', '/myaddress', '/notification-settings', '/myvoucher','/mycart','/payment-result'];
 
 const CategoryBar: React.FC = () => {
   const location = useLocation();
@@ -87,7 +87,7 @@ const CategoryBar: React.FC = () => {
                     className={`group inline-flex items-center gap-1 px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 ${
                       activeParent === category.id
                         ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 shadow-md'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-emerald-600 dark:hover:text-emerald-400'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-app-secondary dark:hover:bg-app-secondary hover:text-emerald-600 dark:hover:text-emerald-300'
                     }`}
                   >
                     <span>{category.name}</span>
@@ -135,7 +135,7 @@ const CategoryBar: React.FC = () => {
                     className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-left font-medium transition-all duration-200 ${
                       activeParent === category.id
                         ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-app-secondary dark:hover:bg-app-secondary'
                     }`}
                   >
                     <span>{category.name}</span>

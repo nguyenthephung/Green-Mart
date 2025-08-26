@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useUserStore } from '../../stores/useUserStore';
-import { ratingService } from '../../services/ratingService';
-import type { Rating, CreateRatingRequest } from '../../services/ratingService';
-import StarRating from '../ui/StarRating';
-import InteractiveRating from '../ui/InteractiveRating';
+import { useUserStore } from '../../../stores/useUserStore';
+import { ratingService } from '../../../services/ratingService';
+import type { Rating, CreateRatingRequest } from '../../../services/ratingService';
+import StarRating from '../../ui/StarRating';
+import InteractiveRating from '../../ui/InteractiveRating';
 import { FaEdit, FaTrash, FaThumbsUp } from 'react-icons/fa';
 
 interface ProductRatingProps {

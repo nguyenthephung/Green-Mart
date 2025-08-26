@@ -200,6 +200,7 @@ const AdminOrders: React.FC = () => {
       case 'momo': return 'Ví MoMo';
       case 'bank_transfer': return 'Chuyển khoản ngân hàng';
       case 'credit_card': return 'Thẻ tín dụng';
+      case 'paypal': return 'PayPal';
       default: return method;
     }
   };
@@ -210,6 +211,7 @@ const AdminOrders: React.FC = () => {
       case 'momo': return '🔶';
       case 'bank_transfer': return '🏦';
       case 'credit_card': return '💳';
+      case 'paypal': return '🅿️';
       default: return '💳';
     }
   };
@@ -220,6 +222,7 @@ const AdminOrders: React.FC = () => {
       case 'momo': return 'bg-pink-100 text-pink-800 border-pink-200';
       case 'bank_transfer': return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'credit_card': return 'bg-green-100 text-green-800 border-green-200';
+      case 'paypal': return 'bg-blue-100 text-blue-800 border-blue-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };

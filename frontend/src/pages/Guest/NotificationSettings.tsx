@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNotificationStore } from '../../../stores/useNotificationStore';
+import { useNotificationStore } from '../../stores/useNotificationStore';
 import { Bell, Settings, Save, RefreshCw, CheckCircle, AlertCircle } from 'lucide-react';
 
 const NotificationSettings: React.FC = () => {

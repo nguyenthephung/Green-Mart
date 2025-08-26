@@ -334,6 +334,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                       value={product.price || 0}
                       onChange={(value) => setProduct(prev => ({ ...prev, price: value }))}
                       placeholder="Nhập giá bán"
+                      className={isDarkMode ? 'bg-[#23272f] text-white border-[#374151]' : ''}
                     />
                     {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
                   </div>

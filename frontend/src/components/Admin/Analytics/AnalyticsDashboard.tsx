@@ -89,7 +89,7 @@ const AnalyticsDashboard: React.FC = () => {
         
         {/* Enhanced Period Selector */}
         <div className="w-full lg:w-auto">
-          <div className="flex bg-gray-100 dark:bg-gray-700 rounded-xl p-1 w-full lg:w-auto">
+          <div className="flex bg-app-card dark:bg-app-card rounded-xl p-1 w-full lg:w-auto">
             {(['7days', '30days', '3months'] as AnalyticsPeriod[]).map((p) => (
               <button
                 key={p}
@@ -97,7 +97,7 @@ const AnalyticsDashboard: React.FC = () => {
                 className={`flex-1 lg:flex-none px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 ${
                   period === p
                     ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-md transform scale-105'
-                    : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-gray-600/50'
+                    : 'bg-app-card dark:bg-app-card text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-app-secondary dark:hover:bg-app-secondary'
                 }`}
               >
                 {getPeriodLabel(p)}

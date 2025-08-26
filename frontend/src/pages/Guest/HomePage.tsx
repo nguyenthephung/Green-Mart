@@ -319,7 +319,7 @@ const Home: React.FC = memo(() => {
       />
       
       {/* Category Banner - Compact version */}
-      <div className="w-full bg-gradient-to-r from-emerald-50 via-green-50 to-teal-50 py-8 mb-6">
+          <div className="max-w-7xl mx-auto px-4 py-6">
         <CategoryBanner className="max-w-7xl mx-auto px-4" />
       </div>
       

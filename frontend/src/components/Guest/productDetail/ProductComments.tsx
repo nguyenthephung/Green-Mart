@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { commentService } from '../../services/commentService';
-import type { Comment } from '../../types/comment';
-import { useUserStore } from '../../stores/useUserStore';
+import { commentService } from '../../../services/commentService';
+import type { Comment } from '../../../types/comment';
+import { useUserStore } from '../../../stores/useUserStore';
 
 interface ProductCommentsProps {
   productId: string;

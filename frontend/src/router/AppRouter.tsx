@@ -53,26 +53,28 @@ import AdminFlashSalePage from '../pages/Admin/AdminFlashSalePage';
 const AppRouter = () => (
   <BrowserRouter>
     <Routes>
-          {/* Guest/User routes */}
-          <Route path="/" element={<MainLayout />}>
-            <Route index element={<RedirectToHome />} />
-            <Route path="welcome" element={<Welcome />} />
-            <Route path="home" element={<Home />} />
-            <Route path="search" element={<Category />} />
-            <Route path="ordertracking/:orderId" element={<OrderTrackingPage />} />
-            <Route path="productdetail/:id" element={<ProductDetailPage />} />
-            <Route path="category/:category?" element={<CategoryPage />} />
-            <Route path="mycart" element={<CartPage />} />
-            <Route path="checkout" element={<Checkout />} />
-            <Route path="guest-checkout" element={<GuestCheckoutPage />} />
-            <Route path="order-success" element={<OrderSuccessPage />} />
-            <Route path="guest-order-success" element={<GuestOrderSuccessPage />} />
-            <Route path="payment-result" element={<PaymentResultPage />} />
-            <Route path="payment-test" element={<PaymentTestPage />} />
-            <Route path="about" element={<AboutPage />} />
-            <Route path="policy/:section" element={<PolicyPage />} />
-            <Route path="flash-sale" element={<GuestFlashSalePage />} />
-          </Route>
+      {/* Guest/User routes - tất cả đều bọc ProtectedRoute requiredRole='user' */}
+      <Route path="/" element={<MainLayout />}>
+        <Route index element={
+          <ProtectedRoute requiredRole="user"><RedirectToHome /></ProtectedRoute>
+        } />
+        <Route path="welcome" element={<ProtectedRoute requiredRole="user"><Welcome /></ProtectedRoute>} />
+        <Route path="home" element={<ProtectedRoute requiredRole="user"><Home /></ProtectedRoute>} />
+        <Route path="search" element={<ProtectedRoute requiredRole="user"><Category /></ProtectedRoute>} />
+        <Route path="ordertracking/:orderId" element={<ProtectedRoute requiredRole="user"><OrderTrackingPage /></ProtectedRoute>} />
+        <Route path="productdetail/:id" element={<ProtectedRoute requiredRole="user"><ProductDetailPage /></ProtectedRoute>} />
+        <Route path="category/:category?" element={<ProtectedRoute requiredRole="user"><CategoryPage /></ProtectedRoute>} />
+        <Route path="mycart" element={<ProtectedRoute requiredRole="user"><CartPage /></ProtectedRoute>} />
+        <Route path="checkout" element={<ProtectedRoute requiredRole="user"><Checkout /></ProtectedRoute>} />
+        <Route path="guest-checkout" element={<ProtectedRoute requiredRole="user"><GuestCheckoutPage /></ProtectedRoute>} />
+        <Route path="order-success" element={<ProtectedRoute requiredRole="user"><OrderSuccessPage /></ProtectedRoute>} />
+        <Route path="guest-order-success" element={<ProtectedRoute requiredRole="user"><GuestOrderSuccessPage /></ProtectedRoute>} />
+        <Route path="payment-result" element={<ProtectedRoute requiredRole="user"><PaymentResultPage /></ProtectedRoute>} />
+        <Route path="payment-test" element={<ProtectedRoute requiredRole="user"><PaymentTestPage /></ProtectedRoute>} />
+        <Route path="about" element={<ProtectedRoute requiredRole="user"><AboutPage /></ProtectedRoute>} />
+        <Route path="policy/:section" element={<ProtectedRoute requiredRole="user"><PolicyPage /></ProtectedRoute>} />
+        <Route path="flash-sale" element={<ProtectedRoute requiredRole="user"><GuestFlashSalePage /></ProtectedRoute>} />
+      </Route>
           <Route path="accountdetail" element={
             <ProtectedRoute>
               <AccountDetails />

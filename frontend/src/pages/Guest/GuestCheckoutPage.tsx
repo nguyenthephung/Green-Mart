@@ -51,11 +51,8 @@ const GuestCheckoutPage: React.FC = () => {
     setIsProcessing(true);
 
     try {
-      // Nếu chọn PayPal, chuyển đổi VNĐ sang USD theo tỷ giá 1 USD = 26,290 VNĐ
-      let totalAmount = finalTotal;
-      if (paymentMethod === 'paypal') {
-        totalAmount = Number((finalTotal / 26290).toFixed(2));
-      }
+  // Luôn gửi totalAmount là VND cho backend, backend sẽ tự xử lý chuyển đổi nếu cần
+  let totalAmount = finalTotal;
       const orderData: GuestOrder = {
         items: items.map(item => ({
           productId: String(item.id),
@@ -74,7 +71,9 @@ const GuestCheckoutPage: React.FC = () => {
         notes: notes.trim() || undefined,
       };
 
-      const response = await guestOrderService.createGuestOrder(orderData);
+  // Log chi tiết payload gửi lên backend
+  console.log('Payload gửi lên backend:', orderData);
+  const response = await guestOrderService.createGuestOrder(orderData);
 
       if (response.success) {
         // Clear cart

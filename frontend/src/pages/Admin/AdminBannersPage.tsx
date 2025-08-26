@@ -201,7 +201,7 @@ const AdminBanners: React.FC = () => {
     switch (position) {
       case 'hero': return 'bg-red-100 text-red-800 border-red-200';
       case 'sidebar': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'footer': return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'footer': return 'bg-gray-100 text-red-800 border-gray-200';
       case 'category': return 'bg-purple-100 text-purple-800 border-purple-200';
       case 'sale': return 'bg-orange-100 text-orange-800 border-orange-200';
       case 'featured': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
@@ -233,7 +233,7 @@ const AdminBanners: React.FC = () => {
   return (
     <div className="space-y-8 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-slate-900 dark:to-gray-900 min-h-screen transition-colors duration-300">
       {/* Enhanced Header with Stats Cards */}
-      <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 p-8">
+  <div className="bg-app-card dark:bg-app-card backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 p-8">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           {/* Title Section */}
           <div className="space-y-4">
@@ -242,7 +242,8 @@ const AdminBanners: React.FC = () => {
                 <SparklesIcon className="w-8 h-8 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+ 
+                <h1 className="text-3xl font-bold tracking-tight font-serif text-gray-600 dark:text-gray-400 mt-1">
                   Quản lý Banner
                 </h1>
                 <p className="text-gray-600 dark:text-gray-400 mt-1">Tạo và quản lý banner quảng cáo</p>
@@ -643,7 +644,7 @@ const AdminBanners: React.FC = () => {
                 <div className="flex gap-2 pt-4 mt-auto">
                   <button
                     onClick={() => openViewModal(banner)}
-                    className="flex-1 px-3 py-2.5 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-xl hover:from-gray-200 hover:to-gray-300 transition-all duration-200 text-sm font-medium flex items-center justify-center gap-2 hover:scale-105"
+                             className="flex-1 px-3 py-2.5 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 text-sm font-medium flex items-center justify-center gap-2 hover:scale-105"
                   >
                     <EyeIcon className="w-4 h-4" />
                     Xem

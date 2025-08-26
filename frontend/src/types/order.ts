@@ -19,7 +19,7 @@ export interface Order {
   discount?: number;
   totalAmount: number;
   status: 'pending' | 'confirmed' | 'shipping' | 'delivered' | 'cancelled';
-  paymentMethod: 'cod' | 'momo' | 'bank_transfer' | 'credit_card';
+  paymentMethod: 'cod' | 'momo' | 'bank_transfer' | 'credit_card' | 'paypal';
   paymentStatus: 'pending' | 'paid' | 'failed';
   orderDate: string;
   deliveryDate?: string;
