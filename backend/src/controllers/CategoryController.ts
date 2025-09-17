@@ -28,9 +28,17 @@ export const getCategories = async (req: Request, res: Response) => {
       };
     }));
     
-    res.json(categoriesWithCount);
+    res.json({
+      success: true,
+      message: 'Lấy danh mục thành công',
+      data: categoriesWithCount
+    });
   } catch (err) {
-    res.status(500).json({ error: 'Lỗi khi lấy danh mục' });
+    res.status(500).json({ 
+      success: false,
+      message: 'Lỗi khi lấy danh mục',
+      error: err instanceof Error ? err.message : 'Unknown error'
+    });
   }
 };
 

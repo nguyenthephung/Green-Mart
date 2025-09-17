@@ -7,7 +7,12 @@ export async function getCategories(): Promise<Category[]> {
     console.log('Fetching categories from API...');
     const response = await apiClient<Category[]>('/categories');
     console.log('Categories response:', response);
-    return response.data || [];
+    
+    // Handle both old format (direct array) and new format ({ success, data })
+    const categories = response.data || response as any as Category[];
+    console.log('Processed categories:', categories);
+    
+    return Array.isArray(categories) ? categories : [];
   } catch (error) {
     console.error('Error fetching categories:', error);
     throw error;
