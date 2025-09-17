@@ -2,6 +2,7 @@ import React from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { FaShieldAlt, FaTruck, FaQuestionCircle, FaUndo, FaFileContract, FaLock } from 'react-icons/fa';
 
+
 const PolicyPage: React.FC = () => {
   const { section } = useParams<{ section: string }>();
 

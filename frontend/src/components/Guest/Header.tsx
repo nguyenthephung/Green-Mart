@@ -481,7 +481,7 @@ const Header: React.FC = memo(() => {
                             <button
                               key={index}
                               onClick={() => {
-                                navigate(`/productlist?category=${category._id}&subcategory=${encodeURIComponent(subcategory)}`);
+                                navigate(`/category/${encodeURIComponent(subcategory)}`);
                                 setShowMobileMenu(false);
                                 setShowMobileCategoryMenu(false);
                               }}

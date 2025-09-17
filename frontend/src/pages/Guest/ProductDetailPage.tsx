@@ -212,11 +212,12 @@ const ProductDetailPage: React.FC = () => {
   }
 
   return (
-    <div className={`min-h-screen bg-gradient-to-b from-gray-50 to-gray-200 ${isMobile ? 'py-4 px-2' : 'py-10 px-4 md:px-16'}`}>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-200">
       {/* Banner Manager */}
       <BannerManager page="product" categoryId={product?.category} />
       
-      <div className={`max-w-6xl mx-auto ${isMobile ? 'grid grid-cols-1 gap-4' : 'grid grid-cols-1 md:grid-cols-2 gap-10'} items-start mb-16`}>
+      <div className={`max-w-7xl mx-auto px-2 sm:px-4 ${isMobile ? 'py-4' : 'py-6 lg:py-10'}`}>
+        <div className={`${isMobile ? 'grid grid-cols-1 gap-4' : 'grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-10'} items-start mb-8 lg:mb-16`}>
         {/* Product Image */}
         <div className={`bg-white ${isMobile ? 'p-3' : 'p-6'} rounded-2xl shadow-2xl`}>
           <img
@@ -364,6 +365,7 @@ const ProductDetailPage: React.FC = () => {
 
       {/* Product Details with Tabs */}
       <ProductDetailDisplay product={product} className="mt-8" />
+      </div>
     </div>
   );
 };

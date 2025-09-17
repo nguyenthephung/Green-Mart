@@ -5,6 +5,7 @@ import { Heart, ShoppingCart, Trash2, Package } from 'lucide-react';
 import { useCartStore } from '../../stores/useCartStore';
 import { useWishlistStore } from '../../stores/useWishlistStore';
 import { useResponsive } from '../../hooks/useResponsive';
+import DashboardLayout from '../../layouts/DashboardLayout';
 
 const WishlistPage: React.FC = () => {
   const { items, removeFromWishlist, clearWishlist, isLoading } = useWishlistStore();
@@ -91,8 +92,9 @@ const WishlistPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-6 lg:py-8">
-      <div className="max-w-7xl mx-auto px-2 sm:px-4">
+    <DashboardLayout>
+      <div className="bg-gray-50 min-h-full rounded-xl py-6 lg:py-8">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4">
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-sm p-4 lg:p-6 mb-4 lg:mb-6">
           <div className="flex items-center justify-between">
@@ -219,8 +221,9 @@ const WishlistPage: React.FC = () => {
             Tiếp tục mua sắm
           </Link>
         </div>
+        </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 

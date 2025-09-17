@@ -71,16 +71,16 @@ export default function CartItem({ item, onQuantityChange, onRemove }: CartItemP
           {/* Price Display */}
           {item.flashSale?.isFlashSale ? (
             <div className="flex items-center gap-2">
-              <div className="text-red-600 font-bold break-all">{item.price.toLocaleString()} ₫</div>
-              <div className="text-sm text-app-muted line-through break-all">{item.flashSale.originalPrice.toLocaleString()} ₫</div>
+              <div className="text-red-600 font-bold">{item.price.toLocaleString()} ₫</div>
+              <div className="text-sm text-app-muted line-through">{item.flashSale.originalPrice.toLocaleString()} ₫</div>
             </div>
           ) : item.originalPrice && item.originalPrice > item.price ? (
             <div className="flex items-center gap-2">
-              <div className="text-sm text-app-muted line-through break-all">{item.originalPrice.toLocaleString()} ₫</div>
-              <div className="text-green-700 font-bold break-all">{item.price.toLocaleString()} ₫</div>
+              <div className="text-sm text-app-muted line-through">{item.originalPrice.toLocaleString()} ₫</div>
+              <div className="text-green-700 font-bold">{item.price.toLocaleString()} ₫</div>
             </div>
           ) : (
-            <div className="text-green-700 font-bold break-all">{item.price.toLocaleString()} ₫</div>
+            <div className="text-green-700 font-bold">{item.price.toLocaleString()} ₫</div>
           )}
           
           {item.unit && <div className="text-xs text-gray-500 break-words">Đơn vị: {item.unit}</div>}

@@ -25,8 +25,8 @@ const GuestVoucherModal: React.FC<GuestVoucherModalProps> = ({ open, onClose }) 
       />
       
       {/* Modal */}
-      <div className="fixed inset-0 z-[121] flex justify-center items-start pt-16 p-4">
-        <div className="bg-white rounded-3xl shadow-2xl mx-auto relative flex flex-col animate-slideInFromBottom" style={{ minWidth: '320px', maxWidth: '440px', width: '100%' }}>
+      <div className="fixed inset-0 z-[121] flex justify-center items-center p-4 overflow-y-auto">
+        <div className="bg-white rounded-3xl shadow-2xl mx-auto relative flex flex-col animate-slideInFromBottom my-8" style={{ minWidth: '320px', maxWidth: '440px', width: '100%' }}>
           {/* Header */}
           <div className="flex items-center justify-between p-6 pb-4 border-b border-gray-100">
             <div className="flex items-center gap-3">

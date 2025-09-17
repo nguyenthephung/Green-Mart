@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '../../stores/useUserStore';
 import { apiClient } from '../../services/api';
+import DashboardLayout from '../../layouts/DashboardLayout';
 
 interface Notification {
   _id: string;
@@ -180,8 +181,9 @@ const NotificationPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
+    <DashboardLayout>
+      <div className="bg-gray-50 min-h-full rounded-xl py-8">
+        <div className="max-w-4xl mx-auto px-4">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="flex justify-between items-center mb-4">
@@ -380,8 +382,9 @@ const NotificationPage: React.FC = () => {
             </p>
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 
