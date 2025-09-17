@@ -3,7 +3,7 @@ import MainLayout from '../layouts/MainLayout';
 import AdminLayout from '../layouts/AdminLayout';
 import ProtectedRoute from '../components/ProtectedRoute';
 import AdminRoute from '../components/AdminRoute';
-
+import RedirectToHome from '../components/RedirectToHome';
 
 // Direct imports instead of lazy loading
 import Category from '../pages/Guest/SearchPage';
@@ -53,10 +53,9 @@ import AdminFlashSalePage from '../pages/Admin/AdminFlashSalePage';
 const AppRouter = () => (
   <BrowserRouter>
     <Routes>
-      {/* Guest/User routes - chỉ bọc ProtectedRoute với các trang cần đăng nhập */}
+      {/* Public routes - không cần đăng nhập */}
       <Route path="/" element={<MainLayout />}>
-        <Route index element={<Home />} />
-        <Route path="welcome" element={<Welcome />} />
+        <Route index element={<RedirectToHome />} />
         <Route path="home" element={<Home />} />
         <Route path="search" element={<Category />} />
         <Route path="productdetail/:id" element={<ProductDetailPage />} />
@@ -64,8 +63,10 @@ const AppRouter = () => (
         <Route path="about" element={<AboutPage />} />
         <Route path="policy/:section" element={<PolicyPage />} />
         <Route path="flash-sale" element={<GuestFlashSalePage />} />
-        {/* Các trang cần đăng nhập */}
-        <Route path="ordertracking/:orderId" element={<ProtectedRoute requiredRole="user"><OrderTrackingPage /></ProtectedRoute>} />
+        <Route path="ordertracking/:orderId" element={<OrderTrackingPage />} />
+        
+        {/* Protected routes - cần đăng nhập */}
+        <Route path="welcome" element={<ProtectedRoute requiredRole="user"><Welcome /></ProtectedRoute>} />
         <Route path="mycart" element={<ProtectedRoute requiredRole="user"><CartPage /></ProtectedRoute>} />
         <Route path="checkout" element={<ProtectedRoute requiredRole="user"><Checkout /></ProtectedRoute>} />
         <Route path="guest-checkout" element={<ProtectedRoute requiredRole="user"><GuestCheckoutPage /></ProtectedRoute>} />

@@ -132,15 +132,24 @@ export class ErrorHandler {
 
     // Handle authentication errors
     if (errorType === 'AUTHENTICATION') {
-      toastStore.showError(
-        'Lỗi xác thực',
-        errorInfo.message
+      // Don't redirect to login for automatic auth checks or on homepage/public pages
+      const currentPath = window.location.pathname;
+      const isPublicPage = ['/', '/home', '/search', '/products', '/product', '/about', '/policy', '/flash-sale'].some(path => 
+        currentPath === path || currentPath.startsWith(path)
       );
       
-      // Redirect to login page
-      setTimeout(() => {
-        window.location.href = '/login';
-      }, 2000);
+      // Only show error and redirect if user is on a protected page or explicitly tried to access something
+      if (!isPublicPage && context !== 'Auth Check') {
+        toastStore.showError(
+          'Lỗi xác thực',
+          errorInfo.message
+        );
+        
+        // Redirect to login page
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 2000);
+      }
       return;
     }
 
