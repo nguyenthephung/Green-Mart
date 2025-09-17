@@ -3,7 +3,7 @@ import MainLayout from '../layouts/MainLayout';
 import AdminLayout from '../layouts/AdminLayout';
 import ProtectedRoute from '../components/ProtectedRoute';
 import AdminRoute from '../components/AdminRoute';
-import RedirectToHome from '../components/RedirectToHome';
+
 
 // Direct imports instead of lazy loading
 import Category from '../pages/Guest/SearchPage';
@@ -53,17 +53,19 @@ import AdminFlashSalePage from '../pages/Admin/AdminFlashSalePage';
 const AppRouter = () => (
   <BrowserRouter>
     <Routes>
-      {/* Guest/User routes - tất cả đều bọc ProtectedRoute requiredRole='user' */}
+      {/* Guest/User routes - chỉ bọc ProtectedRoute với các trang cần đăng nhập */}
       <Route path="/" element={<MainLayout />}>
-        <Route index element={
-          <ProtectedRoute requiredRole="user"><RedirectToHome /></ProtectedRoute>
-        } />
-        <Route path="welcome" element={<ProtectedRoute requiredRole="user"><Welcome /></ProtectedRoute>} />
-        <Route path="home" element={<ProtectedRoute requiredRole="user"><Home /></ProtectedRoute>} />
-        <Route path="search" element={<ProtectedRoute requiredRole="user"><Category /></ProtectedRoute>} />
+        <Route index element={<Home />} />
+        <Route path="welcome" element={<Welcome />} />
+        <Route path="home" element={<Home />} />
+        <Route path="search" element={<Category />} />
+        <Route path="productdetail/:id" element={<ProductDetailPage />} />
+        <Route path="category/:category?" element={<CategoryPage />} />
+        <Route path="about" element={<AboutPage />} />
+        <Route path="policy/:section" element={<PolicyPage />} />
+        <Route path="flash-sale" element={<GuestFlashSalePage />} />
+        {/* Các trang cần đăng nhập */}
         <Route path="ordertracking/:orderId" element={<ProtectedRoute requiredRole="user"><OrderTrackingPage /></ProtectedRoute>} />
-        <Route path="productdetail/:id" element={<ProtectedRoute requiredRole="user"><ProductDetailPage /></ProtectedRoute>} />
-        <Route path="category/:category?" element={<ProtectedRoute requiredRole="user"><CategoryPage /></ProtectedRoute>} />
         <Route path="mycart" element={<ProtectedRoute requiredRole="user"><CartPage /></ProtectedRoute>} />
         <Route path="checkout" element={<ProtectedRoute requiredRole="user"><Checkout /></ProtectedRoute>} />
         <Route path="guest-checkout" element={<ProtectedRoute requiredRole="user"><GuestCheckoutPage /></ProtectedRoute>} />
@@ -71,9 +73,6 @@ const AppRouter = () => (
         <Route path="guest-order-success" element={<ProtectedRoute requiredRole="user"><GuestOrderSuccessPage /></ProtectedRoute>} />
         <Route path="payment-result" element={<ProtectedRoute requiredRole="user"><PaymentResultPage /></ProtectedRoute>} />
         <Route path="payment-test" element={<ProtectedRoute requiredRole="user"><PaymentTestPage /></ProtectedRoute>} />
-        <Route path="about" element={<ProtectedRoute requiredRole="user"><AboutPage /></ProtectedRoute>} />
-        <Route path="policy/:section" element={<ProtectedRoute requiredRole="user"><PolicyPage /></ProtectedRoute>} />
-        <Route path="flash-sale" element={<ProtectedRoute requiredRole="user"><GuestFlashSalePage /></ProtectedRoute>} />
       </Route>
           <Route path="accountdetail" element={
             <ProtectedRoute>
