@@ -4,6 +4,7 @@ import { useProductStore } from '../../stores/useProductStore';
 import { useCategoryStore } from '../../stores/useCategoryStore';
 import { useUserStore } from '../../stores/useUserStore';
 import { useFlashSaleStore } from '../../stores/useFlashSaleStore';
+import { useResponsive } from '../../hooks/useResponsive';
 
 // Extend AddressInfo locally to match actual usage
 type AddressInfo = {
@@ -27,6 +28,9 @@ export default function CategoryPage() {
   // All hooks must be inside the component
   const fetchAllProducts = useProductStore(state => state.fetchAll);
   const location = useLocation();
+
+  // Responsive hook
+  const { isMobile } = useResponsive();
 
   // Lấy user và addresses từ store
   const user = useUserStore(state => state.user);
@@ -161,7 +165,7 @@ export default function CategoryPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4">
         {/* Page Header */}
         <div className="text-center mb-12 pt-8">
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4 leading-tight overflow-hidden">
@@ -344,7 +348,11 @@ export default function CategoryPage() {
             <p className="text-gray-500">Thử điều chỉnh bộ lọc hoặc tìm kiếm từ khóa khác</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
+          <div className={`grid gap-4 lg:gap-6 mb-12 ${
+            isMobile 
+              ? 'grid-cols-2' 
+              : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
+          }`}>
             {filteredProducts.map(product => {
               // Ensure _id is string and remove descriptionImages function for handleAddToCart
               const { descriptionImages, ...rest } = product;

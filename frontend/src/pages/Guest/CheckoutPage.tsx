@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import CheckoutMain from '../../components/Guest/checkout/CheckoutMain';
 import { useCartStore } from '../../stores/useCartStore';
 import { useUserStore } from '../../stores/useUserStore';
+import { useResponsive } from '../../hooks/useResponsive';
 import CheckoutSummary from '../../components/Guest/checkout/CheckoutSummary';
 import { useVoucherStore } from '../../stores/useVoucherStore';
 import { useProductStore } from '../../stores/useProductStore';
@@ -32,6 +33,9 @@ const Checkout = () => {
   const fetchVouchers = useVoucherStore(state => state.fetchVouchers);
   const [showVoucherModal, setShowVoucherModal] = useState(false);
   const [isProcessingOrder, setIsProcessingOrder] = useState(false);
+  
+  // Responsive hook
+  const { isMobile } = useResponsive();
 
   // Filter valid vouchers that user owns and are not expired
   const availableVouchers = vouchers.filter(v => {
@@ -410,14 +414,14 @@ const Checkout = () => {
       <BannerManager page="checkout" />
       
       {/* Hero Section */}
-      <div className="pt-0 pb-2">
-        <div className="max-w-7xl mx-auto px-8">
+      <div className={`pt-0 ${isMobile ? 'pb-1' : 'pb-2'}`}>
+        <div className={`max-w-7xl mx-auto ${isMobile ? 'px-2 py-4' : 'px-4 py-6'}`}>
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-app-primary">
+            <h1 className={`${isMobile ? 'text-2xl' : 'text-4xl'} font-bold text-app-primary`}>
               💳 Thanh toán đơn hàng
             </h1>
             {/* Sửa lỗi: không đặt div bên trong p */}
-            <div className="text-lg text-app-secondary break-words">
+            <div className={`${isMobile ? 'text-base' : 'text-lg'} text-app-secondary break-words`}>
               {cartLoading ? (
                 <span>🔄 Đang tải giỏ hàng...</span>
               ) : (
@@ -451,7 +455,7 @@ const Checkout = () => {
         </div>
       </div>
 
-      <main className="max-w-7xl mx-auto px-8 pb-8 grid grid-cols-1 lg:grid-cols-3 gap-8 flex-grow">
+      <main className={`max-w-7xl mx-auto ${isMobile ? 'px-2 pb-4' : 'px-4 pb-8'} ${isMobile ? 'grid grid-cols-1 gap-4' : 'grid grid-cols-1 lg:grid-cols-3 gap-8'} flex-grow`}>
         <div className="lg:col-span-2 space-y-6">
           {canCheckout ? (
             <CheckoutMain

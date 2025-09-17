@@ -6,6 +6,7 @@ import { useWishlistStore } from '../../../stores/useWishlistStore';
 import { useUserStore } from '../../../stores/useUserStore';
 import { useFlashSaleStore } from '../../../stores/useFlashSaleStore';
 import { useAddToCartAnimation } from '../../../hooks/useAddToCartAnimation';
+import { useResponsive } from '../../../hooks/useResponsive';
 import StarRating from '../../ui/StarRating';
 import type { Product } from '../../../types/Product';
 
@@ -22,6 +23,9 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = memo(({ product, onAddToCart, showSaleBadge = true, showHotBadge = false, quantity = 1, onQuantityChange, imageHeight = 'h-40' }) => {
   const imgRef = useRef<HTMLImageElement>(null);
   const { triggerAnimation } = useAddToCartAnimation();
+  
+  // Responsive hook
+  const { isMobile } = useResponsive();
   
   // Wishlist store hooks
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlistStore();

@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { dashboardService } from '../../services/dashboardService';
 import type { QuickStats, RecentOrder, TopProduct } from '../../services/dashboardService';
+import { useResponsive } from '../../hooks/useResponsive';
 
 const AdminDashboard: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [loading, setLoading] = useState(false);
+  
+  // Responsive hook
+  const { isMobile } = useResponsive();
   
   // Data states
   // const [stats, setStats] = useState<DashboardStats[]>([]);
@@ -97,12 +101,20 @@ const AdminDashboard: React.FC = () => {
       }
     >
       {/* Header & Notifications */}
-      <div className="space-y-8">
+      <div className="space-y-6 lg:space-y-8">
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-2">{getGreeting()}</h1>
-            <p className="text-gray-600 dark:text-gray-300">Đây là tổng quan về hoạt động của GreenMart</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            <h1 className={`font-bold text-gray-800 dark:text-white mb-2 ${
+              isMobile ? 'text-2xl lg:text-3xl' : 'text-3xl lg:text-4xl'
+            }`}>
+              {getGreeting()}
+            </h1>
+            <p className={`text-gray-600 dark:text-gray-300 ${
+              isMobile ? 'text-sm' : 'text-base'
+            }`}>
+              Đây là tổng quan về hoạt động của GreenMart
+            </p>
+            <p className="text-xs lg:text-sm text-gray-500 dark:text-gray-400 mt-1">
               {currentTime.toLocaleDateString('vi-VN', { 
                 weekday: 'long', 
                 year: 'numeric', 
@@ -114,7 +126,9 @@ const AdminDashboard: React.FC = () => {
           
         </div>
         {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className={`grid gap-3 lg:gap-4 ${
+          isMobile ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-4'
+        }`}>
           {loading ? (
             // Loading skeleton
             [...Array(4)].map((_, i) => (
@@ -207,11 +221,11 @@ const AdminDashboard: React.FC = () => {
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-gray-800 dark:text-gray-200 border-b-2 border-gray-100 dark:border-gray-700">
-                  <th className="py-3 font-semibold hover:text-green-700 dark:hover:text-green-300 cursor-pointer">Mã đơn hàng ↕</th>
-                  <th className="py-3 font-semibold hover:text-green-700 dark:hover:text-green-300 cursor-pointer">Khách hàng ↕</th>
-                  <th className="py-3 font-semibold hover:text-green-700 dark:hover:text-green-300 cursor-pointer">Tổng tiền ↕</th>
-                  <th className="py-3 font-semibold hover:text-green-700 dark:hover:text-green-300 cursor-pointer">Trạng thái ↕</th>
-                  <th className="py-3 font-semibold hover:text-green-700 dark:hover:text-green-300 cursor-pointer">Thời gian ↕</th>
+                  <th className="py-2 sm:py-3 font-semibold hover:text-green-700 dark:hover:text-green-300 cursor-pointer text-xs sm:text-sm">Mã đơn hàng ↕</th>
+                  <th className="py-2 sm:py-3 font-semibold hover:text-green-700 dark:hover:text-green-300 cursor-pointer text-xs sm:text-sm hidden sm:table-cell">Khách hàng ↕</th>
+                  <th className="py-2 sm:py-3 font-semibold hover:text-green-700 dark:hover:text-green-300 cursor-pointer text-xs sm:text-sm">Tổng tiền ↕</th>
+                  <th className="py-2 sm:py-3 font-semibold hover:text-green-700 dark:hover:text-green-300 cursor-pointer text-xs sm:text-sm">Trạng thái ↕</th>
+                  <th className="py-2 sm:py-3 font-semibold hover:text-green-700 dark:hover:text-green-300 cursor-pointer text-xs sm:text-sm hidden md:table-cell">Thời gian ↕</th>
                 </tr>
               </thead>
               <tbody>
@@ -233,20 +247,20 @@ const AdminDashboard: React.FC = () => {
                       e.currentTarget.style.backgroundColor = '';
                     }}
                   >
-                    <td className="py-4 font-semibold text-gray-800 dark:text-white"
+                    <td className="py-3 sm:py-4 font-semibold text-gray-800 dark:text-white text-xs sm:text-sm"
                       style={isDarkMode ? { color: '#fff' } : {}}
                     >{o.id}</td>
-                    <td className="py-4 text-gray-800 dark:text-gray-200"
+                    <td className="py-3 sm:py-4 text-gray-800 dark:text-gray-200 text-xs sm:text-sm hidden sm:table-cell"
                       style={isDarkMode ? { color: '#e5e7eb' } : {}}
                     >{o.user}</td>
-                    <td className="py-4 font-bold text-green-600 dark:text-green-400 group-hover:scale-105 transition-transform"
+                    <td className="py-3 sm:py-4 font-bold text-green-600 dark:text-green-400 group-hover:scale-105 transition-transform text-xs sm:text-sm"
                       style={isDarkMode ? { color: '#22d3ee' } : {}}
                     >
                       {o.total.toLocaleString()}đ
                     </td>
-                    <td className="py-4">
+                    <td className="py-3 sm:py-4">
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold transition-all group-hover:scale-105`}
+                        className={`px-2 sm:px-3 py-1 rounded-full text-xs font-semibold transition-all group-hover:scale-105`}
                         style={
                           isDarkMode
                             ? o.status === 'completed'
@@ -271,10 +285,10 @@ const AdminDashboard: React.FC = () => {
                          o.status === 'processing' ? 'Đang xử lý' : o.status}
                       </span>
                     </td>
-                    <td className="py-4"
+                    <td className="py-3 sm:py-4 hidden md:table-cell"
                       style={isDarkMode ? { color: '#fff' } : {}}
                     >
-                      <div className="font-medium px-2 py-1 rounded"
+                      <div className="font-medium px-2 py-1 rounded text-xs sm:text-sm"
                         style={{ backgroundColor: isDarkMode ? '#23272f' : '#f3f4f6', color: isDarkMode ? '#fff' : '#23272f' }}
                       >{o.date}</div>
                       <div className="text-xs px-2 py-0.5 rounded mt-1"

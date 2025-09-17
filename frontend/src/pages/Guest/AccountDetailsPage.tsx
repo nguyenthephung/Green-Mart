@@ -4,9 +4,11 @@ import { profileService } from '../../services/profileService';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Link } from 'react-router-dom';
 import { LoadingSpinner } from '../../components/Loading';
+import { useResponsive } from '../../hooks/useResponsive';
 
 const AccountDetails: React.FC = () => {
   const user = useUserStore(state => state.user);
+  const { isMobile } = useResponsive();
   const [editMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [tempInfo, setTempInfo] = useState({
@@ -124,24 +126,34 @@ const AccountDetails: React.FC = () => {
 
   return (
     <DashboardLayout>
-      <div className="bg-app-card p-8 rounded-3xl shadow-xl max-w-3xl mx-auto mt-6 border-app-default">
+      <div className="bg-app-card p-4 lg:p-8 rounded-3xl shadow-xl max-w-3xl mx-auto mt-6 border-app-default">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-app-primary mb-2 flex items-center justify-center gap-3">
-            <div className="w-10 h-10 bg-brand-green rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <div className="text-center mb-6 lg:mb-8">
+          <h2 className={`font-bold text-app-primary mb-2 flex items-center justify-center gap-2 lg:gap-3 ${
+            isMobile ? 'text-2xl' : 'text-3xl'
+          }`}>
+            <div className={`bg-brand-green rounded-full flex items-center justify-center ${
+              isMobile ? 'w-8 h-8' : 'w-10 h-10'
+            }`}>
+              <svg className={`text-white ${isMobile ? 'w-5 h-5' : 'w-6 h-6'}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
             Thông tin tài khoản
           </h2>
-          <p className="text-app-secondary">Quản lý và cập nhật thông tin cá nhân của bạn</p>
+          <p className={`text-app-secondary ${isMobile ? 'text-sm' : ''}`}>
+            Quản lý và cập nhật thông tin cá nhân của bạn
+          </p>
         </div>
 
         {/* Avatar Section */}
-        <div className="flex flex-col items-center mb-10 bg-app-secondary rounded-2xl p-6 border-app-default">
+        <div className={`flex flex-col items-center bg-app-secondary rounded-2xl p-4 lg:p-6 border-app-default ${
+          isMobile ? 'mb-6' : 'mb-10'
+        }`}>
           <div className="relative group">
-            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 p-1 shadow-xl">
+            <div className={`rounded-full bg-gradient-to-br from-green-400 to-emerald-500 p-1 shadow-xl ${
+              isMobile ? 'w-24 h-24' : 'w-32 h-32'
+            }`}>
               <img 
                 src={avatar} 
                 alt="avatar" 

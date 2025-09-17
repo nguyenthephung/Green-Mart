@@ -203,24 +203,25 @@ const AdminUsersPage: React.FC = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Quản lý người dùng</h1>
-          <p className="text-gray-600 dark:text-gray-400">Quản lý tài khoản người dùng trong hệ thống</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Quản lý người dùng</h1>
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Quản lý tài khoản người dùng trong hệ thống</p>
         </div>
         <button
           onClick={() => setShowAddModal(true)}
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+          className="bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2 rounded-lg flex items-center gap-2 text-sm sm:text-base w-full sm:w-auto justify-center"
         >
           <span>+</span>
-          Thêm người dùng
+          <span className="hidden sm:inline">Thêm người dùng</span>
+          <span className="sm:hidden">Thêm</span>
         </button>
       </div>
 
       {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 mb-6">
         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
@@ -231,52 +232,52 @@ const AdminUsersPage: React.FC = () => {
           </div>
         </div>
         
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 p-3 sm:p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Đang hoạt động</p>
-              <p className="text-2xl font-bold text-green-600">{stats.active}</p>
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Đang hoạt động</p>
+              <p className="text-lg sm:text-2xl font-bold text-green-600">{stats.active}</p>
             </div>
-            <div className="text-green-600 text-2xl">✅</div>
+            <div className="text-green-600 text-lg sm:text-2xl">✅</div>
           </div>
         </div>
         
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 p-3 sm:p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Quản trị viên</p>
-              <p className="text-2xl font-bold text-purple-600">{stats.admins}</p>
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Quản trị viên</p>
+              <p className="text-lg sm:text-2xl font-bold text-purple-600">{stats.admins}</p>
             </div>
-            <div className="text-purple-600 text-2xl">👑</div>
+            <div className="text-purple-600 text-lg sm:text-2xl">👑</div>
           </div>
         </div>
         
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 p-3 sm:p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Tổng đơn hàng</p>
-              <p className="text-2xl font-bold text-orange-600">{stats.totalOrders}</p>
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Tổng đơn hàng</p>
+              <p className="text-lg sm:text-2xl font-bold text-orange-600">{stats.totalOrders}</p>
             </div>
-            <div className="text-orange-600 text-2xl">📦</div>
+            <div className="text-orange-600 text-lg sm:text-2xl">📦</div>
           </div>
         </div>
         
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 p-3 sm:p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Doanh thu</p>
-              <p className="text-lg font-bold text-green-600">{formatPrice(stats.totalSpent)}</p>
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Doanh thu</p>
+              <p className="text-sm sm:text-lg font-bold text-green-600">{formatPrice(stats.totalSpent)}</p>
             </div>
-            <div className="text-green-600 text-2xl">💰</div>
+            <div className="text-green-600 text-lg sm:text-2xl">💰</div>
           </div>
         </div>
       </div>
 
       {/* Filters and Search */}
-      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 mb-6">
-        <div className="flex flex-wrap gap-4 items-center">
+      <div className="bg-white dark:bg-gray-800 p-3 sm:p-4 rounded-lg border border-gray-200 dark:border-gray-700 mb-6">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 items-start sm:items-center">
           {/* Search */}
-          <div className="flex-1 min-w-64">
+          <div className="flex-1 min-w-full sm:min-w-64 w-full sm:w-auto">
             <input
               type="text"
               placeholder="Tìm kiếm theo tên, email, số điện thoại..."
@@ -325,13 +326,13 @@ const AdminUsersPage: React.FC = () => {
           <div className="flex border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
             <button
               onClick={() => setViewMode('table')}
-              className={`px-3 py-2 ${viewMode === 'table' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
+              className={`px-2 sm:px-3 py-2 text-sm ${viewMode === 'table' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
             >
               📋
             </button>
             <button
               onClick={() => setViewMode('grid')}
-              className={`px-3 py-2 ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
+              className={`px-2 sm:px-3 py-2 text-sm ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
             >
               ▦
             </button>

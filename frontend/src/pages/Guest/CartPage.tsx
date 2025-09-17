@@ -240,7 +240,7 @@ export default function CartPage() {
     <div className="bg-gradient-app-main min-h-screen">
       {/* Hero Section */}
       <div className={`pt-0 ${isMobile ? 'pb-1' : 'pb-2'}`}>
-        <div className={`max-w-7xl mx-auto ${isMobile ? 'px-4' : 'px-8'}`}>
+        <div className={`max-w-7xl mx-auto ${isMobile ? 'px-2 py-4' : 'px-4 py-6'}`}>
           <div className="text-center">
             <h1 className={`${isMobile ? 'text-2xl' : 'text-4xl'} font-bold text-app-primary mb-2`}>
               🛒 Giỏ hàng của bạn
@@ -252,7 +252,7 @@ export default function CartPage() {
         </div>
       </div>
 
-      <main className={`max-w-7xl mx-auto ${isMobile ? 'px-4 pb-4' : 'px-8 pb-8'} ${isMobile ? 'grid grid-cols-1 gap-4' : 'grid grid-cols-1 lg:grid-cols-3 gap-8'}`}>
+      <main className={`max-w-7xl mx-auto ${isMobile ? 'px-2 pb-4' : 'px-4 pb-8'} ${isMobile ? 'grid grid-cols-1 gap-4' : 'grid grid-cols-1 lg:grid-cols-3 gap-8'}`}>
         <div className={`${isMobile ? 'space-y-4' : 'lg:col-span-2 space-y-6'}`}>
           <MarketInfo />
           <OptimizedCartList
