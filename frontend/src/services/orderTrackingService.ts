@@ -1,16 +1,19 @@
+import axios from 'axios';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 export const updateOrderTracking = async (id: string, data: {
   lat: number;
   lng: number;
   address?: string;
   status: string;
 }) => {
-  return axios.put(`/api/order-tracking/${id}`, data);
+  return axios.put(`${API_BASE_URL}/order-tracking/${id}`, data);
 };
 
 export const deleteOrderTracking = async (id: string) => {
-  return axios.delete(`/api/order-tracking/${id}`);
+  return axios.delete(`${API_BASE_URL}/order-tracking/${id}`);
 };
-import axios from 'axios';
 
 export const addOrderTracking = async (data: {
   orderId: string;
@@ -19,9 +22,9 @@ export const addOrderTracking = async (data: {
   address?: string;
   status: string;
 }) => {
-  return axios.post('/api/order-tracking', data);
+  return axios.post(`${API_BASE_URL}/order-tracking`, data);
 };
 
 export const getOrderTrackingHistory = async (orderId: string) => {
-  return axios.get(`/api/order-tracking/${orderId}`);
+  return axios.get(`${API_BASE_URL}/order-tracking/${orderId}`);
 };

@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "greenmart-web-4385e"
-  }
+    "default": "greenmart-web-4385e",
+    "npm run build": "fir-nonandroidtestprojec-12c17"
+  },
+  "targets": {},
+  "etags": {}
 }
