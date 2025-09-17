@@ -19,8 +19,10 @@ export default function MainLayout() {
     }
   }, [location.pathname]);
 
-  // Điều kiện xác định trang cần full-width (bao gồm /home và /ordertracking)
-  const isFullWidthPage = location.pathname === '/home' || location.pathname.startsWith('/ordertracking');
+  // Điều kiện xác định trang cần full-width (bao gồm /home, /productdetail và /ordertracking)
+  const isFullWidthPage = location.pathname === '/home' || 
+                          location.pathname.startsWith('/ordertracking') ||
+                          location.pathname.startsWith('/productdetail');
 
   return (
    

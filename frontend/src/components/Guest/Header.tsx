@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingCart, Search, User, Home, Bell, LogOut, Heart, Menu, X, ChevronDown } from 'lucide-react';
+import { ShoppingCart, Search, User, Home, Bell, LogOut, Heart, Menu, X, ChevronDown, MapPin, Gift, Settings } from 'lucide-react';
 import { useCartStore } from '../../stores/useCartStore';
 import { CartIconWrapper } from '../../hooks/useAddToCartAnimation';
 import { useUserStore } from '../../stores/useUserStore';
@@ -13,12 +13,9 @@ import ThemeToggle from '../ui/ThemeToggle';
 import CategoryBar from './CategoryBar';
 
 const Header: React.FC = memo(() => {
-  const hiddenOnRoutes = ['/login', '/register', '/admin', '/checkout', '/category', '/accountdetail', '/myorder', '/myaddress', '/notification-settings', '/myvoucher', '/mycart', '/guest-checkout', '/payment-result','/guest-checkout'];
-  const location = window.location;
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [showDropdown, setShowDropdown] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [showCategoryBar, setShowCategoryBar] = useState(true);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showMobileCategoryMenu, setShowMobileCategoryMenu] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -183,16 +180,6 @@ const Header: React.FC = memo(() => {
           {/* Desktop Actions Section */}
           {!isMobile && (
             <div className="flex items-center gap-2 flex-shrink-0">
-            {/* Category Menu Button */}
-            {!hiddenOnRoutes.some(route => location.pathname.startsWith(route)) && (
-              <button
-                className="p-3 text-app-secondary hover:text-app-primary hover:bg-app-secondary dark:hover:text-green-400 dark:hover:bg-green-900/20 rounded-xl group relative transition-colors duration-200"
-                onClick={() => setShowCategoryBar(!showCategoryBar)}
-                title={showCategoryBar ? 'Ẩn danh mục' : 'Hiện danh mục'}
-              >
-                <Menu size={20} />
-              </button>
-            )}
             
             {/* Theme Toggle */}
             <ThemeToggle size="sm" className="mr-1" />
@@ -511,16 +498,6 @@ const Header: React.FC = memo(() => {
                 <span className="font-medium">Trang chủ</span>
               </button>
 
-              {!hiddenOnRoutes.some(route => location.pathname.startsWith(route)) && (
-                <button
-                  onClick={() => setShowCategoryBar(!showCategoryBar)}
-                  className="w-full flex items-center gap-3 p-3 text-app-secondary hover:bg-app-secondary hover:text-app-primary rounded-lg transition-colors duration-200"
-                >
-                  <Menu size={18} />
-                  <span className="font-medium">{showCategoryBar ? 'Ẩn danh mục' : 'Hiện danh mục'}</span>
-                </button>
-              )}
-
               <button
                 onClick={() => {
                   navigate('/wishlist');
@@ -550,6 +527,39 @@ const Header: React.FC = memo(() => {
                   >
                     <User size={18} />
                     <span className="font-medium">Tài khoản</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      navigate('/myvoucher');
+                      setShowMobileMenu(false);
+                    }}
+                    className="w-full flex items-center gap-3 p-3 text-app-secondary hover:bg-app-secondary hover:text-app-primary rounded-lg transition-colors duration-200"
+                  >
+                    <Gift size={18} />
+                    <span className="font-medium">Voucher</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      navigate('/myaddress');
+                      setShowMobileMenu(false);
+                    }}
+                    className="w-full flex items-center gap-3 p-3 text-app-secondary hover:bg-app-secondary hover:text-app-primary rounded-lg transition-colors duration-200"
+                  >
+                    <MapPin size={18} />
+                    <span className="font-medium">Địa chỉ</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      navigate('/notification-settings');
+                      setShowMobileMenu(false);
+                    }}
+                    className="w-full flex items-center gap-3 p-3 text-app-secondary hover:bg-app-secondary hover:text-app-primary rounded-lg transition-colors duration-200"
+                  >
+                    <Settings size={18} />
+                    <span className="font-medium">Cài đặt</span>
                   </button>
 
                   <button
@@ -585,7 +595,7 @@ const Header: React.FC = memo(() => {
           </div>
         )}
         
-        {showCategoryBar && <CategoryBar />}
+        <CategoryBar />
       </div>
     </header>
   );
