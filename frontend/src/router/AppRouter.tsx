@@ -64,15 +64,16 @@ const AppRouter = () => (
         <Route path="policy/:section" element={<PolicyPage />} />
         <Route path="flash-sale" element={<GuestFlashSalePage />} />
         <Route path="ordertracking/:orderId" element={<OrderTrackingPage />} />
+        <Route path="mycart" element={<CartPage />} />
+        <Route path="guest-checkout" element={<GuestCheckoutPage />} />
         
         {/* Protected routes - cần đăng nhập */}
         <Route path="welcome" element={<ProtectedRoute requiredRole="user"><Welcome /></ProtectedRoute>} />
-        <Route path="mycart" element={<ProtectedRoute requiredRole="user"><CartPage /></ProtectedRoute>} />
-        <Route path="checkout" element={<ProtectedRoute requiredRole="user"><Checkout /></ProtectedRoute>} />
         <Route path="guest-checkout" element={<ProtectedRoute requiredRole="user"><GuestCheckoutPage /></ProtectedRoute>} />
         <Route path="order-success" element={<ProtectedRoute requiredRole="user"><OrderSuccessPage /></ProtectedRoute>} />
         <Route path="guest-order-success" element={<ProtectedRoute requiredRole="user"><GuestOrderSuccessPage /></ProtectedRoute>} />
         <Route path="payment-result" element={<ProtectedRoute requiredRole="user"><PaymentResultPage /></ProtectedRoute>} />
+        <Route path="checkout" element={<ProtectedRoute requiredRole="user"><Checkout /></ProtectedRoute>} />
         <Route path="payment-test" element={<ProtectedRoute requiredRole="user"><PaymentTestPage /></ProtectedRoute>} />
       </Route>
           <Route path="accountdetail" element={

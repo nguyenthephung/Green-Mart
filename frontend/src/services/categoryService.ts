@@ -4,13 +4,10 @@ import { apiClient } from './api';
 
 export async function getCategories(): Promise<Category[]> {
   try {
-    console.log('Fetching categories from API...');
     const response = await apiClient<Category[]>('/categories');
-    console.log('Categories response:', response);
     
     // Handle both old format (direct array) and new format ({ success, data })
     const categories = response.data || response as any as Category[];
-    console.log('Processed categories:', categories);
     
     return Array.isArray(categories) ? categories : [];
   } catch (error) {

@@ -3,7 +3,7 @@ import { useCategoryStore } from '../../stores/useCategoryStore';
 import { useState, useEffect, useRef } from 'react';
 import { ChevronDown, Menu, X, Tag } from 'lucide-react';
 
-const hiddenOnRoutes = ['/login', '/register', '/admin', '/checkout', '/category', '/accountdetail', '/myorder', '/myaddress', '/notification-settings', '/myvoucher','/mycart','/payment-result'];
+const hiddenOnRoutes = ['/login', '/register', '/admin', '/checkout', '/category', '/accountdetail', '/myorder', '/myaddress', '/notification-settings', '/myvoucher', '/mycart', '/payment-result','/guest-checkout'];
 
 const CategoryBar: React.FC = () => {
   const location = useLocation();
@@ -103,15 +103,15 @@ const CategoryBar: React.FC = () => {
 
                   {/* Desktop Dropdown */}
                   {activeParent === category.id && category.subs && category.subs.length > 0 && (
-                    <div className="absolute top-full left-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50 animate-in slide-in-from-top-2 duration-200">
-                      <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide border-b border-gray-200 dark:border-gray-700">
+                    <div className="absolute top-full left-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-600 py-2 z-50 animate-in slide-in-from-top-2 duration-200">
+                      <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide border-b border-gray-200 dark:border-gray-600">
                         {category.name}
                       </div>
                       {category.subs.map((sub, subIndex) => (
                         <button
                           key={subIndex}
                           onClick={() => handleSubClick(sub)}
-                          className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors duration-150 first:rounded-t-lg last:rounded-b-lg"
+                          className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-emerald-600 dark:hover:bg-emerald-900/30 hover:text-emerald-600 dark:hover:text-emerald-300 transition-colors duration-150 first:rounded-t-lg last:rounded-b-lg"
                         >
                           {sub}
                         </button>
@@ -134,8 +134,8 @@ const CategoryBar: React.FC = () => {
                     onClick={() => handleParentClick(category.id, category.name)}
                     className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-left font-medium transition-all duration-200 ${
                       activeParent === category.id
-                        ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-app-secondary dark:hover:bg-app-secondary'
+                        ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300'
+                        : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
                     }`}
                   >
                     <span>{category.name}</span>
@@ -156,7 +156,7 @@ const CategoryBar: React.FC = () => {
                         <button
                           key={subIndex}
                           onClick={() => handleSubClick(sub)}
-                          className="w-full text-left px-4 py-2.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-600 dark:hover:text-emerald-400 rounded-lg transition-colors duration-150"
+                          className="w-full text-left px-4 py-2.5 text-sm text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 hover:text-emerald-600 dark:hover:text-emerald-300 rounded-lg transition-colors duration-150"
                         >
                           {sub}
                         </button>

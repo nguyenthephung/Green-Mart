@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingCart, Search, User, Home, Bell, LogOut, Heart, Menu, X } from 'lucide-react';
+import { ShoppingCart, Search, User, Home, Bell, LogOut, Heart, Menu } from 'lucide-react';
 import { useCartStore } from '../../stores/useCartStore';
 import { CartIconWrapper } from '../../hooks/useAddToCartAnimation';
 import { useUserStore } from '../../stores/useUserStore';
@@ -11,13 +11,12 @@ import ThemeToggle from '../ui/ThemeToggle';
 import CategoryBar from './CategoryBar';
 
 const Header: React.FC = memo(() => {
-  const hiddenOnRoutes = ['/login', '/register', '/admin', '/checkout', '/category', '/accountdetail', '/myorder', '/myaddress', '/notification-settings', '/myvoucher','/mycart','/guest-checkout','/payment-result'];
+  const hiddenOnRoutes = ['/login', '/register', '/admin', '/checkout', '/category', '/accountdetail', '/myorder', '/myaddress', '/notification-settings', '/myvoucher', '/mycart', '/guest-checkout', '/payment-result','/guest-checkout'];
   const location = window.location;
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [showDropdown, setShowDropdown] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showCategoryBar, setShowCategoryBar] = useState(true);
-  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   let dropdownTimeout: NodeJS.Timeout | null = null;
   const navigate = useNavigate();
@@ -160,40 +159,13 @@ const Header: React.FC = memo(() => {
           <div className="flex items-center gap-2 flex-shrink-0">
             {/* Category Menu Button */}
             {!hiddenOnRoutes.some(route => location.pathname.startsWith(route)) && (
-              <div 
-                className="relative"
-                onMouseEnter={() => setShowCategoryDropdown(true)}
-                onMouseLeave={() => setShowCategoryDropdown(false)}
+              <button
+                className="p-3 text-app-secondary hover:text-app-primary hover:bg-app-secondary dark:hover:text-green-400 dark:hover:bg-green-900/20 rounded-xl group relative transition-colors duration-200"
+                onClick={() => setShowCategoryBar(!showCategoryBar)}
+                title={showCategoryBar ? 'Ẩn danh mục' : 'Hiện danh mục'}
               >
-                <button
-                  className="p-3 text-app-secondary hover:text-app-primary hover:bg-app-secondary dark:hover:text-green-400 dark:hover:bg-green-900/20 rounded-xl group relative transition-colors duration-200"
-                  onClick={() => setShowCategoryBar(!showCategoryBar)}
-                  title={showCategoryBar ? 'Ẩn danh mục' : 'Hiện danh mục'}
-                >
-                  <Menu size={20} />
-                </button>
-                
-                {/* Category Dropdown */}
-                {showCategoryDropdown && (
-                  <div 
-                    className="absolute top-full left-0 mt-2 z-60 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden min-w-[160px] transform transition-all duration-200 ease-out opacity-100 scale-100"
-                    style={{
-                      animation: showCategoryDropdown ? 'fadeInDown 0.2s ease-out' : 'fadeOutUp 0.2s ease-in'
-                    }}
-                  >
-                    <button
-                      className="w-full text-left px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 text-sm font-medium flex items-center gap-3 text-gray-700 dark:text-gray-300"
-                      onClick={() => {
-                        setShowCategoryBar(!showCategoryBar);
-                        setShowCategoryDropdown(false);
-                      }}
-                    >
-                      {showCategoryBar ? <X size={16} /> : <Menu size={16} />}
-                      <span>{showCategoryBar ? 'Ẩn danh mục' : 'Hiện danh mục'}</span>
-                    </button>
-                  </div>
-                )}
-              </div>
+                <Menu size={20} />
+              </button>
             )}
             
             {/* Theme Toggle */}
