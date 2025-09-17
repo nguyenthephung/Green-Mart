@@ -93,7 +93,7 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
       setSelectedWard('');
       
       // Calculate shipping fee
-      const fee = LocationService.calculateShippingFee(selectedProvince, selectedDistrict);
+      const fee = LocationService.calculateShippingFee(selectedProvince);
       setShippingFee(fee);
     }
   }, [selectedDistrict, selectedProvince]);

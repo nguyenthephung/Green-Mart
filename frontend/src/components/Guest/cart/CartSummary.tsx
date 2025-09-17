@@ -16,7 +16,7 @@ interface CartSummaryProps {
   };
 }
 
-export default function CartSummary({ itemsTotal, deliveryFee, voucherDiscount = 0, voucher, onRemoveVoucher, onShowVoucherModal, address }: CartSummaryProps) {
+export default function CartSummary({ itemsTotal, voucherDiscount = 0, voucher, onRemoveVoucher, onShowVoucherModal, address }: CartSummaryProps) {
   // Free shipping for orders >= 300k
   const isEligibleForFreeShip = itemsTotal >= 300000;
   const finalTotal = itemsTotal - voucherDiscount;

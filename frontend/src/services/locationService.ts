@@ -245,7 +245,7 @@ export class LocationService {
   }
 
   // Calculate shipping fee based on location
-  static calculateShippingFee(provinceCode: string, districtCode: string): number {
+  static calculateShippingFee(provinceCode: string): number {
     const province = this.getProvinceByCode(provinceCode);
     if (!province) return 50000; // Default fee
 

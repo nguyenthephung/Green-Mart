@@ -197,7 +197,7 @@ class PaymentService {
   }
 
   // Cancel payment (if supported by gateway)
-  async cancelPayment(paymentId: string): Promise<void> {
+  async cancelPayment(): Promise<void> {
     try {
       // This would be implemented based on gateway requirements
       // For now, we'll just update the status

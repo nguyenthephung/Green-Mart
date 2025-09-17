@@ -152,21 +152,4 @@ const RichTextEditorModal: React.FC<RichTextEditorModalProps> = ({
   );
 };
 
-// Add keyboard shortcuts
-const useKeyboardShortcuts = (onSave: () => void, enabled: boolean) => {
-  useEffect(() => {
-    if (!enabled) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        onSave();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onSave, enabled]);
-};
-
 export default RichTextEditorModal;

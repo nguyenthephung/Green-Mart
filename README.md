@@ -99,3 +99,13 @@ GreenMart is a modern fullstack e-commerce platform designed to provide a seamle
 ## 🌐 Deployment
 
 GreenMart can be deployed using Docker, Azure, or Firebase Hosting. For detailed deployment instructions, refer to the documentation.
+
+---
+
+## 👥 User Roles
+
+This web application supports three user roles:
+
+1. **Admin**: Manages the platform, including products, orders, and users.
+2. **Logged-in User**: Can browse products, add items to the cart, and place orders.
+3. **Guest User**: Can browse products but needs to log in to make purchases.

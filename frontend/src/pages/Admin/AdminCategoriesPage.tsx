@@ -104,7 +104,7 @@ const AdminCategories: React.FC = () => {
   // Function để lấy productCount thực tế
 
   // Function để hiển thị sản phẩm của category
-  const handleShowProducts = (categoryId: string, categoryName: string) => {
+  const handleShowProducts = (categoryId: string) => {
     setSelectedCategoryId(categoryId);
     setShowProducts(true);
   };
@@ -472,7 +472,7 @@ const AdminCategories: React.FC = () => {
                           <span className="ml-2 text-xs" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>sản phẩm</span>
                         </div>
                         <button
-                          onClick={() => handleShowProducts(category.id, category.name)}
+                          onClick={() => handleShowProducts(category.id)}
                           className="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition-colors"
                         >
                           Xem
@@ -567,7 +567,7 @@ const AdminCategories: React.FC = () => {
                     <div className="text-2xl font-bold" style={isDarkMode ? { color: '#60a5fa' } : { color: '#2563eb' }}>{category.productCount}</div>
                     <div className="text-xs" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>Sản phẩm</div>
                     <button
-                      onClick={() => handleShowProducts(category.id, category.name)}
+                      onClick={() => handleShowProducts(category.id)}
                       className="mt-1 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition-colors"
                     >
                       Xem sản phẩm
@@ -1048,7 +1048,7 @@ const ProductsModal: React.FC<{
   categories: Category[];
   products: any[];
   getProductsByCategory: (categoryName: string, subcategories?: string[]) => any[];
-}> = ({ show, onClose, categoryId, categories, products, getProductsByCategory }) => {
+}> = ({ show, onClose, categoryId, categories, getProductsByCategory }) => {
   // Search and pagination states
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);

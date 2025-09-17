@@ -1,6 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useFileUpload } from '../../hooks/useFileUpload';
-import { uploadService } from '../../services/uploadService';
 
 interface RichTextEditorProps {
   content: string;

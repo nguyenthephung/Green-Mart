@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { MapPin, CreditCard, ChevronRight, CalendarDays } from 'lucide-react';
+import { CreditCard, CalendarDays } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 interface Item {
@@ -56,7 +56,7 @@ const paymentOptions = [
   { label: 'PayPal', value: 'paypal', icon: '💳', description: 'Thanh toán quốc tế qua PayPal' },
 ];
 
-const CheckoutMain: FC<CheckoutMainProps> = ({ items, userInfo, address, payments, onPaymentChange }) => {
+const CheckoutMain: FC<CheckoutMainProps> = ({ items, payments, onPaymentChange }) => {
   // State cục bộ để lưu lựa chọn hiện tại
   const [localSelectedPayment, setLocalSelectedPayment] = useState<string>('');
 
