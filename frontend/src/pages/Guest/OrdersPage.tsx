@@ -3,6 +3,7 @@ import DashboardLayout from "../../layouts/DashboardLayout";
 import OrderTabs from "../../components/Guest/myOrder/OrderTabs";
 import OrderCard from "../../components/Guest/myOrder/OrderCard";
 import orderService from '../../services/orderService';
+import { useResponsive } from '../../hooks/useResponsive';
 
 interface OrderItem {
   name: string;
@@ -30,6 +31,9 @@ const OrdersPage = () => {
   const [orderTrackingMap] = useState<Record<string, { status: string; address: string }>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Responsive hook
+  const { isMobile } = useResponsive();
     // Xử lý khi hủy đơn thành công
     const handleOrderCancelled = (orderId: string) => {
       setOrders(prev => prev.map(order => order.id === orderId ? { ...order, status: 'Đã hủy' } : order));
@@ -139,10 +143,10 @@ const OrdersPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="bg-app-secondary p-8 rounded-3xl shadow-xl border-app-default">
+      <div className={`bg-app-secondary ${isMobile ? 'p-4' : 'p-8'} rounded-3xl shadow-xl border-app-default`}>
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-app-primary mb-2 flex items-center justify-center gap-3">
+          <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-app-primary mb-2 flex items-center justify-center gap-3`}>
             <div className="w-10 h-10 bg-brand-green rounded-full flex items-center justify-center">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -180,23 +184,23 @@ const OrdersPage = () => {
         {!loading && !error && (
           <>
             {/* Stats Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div className={`grid ${isMobile ? 'grid-cols-2 gap-3' : 'grid-cols-2 md:grid-cols-4 gap-4'} mb-8`}>
               {tabKeys.map((tab) => (
                 <div key={tab} className="bg-app-card rounded-2xl p-4 shadow-lg border-app-default">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-brand-green">{tabCounts[tab]}</div>
-                    <div className="text-sm text-app-secondary mt-1">{tab}</div>
+                    <div className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-brand-green`}>{tabCounts[tab]}</div>
+                    <div className={`${isMobile ? 'text-xs' : 'text-sm'} text-app-secondary mt-1`}>{tab}</div>
                   </div>
                 </div>
               ))}
             </div>
 
             <div className="bg-app-card rounded-2xl shadow-lg border-app-default">
-              <div className="p-6 border-b border-app-border">
+              <div className={`${isMobile ? 'p-4' : 'p-6'} border-b border-app-border`}>
                 <OrderTabs activeTab={activeTab} setActiveTab={setActiveTab} counts={tabCounts} tabs={tabKeys} />
               </div>
 
-              <div className="p-6">
+              <div className={`${isMobile ? 'p-4' : 'p-6'}`}>
                 {filteredOrders.length === 0 ? (
                   <div className="text-center py-16">
                     <div className="w-24 h-24 bg-app-secondary rounded-full flex items-center justify-center mx-auto mb-6">

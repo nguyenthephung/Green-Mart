@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import orderService from '../../../services/orderService';
+import { useResponsive } from '../../../hooks/useResponsive';
 
 export type OrderItem = {
   name: string;
@@ -61,6 +62,7 @@ export default function OrderCard({
   shippingStatus = "Đơn hàng đã rời kho phân loại tới HCM Mega SOC",
   onCancelSuccess,
 }: OrderCardProps) {
+  const { isMobile } = useResponsive();
   const statusInfo = statusConfig[status] || { 
     color: "text-app-secondary", 
     bg: "bg-app-secondary border-app-border", 
@@ -84,9 +86,9 @@ export default function OrderCard({
   };
 
   return (
-    <div className="bg-app-card rounded-2xl border-app-border shadow-lg hover:shadow-xl transition-all duration-300 p-6 group">
+    <div className={`bg-app-card rounded-2xl border-app-border shadow-lg hover:shadow-xl transition-all duration-300 ${isMobile ? 'p-4' : 'p-6'} group`}>
       {/* Header with Status */}
-      <div className="flex items-center justify-between mb-6">
+      <div className={`flex items-center ${isMobile ? 'flex-col gap-4' : 'justify-between'} mb-6`}>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-brand-green rounded-full flex items-center justify-center">
             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -94,21 +96,21 @@ export default function OrderCard({
             </svg>
           </div>
           <div>
-            <div className="font-semibold text-app-primary">Đơn hàng #{id}</div>
-            <div className="text-sm text-app-secondary">{date}</div>
+            <div className={`font-semibold text-app-primary ${isMobile ? 'text-sm' : ''}`}>Đơn hàng #{id}</div>
+            <div className={`${isMobile ? 'text-xs' : 'text-sm'} text-app-secondary`}>{date}</div>
           </div>
         </div>
         <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border ${statusInfo.bg} ${statusInfo.color}`}>
           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d={statusInfo.icon} />
           </svg>
-          <span className="font-semibold text-sm">{status}</span>
+          <span className={`font-semibold ${isMobile ? 'text-xs' : 'text-sm'}`}>{status}</span>
         </div>
       </div>
 
       {/* Shipping Status */}
       {status === "Chờ giao hàng" && (
-        <div className="bg-brand-green/5 rounded-xl p-4 mb-6 border border-brand-green/20">
+        <div className={`bg-brand-green/5 rounded-xl ${isMobile ? 'p-3' : 'p-4'} mb-6 border border-brand-green/20`}>
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-brand-green rounded-full flex items-center justify-center">
               <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -116,8 +118,8 @@ export default function OrderCard({
               </svg>
             </div>
             <div>
-              <div className="font-semibold text-brand-green">Đang vận chuyển</div>
-              <div className="text-sm text-brand-green/80">{shippingStatus}</div>
+              <div className={`font-semibold text-brand-green ${isMobile ? 'text-sm' : ''}`}>Đang vận chuyển</div>
+              <div className={`${isMobile ? 'text-xs' : 'text-sm'} text-brand-green/80`}>{shippingStatus}</div>
             </div>
           </div>
         </div>
@@ -126,29 +128,29 @@ export default function OrderCard({
       {/* Products */}
       <div className="space-y-4 mb-6">
         {items.map((item, idx) => (
-          <div key={idx} className="flex gap-4 p-4 bg-app-secondary rounded-xl hover:bg-app-secondary/80 transition-colors duration-200">
+          <div key={idx} className={`flex gap-4 ${isMobile ? 'p-3' : 'p-4'} bg-app-secondary rounded-xl hover:bg-app-secondary/80 transition-colors duration-200`}>
             <img
               src={item.image}
               alt={item.name}
-              className="w-16 h-16 object-cover rounded-lg border-app-border"
+              className={`${isMobile ? 'w-12 h-12' : 'w-16 h-16'} object-cover rounded-lg border-app-border`}
             />
             <div className="flex-1">
-              <div className="font-semibold text-app-primary mb-1">{item.name}</div>
-              <div className="text-xs text-app-muted mb-2">
+              <div className={`font-semibold text-app-primary mb-1 ${isMobile ? 'text-sm' : ''}`}>{item.name}</div>
+              <div className={`${isMobile ? 'text-xs' : 'text-xs'} text-app-muted mb-2`}>
                 Phân loại: {item.variant || "Mặc định"}
               </div>
-              <div className="flex items-center justify-between">
+              <div className={`flex items-center ${isMobile ? 'flex-col items-start gap-1' : 'justify-between'}`}>
                 <div className="flex items-center gap-2">
-                  <span className="text-brand-green font-bold">
+                  <span className={`text-brand-green font-bold ${isMobile ? 'text-sm' : ''}`}>
                     {item.price.toLocaleString()}₫
                   </span>
                   {item.oldPrice > item.price && (
-                    <span className="text-app-muted line-through text-sm">
+                    <span className={`text-app-muted line-through ${isMobile ? 'text-xs' : 'text-sm'}`}>
                       {item.oldPrice.toLocaleString()}₫
                     </span>
                   )}
                 </div>
-                <span className="text-app-secondary text-sm font-medium">
+                <span className={`text-app-secondary ${isMobile ? 'text-xs' : 'text-sm'} font-medium`}>
                   x{item.quantity}
                 </span>
               </div>
@@ -158,18 +160,18 @@ export default function OrderCard({
       </div>
 
       {/* Total */}
-      <div className="flex justify-between items-center mb-6 p-4 bg-brand-green/5 rounded-xl border border-brand-green/20">
-        <span className="text-app-primary font-medium">Tổng thanh toán:</span>
-        <span className="text-2xl font-bold text-brand-green">
+      <div className={`flex justify-between items-center mb-6 ${isMobile ? 'p-3' : 'p-4'} bg-brand-green/5 rounded-xl border border-brand-green/20`}>
+        <span className={`text-app-primary font-medium ${isMobile ? 'text-sm' : ''}`}>Tổng thanh toán:</span>
+        <span className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-brand-green`}>
           {total.toLocaleString()}₫
         </span>
       </div>
 
       {/* Action Buttons */}
-      <div className="flex justify-end gap-3">
+      <div className={`flex ${isMobile ? 'flex-col gap-2' : 'justify-end gap-3'}`}>
         <Link
           to={`/ordertracking/${id}`}
-          className="bg-brand-green hover:bg-brand-green/90 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl group-hover:scale-105 transform flex items-center gap-2 hover:-translate-y-0.5"
+          className={`bg-brand-green hover:bg-brand-green/90 text-white ${isMobile ? 'px-4 py-2 text-sm' : 'px-6 py-3'} rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl group-hover:scale-105 transform flex items-center ${isMobile ? 'justify-center' : ''} gap-2 hover:-translate-y-0.5`}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -180,14 +182,14 @@ export default function OrderCard({
         {status === 'Chờ xác nhận' && (
           <button
             onClick={handleCancelOrder}
-            className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl group-hover:scale-105 transform flex items-center gap-2 hover:-translate-y-0.5"
+            className={`bg-red-500 hover:bg-red-600 text-white ${isMobile ? 'px-4 py-2 text-sm' : 'px-6 py-3'} rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl group-hover:scale-105 transform flex items-center ${isMobile ? 'justify-center' : ''} gap-2 hover:-translate-y-0.5`}
             disabled={isCancelling}
           >
             {isCancelling ? 'Đang hủy...' : 'Hủy đơn hàng'}
           </button>
         )}
         {cancelError && (
-          <div className="text-red-500 font-medium mt-2">{cancelError}</div>
+          <div className={`text-red-500 font-medium mt-2 ${isMobile ? 'text-sm' : ''}`}>{cancelError}</div>
         )}
       </div>
     </div>

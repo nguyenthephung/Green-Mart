@@ -117,8 +117,12 @@ const CategoryBar: React.FC = () => {
                       {category.subs.map((sub, subIndex) => (
                         <button
                           key={subIndex}
-                          onClick={() => handleSubClick(sub)}
-                          className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-emerald-600 dark:hover:bg-emerald-900/30 hover:text-emerald-600 dark:hover:text-emerald-300 transition-colors duration-150 first:rounded-t-lg last:rounded-b-lg"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleSubClick(sub);
+                          }}
+                          className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 hover:text-emerald-600 dark:hover:text-emerald-300 transition-colors duration-150 first:rounded-t-lg last:rounded-b-lg"
                         >
                           {sub}
                         </button>
