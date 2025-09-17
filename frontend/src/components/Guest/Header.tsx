@@ -20,6 +20,7 @@ const Header: React.FC = memo(() => {
   const [showCategoryBar, setShowCategoryBar] = useState(true);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showMobileCategoryMenu, setShowMobileCategoryMenu] = useState(false);
+  const [showMobileNotifications, setShowMobileNotifications] = useState(false);
   const [showLuckyWheel, setShowLuckyWheel] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   let dropdownTimeout: NodeJS.Timeout | null = null;
@@ -527,23 +528,35 @@ const Header: React.FC = memo(() => {
                 )}
               </button>
 
-              <button
-                onClick={() => {
-                  navigate('/notification');
-                  setShowMobileMenu(false);
-                }}
-                className="w-full flex items-center justify-between p-3 text-app-secondary hover:bg-app-secondary hover:text-app-primary rounded-lg transition-colors duration-200"
-              >
-                <div className="flex items-center gap-3">
-                  <Bell size={18} />
-                  <span className="font-medium">Thông báo</span>
-                </div>
-                {user && unreadCount > 0 && (
-                  <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                    {unreadCount}
-                  </span>
+              <div className="relative">
+                <button
+                  onClick={() => setShowMobileNotifications(!showMobileNotifications)}
+                  className="w-full flex items-center justify-between p-3 text-app-secondary hover:bg-app-secondary hover:text-app-primary rounded-lg transition-colors duration-200"
+                >
+                  <div className="flex items-center gap-3">
+                    <Bell size={18} />
+                    <span className="font-medium">Thông báo</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {user && unreadCount > 0 && (
+                      <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                        {unreadCount}
+                      </span>
+                    )}
+                    <ChevronDown 
+                      size={16} 
+                      className={`transition-transform duration-200 ${showMobileNotifications ? 'rotate-180' : ''}`}
+                    />
+                  </div>
+                </button>
+
+                {/* Mobile Notification Dropdown */}
+                {showMobileNotifications && user && (
+                  <div className="mt-2 bg-app-card rounded-lg border-app-border shadow-lg max-h-64 overflow-y-auto">
+                    <NotificationDropdownContent onClose={() => setShowMobileNotifications(false)} />
+                  </div>
                 )}
-              </button>
+              </div>
 
               <button
                 onClick={() => {

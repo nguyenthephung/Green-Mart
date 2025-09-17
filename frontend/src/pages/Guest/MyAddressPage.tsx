@@ -5,6 +5,7 @@ import { type UserAddress } from '../../components/Guest/Account/AddressSelector
 import { AddressService, type AddressResponse } from '../../services/addressService';
 import { LocationService, type Province, type District, type Ward } from '../../services/locationService';
 import type { AddressInfo } from '../../types/User';
+import { useResponsive } from '../../hooks/useResponsive';
 
 // Address Form Component
 interface AddressFormContentProps {
@@ -341,6 +342,7 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
 };
 
 const MyAddresses: React.FC = () => {
+  const { isMobile } = useResponsive();
   const user = useUserStore(state => state.user);
   const addresses = useUserStore(state => state.addresses);
   const setAddresses = useUserStore(state => state.setAddresses);
@@ -512,20 +514,20 @@ const MyAddresses: React.FC = () => {
 
   return (
     <DashboardLayout>
-      <div className="max-w-6xl mx-auto p-6 space-y-6">
+      <div className={`max-w-6xl mx-auto ${isMobile ? 'p-4' : 'p-6'} space-y-6`}>
         {/* Enhanced Header */}
-        <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl p-8 text-white shadow-xl">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <div className={`bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl ${isMobile ? 'p-6' : 'p-8'} text-white shadow-xl`}>
+          <div className={`flex items-center ${isMobile ? 'flex-col gap-4 text-center' : 'justify-between'}`}>
+            <div className={`flex items-center gap-4 ${isMobile ? 'flex-col text-center' : ''}`}>
+              <div className={`${isMobile ? 'w-12 h-12' : 'w-16 h-16'} bg-white/20 rounded-xl flex items-center justify-center`}>
+                <svg className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} text-white`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
               </div>
               <div>
-                <h1 className="text-3xl font-bold">Địa chỉ của tôi</h1>
-                <p className="text-green-100 text-lg">Quản lý các địa chỉ giao hàng của bạn</p>
+                <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Địa chỉ của tôi</h1>
+                <p className={`text-green-100 ${isMobile ? 'text-base' : 'text-lg'}`}>Quản lý các địa chỉ giao hàng của bạn</p>
               </div>
             </div>
             
@@ -533,7 +535,7 @@ const MyAddresses: React.FC = () => {
             <button
               onClick={() => handleModalToggle('add', true)}
               disabled={loading}
-              className="px-6 py-3 bg-white text-green-600 rounded-xl font-semibold hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className={`${isMobile ? 'px-4 py-2 text-sm w-full' : 'px-6 py-3'} bg-white text-green-600 rounded-xl font-semibold hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center ${isMobile ? 'justify-center' : ''} gap-2`}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -695,11 +697,11 @@ const MyAddresses: React.FC = () => {
 
         {/* Enhanced Add/Edit Modals */}
         {modals.showAdd && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4 pt-20">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl">
+          <div className={`fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4 ${isMobile ? 'pt-4' : 'pt-20'}`}>
+            <div className={`bg-white dark:bg-gray-800 rounded-2xl ${isMobile ? 'w-full max-w-md' : 'max-w-2xl w-full'} max-h-[85vh] overflow-y-auto shadow-2xl`}>
               <div className="p-6 border-b border-gray-200 dark:border-gray-600">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Thêm địa chỉ mới</h2>
+                  <h2 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-gray-900 dark:text-white`}>Thêm địa chỉ mới</h2>
                   <button
                     onClick={() => handleModalToggle('add', false)}
                     className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -722,11 +724,11 @@ const MyAddresses: React.FC = () => {
         )}
         
         {modals.editId && addressData.edit && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4 pt-20">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl">
+          <div className={`fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4 ${isMobile ? 'pt-4' : 'pt-20'}`}>
+            <div className={`bg-white dark:bg-gray-800 rounded-2xl ${isMobile ? 'w-full max-w-md' : 'max-w-2xl w-full'} max-h-[85vh] overflow-y-auto shadow-2xl`}>
               <div className="p-6 border-b border-gray-200 dark:border-gray-600">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Chỉnh sửa địa chỉ</h2>
+                  <h2 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-gray-900 dark:text-white`}>Chỉnh sửa địa chỉ</h2>
                   <button
                     onClick={() => handleModalToggle('edit', undefined)}
                     className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"

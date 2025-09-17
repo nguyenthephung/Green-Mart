@@ -4,12 +4,14 @@ import { useVoucherStore } from '../../../stores/useVoucherStore';
 import { useUserStore } from '../../../stores/useUserStore';
 import { updateUserVouchers } from '../../../services/userService';
 import { X, Gift } from 'lucide-react';
+import { useResponsive } from '../../../hooks/useResponsive';
 
 const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: () => void }> = ({ 
   userId,
   isOpen, 
   onClose 
 }) => {
+  const { isMobile } = useResponsive();
   const vouchers = useVoucherStore(state => state.vouchers);
   const voucherLoading = useVoucherStore(state => state.loading || false);
   const { user, setUser, setVoucher } = useUserStore();
@@ -237,16 +239,16 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
           </div>
         </div>
       )}
-      <div className="bg-white rounded-2xl p-6 max-w-lg w-full mx-4 relative">
+      <div className={`bg-white rounded-2xl ${isMobile ? 'p-4 max-w-sm' : 'p-6 max-w-lg'} w-full mx-4 relative`}>
         <div className="mb-4">
-          <h3 className="font-bold text-base mb-2 text-gray-700">Voucher hiện có:</h3>
+          <h3 className={`font-bold ${isMobile ? 'text-sm' : 'text-base'} mb-2 text-gray-700`}>Voucher hiện có:</h3>
           <div className="flex flex-wrap gap-2">
-            {Object.keys(userVouchers).length === 0 && <span className="text-gray-400 text-sm">Không có voucher nào</span>}
+            {Object.keys(userVouchers).length === 0 && <span className={`text-gray-400 ${isMobile ? 'text-xs' : 'text-sm'}`}>Không có voucher nào</span>}
             {Object.entries(userVouchers).map(([voucherId, quantity]) => {
               const v = vouchers.find(vv => String(vv.id || vv._id) === voucherId);
               if (!v || quantity <= 0) return null;
               return (
-                <div key={voucherId} className="px-3 py-1 rounded-lg bg-gradient-to-r from-green-400 to-blue-400 text-white text-xs font-semibold shadow">
+                <div key={voucherId} className={`px-3 py-1 rounded-lg bg-gradient-to-r from-green-400 to-blue-400 text-white ${isMobile ? 'text-xs' : 'text-xs'} font-semibold shadow`}>
                   {v.discountType === 'percent' ? `${v.discountValue}%` : `${(v.discountValue/1000).toFixed(0)}K`} - {v.code} x{quantity}
                 </div>
               );
@@ -262,14 +264,14 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
           type="button"
           aria-label="Đóng"
         >
-          <X size={20} />
+          <X size={isMobile ? 16 : 20} />
         </button>
 
         <div className="text-center">
           <div className="mb-4">
-            <Gift className="mx-auto mb-3 text-yellow-500" size={36} />
-            <h2 className="text-lg font-bold text-gray-800 mb-1">Vòng quay may mắn</h2>
-            <p className="text-gray-600 text-sm">Hãy thử vận may của bạn!</p>
+            <Gift className="mx-auto mb-3 text-yellow-500" size={isMobile ? 28 : 36} />
+            <h2 className={`${isMobile ? 'text-base' : 'text-lg'} font-bold text-gray-800 mb-1`}>Vòng quay may mắn</h2>
+            <p className={`text-gray-600 ${isMobile ? 'text-xs' : 'text-sm'}`}>Hãy thử vận may của bạn!</p>
           </div>
 
           {/* Wheel using react-custom-roulette + Arrow + Glow */}
@@ -279,24 +281,26 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
               boxShadow: '0 0 60px 10px #facc15, 0 0 120px 30px #f472b6'
             }} />
             {/* Đã loại bỏ kim vàng ở hướng 12 giờ, chỉ dùng kim mặc định của Wheel */}
-            <Wheel
-              mustStartSpinning={mustSpin}
-              prizeNumber={prizeNumber}
-              data={wheelData}
-              onStopSpinning={handleStopSpinning}
-              backgroundColors={['#3e3e3e']}
-              textColors={['#ffffff']}
-              outerBorderColor="#f2f2f2"
-              outerBorderWidth={8}
-              innerBorderColor="#f2f2f2"
-              innerBorderWidth={2}
-              innerRadius={30}
-              radiusLineColor="#f2f2f2"
-              radiusLineWidth={2}
-              fontSize={14}
-              textDistance={65}
-              spinDuration={0.8}
-            />
+            <div style={{ width: isMobile ? '200px' : '250px', height: isMobile ? '200px' : '250px' }}>
+              <Wheel
+                mustStartSpinning={mustSpin}
+                prizeNumber={prizeNumber}
+                data={wheelData}
+                onStopSpinning={handleStopSpinning}
+                backgroundColors={['#3e3e3e']}
+                textColors={['#ffffff']}
+                outerBorderColor="#f2f2f2"
+                outerBorderWidth={8}
+                innerBorderColor="#f2f2f2"
+                innerBorderWidth={2}
+                innerRadius={30}
+                radiusLineColor="#f2f2f2"
+                radiusLineWidth={2}
+                fontSize={isMobile ? 12 : 14}
+                textDistance={isMobile ? 55 : 65}
+                spinDuration={0.8}
+              />
+            </div>
           </div>
 
           {/* Result */}
