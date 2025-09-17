@@ -388,7 +388,7 @@ const Header: React.FC = memo(() => {
 
           {/* Mobile Actions Section */}
           {isMobile && (
-            <div className="flex items-center gap-1 flex-shrink-0">
+            <div className="flex items-center gap-3 flex-shrink-0">{/* Increased gap from 1 to 3 for better mobile spacing */}
               {/* Cart Button */}
               <CartIconWrapper>
                 <button
