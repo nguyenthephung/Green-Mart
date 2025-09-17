@@ -7,7 +7,6 @@ export class AddressController {
   static async getUserAddresses(req: Request, res: Response): Promise<void> {
     try {
       const userId = req.params.userId;
-
       // Validate ObjectId format
       if (!mongoose.Types.ObjectId.isValid(userId)) {
         res.status(400).json({
