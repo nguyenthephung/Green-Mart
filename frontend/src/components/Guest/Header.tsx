@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingCart, Search, User, Home, Bell, LogOut, Heart, Menu } from 'lucide-react';
+import { ShoppingCart, Search, User, Home, Bell, LogOut, Heart, Menu, X } from 'lucide-react';
 import { useCartStore } from '../../stores/useCartStore';
 import { CartIconWrapper } from '../../hooks/useAddToCartAnimation';
 import { useUserStore } from '../../stores/useUserStore';
 import { useWishlistStore } from '../../stores/useWishlistStore';
 import { useNotificationStore } from '../../stores/useNotificationStore';
+import { useResponsive } from '../../hooks/useResponsive';
 import NotificationDropdownContent from './Notification/NotificationDropdownContent';
 import ThemeToggle from '../ui/ThemeToggle';
 import CategoryBar from './CategoryBar';
@@ -17,9 +18,13 @@ const Header: React.FC = memo(() => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showCategoryBar, setShowCategoryBar] = useState(true);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   let dropdownTimeout: NodeJS.Timeout | null = null;
   const navigate = useNavigate();
+  
+  // Responsive hook
+  const { isMobile } = useResponsive();
   
   // Use cartCount selector so Header re-renders when cart changes
   const cartCount = useCartStore(state => state.totalItems);
@@ -92,6 +97,17 @@ const Header: React.FC = memo(() => {
     <header className="sticky top-0 left-0 w-full z-50 bg-app-header border-b border-app-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
+          {/* Mobile menu button */}
+          {isMobile && (
+            <button
+              className="p-2 text-app-secondary hover:text-app-primary hover:bg-app-secondary dark:hover:text-green-400 dark:hover:bg-green-900/20 rounded-lg transition-colors duration-200 mr-2"
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+              aria-label="Toggle mobile menu"
+            >
+              {showMobileMenu ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          )}
+
           {/* Logo Section */}
           <div 
             className="flex items-center gap-3 cursor-pointer group flex-shrink-0"
@@ -101,62 +117,67 @@ const Header: React.FC = memo(() => {
               <img
                 src="/logo.jpg"
                 alt="Logo"
-                className="h-12 w-12 rounded-xl shadow-lg ring-2 ring-green-100"
+                className={`rounded-xl shadow-lg ring-2 ring-green-100 ${isMobile ? 'h-8 w-8' : 'h-12 w-12'}`}
               />
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
+              <div className={`absolute -top-1 -right-1 bg-green-500 rounded-full animate-pulse ${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`}></div>
             </div>
-            <div className="flex items-center gap-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-8 h-8 text-green-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 2C10 7 5 9 5 13a7 7 0 1014 0c0-4-5-6-7-11z"
-                />
-              </svg>
-              <div className="flex flex-col">
-                <span className="text-2xl font-black text-app-primary tracking-tight">
-                  Green Mart
-                </span>
-                <span className="text-xs text-green-600 font-medium -mt-1">
-                  Fresh & Organic
-                </span>
+            {!isMobile && (
+              <div className="flex items-center gap-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-8 h-8 text-green-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 2C10 7 5 9 5 13a7 7 0 1014 0c0-4-5-6-7-11z"
+                  />
+                </svg>
+                <div className="flex flex-col">
+                  <span className="text-2xl font-black text-app-primary tracking-tight">
+                    Green Mart
+                  </span>
+                  <span className="text-xs text-green-600 font-medium -mt-1">
+                    Fresh & Organic
+                  </span>
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
-          {/* Search Section */}
-          <form
-            onSubmit={handleSearch}
-            className="flex-1 max-w-xl mx-8 relative"
-          >
-            <div className="relative group">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-app-muted" />
+          {/* Search Section - Hidden on mobile, shown in mobile menu */}
+          {!isMobile && (
+            <form
+              onSubmit={handleSearch}
+              className="flex-1 max-w-xl mx-8 relative"
+            >
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Search className="h-5 w-5 text-app-muted" />
+                </div>
+                <input
+                  className="w-full pl-12 pr-20 py-3 bg-app-input border border-app-border rounded-2xl text-app-primary placeholder-app-muted focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent font-medium"
+                  placeholder="Tìm kiếm sản phẩm tươi ngon..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <button
+                  type="submit"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200"
+                >
+                  <Search size={16} />
+                </button>
               </div>
-              <input
-                className="w-full pl-12 pr-20 py-3 bg-app-input border border-app-border rounded-2xl text-app-primary placeholder-app-muted focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent font-medium"
-                placeholder="Tìm kiếm sản phẩm tươi ngon..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <button
-                type="submit"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200"
-              >
-                <Search size={16} />
-              </button>
-            </div>
-          </form>
+            </form>
+          )}
 
-          {/* Actions Section */}
-          <div className="flex items-center gap-2 flex-shrink-0">
+          {/* Desktop Actions Section */}
+          {!isMobile && (
+            <div className="flex items-center gap-2 flex-shrink-0">
             {/* Category Menu Button */}
             {!hiddenOnRoutes.some(route => location.pathname.startsWith(route)) && (
               <button
@@ -346,7 +367,163 @@ const Header: React.FC = memo(() => {
               </button>
             )}
           </div>
+          )}
+
+          {/* Mobile Actions Section */}
+          {isMobile && (
+            <div className="flex items-center gap-1 flex-shrink-0">
+              {/* Cart Button */}
+              <CartIconWrapper>
+                <button
+                  onClick={() => navigate('/mycart')}
+                  className="p-2 text-app-secondary hover:text-app-primary hover:bg-app-secondary dark:hover:text-green-400 dark:hover:bg-green-900/20 rounded-lg transition-colors duration-200"
+                  title="Giỏ hàng"
+                >
+                  <span id="cart-fly-icon" className="inline-block relative">
+                    <ShoppingCart size={18} />
+                    {cartCount > 0 && (
+                      <span className="absolute top-0 right-0 translate-x-[70%] -translate-y-2/3 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center shadow-lg border border-white dark:border-gray-800 font-bold text-[10px]">
+                        {cartCount > 9 ? '9+' : cartCount}
+                      </span>
+                    )}
+                  </span>
+                </button>
+              </CartIconWrapper>
+
+              {/* User Button */}
+              {user ? (
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="p-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg shadow-md transition-colors duration-200"
+                  title={user.name}
+                >
+                  <User size={18} />
+                </button>
+              ) : (
+                <button
+                  onClick={() => navigate('/login')}
+                  className="p-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg shadow-md transition-colors duration-200"
+                  title="Đăng nhập"
+                >
+                  <User size={18} />
+                </button>
+              )}
+            </div>
+          )}
         </div>
+
+        {/* Mobile Menu Dropdown */}
+        {isMobile && showMobileMenu && (
+          <div className="border-t border-app-border bg-app-header">
+            {/* Mobile Search */}
+            <div className="p-4">
+              <form onSubmit={handleSearch} className="relative">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Search className="h-4 w-4 text-app-muted" />
+                  </div>
+                  <input
+                    className="w-full pl-10 pr-12 py-2.5 bg-app-input border border-app-border rounded-xl text-app-primary placeholder-app-muted focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                    placeholder="Tìm kiếm sản phẩm..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                  <button
+                    type="submit"
+                    className="absolute right-1.5 top-1/2 transform -translate-y-1/2 bg-green-500 hover:bg-green-600 text-white p-1.5 rounded-lg focus:outline-none transition-colors duration-200"
+                  >
+                    <Search size={14} />
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Mobile Navigation */}
+            <div className="px-4 pb-4 space-y-2">
+              <button
+                onClick={() => {
+                  navigate('/home');
+                  setShowMobileMenu(false);
+                }}
+                className="w-full flex items-center gap-3 p-3 text-app-secondary hover:bg-app-secondary hover:text-app-primary rounded-lg transition-colors duration-200"
+              >
+                <Home size={18} />
+                <span className="font-medium">Trang chủ</span>
+              </button>
+
+              {!hiddenOnRoutes.some(route => location.pathname.startsWith(route)) && (
+                <button
+                  onClick={() => setShowCategoryBar(!showCategoryBar)}
+                  className="w-full flex items-center gap-3 p-3 text-app-secondary hover:bg-app-secondary hover:text-app-primary rounded-lg transition-colors duration-200"
+                >
+                  <Menu size={18} />
+                  <span className="font-medium">{showCategoryBar ? 'Ẩn danh mục' : 'Hiện danh mục'}</span>
+                </button>
+              )}
+
+              <button
+                onClick={() => {
+                  navigate('/wishlist');
+                  setShowMobileMenu(false);
+                }}
+                className="w-full flex items-center justify-between p-3 text-app-secondary hover:bg-app-secondary hover:text-app-primary rounded-lg transition-colors duration-200"
+              >
+                <div className="flex items-center gap-3">
+                  <Heart size={18} />
+                  <span className="font-medium">Yêu thích</span>
+                </div>
+                {user && wishlistCount > 0 && (
+                  <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                    {wishlistCount}
+                  </span>
+                )}
+              </button>
+
+              {user && (
+                <>
+                  <button
+                    onClick={() => {
+                      navigate('/accountdetail');
+                      setShowMobileMenu(false);
+                    }}
+                    className="w-full flex items-center gap-3 p-3 text-app-secondary hover:bg-app-secondary hover:text-app-primary rounded-lg transition-colors duration-200"
+                  >
+                    <User size={18} />
+                    <span className="font-medium">Tài khoản</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      navigate('/myorder');
+                      setShowMobileMenu(false);
+                    }}
+                    className="w-full flex items-center gap-3 p-3 text-app-secondary hover:bg-app-secondary hover:text-app-primary rounded-lg transition-colors duration-200"
+                  >
+                    <ShoppingCart size={18} />
+                    <span className="font-medium">Đơn hàng</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      logout();
+                      setShowMobileMenu(false);
+                    }}
+                    className="w-full flex items-center gap-3 p-3 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
+                  >
+                    <LogOut size={18} />
+                    <span className="font-medium">Đăng xuất</span>
+                  </button>
+                </>
+              )}
+
+              {/* Theme Toggle for mobile */}
+              <div className="flex items-center justify-between p-3">
+                <span className="font-medium text-app-secondary">Chế độ tối</span>
+                <ThemeToggle size="sm" />
+              </div>
+            </div>
+          </div>
+        )}
         
         {showCategoryBar && <CategoryBar />}
       </div>

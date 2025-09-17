@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useCategoryStore } from '../../stores/useCategoryStore';
 import { useState, useEffect, useRef } from 'react';
 import { ChevronDown, Menu, X, Tag } from 'lucide-react';
+import { useResponsive } from '../../hooks/useResponsive';
 
 const hiddenOnRoutes = ['/login', '/register', '/admin', '/checkout', '/category', '/accountdetail', '/myorder', '/myaddress', '/notification-settings', '/myvoucher', '/mycart', '/payment-result','/guest-checkout'];
 
@@ -12,6 +13,9 @@ const CategoryBar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeParent, setActiveParent] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Responsive hook
+  const { isMobile } = useResponsive();
 
   // Đóng dropdown khi click bên ngoài
   useEffect(() => {
@@ -60,19 +64,22 @@ const CategoryBar: React.FC = () => {
       <div className="z-30 w-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm shadow-lg border-b border-gray-200 dark:border-gray-700 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Mobile Menu Button */}
-          <div className="lg:hidden flex items-center justify-between py-3">
+          <div className={`${isMobile ? 'flex' : 'lg:hidden flex'} items-center justify-between py-3`}>
             <div className="flex items-center gap-2">
-              <Tag className="text-emerald-600" size={20} />
-              <span className="font-semibold text-gray-800 dark:text-gray-200">Danh mục</span>
+              <Tag className="text-emerald-600" size={isMobile ? 18 : 20} />
+              <span className={`font-semibold text-gray-800 dark:text-gray-200 ${isMobile ? 'text-sm' : ''}`}>
+                Danh mục sản phẩm
+              </span>
             </div>
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              className={`${isMobile ? 'p-1.5' : 'p-2'} rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors`}
+              aria-label={isMobileMenuOpen ? 'Đóng menu danh mục' : 'Mở menu danh mục'}
             >
               {isMobileMenuOpen ? (
-                <X className="text-gray-600 dark:text-gray-400" size={20} />
+                <X className="text-gray-600 dark:text-gray-400" size={isMobile ? 18 : 20} />
               ) : (
-                <Menu className="text-gray-600 dark:text-gray-400" size={20} />
+                <Menu className="text-gray-600 dark:text-gray-400" size={isMobile ? 18 : 20} />
               )}
             </button>
           </div>
@@ -124,24 +131,24 @@ const CategoryBar: React.FC = () => {
           </nav>
 
           {/* Mobile Menu */}
-          <div className={`lg:hidden overflow-hidden transition-all duration-300 ${
+          <div className={`${isMobile ? 'block' : 'lg:hidden'} overflow-hidden transition-all duration-300 ${
             isMobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
           }`}>
-            <div className="py-4 space-y-2">
+            <div className={`${isMobile ? 'py-3 space-y-1' : 'py-4 space-y-2'}`}>
               {categories.map((category) => (
                 <div key={category.id} className="space-y-1">
                   <button
                     onClick={() => handleParentClick(category.id, category.name)}
-                    className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-left font-medium transition-all duration-200 ${
+                    className={`w-full flex items-center justify-between ${isMobile ? 'px-3 py-2.5' : 'px-4 py-3'} rounded-lg text-left font-medium transition-all duration-200 ${
                       activeParent === category.id
                         ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300'
                         : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
                     }`}
                   >
-                    <span>{category.name}</span>
+                    <span className={isMobile ? 'text-sm' : ''}>{category.name}</span>
                     {category.subs && category.subs.length > 0 && (
                       <ChevronDown 
-                        size={16} 
+                        size={isMobile ? 14 : 16} 
                         className={`transition-transform duration-200 ${
                           activeParent === category.id ? 'rotate-180' : ''
                         }`}
@@ -151,12 +158,12 @@ const CategoryBar: React.FC = () => {
 
                   {/* Mobile Submenu */}
                   {activeParent === category.id && category.subs && category.subs.length > 0 && (
-                    <div className="ml-4 space-y-1 animate-in slide-in-from-top-2 duration-200">
+                    <div className={`${isMobile ? 'ml-3 space-y-0.5' : 'ml-4 space-y-1'} animate-in slide-in-from-top-2 duration-200`}>
                       {category.subs.map((sub, subIndex) => (
                         <button
                           key={subIndex}
                           onClick={() => handleSubClick(sub)}
-                          className="w-full text-left px-4 py-2.5 text-sm text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 hover:text-emerald-600 dark:hover:text-emerald-300 rounded-lg transition-colors duration-150"
+                          className={`w-full text-left ${isMobile ? 'px-3 py-2 text-xs' : 'px-4 py-2.5 text-sm'} text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 hover:text-emerald-600 dark:hover:text-emerald-300 rounded-lg transition-colors duration-150`}
                         >
                           {sub}
                         </button>

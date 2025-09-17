@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { useProductStore } from '../../stores/useProductStore';
 import { useCategoryStore } from '../../stores/useCategoryStore';
 import { useFlashSaleStore } from '../../stores/useFlashSaleStore';
+import { useResponsive } from '../../hooks/useResponsive';
 import HeroSection from '../../components/Guest/home/sections/HeroSection';
 import SectionBanner from '../../components/Guest/home/sections/SectionBanner';
 import SidebarBanner from '../../components/Guest/home/sections/SidebarBanner';
@@ -24,6 +25,8 @@ import { testimonials } from '../../data/Guest/Home';
 const Home: React.FC = memo(() => {
   const fetchAllProducts = useProductStore(state => state.fetchAll);
   const location = useLocation();
+  const { isMobile } = useResponsive();
+  
   // Fetch products when route changes (e.g. after add product)
   useEffect(() => {
     fetchAllProducts();
@@ -285,8 +288,8 @@ const Home: React.FC = memo(() => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 scroll-optimized">
-      {/* Sidebar Banner - Fixed position */}
-      <SidebarBanner />
+      {/* Sidebar Banner - Hidden on mobile */}
+      {!isMobile && <SidebarBanner />}
       
       {/* Hero Section with Database Banners Only */}
       <HeroSection
@@ -294,13 +297,13 @@ const Home: React.FC = memo(() => {
       />
       
       {/* Flash Sale Section */}
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className={`max-w-7xl mx-auto ${isMobile ? 'px-2 py-4' : 'px-4 py-6'}`}>
         <FlashSaleSection />
       </div>
       
       {/* Sale Banner - Eye-catching sale section */}
-      <div className="max-w-7xl mx-auto px-4 py-8 mt-8">
-        <SaleBanner className="mb-8" />
+      <div className={`max-w-7xl mx-auto ${isMobile ? 'px-2 py-4 mt-4' : 'px-4 py-8 mt-8'}`}>
+        <SaleBanner className={isMobile ? 'mb-4' : 'mb-8'} />
       </div>
       
       <SaleSection
@@ -309,8 +312,8 @@ const Home: React.FC = memo(() => {
       />
       
       {/* Featured Banner - Highlight featured products */}
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        <FeaturedBanner className="mb-8" />
+      <div className={`max-w-7xl mx-auto ${isMobile ? 'px-2 py-3' : 'px-4 py-6'}`}>
+        <FeaturedBanner className={isMobile ? 'mb-4' : 'mb-8'} />
       </div>
       
       <FeaturedProductsSection
@@ -319,15 +322,15 @@ const Home: React.FC = memo(() => {
       />
       
       {/* Category Banner - Compact version */}
-          <div className="max-w-7xl mx-auto px-4 py-6">
-        <CategoryBanner className="max-w-7xl mx-auto px-4" />
+      <div className={`max-w-7xl mx-auto ${isMobile ? 'px-2 py-3' : 'px-4 py-6'}`}>
+        <CategoryBanner className={`max-w-7xl mx-auto ${isMobile ? 'px-2' : 'px-4'}`} />
       </div>
       
       {/* Section banner for categories */}
-      <div className="max-w-7xl mx-auto px-8 mb-6">
+      <div className={`max-w-7xl mx-auto ${isMobile ? 'px-4 mb-3' : 'px-8 mb-6'}`}>
         <SectionBanner 
           sectionType="categories" 
-          className="h-20 shadow-lg"
+          className={isMobile ? 'h-16 shadow-md' : 'h-20 shadow-lg'}
         />
       </div>
       
@@ -341,7 +344,7 @@ const Home: React.FC = memo(() => {
       <TestimonialsSection testimonials={testimonials} />
       
       {/* Footer Banner - Full width at bottom */}
-      <div className="w-full px-4 py-8 bg-gray-50 dark:bg-gray-800">
+      <div className={`w-full ${isMobile ? 'px-2 py-4' : 'px-4 py-8'} bg-gray-50 dark:bg-gray-800`}>
         <FooterBanner />
       </div>
     </div>
