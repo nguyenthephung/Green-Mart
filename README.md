@@ -1,77 +1,101 @@
-# 🛒 GreenMart - Web Bán Hàng Fullstack
+# 🛒 GreenMart - Fullstack E-commerce Platform
 
-Dự án gồm hai phần:
+GreenMart is a modern fullstack e-commerce platform designed to provide a seamless shopping experience. The project is divided into two main parts:
 
-- **Frontend**: Giao diện người dùng (React + Vite + TypeScript)
-- **Backend**: Xử lý API (Node.js + Express)
-
----
-
-## 🔧 Cài đặt
-
-1. Tại thư mục gốc GreenMart, chạy `npm install` để cài đặt dependencies dùng chung .
-
-2. Truy cập vào thư mục `frontend`, chạy:
-
-   - `npm install`
-
-3. Truy cập vào thư mục `backend`, chạy:
-
-   - `npm install`
+- **Frontend**: Built with React, Vite, and TypeScript for a fast and interactive user interface.
+- **Backend**: Powered by Node.js, Express, and MongoDB for robust API handling and data management.
 
 ---
 
-## ▶️ Chạy dự án
+## 🔧 Installation
 
-### Chạy riêng **Frontend**
+1. Clone the repository and navigate to the root directory.
+2. Install shared dependencies:
 
-1. Truy cập vào thư mục `frontend`
+   ```bash
+   npm install
+   ```
 
-2. Chạy lệnh:
+3. Navigate to the `frontend` directory and install dependencies:
 
-   - `npm run dev`
+   ```bash
+   cd frontend
+   npm install
+   ```
 
----
+4. Navigate to the `backend` directory and install dependencies:
 
-### Chạy riêng **Backend**
-
-1. Truy cập vào thư mục `backend`
-
-2. Chạy lệnh:
-
-   - `npm run dev`
-
----
-
-### Chạy cả **Frontend và Backend** từ thư mục gốc GreenMart
-
-Chạy lệnh:
-
-- `npm run dev`
+   ```bash
+   cd backend
+   npm install
+   ```
 
 ---
 
-## 💳 Payment Gateway Integration
+## ▶️ Running the Project
 
-GreenMart tích hợp với 3 cổng thanh toán chính của Việt Nam:
+### Run **Frontend** Only
 
-- **VNPay** - Cổng thanh toán hàng đầu Việt Nam
-- **MoMo** - Ví điện tử phổ biến
-- **ZaloPay** - Giải pháp thanh toán của Zalo
+1. Navigate to the `frontend` directory:
 
-### Các tính năng thanh toán:
-✅ Thanh toán ATM/Internet Banking (VNPay)  
-✅ Thanh toán thẻ Visa/Master (VNPay)  
-✅ Thanh toán ví MoMo  
-✅ Thanh toán ZaloPay  
-✅ Xác thực callback real-time  
-✅ Trang test payment gateway  
-✅ Tracking đơn hàng sau thanh toán  
+   ```bash
+   cd frontend
+   ```
 
-### Setup Payment:
-1. Xem hướng dẫn chi tiết trong [PAYMENT_INTEGRATION.md](PAYMENT_INTEGRATION.md)
-2. Đăng ký tài khoản test miễn phí tại các nhà cung cấp
-3. Cấu hình file `.env` với thông tin API
-4. Truy cập `/payment-test` để test các gateway
+2. Start the development server:
 
-**Lưu ý:** Tất cả 3 nhà cung cấp đều hỗ trợ đăng ký miễn phí và môi trường sandbox để test.
+   ```bash
+   npm run dev
+   ```
+
+### Run **Backend** Only
+
+1. Navigate to the `backend` directory:
+
+   ```bash
+   cd backend
+   ```
+
+2. Start the development server:
+
+   ```bash
+   npm run dev
+   ```
+
+### Run Both **Frontend and Backend**
+
+1. From the root directory, run:
+
+   ```bash
+   npm run dev
+   ```
+
+---
+
+## 🛠️ Technologies Used
+
+### Frontend
+
+- React
+- Vite
+- TypeScript
+- Tailwind CSS
+- Zustand (state management)
+- Axios (HTTP client)
+
+### Backend
+
+- Node.js
+- Express
+- MongoDB (database)
+- Mongoose (ODM)
+- Cloudinary (image storage)
+- JSON Web Token (authentication)
+- Multer (file uploads)
+- Node-Cron (task scheduling)
+
+---
+
+## 🌐 Deployment
+
+GreenMart can be deployed using Docker, Azure, or Firebase Hosting. For detailed deployment instructions, refer to the documentation.

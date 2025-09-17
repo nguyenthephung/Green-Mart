@@ -151,7 +151,7 @@ class OrderController {
         if (subtotal < voucher.minOrder) {
           res.status(400).json({
             success: false,
-            message: `Minimum order value for this voucher is ${voucher.minOrder}`
+            message: `Giá trị đơn hàng tối thiểu để áp dụng voucher là ${voucher.minOrder}`
           });
           return;
         }
