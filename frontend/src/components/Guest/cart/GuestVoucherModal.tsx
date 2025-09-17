@@ -73,7 +73,7 @@ const GuestVoucherModal: React.FC<GuestVoucherModalProps> = ({ open, onClose }) 
                 </button>
                 <button
                   onClick={onClose}
-                  className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-6 rounded-xl transition-colors duration-200"
+                  className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 border border-gray-300"
                 >
                   Tiếp tục mua sắm
                 </button>

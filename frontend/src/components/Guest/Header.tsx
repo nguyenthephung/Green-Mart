@@ -183,7 +183,7 @@ const Header: React.FC = memo(() => {
 
           {/* Desktop Actions Section */}
           {!isMobile && (
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-3 flex-shrink-0">{/* Increased gap from 2 to 3 for better spacing */}
             {/* Category Menu Button - Desktop only */}
             <button
               className="p-3 text-app-secondary hover:text-app-primary hover:bg-app-secondary dark:hover:text-green-400 dark:hover:bg-green-900/20 rounded-xl group relative transition-colors duration-200"
@@ -343,6 +343,19 @@ const Header: React.FC = memo(() => {
                             {wishlistCount}
                           </span>
                         )}
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setShowLuckyWheel(true);
+                          setShowUserMenu(false);
+                        }}
+                        className="dropdown-item text-app-primary"
+                      >
+                        <div className="icon-wrapper">
+                          <Zap size={16} className="group-hover:text-yellow-600" />
+                        </div>
+                        <span className="font-medium">Vòng xoay may mắn</span>
                       </button>
 
                     </div>
@@ -560,13 +573,20 @@ const Header: React.FC = memo(() => {
 
               <button
                 onClick={() => {
-                  setShowLuckyWheel(true);
-                  setShowMobileMenu(false);
+                  if (user) {
+                    setShowLuckyWheel(true);
+                    setShowMobileMenu(false);
+                  } else {
+                    // If user is not logged in, redirect to login
+                    navigate('/login');
+                    setShowMobileMenu(false);
+                  }
                 }}
                 className="w-full flex items-center gap-3 p-3 text-app-secondary hover:bg-app-secondary hover:text-app-primary rounded-lg transition-colors duration-200"
               >
                 <Zap size={18} />
                 <span className="font-medium">Vòng xoay may mắn</span>
+                {!user && <span className="text-xs text-app-muted">(Cần đăng nhập)</span>}
               </button>
 
               {user && (
@@ -652,13 +672,11 @@ const Header: React.FC = memo(() => {
         {(isMobile || showCategoryBar) && <CategoryBar />}
         
         {/* Lucky Wheel Modal */}
-        {user && (
-          <LuckyWheel
-            userId={user.id}
-            isOpen={showLuckyWheel}
-            onClose={() => setShowLuckyWheel(false)}
-          />
-        )}
+        <LuckyWheel
+          userId={user?.id || ''}
+          isOpen={showLuckyWheel}
+          onClose={() => setShowLuckyWheel(false)}
+        />
       </div>
     </header>
   );

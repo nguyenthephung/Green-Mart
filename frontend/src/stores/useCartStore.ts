@@ -286,11 +286,18 @@ export const useCartStore = create<CartState>((set, get) => ({
             {
               label: 'Xem giỏ hàng',
               action: () => {
-                window.location.href = '/cart';
+                window.location.href = '/mycart';
               }
             }
           ]
         );
+        
+        // Auto scroll to top when item is added to cart (from any page)
+        if (window.location.pathname !== '/mycart') {
+          setTimeout(() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }, 500);
+        }
       } else if ((res as any)?.requireLogin) {
         // Guest user - sync with localStorage
         const currentState = get();

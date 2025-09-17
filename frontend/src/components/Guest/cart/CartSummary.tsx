@@ -1,5 +1,6 @@
 
 
+import { useResponsive } from '../../../hooks/useResponsive';
 
 interface CartSummaryProps {
   itemsTotal: number;
@@ -20,23 +21,36 @@ export default function CartSummary({ itemsTotal, voucherDiscount = 0, voucher, 
   // Free shipping for orders >= 300k
   const isEligibleForFreeShip = itemsTotal >= 300000;
   const finalTotal = itemsTotal - voucherDiscount;
+  const { isMobile } = useResponsive();
 
   return (
     <div className="bg-app-card shadow-lg rounded-2xl p-6 w-full border border-green-100">
-      <h3 className="text-xl font-semibold mb-6 text-app-primary flex items-center gap-2">
+      <h3 className={`${isMobile ? 'text-lg' : 'text-xl'} font-semibold mb-6 text-app-primary flex items-center gap-2`}>
         📋 Tóm tắt đơn hàng
       </h3>
       
       {address && (address.fullName || address.phone) && (
-        <div className="mb-4 p-3 bg-green-50 rounded-xl border border-green-100">
-          <div className="flex items-center gap-2 text-sm text-green-700">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-            <span className="font-medium">Người nhận:</span>
-            <span>{address.fullName || '---'}</span>
-            <span>•</span>
-            <span>{address.phone || '---'}</span>
+        <div className={`mb-4 ${isMobile ? 'p-3' : 'p-4'} bg-green-50 rounded-xl border border-green-100`}>
+          <div className={`${isMobile ? 'flex flex-col gap-1' : 'flex items-center gap-2'} text-sm text-green-700`}>
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <span className="font-medium">Người nhận:</span>
+              {!isMobile && (
+                <>
+                  <span className="truncate">{address.fullName || '---'}</span>
+                  <span>•</span>
+                  <span>{address.phone || '---'}</span>
+                </>
+              )}
+            </div>
+            {isMobile && (
+              <div className="ml-6 space-y-1">
+                <div className="truncate">{address.fullName || '---'}</div>
+                <div>{address.phone || '---'}</div>
+              </div>
+            )}
           </div>
         </div>
       )}
