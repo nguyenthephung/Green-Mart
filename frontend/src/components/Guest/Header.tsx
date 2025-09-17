@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingCart, Search, User, Home, Bell, LogOut, Heart, Menu, X, ChevronDown, MapPin, Gift, Settings } from 'lucide-react';
+import { ShoppingCart, Search, User, Home, Bell, LogOut, Heart, Menu, X, ChevronDown, MapPin, Gift, Settings, Zap } from 'lucide-react';
 import { useCartStore } from '../../stores/useCartStore';
 import { CartIconWrapper } from '../../hooks/useAddToCartAnimation';
 import { useUserStore } from '../../stores/useUserStore';
@@ -11,13 +11,16 @@ import { useResponsive } from '../../hooks/useResponsive';
 import NotificationDropdownContent from './Notification/NotificationDropdownContent';
 import ThemeToggle from '../ui/ThemeToggle';
 import CategoryBar from './CategoryBar';
+import LuckyWheel from './Account/LuckyWheel';
 
 const Header: React.FC = memo(() => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [showDropdown, setShowDropdown] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showCategoryBar, setShowCategoryBar] = useState(true);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showMobileCategoryMenu, setShowMobileCategoryMenu] = useState(false);
+  const [showLuckyWheel, setShowLuckyWheel] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   let dropdownTimeout: NodeJS.Timeout | null = null;
   const navigate = useNavigate();
@@ -180,6 +183,14 @@ const Header: React.FC = memo(() => {
           {/* Desktop Actions Section */}
           {!isMobile && (
             <div className="flex items-center gap-2 flex-shrink-0">
+            {/* Category Menu Button - Desktop only */}
+            <button
+              className="p-3 text-app-secondary hover:text-app-primary hover:bg-app-secondary dark:hover:text-green-400 dark:hover:bg-green-900/20 rounded-xl group relative transition-colors duration-200"
+              onClick={() => setShowCategoryBar(!showCategoryBar)}
+              title={showCategoryBar ? 'Ẩn danh mục' : 'Hiện danh mục'}
+            >
+              <Menu size={20} />
+            </button>
             
             {/* Theme Toggle */}
             <ThemeToggle size="sm" className="mr-1" />
@@ -516,6 +527,35 @@ const Header: React.FC = memo(() => {
                 )}
               </button>
 
+              <button
+                onClick={() => {
+                  navigate('/notification');
+                  setShowMobileMenu(false);
+                }}
+                className="w-full flex items-center justify-between p-3 text-app-secondary hover:bg-app-secondary hover:text-app-primary rounded-lg transition-colors duration-200"
+              >
+                <div className="flex items-center gap-3">
+                  <Bell size={18} />
+                  <span className="font-medium">Thông báo</span>
+                </div>
+                {user && unreadCount > 0 && (
+                  <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowLuckyWheel(true);
+                  setShowMobileMenu(false);
+                }}
+                className="w-full flex items-center gap-3 p-3 text-app-secondary hover:bg-app-secondary hover:text-app-primary rounded-lg transition-colors duration-200"
+              >
+                <Zap size={18} />
+                <span className="font-medium">Vòng xoay may mắn</span>
+              </button>
+
               {user && (
                 <>
                   <button
@@ -595,7 +635,17 @@ const Header: React.FC = memo(() => {
           </div>
         )}
         
-        <CategoryBar />
+        {/* CategoryBar: Always show on mobile, toggleable on desktop */}
+        {(isMobile || showCategoryBar) && <CategoryBar />}
+        
+        {/* Lucky Wheel Modal */}
+        {user && (
+          <LuckyWheel
+            userId={user.id}
+            isOpen={showLuckyWheel}
+            onClose={() => setShowLuckyWheel(false)}
+          />
+        )}
       </div>
     </header>
   );

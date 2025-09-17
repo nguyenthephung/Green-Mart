@@ -7,6 +7,7 @@ import orderService from '../../services/orderService';
 import { tokenManager } from '../../services/api';
 import { getOrderTrackingHistory } from '../../services/orderTrackingService';
 import OrderTrackingTimeline from '../../components/OrderTracking/OrderTrackingTimeline';
+import { useResponsive } from '../../hooks/useResponsive';
 
 interface OrderItem {
   name: string;
@@ -29,6 +30,7 @@ interface Order {
 
 export default function OrderTrackingPage() {
   const { orderId } = useParams();
+  const { isMobile } = useResponsive();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -170,10 +172,10 @@ export default function OrderTrackingPage() {
   const total = items.reduce((sum: number, item: OrderItem) => sum + item.price * item.quantity, 0) + deliveryFee;
 
   return (
-    <div className="p-4 max-w-5xl mx-auto">
+    <div className={`${isMobile ? 'p-2' : 'p-4'} max-w-5xl mx-auto`}>
       <Link 
         to="/myorder"  
-        className="text-sm text-brand-green hover:text-brand-green/80 hover:underline flex items-center gap-2 mb-4 bg-app-card px-4 py-2 rounded-lg border-app-border hover:bg-app-secondary transition-all duration-200" 
+        className={`text-sm text-brand-green hover:text-brand-green/80 hover:underline flex items-center gap-2 mb-4 bg-app-card ${isMobile ? 'px-3 py-2' : 'px-4 py-2'} rounded-lg border-app-border hover:bg-app-secondary transition-all duration-200`} 
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -181,41 +183,41 @@ export default function OrderTrackingPage() {
         Quay lại danh sách đơn hàng
       </Link>
       
-      <div className="bg-app-card rounded-xl shadow-lg p-6 mb-6 border-app-border">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
-          <div className="flex items-center gap-3">
-            <span className={`text-sm font-bold px-4 py-2 rounded-full border-2 ${
+      <div className={`bg-app-card rounded-xl shadow-lg ${isMobile ? 'p-4' : 'p-6'} mb-6 border-app-border`}>
+        <div className={`flex flex-col ${isMobile ? 'gap-3' : 'md:flex-row md:items-center md:justify-between gap-2'} mb-4`}>
+          <div className={`flex ${isMobile ? 'flex-col gap-2' : 'items-center gap-3'}`}>
+            <span className={`text-sm font-bold ${isMobile ? 'px-3 py-1.5' : 'px-4 py-2'} rounded-full border-2 ${
               status === 'Hoàn thành' ? 'text-green-600 border-green-500 bg-green-50' : 
               status === 'Đã hủy' ? 'text-red-600 border-red-500 bg-red-50' : 
               status === 'Chờ giao hàng' ? 'text-orange-600 border-orange-500 bg-orange-50' : 
               'text-app-secondary border-app-border bg-app-secondary'
-            }`}>
+            } ${isMobile ? 'text-center' : ''}`}>
               {status}
             </span>
-            <div>
+            <div className={isMobile ? 'text-center' : ''}>
               <span className="text-xs text-app-muted">Mã đơn hàng:</span>
-              <span className="text-sm font-bold text-app-primary ml-1">#{id}</span>
+              <span className={`${isMobile ? 'text-sm' : 'text-sm'} font-bold text-app-primary ml-1 ${isMobile ? 'block' : ''}`}>#{id}</span>
             </div>
           </div>
-          <div className="text-xs text-app-muted">
+          <div className={`text-xs text-app-muted ${isMobile ? 'text-center' : ''}`}>
             <span className="font-medium">Ngày đặt:</span> {date}
           </div>
         </div>
         {/* Timeline tracking thật sự */}
         <div className="mt-6">
-          <h3 className="text-base font-semibold mb-2 text-app-primary">Lịch sử trạng thái & vị trí đơn hàng</h3>
+          <h3 className={`${isMobile ? 'text-sm' : 'text-base'} font-semibold mb-2 text-app-primary`}>Lịch sử trạng thái & vị trí đơn hàng</h3>
           {trackingLoading ? (
-            <div className="text-sm text-app-muted">Đang tải lịch sử tracking...</div>
+            <div className={`${isMobile ? 'text-xs' : 'text-sm'} text-app-muted`}>Đang tải lịch sử tracking...</div>
           ) : trackingHistory && trackingHistory.length > 0 ? (
             <OrderTrackingTimeline history={trackingHistory} />
           ) : (
-            <div className="text-sm text-app-muted">Chưa có lịch sử vị trí/trạng thái cho đơn hàng này.</div>
+            <div className={`${isMobile ? 'text-xs' : 'text-sm'} text-app-muted`}>Chưa có lịch sử vị trí/trạng thái cho đơn hàng này.</div>
           )}
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2">
+      <div className={`grid grid-cols-1 ${isMobile ? 'gap-4' : 'md:grid-cols-3 gap-6'}`}>
+        <div className={isMobile ? '' : 'md:col-span-2'}>
           <OrderItems items={items} />
         </div>
         <div>
@@ -226,10 +228,10 @@ export default function OrderTrackingPage() {
             payWith={payWith}
             deliveryAddress={deliveryAddress}
           />
-          <div className="mt-6 p-4 bg-app-card rounded-lg border-app-border">
+          <div className={`mt-6 ${isMobile ? 'p-3' : 'p-4'} bg-app-card rounded-lg border-app-border`}>
             <div className="flex justify-between items-center">
-              <span className="text-app-secondary text-sm font-medium">Thành tiền:</span>
-              <span className="text-2xl font-bold text-brand-green">{total.toLocaleString()}₫</span>
+              <span className={`text-app-secondary ${isMobile ? 'text-xs' : 'text-sm'} font-medium`}>Thành tiền:</span>
+              <span className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-brand-green`}>{total.toLocaleString()}₫</span>
             </div>
           </div>
         </div>
