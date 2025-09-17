@@ -25,7 +25,7 @@ const SaleSection: React.FC<SaleSectionProps> = ({ saleProducts, handleAddToCart
           Cơ hội vàng! Giảm giá sốc chỉ có hôm nay. Nhanh tay trước khi hết hàng!
         </p>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
         {saleProducts.map((product) => (
           <div key={product.id} className="relative transform-gpu">
             <div className="absolute top-1 left-1 z-20">

@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingCart, Search, User, Home, Bell, LogOut, Heart, Menu, X } from 'lucide-react';
+import { ShoppingCart, Search, User, Home, Bell, LogOut, Heart, Menu, X, ChevronDown } from 'lucide-react';
 import { useCartStore } from '../../stores/useCartStore';
 import { CartIconWrapper } from '../../hooks/useAddToCartAnimation';
 import { useUserStore } from '../../stores/useUserStore';
 import { useWishlistStore } from '../../stores/useWishlistStore';
 import { useNotificationStore } from '../../stores/useNotificationStore';
+import { useCategoryStore } from '../../stores/useCategoryStore';
 import { useResponsive } from '../../hooks/useResponsive';
 import NotificationDropdownContent from './Notification/NotificationDropdownContent';
 import ThemeToggle from '../ui/ThemeToggle';
@@ -19,12 +20,16 @@ const Header: React.FC = memo(() => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showCategoryBar, setShowCategoryBar] = useState(true);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showMobileCategoryMenu, setShowMobileCategoryMenu] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   let dropdownTimeout: NodeJS.Timeout | null = null;
   const navigate = useNavigate();
   
   // Responsive hook
   const { isMobile } = useResponsive();
+  
+  // Categories
+  const { categories } = useCategoryStore();
   
   // Use cartCount selector so Header re-renders when cart changes
   const cartCount = useCartStore(state => state.totalItems);
@@ -436,6 +441,61 @@ const Header: React.FC = memo(() => {
                   </button>
                 </div>
               </form>
+            </div>
+
+            {/* Mobile Categories */}
+            <div className="px-4 pb-2 border-b border-app-border">
+              <button
+                onClick={() => setShowMobileCategoryMenu(!showMobileCategoryMenu)}
+                className="w-full flex items-center justify-between p-3 text-app-secondary hover:bg-app-secondary hover:text-app-primary rounded-lg transition-colors duration-200"
+              >
+                <div className="flex items-center gap-3">
+                  <Menu size={18} />
+                  <span className="font-medium">Danh mục sản phẩm</span>
+                </div>
+                <ChevronDown 
+                  size={16} 
+                  className={`transition-transform duration-200 ${showMobileCategoryMenu ? 'rotate-180' : ''}`}
+                />
+              </button>
+
+              {showMobileCategoryMenu && (
+                <div className="mt-2 space-y-1 max-h-64 overflow-y-auto">
+                  {categories.map((category) => (
+                    <div key={category._id} className="space-y-1">
+                      <button
+                        onClick={() => {
+                          navigate(`/productlist?category=${category._id}`);
+                          setShowMobileMenu(false);
+                          setShowMobileCategoryMenu(false);
+                        }}
+                        className="w-full text-left p-2.5 text-sm text-app-secondary hover:bg-app-hover hover:text-app-primary rounded-md transition-colors duration-200 font-medium"
+                      >
+                        {category.name}
+                      </button>
+                      
+                      {/* Subcategories */}
+                      {category.subs && category.subs.length > 0 && (
+                        <div className="ml-4 space-y-1">
+                          {category.subs.map((subcategory, index) => (
+                            <button
+                              key={index}
+                              onClick={() => {
+                                navigate(`/productlist?category=${category._id}&subcategory=${encodeURIComponent(subcategory)}`);
+                                setShowMobileMenu(false);
+                                setShowMobileCategoryMenu(false);
+                              }}
+                              className="w-full text-left p-2 text-xs text-app-muted hover:bg-app-hover hover:text-app-secondary rounded-md transition-colors duration-200"
+                            >
+                              • {subcategory}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Mobile Navigation */}

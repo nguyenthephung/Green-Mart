@@ -161,10 +161,10 @@ const AdminDashboard: React.FC = () => {
           className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300"
           style={{ backgroundColor: isDarkMode ? '#18181b' : '#fff' }}
         >
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Đơn hàng gần đây</h2>
-            <div className="flex items-center space-x-4">
-              <div className="flex space-x-2">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">Đơn hàng gần đây</h2>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
+              <div className="flex flex-wrap gap-2">
                 {['all', 'completed', 'processing', 'shipping'].map((filter) => {
                   const isSelected = selectedFilter === filter;
                   const filterLabels = {
@@ -187,7 +187,7 @@ const AdminDashboard: React.FC = () => {
                             ? { backgroundColor: '#d1fae5', color: '#065f46', boxShadow: '0 2px 8px 0 #10b98122' }
                             : { backgroundColor: '#f3f4f6', color: '#374151' }
                       }
-                      className={`px-3 py-1 rounded-full text-xs font-medium transition-all disabled:opacity-50 ${
+                      className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium transition-all disabled:opacity-50 ${
                         isSelected
                           ? 'shadow-md'
                           : 'hover:bg-gray-200 dark:hover:bg-[#18181b]'

@@ -125,7 +125,7 @@ const ProductCard: React.FC<ProductCardProps> = memo(({ product, onAddToCart, sh
   }, [user, isInWishlist, removeFromWishlist, addToWishlist, product, priceInfo]);
 
   return (
-    <div className={`bg-white dark:bg-gray-800 p-4 rounded-xl shadow-xl transform transition-all duration-400 hover:shadow-2xl dark:shadow-gray-900/50 hover:-translate-y-2 perspective-1000 relative flex flex-col h-full ${showHotBadge ? 'border-4 border-yellow-400 animate-pulse' : ''}`}> 
+    <div className={`bg-white dark:bg-gray-800 p-2 sm:p-4 rounded-xl shadow-xl transform transition-all duration-400 hover:shadow-2xl dark:shadow-gray-900/50 hover:-translate-y-2 perspective-1000 relative flex flex-col h-full ${showHotBadge ? 'border-4 border-yellow-400 animate-pulse' : ''}`}> 
       {showHotBadge && (
         <div className="absolute top-2 left-2 z-20 flex items-center gap-1">
           <span className="bg-yellow-400 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-lg flex items-center">
@@ -157,13 +157,13 @@ const ProductCard: React.FC<ProductCardProps> = memo(({ product, onAddToCart, sh
           />
         ) : null}
       </Link>
-      <h4 className="text-lg font-medium mt-2 text-gray-900 dark:text-gray-100">{product.name}</h4>
+      <h4 className="text-sm sm:text-lg font-medium mt-2 text-gray-900 dark:text-gray-100 line-clamp-2">{product.name}</h4>
       
       {/* Rating - Always show, even when 0 */}
       <div className="mt-1">
         <StarRating 
           rating={product.averageRating || 0} 
-          size="sm" 
+          size="sm"
           showValue={(product.averageRating || 0) > 0}
           showCount={(product.averageRating || 0) > 0}
           count={product.totalRatings || 0}
@@ -225,9 +225,11 @@ const ProductCard: React.FC<ProductCardProps> = memo(({ product, onAddToCart, sh
       <div className="mt-auto pt-2">
         <button
           onClick={handleAddToCart}
-          className="w-full bg-green-600 dark:bg-green-700 hover:bg-green-700 dark:hover:bg-green-600 text-white px-4 py-2 rounded-md shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-200 flex items-center justify-center gpu-accelerated"
+          className="w-full bg-green-600 dark:bg-green-700 hover:bg-green-700 dark:hover:bg-green-600 text-white px-2 sm:px-4 py-2 rounded-md shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-200 flex items-center justify-center gpu-accelerated text-xs sm:text-sm"
         >
-          <FaShoppingCart className="mr-2" /> Thêm Vào Giỏ Hàng
+          <FaShoppingCart className="mr-1 sm:mr-2 text-xs sm:text-sm" /> 
+          <span className="hidden sm:inline">Thêm Vào Giỏ Hàng</span>
+          <span className="sm:hidden">Thêm</span>
         </button>
       </div>
     </div>

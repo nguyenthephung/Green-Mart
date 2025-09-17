@@ -23,7 +23,7 @@ const FeaturedProductsSection: React.FC<FeaturedProductsSectionProps> = ({ featu
         Những sản phẩm được khách hàng đánh giá cao và mua nhiều nhất tại GreenMart
       </p>
     </div>
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
       {featuredProducts.map((product) => (
         <div key={product.id} className="relative transform-gpu">
           <div className="absolute top-1 left-1 z-20">

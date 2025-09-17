@@ -1,6 +1,7 @@
 
 import { useCartStore } from '../../stores/useCartStore';
 import { useUserStore } from '../../stores/useUserStore';
+import { useResponsive } from '../../hooks/useResponsive';
 import { useEffect, useState } from "react";
 import CartSummary from "../../components/Guest/cart/CartSummary";
 import MarketInfo from "../../components/Guest/cart/MarketInfo";
@@ -48,6 +49,7 @@ export default function CartPage() {
   const vouchers = useVoucherStore(state => state.vouchers);
   const fetchVouchers = useVoucherStore(state => state.fetchVouchers);
   const user = useUserStore(state => state.user);
+  const { isMobile } = useResponsive();
 
   const navigate = useNavigate();
   const [showVoucherModal, setShowVoucherModal] = useState(false);
@@ -237,21 +239,21 @@ export default function CartPage() {
     
     <div className="bg-gradient-app-main min-h-screen">
       {/* Hero Section */}
-      <div className="pt-0 pb-2">
-        <div className="max-w-7xl mx-auto px-8">
+      <div className={`pt-0 ${isMobile ? 'pb-1' : 'pb-2'}`}>
+        <div className={`max-w-7xl mx-auto ${isMobile ? 'px-4' : 'px-8'}`}>
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-app-primary mb-2">
+            <h1 className={`${isMobile ? 'text-2xl' : 'text-4xl'} font-bold text-app-primary mb-2`}>
               🛒 Giỏ hàng của bạn
             </h1>
-            <p className="text-lg text-app-secondary break-words">
+            <p className={`${isMobile ? 'text-base' : 'text-lg'} text-app-secondary break-words`}>
               {cart.length} sản phẩm đã chọn
             </p>
           </div>
         </div>
       </div>
 
-      <main className="max-w-7xl mx-auto px-8 pb-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-6">
+      <main className={`max-w-7xl mx-auto ${isMobile ? 'px-4 pb-4' : 'px-8 pb-8'} ${isMobile ? 'grid grid-cols-1 gap-4' : 'grid grid-cols-1 lg:grid-cols-3 gap-8'}`}>
+        <div className={`${isMobile ? 'space-y-4' : 'lg:col-span-2 space-y-6'}`}>
           <MarketInfo />
           <OptimizedCartList
             items={cartListItems}

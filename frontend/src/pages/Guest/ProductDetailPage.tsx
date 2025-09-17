@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useCallback, useMemo, useState } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { useProductStore } from '../../stores/useProductStore';
+import { useResponsive } from '../../hooks/useResponsive';
 import ProductDetailDisplay from '../../components/Guest/productDetail/ProductDetailDisplay';
 
 import { FaShoppingCart, FaCheckCircle, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
@@ -13,6 +14,7 @@ const ProductDetailPage: React.FC = () => {
   const location = useLocation();
   const { products, fetchAll } = useProductStore();
   const addToCart = useCartStore(state => state.addToCart);
+  const { isMobile } = useResponsive();
   
   // Get Flash Sale info from navigation state
   const flashSaleInfo = location.state?.flashSale || null;
@@ -210,58 +212,60 @@ const ProductDetailPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-200 py-10 px-4 md:px-16">
+    <div className={`min-h-screen bg-gradient-to-b from-gray-50 to-gray-200 ${isMobile ? 'py-4 px-2' : 'py-10 px-4 md:px-16'}`}>
       {/* Banner Manager */}
       <BannerManager page="product" categoryId={product?.category} />
       
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-start mb-16">
+      <div className={`max-w-6xl mx-auto ${isMobile ? 'grid grid-cols-1 gap-4' : 'grid grid-cols-1 md:grid-cols-2 gap-10'} items-start mb-16`}>
         {/* Product Image */}
-        <div className="bg-white p-6 rounded-2xl shadow-2xl">
+        <div className={`bg-white ${isMobile ? 'p-3' : 'p-6'} rounded-2xl shadow-2xl`}>
           <img
             ref={imgRef}
             src={mainImage || product.image}
             alt={product.name}
-            className="w-full h-[500px] object-contain rounded-xl mb-4 bg-gray-50"
+            className={`w-full ${isMobile ? 'h-[300px]' : 'h-[500px]'} object-contain rounded-xl mb-4 bg-gray-50`}
           />
           
           {/* Image Gallery */}
           {descriptionImages.length > 0 && (
-            <div className="flex items-center gap-2 justify-center mt-2">
+            <div className={`flex items-center gap-2 justify-center mt-2 ${isMobile ? 'overflow-x-auto pb-2' : ''}`}>
               <button
                 onClick={handlePrev}
-                className="p-2 bg-gray-200 rounded-full hover:bg-green-500 hover:text-white transition-all"
+                className={`${isMobile ? 'p-1.5' : 'p-2'} bg-gray-200 rounded-full hover:bg-green-500 hover:text-white transition-all flex-shrink-0`}
               >
-                <FaChevronLeft />
+                <FaChevronLeft size={isMobile ? 12 : 16} />
               </button>
               
-              {descriptionImages.map((img: string, idx: number) => (
-                <img
-                  key={idx}
-                  src={img}
-                  alt={`Mô tả ${idx + 1}`}
-                  className={`w-20 h-20 object-cover rounded-lg border-2 cursor-pointer ${
-                    descIndex === idx ? 'border-green-600' : 'border-gray-200'
-                  }`}
-                  onClick={() => {
-                    setDescIndex(idx);
-                    setMainImage(img);
-                  }}
-                />
-              ))}
+              <div className={`flex gap-2 ${isMobile ? 'overflow-x-auto' : ''}`}>
+                {descriptionImages.map((img: string, idx: number) => (
+                  <img
+                    key={idx}
+                    src={img}
+                    alt={`Mô tả ${idx + 1}`}
+                    className={`${isMobile ? 'w-14 h-14' : 'w-20 h-20'} object-cover rounded-lg border-2 cursor-pointer flex-shrink-0 ${
+                      descIndex === idx ? 'border-green-600' : 'border-gray-200'
+                    }`}
+                    onClick={() => {
+                      setDescIndex(idx);
+                      setMainImage(img);
+                    }}
+                  />
+                ))}
+              </div>
               
               <button
                 onClick={handleNext}
-                className="p-2 bg-gray-200 rounded-full hover:bg-green-500 hover:text-white transition-all"
+                className={`${isMobile ? 'p-1.5' : 'p-2'} bg-gray-200 rounded-full hover:bg-green-500 hover:text-white transition-all flex-shrink-0`}
               >
-                <FaChevronRight />
+                <FaChevronRight size={isMobile ? 12 : 16} />
               </button>
             </div>
           )}
         </div>
 
         {/* Product Info */}
-        <div className="bg-white p-8 rounded-2xl shadow-2xl">
-          <h1 className="text-3xl font-bold text-gray-800 mb-4">{product.name}</h1>
+        <div className={`bg-white ${isMobile ? 'p-4' : 'p-8'} rounded-2xl shadow-2xl`}>
+          <h1 className={`${isMobile ? 'text-xl' : 'text-3xl'} font-bold text-gray-800 mb-4`}>{product.name}</h1>
           
           {/* Flash Sale Badge */}
           {mainUnit.isFlashSale && (
@@ -280,57 +284,57 @@ const ProductDetailPage: React.FC = () => {
           {/* Price Display */}
           <div className="mb-4">
             {mainUnit.isFlashSale ? (
-              <div className="flex items-center gap-3">
-                <span className="text-3xl text-red-600 font-bold">
+              <div className={`flex items-center ${isMobile ? 'flex-col gap-1' : 'gap-3'}`}>
+                <span className={`${isMobile ? 'text-2xl' : 'text-3xl'} text-red-600 font-bold`}>
                   {mainUnit.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
                 </span>
-                <span className="text-lg text-gray-400 line-through">
+                <span className={`${isMobile ? 'text-base' : 'text-lg'} text-gray-400 line-through`}>
                   {mainUnit.originalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
                 </span>
               </div>
             ) : (
-              <span className="text-2xl text-green-600 font-semibold">
+              <span className={`${isMobile ? 'text-xl' : 'text-2xl'} text-green-600 font-semibold`}>
                 {mainUnit.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
               </span>
             )}
           </div>
 
-          <div className="flex items-center mb-6 text-sm text-gray-600 space-x-4">
+          <div className={`flex items-center mb-6 ${isMobile ? 'text-xs flex-col gap-2' : 'text-sm space-x-4'} text-gray-600`}>
             <span className="flex items-center">
-              <FaCheckCircle className="text-green-500 mr-1" /> Còn hàng
+              <FaCheckCircle className="text-green-500 mr-1" size={isMobile ? 12 : 16} /> Còn hàng
             </span>
             <span className="flex items-center">
-              <FaCheckCircle className="text-green-500 mr-1" /> Giao hàng 2h
+              <FaCheckCircle className="text-green-500 mr-1" size={isMobile ? 12 : 16} /> Giao hàng 2h
             </span>
             <span className="flex items-center">
-              <FaCheckCircle className="text-green-500 mr-1" /> Đổi trả 7 ngày
+              <FaCheckCircle className="text-green-500 mr-1" size={isMobile ? 12 : 16} /> Đổi trả 7 ngày
             </span>
           </div>
 
-          <p className="text-gray-700 leading-relaxed mb-6">
+          <p className={`text-gray-700 leading-relaxed mb-6 ${isMobile ? 'text-sm' : ''}`}>
            Sản phẩm được chọn lọc từ những nguyên liệu tươi ngon, đảm bảo chất lượng và an toàn cho sức khỏe. Hương vị tự nhiên, giàu dinh dưỡng, phù hợp cho mọi bữa ăn trong ngày. Hãy trải nghiệm sự tiện lợi và tươi ngon ngay tại nhà bạn.
           </p>
 
           {/* Không còn selector số lượng cho sản phẩm kg */}
 
           <button
-            className="bg-green-600 hover:bg-green-700 text-white text-lg font-semibold px-6 py-3 rounded-lg shadow-lg transition-all duration-300 flex items-center justify-center"
+            className={`bg-green-600 hover:bg-green-700 text-white ${isMobile ? 'text-base px-4 py-2.5' : 'text-lg px-6 py-3'} font-semibold rounded-lg shadow-lg transition-all duration-300 flex items-center justify-center w-full`}
             onClick={handleAddToCart}
           >
-            <FaShoppingCart className="mr-2" /> Thêm vào giỏ hàng
+            <FaShoppingCart className="mr-2" size={isMobile ? 16 : 20} /> Thêm vào giỏ hàng
           </button>
         </div>
       </div>
 
       {/* Related Products */}
       {relatedProducts.length > 0 && (
-        <div className="max-w-6xl mx-auto mb-16">
-          <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Sản phẩm liên quan</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className={`max-w-6xl mx-auto mb-16 ${isMobile ? 'px-2' : ''}`}>
+          <h2 className={`${isMobile ? 'text-xl' : 'text-3xl'} font-bold text-gray-800 mb-6 text-center`}>Sản phẩm liên quan</h2>
+          <div className={`grid ${isMobile ? 'grid-cols-2 gap-3' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6'}`}>
             {relatedProducts.slice(0, 4).map((item) => (
               <div
                 key={item.id}
-                className="bg-white p-4 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300"
+                className={`bg-white ${isMobile ? 'p-2' : 'p-4'} rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300`}
               >
                 <Link to={`/productdetail/${item.id}`}>
                   <img
@@ -340,16 +344,17 @@ const ProductDetailPage: React.FC = () => {
                     }
                     src={item.image}
                     alt={item.name}
-                    className="w-full h-40 object-cover rounded-lg mb-2"
+                    className={`w-full ${isMobile ? 'h-24' : 'h-40'} object-cover rounded-lg mb-2`}
                   />
                 </Link>
-                <h4 className="text-lg font-medium text-gray-800 mb-2">{item.name}</h4>
-                <p className="text-green-600 font-semibold mb-2">{item.price}</p>
+                <h4 className={`${isMobile ? 'text-sm' : 'text-lg'} font-medium text-gray-800 mb-2 ${isMobile ? 'line-clamp-2' : ''}`}>{item.name}</h4>
+                <p className={`text-green-600 font-semibold mb-2 ${isMobile ? 'text-xs' : ''}`}>{item.price}</p>
                 <button
                   onClick={(e) => handleAddToCartRelated(e, item)}
-                  className="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-all duration-300 flex items-center justify-center"
+                  className={`w-full bg-green-600 text-white ${isMobile ? 'px-2 py-1.5 text-xs' : 'px-4 py-2'} rounded-md hover:bg-green-700 transition-all duration-300 flex items-center justify-center`}
                 >
-                  <FaShoppingCart className="mr-2" /> Thêm vào giỏ
+                  <FaShoppingCart className="mr-1" size={isMobile ? 12 : 16} /> 
+                  {isMobile ? 'Thêm' : 'Thêm vào giỏ'}
                 </button>
               </div>
             ))}
