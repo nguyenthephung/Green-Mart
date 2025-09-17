@@ -24,9 +24,12 @@ export const useCategoryStore = create<CategoryStore>((set) => ({
   loading: false,
   error: null,
   async fetchCategories() {
+    console.log('CategoryStore: Starting fetchCategories...');
     set({ loading: true, error: null });
     try {
       const data = await getCategories();
+      console.log('CategoryStore: Raw data received:', data);
+      
       // Map _id to id (string)
       const mapped = Array.isArray(data)
         ? data.map((cat: any) => ({
@@ -35,13 +38,17 @@ export const useCategoryStore = create<CategoryStore>((set) => ({
           }))
         : [];
       
+      console.log('CategoryStore: Mapped data:', mapped);
+      
       // Remove duplicates based on id
       const uniqueCategories = mapped.filter((cat, index, self) => 
         index === self.findIndex(c => c.id === cat.id)
       );
       
+      console.log('CategoryStore: Final categories:', uniqueCategories);
       set({ categories: uniqueCategories, loading: false });
     } catch (err: any) {
+      console.error('CategoryStore: Error fetching categories:', err);
       set({ error: err.message, loading: false });
     }
   },

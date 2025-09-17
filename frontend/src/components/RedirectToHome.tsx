@@ -22,8 +22,8 @@ const RedirectToHome: React.FC = () => {
     return <Navigate to="/home" replace />;
   }
 
-  // Nếu chưa đăng nhập -> redirect to welcome/login
-  return <Navigate to="/welcome" replace />;
+  // Nếu chưa đăng nhập -> cũng redirect to home (không cần đăng nhập)
+  return <Navigate to="/home" replace />;
 };
 
 export default RedirectToHome;

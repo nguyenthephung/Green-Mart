@@ -3,8 +3,15 @@ import type { Category } from '../types/Category';
 import { apiClient } from './api';
 
 export async function getCategories(): Promise<Category[]> {
-  const response = await apiClient<Category[]>('/categories');
-  return response.data || [];
+  try {
+    console.log('Fetching categories from API...');
+    const response = await apiClient<Category[]>('/categories');
+    console.log('Categories response:', response);
+    return response.data || [];
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    throw error;
+  }
 }
 
 export async function addCategory(newCategory: Omit<Category, 'id'>): Promise<Category> {
