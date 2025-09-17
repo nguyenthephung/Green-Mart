@@ -5,6 +5,7 @@ import { useCategoryStore } from '../../stores/useCategoryStore';
 import { useUserStore } from '../../stores/useUserStore';
 import { useFlashSaleStore } from '../../stores/useFlashSaleStore';
 import { useResponsive } from '../../hooks/useResponsive';
+import LazySection from '../../components/LazySection';
 
 // Extend AddressInfo locally to match actual usage
 type AddressInfo = {
@@ -348,39 +349,55 @@ export default function CategoryPage() {
             <p className="text-gray-500">Thử điều chỉnh bộ lọc hoặc tìm kiếm từ khóa khác</p>
           </div>
         ) : (
-          <div className={`grid gap-4 lg:gap-6 mb-12 ${
-            isMobile 
-              ? 'grid-cols-2' 
-              : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
-          }`}>
-            {filteredProducts.map(product => {
-              // Ensure _id is string and remove descriptionImages function for handleAddToCart
-              const { descriptionImages, ...rest } = product;
-              const productForCart = { ...rest, _id: String(product._id), unit: product.unit || "" };
-              const isHot = filterType === 'featured' || product.isFeatured;
-              return (
-                <ProductCard
-                  key={String(product._id)}
-                  product={{
-                    id: product.id,
-                    name: product.name,
-                    price: product.price,
-                    salePrice: product.salePrice,
-                    isSale: product.isSale,
-                    image: product.image,
-                    category: product.category,
-                    unit: product.unit || '',
-                    averageRating: product.averageRating,
-                    totalRatings: product.totalRatings
-                  }}
-                  quantity={1}
-                  onAddToCart={() => handleAddToCart(productForCart)}
-                  showSaleBadge={true}
-                  showHotBadge={isHot}
-                />
-              );
-            })}
-          </div>
+          <LazySection
+            threshold={0.1}
+            rootMargin="100px"
+            placeholder={
+              <div className={`grid gap-4 lg:gap-6 mb-12 ${
+                isMobile 
+                  ? 'grid-cols-2' 
+                  : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
+              }`}>
+                {Array.from({ length: 8 }).map((_, index) => (
+                  <div key={index} className="bg-gray-200 animate-pulse rounded-xl h-64" />
+                ))}
+              </div>
+            }
+          >
+            <div className={`grid gap-4 lg:gap-6 mb-12 ${
+              isMobile 
+                ? 'grid-cols-2' 
+                : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
+            }`}>
+              {filteredProducts.map(product => {
+                // Ensure _id is string and remove descriptionImages function for handleAddToCart
+                const { descriptionImages, ...rest } = product;
+                const productForCart = { ...rest, _id: String(product._id), unit: product.unit || "" };
+                const isHot = filterType === 'featured' || product.isFeatured;
+                return (
+                  <ProductCard
+                    key={String(product._id)}
+                    product={{
+                      id: product.id,
+                      name: product.name,
+                      price: product.price,
+                      salePrice: product.salePrice,
+                      isSale: product.isSale,
+                      image: product.image,
+                      category: product.category,
+                      unit: product.unit || '',
+                      averageRating: product.averageRating,
+                      totalRatings: product.totalRatings
+                    }}
+                    quantity={1}
+                    onAddToCart={() => handleAddToCart(productForCart)}
+                    showSaleBadge={true}
+                    showHotBadge={isHot}
+                  />
+                );
+              })}
+            </div>
+          </LazySection>
         )}
       </div>
     </div>

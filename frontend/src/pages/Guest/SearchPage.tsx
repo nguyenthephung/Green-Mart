@@ -6,6 +6,7 @@ import { useCartStore } from '../../stores/useCartStore';
 import { useProductStore } from '../../stores/useProductStore';
 import { useResponsive } from '../../hooks/useResponsive';
 import BannerManager from '../../components/Guest/BannerManager';
+import LazySection from '../../components/LazySection';
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -86,37 +87,53 @@ const SearchPage: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className={`grid gap-4 lg:gap-6 ${
-            isMobile 
-              ? 'grid-cols-2' 
-              : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
-          }`}>
-            {filteredProducts.map(product => {
-              // Không cho chỉnh khối lượng, luôn quantity=1
-              const { descriptionImages, ...rest } = product;
-              const productForCart = { ...rest, _id: String(product._id), unit: product.unit || '' };
-              return (
-                <ProductCard
-                  key={String(product._id)}
-                  product={{
-                    id: product.id,
-                    name: product.name,
-                    price: product.price,
-                    salePrice: product.salePrice,
-                    isSale: product.isSale,
-                    image: product.image,
-                    category: product.category,
-                    unit: product.unit || '',
-                    averageRating: product.averageRating,
-                    totalRatings: product.totalRatings
-                  }}
-                  quantity={1}
-                  onAddToCart={() => handleAddToCart(productForCart)}
-                  showSaleBadge={true}
-                />
-              );
-            })}
-          </div>
+          <LazySection
+            threshold={0.1}
+            rootMargin="100px"
+            placeholder={
+              <div className={`grid gap-4 lg:gap-6 ${
+                isMobile 
+                  ? 'grid-cols-2' 
+                  : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
+              }`}>
+                {Array.from({ length: 8 }).map((_, index) => (
+                  <div key={index} className="bg-gray-200 animate-pulse rounded-xl h-64" />
+                ))}
+              </div>
+            }
+          >
+            <div className={`grid gap-4 lg:gap-6 ${
+              isMobile 
+                ? 'grid-cols-2' 
+                : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
+            }`}>
+              {filteredProducts.map(product => {
+                // Không cho chỉnh khối lượng, luôn quantity=1
+                const { descriptionImages, ...rest } = product;
+                const productForCart = { ...rest, _id: String(product._id), unit: product.unit || '' };
+                return (
+                  <ProductCard
+                    key={String(product._id)}
+                    product={{
+                      id: product.id,
+                      name: product.name,
+                      price: product.price,
+                      salePrice: product.salePrice,
+                      isSale: product.isSale,
+                      image: product.image,
+                      category: product.category,
+                      unit: product.unit || '',
+                      averageRating: product.averageRating,
+                      totalRatings: product.totalRatings
+                    }}
+                    quantity={1}
+                    onAddToCart={() => handleAddToCart(productForCart)}
+                    showSaleBadge={true}
+                  />
+                );
+              })}
+            </div>
+          </LazySection>
         )}
       </main>
     </div>

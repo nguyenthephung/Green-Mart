@@ -4,8 +4,10 @@ import { useUserStore } from '../../stores/useUserStore';
 import { useVoucherStore } from '../../stores/useVoucherStore';
 import type { Voucher } from '../../types/User';
 import { useEffect } from 'react';
+import { useResponsive } from '../../hooks/useResponsive';
 
 const MyVoucherPage: React.FC = () => {
+  const { isMobile } = useResponsive();
   // Use voucher store for all vouchers
   // Map store vouchers to User.Voucher type for type safety
   const rawVouchers = useVoucherStore(state => state.vouchers);
@@ -107,22 +109,22 @@ const MyVoucherPage: React.FC = () => {
 
   return (
     <DashboardLayout>
-      <div className="bg-app-secondary p-8 rounded-3xl shadow-xl border-app-default">
+      <div className={`bg-app-secondary ${isMobile ? 'p-4' : 'p-8'} rounded-3xl shadow-xl border-app-default`}>
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-app-primary mb-2 flex items-center justify-center gap-3">
-            <div className="w-10 h-10 bg-brand-green rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-app-primary mb-2 flex items-center justify-center gap-3`}>
+            <div className={`${isMobile ? 'w-8 h-8' : 'w-10 h-10'} bg-brand-green rounded-full flex items-center justify-center`}>
+              <svg className={`${isMobile ? 'w-4 h-4' : 'w-6 h-6'} text-white`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
               </svg>
             </div>
             Voucher của tôi
           </h1>
-          <p className="text-app-secondary">Quản lý và sử dụng các voucher ưu đãi</p>
+          <p className={`text-app-secondary ${isMobile ? 'text-sm' : ''}`}>Quản lý và sử dụng các voucher ưu đãi</p>
         </div>
 
         {/* Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className={`grid ${isMobile ? 'grid-cols-1 gap-4' : 'grid-cols-1 md:grid-cols-3 gap-6'} mb-8`}>
           <div className="bg-app-card rounded-2xl p-6 shadow-lg border-app-default">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
@@ -176,17 +178,17 @@ const MyVoucherPage: React.FC = () => {
               <p className="text-app-secondary">Hãy mua sắm để nhận thêm voucher ưu đãi!</p>
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className={`space-y-${isMobile ? '4' : '6'}`}>
               {vouchers.map(v => {
                 const active = voucher && voucher._id === v._id;
                 const quantity = (v as any).quantity || 1;
                 return (
                   <div key={v._id} className={`relative overflow-hidden rounded-2xl border-2 transition-all duration-300 ${active ? 'border-brand-green bg-brand-green/5 shadow-lg shadow-green-200/50' : 'border-app-border bg-app-card hover:border-brand-green/50 hover:shadow-lg'}`}>
-                    <div className="flex">
+                    <div className={`${isMobile ? 'flex-col' : 'flex'}`}>
                       {/* Left side - Discount */}
-                      <div className={`flex items-center justify-center w-32 ${active ? 'bg-green-600' : 'bg-gradient-to-br from-orange-500 to-red-500'}`}>
+                      <div className={`flex items-center justify-center ${isMobile ? 'w-full h-16' : 'w-32'} ${active ? 'bg-green-600' : 'bg-gradient-to-br from-orange-500 to-red-500'}`}>
                         <div className="text-center text-white">
-                          <div className="text-2xl font-bold">
+                          <div className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>
                             {v.discountType === 'percent' ? `${v.discountValue}%` : `${(v.discountValue / 1000).toFixed(0)}K`}
                           </div>
                           <div className="text-xs">GIẢM</div>
@@ -194,42 +196,42 @@ const MyVoucherPage: React.FC = () => {
                       </div>
 
                       {/* Right side - Details */}
-                      <div className="flex-1 p-6">
-                        <div className="flex items-start justify-between">
+                      <div className={`flex-1 ${isMobile ? 'p-4' : 'p-6'}`}>
+                        <div className={`${isMobile ? 'block space-y-3' : 'flex items-start justify-between'}`}>
                           <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
+                            <div className={`flex items-center ${isMobile ? 'gap-2 flex-col text-center' : 'gap-3'} mb-2`}>
                               {getVoucherIcon(v.discountType)}
                               <div>
-                                <div className="font-bold text-lg text-gray-900">{v.code}</div>
-                                <div className="text-gray-600">{v.label}</div>
+                                <div className={`font-bold ${isMobile ? 'text-base' : 'text-lg'} text-gray-900`}>{v.code}</div>
+                                <div className={`text-gray-600 ${isMobile ? 'text-sm' : ''}`}>{v.label}</div>
                                 {quantity > 1 && (
-                                  <div className="text-sm text-blue-600 font-semibold">
+                                  <div className={`${isMobile ? 'text-xs' : 'text-sm'} text-blue-600 font-semibold`}>
                                     Số lượng: {quantity}
                                   </div>
                                 )}
                               </div>
                             </div>
-                            <div className="text-app-primary mb-2">{v.description}</div>
-                            <div className="text-sm text-app-secondary mb-2">
+                            <div className={`text-app-primary mb-2 ${isMobile ? 'text-sm' : ''}`}>{v.description}</div>
+                            <div className={`${isMobile ? 'text-xs' : 'text-sm'} text-app-secondary mb-2`}>
                               Đơn tối thiểu: <span className="font-semibold text-brand-green">{v.minOrder.toLocaleString()}₫</span>
                             </div>
-                            <div className="flex items-center gap-4 text-xs text-app-muted">
+                            <div className={`flex items-center ${isMobile ? 'gap-2 text-xs' : 'gap-4 text-xs'} text-app-muted`}>
                               <span>HSD: {v.expired}</span>
                               <span>Đã dùng {v.usedPercent}%</span>
                             </div>
                             {v.onlyOn && (
-                              <div className="text-xs text-blue-600 bg-blue-50 rounded px-2 py-1 inline-block mt-1">
+                              <div className={`${isMobile ? 'text-xs' : 'text-xs'} text-blue-600 bg-blue-50 rounded px-2 py-1 inline-block mt-1`}>
                                 * Chỉ dùng cho các sản phẩm hoặc danh mục: <b>{v.onlyOn}</b>
                               </div>
                             )}
                             {v.note && (
-                              <div className="mt-2 text-xs text-red-500 bg-red-50/50 px-3 py-1 rounded-full inline-block">
+                              <div className={`mt-2 ${isMobile ? 'text-xs' : 'text-xs'} text-red-500 bg-red-50/50 px-3 py-1 rounded-full inline-block`}>
                                 {v.note}
                               </div>
                             )}
                           </div>
                           <button
-                            className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
+                            className={`${isMobile ? 'px-4 py-2 text-sm w-full mt-3' : 'px-6 py-3'} rounded-xl font-semibold transition-all duration-200 ${
                               active 
                                 ? 'bg-gray-400 text-white cursor-not-allowed' 
                                 : 'btn-primary'
@@ -245,9 +247,9 @@ const MyVoucherPage: React.FC = () => {
 
                     {/* Active voucher indicator */}
                     {active && (
-                      <div className="absolute top-4 right-4">
-                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <div className={`absolute ${isMobile ? 'top-2 right-2' : 'top-4 right-4'}`}>
+                        <div className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6'} bg-green-500 rounded-full flex items-center justify-center`}>
+                          <svg className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-white`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                           </svg>
                         </div>
@@ -256,8 +258,8 @@ const MyVoucherPage: React.FC = () => {
 
                     {/* Quantity badge */}
                     {quantity > 1 && (
-                      <div className="absolute top-4 left-4">
-                        <div className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                      <div className={`absolute ${isMobile ? 'top-2 left-2' : 'top-4 left-4'}`}>
+                        <div className={`bg-red-500 text-white ${isMobile ? 'text-xs' : 'text-xs'} font-bold px-2 py-1 rounded-full`}>
                           x{quantity}
                         </div>
                       </div>

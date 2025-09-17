@@ -322,7 +322,7 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
           <button
             onClick={handleSpinClick}
             disabled={mustSpin}
-            className={`w-full py-3 px-4 rounded-full font-bold text-lg shadow-lg transition-all duration-200
+            className={`w-full ${isMobile ? 'py-2 px-3 text-base' : 'py-3 px-4 text-lg'} rounded-full font-bold shadow-lg transition-all duration-200
               ${mustSpin
                 ? 'bg-gray-400 cursor-not-allowed'
                 : 'bg-gradient-to-r from-pink-500 via-yellow-400 to-green-400 hover:from-pink-600 hover:to-green-500 animate-pulse'}
@@ -331,7 +331,7 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
             {mustSpin ? 'Đang quay...' : '🎯 Quay ngay!'}
           </button>
 
-          <p className="text-xs text-gray-500 mt-3">
+          <p className={`${isMobile ? 'text-xs' : 'text-xs'} text-gray-500 mt-3`}>
             Mỗi người chỉ được quay 1 lần mỗi ngày
           </p>
         </div>
@@ -341,12 +341,12 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
       {showVoucherModal && result && result.id !== '-1' && (
         <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[60] p-4">
           <div 
-            className="bg-gradient-to-br from-yellow-300 via-orange-400 to-red-400 rounded-3xl p-2 max-w-sm w-full mx-4 relative animate-pulse shadow-2xl"
+            className={`bg-gradient-to-br from-yellow-300 via-orange-400 to-red-400 rounded-3xl p-2 ${isMobile ? 'max-w-xs' : 'max-w-sm'} w-full mx-4 relative animate-pulse shadow-2xl`}
             style={{
               boxShadow: '0 0 50px rgba(255, 215, 0, 0.8), 0 0 100px rgba(255, 140, 0, 0.6)'
             }}
           >
-            <div className="bg-white rounded-3xl p-6 text-center relative overflow-hidden">
+            <div className={`bg-white rounded-3xl ${isMobile ? 'p-4' : 'p-6'} text-center relative overflow-hidden`}>
               <div className="absolute inset-0 opacity-20">
                 {[...Array(30)].map((_, i) => (
                   <div
@@ -374,15 +374,15 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
               />
               <button
                 onClick={() => setShowVoucherModal(false)}
-                className="absolute top-3 right-3 p-1.5 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-all duration-200 z-20"
+                className={`absolute ${isMobile ? 'top-2 right-2 p-1' : 'top-3 right-3 p-1.5'} rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-all duration-200 z-20`}
                 type="button"
                 aria-label="Đóng"
               >
-                <X size={16} />
+                <X size={isMobile ? 14 : 16} />
               </button>
               <div className="relative z-10">
                 <div 
-                  className="text-8xl mb-4 animate-bounce"
+                  className={`${isMobile ? 'text-6xl mb-3' : 'text-8xl mb-4'} animate-bounce`}
                   style={{
                     filter: 'drop-shadow(0 0 20px gold)',
                     animationDuration: '0.6s'
@@ -391,16 +391,16 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
                   🎉
                 </div>
                 <h3 
-                  className="text-3xl font-bold mb-2 bg-gradient-to-r from-yellow-600 via-orange-500 to-red-500 bg-clip-text text-transparent"
+                  className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold mb-2 bg-gradient-to-r from-yellow-600 via-orange-500 to-red-500 bg-clip-text text-transparent`}
                   style={{
                     textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
                   }}
                 >
                   CHÚC MỪNG!
                 </h3>
-                <p className="text-gray-700 mb-4 font-semibold">Bạn đã trúng thưởng lớn!</p>
+                <p className={`text-gray-700 ${isMobile ? 'mb-3 text-sm' : 'mb-4'} font-semibold`}>Bạn đã trúng thưởng lớn!</p>
                 <div 
-                  className="bg-gradient-to-r from-green-400 via-emerald-500 to-teal-500 text-white rounded-2xl p-5 mb-4 transform hover:scale-105 transition-transform relative overflow-hidden"
+                  className={`bg-gradient-to-r from-green-400 via-emerald-500 to-teal-500 text-white rounded-2xl ${isMobile ? 'p-3 mb-3' : 'p-5 mb-4'} transform hover:scale-105 transition-transform relative overflow-hidden`}
                   style={{
                     boxShadow: '0 10px 25px rgba(16, 185, 129, 0.4)',
                     animation: 'glow 2s ease-in-out infinite alternate'
@@ -413,17 +413,17 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
                     }}
                   />
                   <div className="relative z-10">
-                    <div className="text-xl font-bold mb-1">{result.discountType === 'percent' ? `Voucher ${result.discountValue}%` : `Voucher ${(result.discountValue/1000).toFixed(0)}K`}</div>
-                    <div className="text-sm opacity-90 font-semibold">Mã: {result.code}</div>
+                    <div className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold mb-1`}>{result.discountType === 'percent' ? `Voucher ${result.discountValue}%` : `Voucher ${(result.discountValue/1000).toFixed(0)}K`}</div>
+                    <div className={`${isMobile ? 'text-xs' : 'text-sm'} opacity-90 font-semibold`}>Mã: {result.code}</div>
                   </div>
                 </div>
-                <div className="space-y-3">
+                <div className={`space-y-${isMobile ? '2' : '3'}`}>
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(result.code);
                       alert('Đã sao chép mã voucher!');
                     }}
-                    className="w-full py-3 px-4 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 text-white rounded-xl font-bold transition-all transform hover:scale-105 shadow-lg hover:shadow-xl"
+                    className={`w-full ${isMobile ? 'py-2 px-3 text-sm' : 'py-3 px-4'} bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 text-white rounded-xl font-bold transition-all transform hover:scale-105 shadow-lg hover:shadow-xl`}
                     style={{
                       boxShadow: '0 8px 25px rgba(59, 130, 246, 0.4)'
                     }}
@@ -435,7 +435,7 @@ const LuckyWheel: React.FC<{ userId: string | number; isOpen: boolean; onClose: 
                       setShowVoucherModal(false);
                       onClose();
                     }}
-                    className="w-full py-3 px-4 bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 hover:from-purple-600 hover:via-pink-600 hover:to-red-600 text-white rounded-xl font-bold transition-all transform hover:scale-105 shadow-lg hover:shadow-xl animate-pulse"
+                    className={`w-full ${isMobile ? 'py-2 px-3 text-sm' : 'py-3 px-4'} bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 hover:from-purple-600 hover:via-pink-600 hover:to-red-600 text-white rounded-xl font-bold transition-all transform hover:scale-105 shadow-lg hover:shadow-xl animate-pulse`}
                     style={{
                       boxShadow: '0 8px 25px rgba(168, 85, 247, 0.4)'
                     }}

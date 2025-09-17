@@ -17,6 +17,7 @@ import CategoriesSection from '../../components/Guest/home/sections/CategoriesSe
 import FeaturedProductsSection from '../../components/Guest/home/sections/FeaturedProductsSection';
 import TestimonialsSection from '../../components/Guest/home/sections/TestimonialsSection';
 import FlashSaleSection from '../../components/Guest/FlashSale/FlashSaleSection';
+import LazySection from '../../components/LazySection';
 import { useCartStore } from '../../stores/useCartStore';
 import { usePageLoading } from '../../components/Loading';
 import { LoadingSpinner } from '../../components/Loading';
@@ -296,57 +297,99 @@ const Home: React.FC = memo(() => {
         isScrolling={isScrolling}
       />
       
-      {/* Flash Sale Section */}
-      <div className={`max-w-7xl mx-auto ${isMobile ? 'px-2 py-4' : 'px-4 py-6'}`}>
-        <FlashSaleSection />
-      </div>
+      {/* Flash Sale Section - Load immediately for high priority content */}
+      <LazySection
+        threshold={0.2}
+        rootMargin="100px"
+        placeholder={<div className="min-h-[300px] flex items-center justify-center"><LoadingSpinner size="lg" /></div>}
+      >
+        <div className={`max-w-7xl mx-auto ${isMobile ? 'px-2 py-4' : 'px-4 py-6'}`}>
+          <FlashSaleSection />
+        </div>
+      </LazySection>
       
       {/* Sale Banner - Eye-catching sale section */}
-      <div className={`max-w-7xl mx-auto ${isMobile ? 'px-2 py-4 mt-4' : 'px-4 py-8 mt-8'}`}>
-        <SaleBanner className={isMobile ? 'mb-4' : 'mb-8'} />
-      </div>
-      
-      <SaleSection
-        saleProducts={saleProducts}
-        handleAddToCart={handleAddToCart}
-      />
+      <LazySection
+        threshold={0.1}
+        rootMargin="50px"
+        delay={100}
+        placeholder={<div className="min-h-[200px] flex items-center justify-center"><LoadingSpinner /></div>}
+      >
+        <div className={`max-w-7xl mx-auto ${isMobile ? 'px-2 py-4 mt-4' : 'px-4 py-8 mt-8'}`}>
+          <SaleBanner className={isMobile ? 'mb-4' : 'mb-8'} />
+        </div>
+        
+        <SaleSection
+          saleProducts={saleProducts}
+          handleAddToCart={handleAddToCart}
+        />
+      </LazySection>
       
       {/* Featured Banner - Highlight featured products */}
-      <div className={`max-w-7xl mx-auto ${isMobile ? 'px-2 py-3' : 'px-4 py-6'}`}>
-        <FeaturedBanner className={isMobile ? 'mb-4' : 'mb-8'} />
-      </div>
-      
-      <FeaturedProductsSection
-        featuredProducts={featuredProducts}
-        handleAddToCart={handleAddToCart}
-      />
+      <LazySection
+        threshold={0.1}
+        rootMargin="50px"
+        delay={200}
+        placeholder={<div className="min-h-[300px] flex items-center justify-center"><LoadingSpinner /></div>}
+      >
+        <div className={`max-w-7xl mx-auto ${isMobile ? 'px-2 py-3' : 'px-4 py-6'}`}>
+          <FeaturedBanner className={isMobile ? 'mb-4' : 'mb-8'} />
+        </div>
+        
+        <FeaturedProductsSection
+          featuredProducts={featuredProducts}
+          handleAddToCart={handleAddToCart}
+        />
+      </LazySection>
       
       {/* Category Banner - Compact version */}
-      <div className={`max-w-7xl mx-auto ${isMobile ? 'px-2 py-3' : 'px-4 py-6'}`}>
-        <CategoryBanner className={`max-w-7xl mx-auto ${isMobile ? 'px-2' : 'px-4'}`} />
-      </div>
-      
-      {/* Section banner for categories */}
-      <div className={`max-w-7xl mx-auto ${isMobile ? 'px-4 mb-3' : 'px-8 mb-6'}`}>
-        <SectionBanner 
-          sectionType="categories" 
-          className={isMobile ? 'h-16 shadow-md' : 'h-20 shadow-lg'}
+      <LazySection
+        threshold={0.1}
+        rootMargin="50px"
+        delay={300}
+        placeholder={<div className="min-h-[400px] flex items-center justify-center"><LoadingSpinner /></div>}
+      >
+        <div className={`max-w-7xl mx-auto ${isMobile ? 'px-2 py-3' : 'px-4 py-6'}`}>
+          <CategoryBanner className={`max-w-7xl mx-auto ${isMobile ? 'px-2' : 'px-4'}`} />
+        </div>
+        
+        {/* Section banner for categories */}
+        <div className={`max-w-7xl mx-auto ${isMobile ? 'px-4 mb-3' : 'px-8 mb-6'}`}>
+          <SectionBanner 
+            sectionType="categories" 
+            className={isMobile ? 'h-16 shadow-md' : 'h-20 shadow-lg'}
+          />
+        </div>
+        
+        <CategoriesSection
+          getProductsByCategory={getProductsByCategory}
+          handleAddToCart={handleAddToCart}
+          products={products}
+          sections={categorySections}
         />
-      </div>
+      </LazySection>
       
-      <CategoriesSection
-        getProductsByCategory={getProductsByCategory}
-        handleAddToCart={handleAddToCart}
-        products={products}
-        sections={categorySections}
-      />
-      
-      <TestimonialsSection testimonials={testimonials} />
+      {/* Testimonials Section */}
+      <LazySection
+        threshold={0.1}
+        rootMargin="50px"
+        delay={400}
+        placeholder={<div className="min-h-[200px] flex items-center justify-center"><LoadingSpinner /></div>}
+      >
+        <TestimonialsSection testimonials={testimonials} />
+      </LazySection>
       
       {/* Footer Banner - Full width at bottom */}
-      <div className={`w-full ${isMobile ? 'px-2 py-4' : 'px-4 py-8'} bg-gray-50 dark:bg-gray-800`}>
-        <FooterBanner />
-      </div>
+      <LazySection
+        threshold={0.1}
+        rootMargin="50px"
+        delay={500}
+        placeholder={<div className="min-h-[100px] flex items-center justify-center"><LoadingSpinner /></div>}
+      >
+        <div className={`w-full ${isMobile ? 'px-2 py-4' : 'px-4 py-8'} bg-gray-50 dark:bg-gray-800`}>
+          <FooterBanner />
+        </div>
+      </LazySection>
     </div>
   );
 });

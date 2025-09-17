@@ -23,6 +23,7 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
   loading,
   submitText
 }) => {
+  const { isMobile } = useResponsive();
   const [formData, setFormData] = useState<UserAddress>({
     fullName: address?.fullName || '',
     phone: address?.phone || '',
@@ -153,9 +154,9 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-6 space-y-6">
+    <form onSubmit={handleSubmit} className={`${isMobile ? 'p-4 space-y-4' : 'p-6 space-y-6'}`}>
       {/* Personal Info */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className={`grid ${isMobile ? 'grid-cols-1 gap-4' : 'grid-cols-1 md:grid-cols-2 gap-6'}`}>
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Họ và tên <span className="text-red-500">*</span>
@@ -317,19 +318,19 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex justify-end gap-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+      <div className={`flex ${isMobile ? 'flex-col gap-3' : 'justify-end gap-4'} pt-4 border-t border-gray-200 dark:border-gray-600`}>
         <button
           type="button"
           onClick={onCancel}
           disabled={loading}
-          className="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+          className={`${isMobile ? 'w-full py-3' : 'px-6 py-3'} border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50`}
         >
           Hủy
         </button>
         <button
           type="submit"
           disabled={loading}
-          className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          className={`${isMobile ? 'w-full py-3' : 'px-6 py-3'} bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center ${isMobile ? 'justify-center' : ''} gap-2`}
         >
           {loading && (
             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
