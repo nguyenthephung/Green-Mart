@@ -331,7 +331,7 @@ const LoginPage: React.FC = () => {
           <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
             <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">Tài khoản demo:</h4>
             <div className="text-xs text-blue-600 dark:text-blue-300 space-y-1">
-              <div>Admin: admin@greenmart.com / admin123</div>
+          
               <div>User: user@example.com / password</div>
             </div>
           </div>
