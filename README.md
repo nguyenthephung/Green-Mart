@@ -10,9 +10,20 @@
 
 ---
 
+## 👨‍💻 Author
+
+**Nguyễn Thể Phụng**
+- 📧 Email: [nguyenthephung61@gmail.com]
+- 🌐 GitHub: [@nguyenthephung](https://github.com/nguyenthephung)
+- 💼 LinkedIn: [www.linkedin.com/in/phụng-nguyễn-thể-285107385](www.linkedin.com/in/phụng-nguyễn-thể-285107385)
+
+*Developed as part of fullstack web development coursework*
+
+---
+
 ## 🌟 Live Demo
 
-**🔗 Try GreenMart now:** [https://greenmart-web-4385e.web.app/login](https://greenmart-web-4385e.web.app/)
+**🔗 Try GreenMart now:** [https://greenmart-web-4385e.web.app/](https://greenmart-web-4385e.web.app/)
 
 Experience the full features of our e-commerce platform including:
 - Browse products as a guest user
@@ -262,12 +273,31 @@ docker build -t greenmart-frontend ./frontend
 - Order tracking system
 
 ### 🎨 **User Experience**
-- Responsive design (mobile-first)
-- Dark/Light theme toggle
+- **Mobile-first responsive design** - Fully optimized for mobile devices
+- **Dark/Light theme toggle** - Available in both desktop and mobile interfaces
+- **Mobile dropdown navigation** - Hamburger menu with theme toggle integration
+- **Responsive notification system** - Mobile-optimized notification modal
+- **Scroll-to-top functionality** - Automatic page scroll restoration
 - Real-time notifications
 - Loading states and animations
 - Error handling and validation
 - Optimized performance
+
+### 🔐 **IC/ID Authentication System**
+- **Identity Card (IC/ID) integration** - Support for national ID verification
+- **Multi-level user authentication** - Guest, Registered, and Admin roles
+- JWT-based secure authentication
+- Password hashing with bcrypt
+- Protected routes and authorization
+- Input validation and sanitization
+- CORS protection
+
+### 📱 **Mobile-Responsive Features**
+- **Adaptive address management** - Mobile-optimized address forms and layouts
+- **Responsive grid layouts** - Dynamic column adjustments for different screen sizes
+- **Touch-friendly interfaces** - Optimized button sizes and touch targets
+- **Mobile cart and checkout** - Streamlined mobile shopping experience
+- **Notification badge positioning** - Properly aligned count badges on mobile icons
 
 ### 🔒 **Security & Authentication**
 - JWT-based authentication
@@ -375,19 +405,31 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 👨‍💻 Author
+## � Acknowledgments
 
-**Nguyễn Thể Phụng*
+This project was developed as part of fullstack web development coursework, demonstrating:
+- Modern React.js and TypeScript development
+- RESTful API design with Node.js and Express
+- Database design with MongoDB
+- Mobile-responsive UI/UX design
+- Authentication and authorization systems
+- Real-time features and notifications
 
-- **Demo**: [https://greenmart-web-4385e.web.app/login](https://greenmart-web-4385e.web.app/)
-- **Repository**: [Green-Mart](https://github.com/nguyenthephung/Green-Mart)
+**Special thanks to:**
+- Open source community for amazing libraries and tools
+- MongoDB University for database design guidance
+- Cloudinary for image storage solutions
 
 ---
 
 <div align="center">
   <img src="./frontend/public/logo.jpg" alt="GreenMart Logo" width="80" height="80" style="border-radius: 10px;" />
   
-  **Made with ❤️ for fresh and organic shopping experience**
+  **Made with ❤️ by Nguyễn Thể Phụng**
+  
+  **Fresh & Organic E-commerce Platform**
   
   ⭐ **Don't forget to give this project a star if you found it helpful!** ⭐
+  
+  **Demo**: [https://greenmart-web-4385e.web.app/login](https://greenmart-web-4385e.web.app/)
 </div>
