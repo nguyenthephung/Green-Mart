@@ -13,9 +13,9 @@
 ## 👨‍💻 Author
 
 **Nguyễn Thể Phụng**
-- 📧 Email: [nguyenthephung61@gmail.com]
+- 📧 Email: [nguyenthephung61@gmail.com](mailto:nguyenthephung61@gmail.com)
 - 🌐 GitHub: [@nguyenthephung](https://github.com/nguyenthephung)
-- 💼 LinkedIn: [www.linkedin.com/in/phụng-nguyễn-thể-285107385](www.linkedin.com/in/phụng-nguyễn-thể-285107385)
+- 💼 LinkedIn: [Phụng Nguyễn Thể](https://www.linkedin.com/in/phụng-nguyễn-thể-285107385/)
 
 *Developed as part of fullstack web development coursework*
 
