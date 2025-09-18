@@ -11,7 +11,7 @@ import { useVoucherStore } from './stores/useVoucherStore';
 import { useNewToastStore } from './stores/useNewToastStore';
 import NewToastContainer from './components/ui/Toast/NewToastContainer';
 import { useAuthSync } from './hooks/useAuthSync';
-import { useAutoScrollToTop } from './hooks/useAutoScrollToTop';
+
 
 const App = memo(() => {
   const checkAuthStatus = useUserStore(state => state.checkAuthStatus);
@@ -26,11 +26,7 @@ const App = memo(() => {
   // Hook để sync wishlist và cart khi user thay đổi
   useAuthSync();
 
-  // Auto scroll to top on route changes
-  useAutoScrollToTop({
-    behavior: 'smooth',
-    delay: 100
-  });
+ 
 
   // Fetch sản phẩm, category, voucher một lần khi app khởi động (chỉ chạy 1 lần khi mount)
   useEffect(() => {
