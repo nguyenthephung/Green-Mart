@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, memo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ShoppingCart, Search, User, Home, Bell, LogOut, Heart, Menu, X, ChevronDown, MapPin, Gift, Settings, Zap } from 'lucide-react';
 import { useCartStore } from '../../stores/useCartStore';
 import { CartIconWrapper } from '../../hooks/useAddToCartAnimation';
@@ -24,6 +24,10 @@ const Header: React.FC = memo(() => {
   const userMenuRef = useRef<HTMLDivElement>(null);
   let dropdownTimeout: NodeJS.Timeout | null = null;
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Check if current page should hide category bar
+  const shouldHideCategoryBar = location.pathname.includes('order-success') || location.pathname.includes('guest-order-success');
   
   // Responsive hook
   const { isMobile } = useResponsive();
@@ -183,14 +187,16 @@ const Header: React.FC = memo(() => {
           {/* Desktop Actions Section */}
           {!isMobile && (
             <div className="flex items-center gap-3 flex-shrink-0">{/* Increased gap from 2 to 3 for better spacing */}
-            {/* Category Menu Button - Desktop only */}
-            <button
-              className="p-3 text-app-secondary hover:text-app-primary hover:bg-app-secondary dark:hover:text-green-400 dark:hover:bg-green-900/20 rounded-xl group relative transition-colors duration-200"
-              onClick={() => setShowCategoryBar(!showCategoryBar)}
-              title={showCategoryBar ? 'Ẩn danh mục' : 'Hiện danh mục'}
-            >
-              <Menu size={20} />
-            </button>
+            {/* Category Menu Button - Desktop only, hide on order success pages */}
+            {!shouldHideCategoryBar && (
+              <button
+                className="p-3 text-app-secondary hover:text-app-primary hover:bg-app-secondary dark:hover:text-green-400 dark:hover:bg-green-900/20 rounded-xl group relative transition-colors duration-200"
+                onClick={() => setShowCategoryBar(!showCategoryBar)}
+                title={showCategoryBar ? 'Ẩn danh mục' : 'Hiện danh mục'}
+              >
+                <Menu size={20} />
+              </button>
+            )}
             
             {/* Theme Toggle */}
             <ThemeToggle size="sm" className="mr-1" />
@@ -675,8 +681,8 @@ const Header: React.FC = memo(() => {
           </div>
         )}
         
-        {/* CategoryBar: Only show on desktop when toggled */}
-        {!isMobile && showCategoryBar && <CategoryBar />}
+        {/* CategoryBar: Only show on desktop when toggled and not on order success pages */}
+        {!isMobile && showCategoryBar && !shouldHideCategoryBar && <CategoryBar />}
         
         {/* Lucky Wheel Modal */}
         <LuckyWheel

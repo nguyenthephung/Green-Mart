@@ -106,7 +106,7 @@ const NotificationDropdownContent: React.FC<NotificationDropdownContentProps> = 
   };
 
   return (
-    <div className="w-full max-w-sm bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 max-h-[70vh] sm:max-h-[80vh] overflow-hidden">
+    <div className="w-full max-w-sm sm:max-w-md lg:max-w-lg bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 max-h-[70vh] sm:max-h-[80vh] overflow-hidden">
       {/* Header */}
       <div className="px-3 sm:px-4 py-2 sm:py-3 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-t-xl">
         <div className="flex items-center justify-between">
