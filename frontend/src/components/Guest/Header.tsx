@@ -20,7 +20,6 @@ const Header: React.FC = memo(() => {
   const [showCategoryBar, setShowCategoryBar] = useState(true);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showMobileCategoryMenu, setShowMobileCategoryMenu] = useState(false);
-  const [showMobileNotifications, setShowMobileNotifications] = useState(false);
   const [showLuckyWheel, setShowLuckyWheel] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   let dropdownTimeout: NodeJS.Timeout | null = null;
@@ -389,6 +388,42 @@ const Header: React.FC = memo(() => {
           {/* Mobile Actions Section */}
           {isMobile && (
             <div className="flex items-center gap-3 flex-shrink-0">{/* Increased gap from 1 to 3 for better mobile spacing */}
+              {/* Notifications for mobile */}
+              {user && (
+                <div
+                  className="relative"
+                  onMouseEnter={handleDropdownEnter}
+                  onMouseLeave={handleDropdownLeave}
+                >
+                  <button
+                    className="p-2 text-app-secondary hover:text-app-primary hover:bg-app-secondary dark:hover:text-green-400 dark:hover:bg-green-900/20 rounded-lg transition-colors duration-200"
+                    tabIndex={0}
+                    aria-label="Xem thông báo"
+                    type="button"
+                    title="Thông báo"
+                  >
+                    <Bell size={18} />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
+                  </button>
+                  {showDropdown && (
+                    <div 
+                      onMouseEnter={handleDropdownEnter} 
+                      onMouseLeave={handleDropdownLeave}
+                      className="absolute top-full right-0 mt-2 z-60 transform transition-all duration-200 ease-out opacity-100 scale-100 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 w-80 max-w-[90vw]"
+                      style={{
+                        animation: showDropdown ? 'fadeInDown 0.2s ease-out' : 'fadeOutUp 0.2s ease-in'
+                      }}
+                    >
+                      <NotificationDropdownContent onClose={() => setShowDropdown(false)} />
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Cart Button */}
               <CartIconWrapper>
                 <button
@@ -512,6 +547,12 @@ const Header: React.FC = memo(() => {
 
             {/* Mobile Navigation */}
             <div className="px-4 pb-4 space-y-2">
+              {/* Theme Toggle for mobile - moved to top */}
+              <div className="flex items-center justify-between p-3 bg-app-secondary rounded-lg">
+                <span className="font-medium text-app-primary">Chế độ giao diện</span>
+                <ThemeToggle size="sm" />
+              </div>
+
               <button
                 onClick={() => {
                   navigate('/home');
@@ -540,36 +581,6 @@ const Header: React.FC = memo(() => {
                   </span>
                 )}
               </button>
-
-              <div className="relative">
-                <button
-                  onClick={() => setShowMobileNotifications(!showMobileNotifications)}
-                  className="w-full flex items-center justify-between p-3 text-app-secondary hover:bg-app-secondary hover:text-app-primary rounded-lg transition-colors duration-200"
-                >
-                  <div className="flex items-center gap-3">
-                    <Bell size={18} />
-                    <span className="font-medium">Thông báo</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {user && unreadCount > 0 && (
-                      <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                        {unreadCount}
-                      </span>
-                    )}
-                    <ChevronDown 
-                      size={16} 
-                      className={`transition-transform duration-200 ${showMobileNotifications ? 'rotate-180' : ''}`}
-                    />
-                  </div>
-                </button>
-
-                {/* Mobile Notification Dropdown */}
-                {showMobileNotifications && user && (
-                  <div className="mt-2 bg-app-card rounded-lg border-app-border shadow-lg max-h-64 overflow-y-auto">
-                    <NotificationDropdownContent onClose={() => setShowMobileNotifications(false)} />
-                  </div>
-                )}
-              </div>
 
               <button
                 onClick={() => {
@@ -658,12 +669,6 @@ const Header: React.FC = memo(() => {
                   </button>
                 </>
               )}
-
-              {/* Theme Toggle for mobile */}
-              <div className="flex items-center justify-between p-3">
-                <span className="font-medium text-app-secondary">Chế độ tối</span>
-                <ThemeToggle size="sm" />
-              </div>
             </div>
           </div>
         )}
