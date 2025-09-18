@@ -30,7 +30,10 @@ const Header: React.FC = memo(() => {
   const shouldHideCategoryBar = location.pathname.includes('order-success') || location.pathname.includes('guest-order-success');
   
   // Responsive hook
-  const { isMobile } = useResponsive();
+  const { isMobile, width } = useResponsive();
+  
+  // Debug info (temporary)
+  console.log('Header Debug:', { isMobile, width, windowWidth: typeof window !== 'undefined' ? window.innerWidth : 'SSR' });
   
   // Categories
   const { categories } = useCategoryStore();
@@ -234,7 +237,7 @@ const Header: React.FC = memo(() => {
                 <div 
                   onMouseEnter={handleDropdownEnter} 
                   onMouseLeave={handleDropdownLeave}
-                  className="absolute top-full right-0 mt-2 z-60 transform transition-all duration-200 ease-out opacity-100 scale-100 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700"
+                  className="absolute top-full right-0 mt-2 z-[100] transform transition-all duration-200 ease-out opacity-100 scale-100 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 min-w-[400px]"
                   style={{
                     animation: showDropdown ? 'fadeInDown 0.2s ease-out' : 'fadeOutUp 0.2s ease-in'
                   }}
