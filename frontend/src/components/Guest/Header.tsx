@@ -668,8 +668,8 @@ const Header: React.FC = memo(() => {
           </div>
         )}
         
-        {/* CategoryBar: Always show on mobile, toggleable on desktop */}
-        {(isMobile || showCategoryBar) && <CategoryBar />}
+        {/* CategoryBar: Only show on desktop when toggled */}
+        {!isMobile && showCategoryBar && <CategoryBar />}
         
         {/* Lucky Wheel Modal */}
         <LuckyWheel
