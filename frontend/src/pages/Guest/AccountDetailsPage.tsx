@@ -4,11 +4,9 @@ import { profileService } from '../../services/profileService';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Link } from 'react-router-dom';
 import { LoadingSpinner } from '../../components/Loading';
-import { useResponsive } from '../../hooks/useResponsive';
 
 const AccountDetails: React.FC = () => {
   const user = useUserStore(state => state.user);
-  const { isMobile } = useResponsive();
   const [editMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [tempInfo, setTempInfo] = useState({
@@ -126,34 +124,26 @@ const AccountDetails: React.FC = () => {
 
   return (
     <DashboardLayout>
-      <div className="bg-app-card p-4 lg:p-8 rounded-3xl shadow-xl max-w-3xl mx-auto mt-6 border-app-default">
+      <div className="bg-app-card p-3 sm:p-4 lg:p-8 rounded-2xl sm:rounded-3xl shadow-xl max-w-3xl mx-auto mt-4 sm:mt-6 border-app-default">
         {/* Header */}
-        <div className="text-center mb-6 lg:mb-8">
-          <h2 className={`font-bold text-app-primary mb-2 flex items-center justify-center gap-2 lg:gap-3 ${
-            isMobile ? 'text-2xl' : 'text-3xl'
-          }`}>
-            <div className={`bg-brand-green rounded-full flex items-center justify-center ${
-              isMobile ? 'w-8 h-8' : 'w-10 h-10'
-            }`}>
-              <svg className={`text-white ${isMobile ? 'w-5 h-5' : 'w-6 h-6'}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <div className="text-center mb-4 sm:mb-6 lg:mb-8">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-app-primary mb-2 flex items-center justify-center gap-2 lg:gap-3">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 bg-brand-green rounded-full flex items-center justify-center">
+              <svg className="w-3 h-3 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
             Thông tin tài khoản
           </h2>
-          <p className={`text-app-secondary ${isMobile ? 'text-sm' : ''}`}>
+          <p className="text-sm sm:text-base text-app-secondary">
             Quản lý và cập nhật thông tin cá nhân của bạn
           </p>
         </div>
 
         {/* Avatar Section */}
-        <div className={`flex flex-col items-center bg-app-secondary rounded-2xl p-4 lg:p-6 border-app-default ${
-          isMobile ? 'mb-6' : 'mb-10'
-        }`}>
+        <div className="flex flex-col items-center bg-app-secondary rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 border-app-default mb-4 sm:mb-6 lg:mb-10">
           <div className="relative group">
-            <div className={`rounded-full bg-gradient-to-br from-green-400 to-emerald-500 p-1 shadow-xl ${
-              isMobile ? 'w-24 h-24' : 'w-32 h-32'
-            }`}>
+            <div className="w-20 h-20 sm:w-24 sm:h-24 lg:w-32 lg:h-32 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 p-1 shadow-xl">
               <img 
                 src={avatar} 
                 alt="avatar" 
@@ -161,8 +151,8 @@ const AccountDetails: React.FC = () => {
               />
             </div>
             {editMode && (
-              <label className="absolute bottom-2 right-2 bg-app-input rounded-full p-2 shadow-lg cursor-pointer hover:bg-green-50 dark:hover:bg-gray-500 transition-all group-hover:scale-110">
-                <svg className="w-5 h-5 text-brand-green" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <label className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 bg-app-input rounded-full p-1.5 sm:p-2 shadow-lg cursor-pointer hover:bg-green-50 dark:hover:bg-gray-500 transition-all group-hover:scale-110">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-brand-green" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
@@ -170,14 +160,14 @@ const AccountDetails: React.FC = () => {
               </label>
             )}
           </div>
-          <div className="mt-4 text-center">
-            <h3 className="text-xl font-semibold text-app-primary">{user?.name || 'Người dùng'}</h3>
-            <p className="text-app-secondary">{user?.email}</p>
+          <div className="mt-3 sm:mt-4 text-center">
+            <h3 className="text-lg sm:text-xl font-semibold text-app-primary">{user?.name || 'Người dùng'}</h3>
+            <p className="text-sm sm:text-base text-app-secondary">{user?.email}</p>
           </div>
         </div>
 
         {/* Form */}
-        <div className="bg-app-card rounded-2xl p-8 shadow-lg border-app-default">
+        <div className="bg-app-card rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg border-app-default">
           <form className="space-y-8">
             {/* Họ và tên */}
             <div className="group">
@@ -256,32 +246,32 @@ const AccountDetails: React.FC = () => {
           </form>
 
           {/* Action Buttons */}
-          <div className="mt-10 flex justify-end gap-4">
+          <div className="mt-6 sm:mt-8 lg:mt-10 flex flex-col sm:flex-row justify-end gap-3 sm:gap-4">
             {editMode ? (
               <>
                 <button
                   type="button"
-                  className="btn-secondary flex items-center gap-2"
+                  className="btn-secondary flex items-center justify-center gap-2 w-full sm:w-auto"
                   onClick={handleCancel}
                   disabled={loading}
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                   Hủy
                 </button>
                 <button
                   type="button"
-                  className="btn-primary flex items-center gap-2 disabled:opacity-50"
+                  className="btn-primary flex items-center justify-center gap-2 disabled:opacity-50 w-full sm:w-auto"
                   onClick={handleSave}
                   disabled={loading}
                 >
                   {loading ? (
-                    <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
                   ) : (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                   )}
@@ -289,22 +279,22 @@ const AccountDetails: React.FC = () => {
                 </button>
               </>
             ) : (
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   type="button"
-                  className="btn-primary flex items-center gap-2"
+                  className="btn-primary flex items-center justify-center gap-2 w-full sm:w-auto"
                   onClick={handleEdit}
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
                   Chỉnh sửa thông tin
                 </button>
                 <Link
                   to="/change-password"
-                  className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors flex items-center gap-2 text-sm font-medium"
+                  className="px-4 sm:px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-sm font-medium w-full sm:w-auto"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 7a2 2 0 012 2m0 0a2 2 0 012 2m-2-2v6m0 0a2 2 0 01-2 2m2-2h-6m6 0a2 2 0 01-2 2m0 0H9a2 2 0 01-2-2m0 0V9a2 2 0 012-2m0 0a2 2 0 012-2" />
                   </svg>
                   Đổi mật khẩu

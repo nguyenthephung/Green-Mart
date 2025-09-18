@@ -387,7 +387,7 @@ const Header: React.FC = memo(() => {
 
           {/* Mobile Actions Section */}
           {isMobile && (
-            <div className="flex items-center gap-3 flex-shrink-0">{/* Increased gap from 1 to 3 for better mobile spacing */}
+            <div className="flex items-center gap-2 flex-shrink-0">
               {/* Notifications for mobile */}
               {user && (
                 <div
@@ -396,24 +396,26 @@ const Header: React.FC = memo(() => {
                   onMouseLeave={handleDropdownLeave}
                 >
                   <button
-                    className="p-2 text-app-secondary hover:text-app-primary hover:bg-app-secondary dark:hover:text-green-400 dark:hover:bg-green-900/20 rounded-lg transition-colors duration-200"
+                    className="p-2 text-app-secondary hover:text-app-primary hover:bg-app-secondary dark:hover:text-green-400 dark:hover:bg-green-900/20 rounded-lg transition-colors duration-200 flex items-center justify-center"
                     tabIndex={0}
                     aria-label="Xem thông báo"
                     type="button"
                     title="Thông báo"
                   >
-                    <Bell size={18} />
-                    {unreadCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
-                        {unreadCount > 9 ? '9+' : unreadCount}
-                      </span>
-                    )}
+                    <div className="relative">
+                      <Bell size={18} />
+                      {unreadCount > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center min-w-[16px]">
+                          {unreadCount > 9 ? '9+' : unreadCount}
+                        </span>
+                      )}
+                    </div>
                   </button>
                   {showDropdown && (
                     <div 
                       onMouseEnter={handleDropdownEnter} 
                       onMouseLeave={handleDropdownLeave}
-                      className="absolute top-full right-0 mt-2 z-60 transform transition-all duration-200 ease-out opacity-100 scale-100 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 w-80 max-w-[90vw]"
+                      className="fixed top-16 right-2 z-60 transform transition-all duration-200 ease-out opacity-100 scale-100"
                       style={{
                         animation: showDropdown ? 'fadeInDown 0.2s ease-out' : 'fadeOutUp 0.2s ease-in'
                       }}
@@ -428,17 +430,17 @@ const Header: React.FC = memo(() => {
               <CartIconWrapper>
                 <button
                   onClick={() => navigate('/mycart')}
-                  className="p-2 text-app-secondary hover:text-app-primary hover:bg-app-secondary dark:hover:text-green-400 dark:hover:bg-green-900/20 rounded-lg transition-colors duration-200"
+                  className="p-2 text-app-secondary hover:text-app-primary hover:bg-app-secondary dark:hover:text-green-400 dark:hover:bg-green-900/20 rounded-lg transition-colors duration-200 flex items-center justify-center"
                   title="Giỏ hàng"
                 >
-                  <span id="cart-fly-icon" className="inline-block relative">
+                  <div className="relative">
                     <ShoppingCart size={18} />
                     {cartCount > 0 && (
-                      <span className="absolute top-0 right-0 translate-x-[70%] -translate-y-2/3 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center shadow-lg border border-white dark:border-gray-800 font-bold text-[10px]">
+                      <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center shadow-lg border border-white dark:border-gray-800 font-bold min-w-[16px]">
                         {cartCount > 9 ? '9+' : cartCount}
                       </span>
                     )}
-                  </span>
+                  </div>
                 </button>
               </CartIconWrapper>
 

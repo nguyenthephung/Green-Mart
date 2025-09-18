@@ -698,16 +698,16 @@ const MyAddresses: React.FC = () => {
 
         {/* Enhanced Add/Edit Modals */}
         {modals.showAdd && (
-          <div className={`fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4 ${isMobile ? 'pt-4' : 'pt-20'}`}>
-            <div className={`bg-white dark:bg-gray-800 rounded-2xl ${isMobile ? 'w-full max-w-md' : 'max-w-2xl w-full'} max-h-[85vh] overflow-y-auto shadow-2xl`}>
-              <div className="p-6 border-b border-gray-200 dark:border-gray-600">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-2 sm:p-4 pt-2 sm:pt-8">
+            <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl w-full max-w-sm sm:max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto shadow-2xl mx-2 sm:mx-0">
+              <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-600 sticky top-0 bg-white dark:bg-gray-800 z-10">
                 <div className="flex items-center justify-between">
-                  <h2 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-gray-900 dark:text-white`}>Thêm địa chỉ mới</h2>
+                  <h2 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">Thêm địa chỉ mới</h2>
                   <button
                     onClick={() => handleModalToggle('add', false)}
-                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1.5 sm:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
@@ -725,16 +725,16 @@ const MyAddresses: React.FC = () => {
         )}
         
         {modals.editId && addressData.edit && (
-          <div className={`fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4 ${isMobile ? 'pt-4' : 'pt-20'}`}>
-            <div className={`bg-white dark:bg-gray-800 rounded-2xl ${isMobile ? 'w-full max-w-md' : 'max-w-2xl w-full'} max-h-[85vh] overflow-y-auto shadow-2xl`}>
-              <div className="p-6 border-b border-gray-200 dark:border-gray-600">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-2 sm:p-4 pt-2 sm:pt-8">
+            <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl w-full max-w-sm sm:max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto shadow-2xl mx-2 sm:mx-0">
+              <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-600 sticky top-0 bg-white dark:bg-gray-800 z-10">
                 <div className="flex items-center justify-between">
-                  <h2 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-gray-900 dark:text-white`}>Chỉnh sửa địa chỉ</h2>
+                  <h2 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">Chỉnh sửa địa chỉ</h2>
                   <button
                     onClick={() => handleModalToggle('edit', undefined)}
-                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1.5 sm:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>

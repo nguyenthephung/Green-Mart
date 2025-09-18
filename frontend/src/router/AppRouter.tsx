@@ -4,6 +4,7 @@ import AdminLayout from '../layouts/AdminLayout';
 import ProtectedRoute from '../components/ProtectedRoute';
 import AdminRoute from '../components/AdminRoute';
 import RedirectToHome from '../components/RedirectToHome';
+import ScrollToTop from '../components/ScrollToTop';
 
 // Direct imports instead of lazy loading
 import Category from '../pages/Guest/SearchPage';
@@ -52,6 +53,7 @@ import AdminFlashSalePage from '../pages/Admin/AdminFlashSalePage';
 
 const AppRouter = () => (
   <BrowserRouter>
+    <ScrollToTop />
     <Routes>
       {/* Public routes - không cần đăng nhập */}
       <Route path="/" element={<MainLayout />}>
