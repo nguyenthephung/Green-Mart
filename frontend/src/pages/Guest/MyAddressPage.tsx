@@ -23,7 +23,6 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
   loading,
   submitText
 }) => {
-  const { isMobile } = useResponsive();
   const [formData, setFormData] = useState<UserAddress>({
     fullName: address?.fullName || '',
     phone: address?.phone || '',
@@ -154,9 +153,9 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className={`${isMobile ? 'p-4 space-y-4' : 'p-6 space-y-6'}`}>
+    <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
       {/* Personal Info */}
-      <div className={`grid ${isMobile ? 'grid-cols-1 gap-4' : 'grid-cols-1 md:grid-cols-2 gap-6'}`}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Họ và tên <span className="text-red-500">*</span>
@@ -165,12 +164,12 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
             type="text"
             value={formData.fullName}
             onChange={(e) => handleInputChange('fullName', e.target.value)}
-            className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+            className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors text-sm sm:text-base ${
               errors.fullName ? 'border-red-500 bg-red-50' : 'border-gray-300 dark:border-gray-600'
             } bg-white dark:bg-gray-700 text-gray-900 dark:text-white`}
             placeholder="Nhập họ và tên"
           />
-          {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>}
+          {errors.fullName && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.fullName}</p>}
         </div>
 
         <div>
@@ -181,103 +180,106 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
             type="tel"
             value={formData.phone}
             onChange={(e) => handleInputChange('phone', e.target.value)}
-            className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+            className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors text-sm sm:text-base ${
               errors.phone ? 'border-red-500 bg-red-50' : 'border-gray-300 dark:border-gray-600'
             } bg-white dark:bg-gray-700 text-gray-900 dark:text-white`}
             placeholder="Nhập số điện thoại"
           />
-          {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+          {errors.phone && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.phone}</p>}
         </div>
       </div>
 
       {/* Location Info */}
-      <div className="space-y-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-600 pb-2">
+      <div className="space-y-4 sm:space-y-6">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-600 pb-2">
           Thông tin địa chỉ
         </h3>
         
-        {/* Province */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Tỉnh/Thành phố <span className="text-red-500">*</span>
-          </label>
-          <select
-            value={selectedProvince}
-            onChange={(e) => setSelectedProvince(e.target.value)}
-            className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-              errors.district ? 'border-red-500 bg-red-50' : 'border-gray-300 dark:border-gray-600'
-            } bg-white dark:bg-gray-700 text-gray-900 dark:text-white`}
-          >
-            <option value="">Chọn tỉnh/thành phố</option>
-            {provinces.map((province) => (
-              <option key={province.code} value={province.code}>
-                {province.name}
-              </option>
-            ))}
-          </select>
-          {errors.district && <p className="text-red-500 text-sm mt-1">{errors.district}</p>}
-        </div>
+        {/* Location Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+          {/* Province */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Tỉnh/Thành phố <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={selectedProvince}
+              onChange={(e) => setSelectedProvince(e.target.value)}
+              className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors text-sm sm:text-base ${
+                errors.district ? 'border-red-500 bg-red-50' : 'border-gray-300 dark:border-gray-600'
+              } bg-white dark:bg-gray-700 text-gray-900 dark:text-white`}
+            >
+              <option value="">Chọn tỉnh/thành phố</option>
+              {provinces.map((province) => (
+                <option key={province.code} value={province.code}>
+                  {province.name}
+                </option>
+              ))}
+            </select>
+            {errors.district && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.district}</p>}
+          </div>
 
-        {/* District */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Quận/Huyện <span className="text-red-500">*</span>
-          </label>
-          <select
-            value={selectedDistrict}
-            onChange={(e) => setSelectedDistrict(e.target.value)}
-            disabled={!selectedProvince}
-            className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-              errors.district ? 'border-red-500 bg-red-50' : 'border-gray-300 dark:border-gray-600'
-            } bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed`}
-          >
-            <option value="">Chọn quận/huyện</option>
-            {districts.map((district) => (
-              <option key={district.code} value={district.code}>
-                {district.name}
-              </option>
-            ))}
-          </select>
-          {errors.district && <p className="text-red-500 text-sm mt-1">{errors.district}</p>}
-        </div>
+          {/* District */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Quận/Huyện <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={selectedDistrict}
+              onChange={(e) => setSelectedDistrict(e.target.value)}
+              disabled={!selectedProvince}
+              className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors text-sm sm:text-base ${
+                errors.district ? 'border-red-500 bg-red-50' : 'border-gray-300 dark:border-gray-600'
+              } bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed`}
+            >
+              <option value="">Chọn quận/huyện</option>
+              {districts.map((district) => (
+                <option key={district.code} value={district.code}>
+                  {district.name}
+                </option>
+              ))}
+            </select>
+            {errors.district && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.district}</p>}
+          </div>
 
-        {/* Ward */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Phường/Xã <span className="text-red-500">*</span>
-          </label>
-          <select
-            value={selectedWard}
-            onChange={(e) => setSelectedWard(e.target.value)}
-            disabled={!selectedDistrict}
-            className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-              errors.ward ? 'border-red-500 bg-red-50' : 'border-gray-300 dark:border-gray-600'
-            } bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed`}
-          >
-            <option value="">Chọn phường/xã</option>
-            {wards.map((ward) => (
-              <option key={ward.code} value={ward.code}>
-                {ward.name}
-              </option>
-            ))}
-          </select>
-          {errors.ward && <p className="text-red-500 text-sm mt-1">{errors.ward}</p>}
+          {/* Ward */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Phường/Xã <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={selectedWard}
+              onChange={(e) => setSelectedWard(e.target.value)}
+              disabled={!selectedDistrict}
+              className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors text-sm sm:text-base ${
+                errors.ward ? 'border-red-500 bg-red-50' : 'border-gray-300 dark:border-gray-600'
+              } bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed`}
+            >
+              <option value="">Chọn phường/xã</option>
+              {wards.map((ward) => (
+                <option key={ward.code} value={ward.code}>
+                  {ward.name}
+                </option>
+              ))}
+            </select>
+            {errors.ward && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.ward}</p>}
+          </div>
         </div>
 
         {/* Shipping Fee Display */}
         {shippingFee > 0 && (
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/40 rounded-full flex items-center justify-center">
-                <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg sm:rounded-xl p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 dark:bg-blue-900/40 rounded-full flex items-center justify-center">
+                <svg className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div>
-                <p className="text-blue-800 dark:text-blue-200 font-medium">
+                <p className="text-blue-800 dark:text-blue-200 font-medium text-sm sm:text-base">
                   Phí giao hàng dự kiến: {shippingFee.toLocaleString('vi-VN')}₫
                 </p>
-                <p className="text-blue-600 dark:text-blue-300 text-sm">
+                <p className="text-blue-600 dark:text-blue-300 text-xs sm:text-sm">
                   Miễn phí giao hàng cho đơn hàng từ 500.000₫
                 </p>
               </div>
@@ -295,12 +297,12 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
           type="text"
           value={formData.street}
           onChange={(e) => handleInputChange('street', e.target.value)}
-          className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+          className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors text-sm sm:text-base ${
             errors.street ? 'border-red-500 bg-red-50' : 'border-gray-300 dark:border-gray-600'
           } bg-white dark:bg-gray-700 text-gray-900 dark:text-white`}
           placeholder="Số nhà, tên đường..."
         />
-        {errors.street && <p className="text-red-500 text-sm mt-1">{errors.street}</p>}
+        {errors.street && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.street}</p>}
       </div>
 
       {/* Label */}
@@ -312,25 +314,25 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
           type="text"
           value={formData.label || ''}
           onChange={(e) => handleInputChange('label', e.target.value)}
-          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+          className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors text-sm sm:text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           placeholder="Ví dụ: Nhà, Công ty, Trường học..."
         />
       </div>
 
       {/* Action Buttons */}
-      <div className={`flex ${isMobile ? 'flex-col gap-3' : 'justify-end gap-4'} pt-4 border-t border-gray-200 dark:border-gray-600`}>
+      <div className="flex flex-col sm:flex-row sm:justify-end gap-3 sm:gap-4 pt-4 border-t border-gray-200 dark:border-gray-600">
         <button
           type="button"
           onClick={onCancel}
           disabled={loading}
-          className={`${isMobile ? 'w-full py-3' : 'px-6 py-3'} border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50`}
+          className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg sm:rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 text-sm sm:text-base"
         >
           Hủy
         </button>
         <button
           type="submit"
           disabled={loading}
-          className={`${isMobile ? 'w-full py-3' : 'px-6 py-3'} bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center ${isMobile ? 'justify-center' : ''} gap-2`}
+          className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-green-600 text-white rounded-lg sm:rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base"
         >
           {loading && (
             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
