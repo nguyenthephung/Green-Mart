@@ -5,14 +5,14 @@
   
   **Fresh & Organic E-commerce Platform**
   
-  [![Demo](https://img.shields.io/badge/🌐_Live_Demo-Visit_GreenMart-green?style=for-the-badge)](https://greenmart-web-4385e.web.app/login)
+  [![Demo](https://img.shields.io/badge/🌐_Live_Demo-Visit_GreenMart-green?style=for-the-badge)](https://greenmart-web-4385e.web.app/)
 </div>
 
 ---
 
 ## 🌟 Live Demo
 
-**🔗 Try GreenMart now:** [https://greenmart-web-4385e.web.app/login](https://greenmart-web-4385e.web.app/login)
+**🔗 Try GreenMart now:** [https://greenmart-web-4385e.web.app/login](https://greenmart-web-4385e.web.app/)
 
 Experience the full features of our e-commerce platform including:
 - Browse products as a guest user
@@ -377,9 +377,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👨‍💻 Author
 
-**GreenMart Team**
+**Nguyễn Thể Phụng*
 
-- **Demo**: [https://greenmart-web-4385e.web.app/login](https://greenmart-web-4385e.web.app/login)
+- **Demo**: [https://greenmart-web-4385e.web.app/login](https://greenmart-web-4385e.web.app/)
 - **Repository**: [Green-Mart](https://github.com/nguyenthephung/Green-Mart)
 
 ---
