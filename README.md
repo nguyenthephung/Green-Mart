@@ -208,7 +208,7 @@ npm run dev
 
 ### Live Production
 The application is currently deployed and accessible at:
-**🔗 [https://greenmart-web-4385e.web.app/login](https://greenmart-web-4385e.web.app/login)**
+**🔗 [https://greenmart-web-4385e.web.app/](https://greenmart-web-4385e.web.app/)**
 
 ### Deployment Options
 - **Frontend**: Firebase Hosting, Vercel, Netlify
