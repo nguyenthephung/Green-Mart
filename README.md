@@ -23,7 +23,7 @@
 
 ## 🌟 Live Demo
 
-**🔗 Try GreenMart now:** [https://greenmart-web-4385e.web.app/](https://greenmart-web-4385e.web.app/)
+**🔗 Try GreenMart now:** [https://greenmart-web-4385e.web.app/login](https://greenmart-web-4385e.web.app/login)
 
 Experience the full features of our e-commerce platform including:
 - Browse products as a guest user
