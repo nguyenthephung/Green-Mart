@@ -216,29 +216,41 @@ export const useUserStore = create<UserState>()(
           const token = tokenManager.get();
           
           if (token) {
-            const response = await authService.getProfile();
-            
-            if (response.success && response.data) {
-              set({ 
-                user: response.data, 
-                isAuthenticated: true,
-                isLoading: false 
-              });
+            try {
+              const response = await authService.getProfile();
               
-              // Fetch cart after successful auth check
-              try {
-                const { useCartStore } = await import('./useCartStore');
-                const cartStore = useCartStore.getState();
+              if (response.success && response.data) {
+                set({ 
+                  user: response.data, 
+                  isAuthenticated: true,
+                  isLoading: false 
+                });
                 
-                // First sync guest cart to server if exists
-                await cartStore.syncGuestCartToServer();
-                
-                // Then fetch the updated cart
-                await cartStore.fetchCart();
-              } catch (cartError) {
-                console.error('Error handling cart after auth check:', cartError);
+                // Fetch cart after successful auth check
+                try {
+                  const { useCartStore } = await import('./useCartStore');
+                  const cartStore = useCartStore.getState();
+                  
+                  // First sync guest cart to server if exists
+                  await cartStore.syncGuestCartToServer();
+                  
+                  // Then fetch the updated cart
+                  await cartStore.fetchCart();
+                } catch (cartError) {
+                  console.error('Error handling cart after auth check:', cartError);
+                }
+              } else {
+                // Invalid response - clear token and user data
+                tokenManager.remove();
+                set({ 
+                  user: null, 
+                  isAuthenticated: false,
+                  isLoading: false 
+                });
               }
-            } else {
+            } catch (authError: any) {
+              // Auth API call failed - likely due to expired token
+              console.error('Auth check failed:', authError);
               tokenManager.remove();
               set({ 
                 user: null, 
@@ -247,6 +259,7 @@ export const useUserStore = create<UserState>()(
               });
             }
           } else {
+            // No token - user is not authenticated
             set({ 
               user: null, 
               isAuthenticated: false,
@@ -254,7 +267,7 @@ export const useUserStore = create<UserState>()(
             });
           }
         } catch (error) {
-          console.error('Auth check failed:', error);
+          console.error('Unexpected error during auth check:', error);
           tokenManager.remove();
           set({ 
             user: null, 

@@ -104,6 +104,33 @@ export const apiClient = async <T>(
         data: null
       };
     }
+    
+    // Handle 401 Unauthorized - Token expired or invalid
+    if (!response.ok && response.status === 401) {
+      // Remove invalid token
+      tokenManager.remove();
+      
+      // Only redirect to login if not already on public pages
+      const currentPath = window.location.pathname;
+      const publicPaths = ['/home', '/login', '/register', '/about', '/policy', '/category', '/productdetail', '/search', '/flash-sale', '/guest-checkout', '/guest-order-success'];
+      const isPublicPath = publicPaths.some(path => currentPath.startsWith(path));
+      
+      if (!isPublicPath) {
+        // Clear user state
+        try {
+          const { useUserStore } = await import('../stores/useUserStore');
+          useUserStore.getState().setUser(null);
+        } catch (e) {
+          console.error('Error clearing user state:', e);
+        }
+        
+        // Redirect to login for protected pages
+        window.location.href = '/login';
+      }
+      
+      throw new Error(data.message || 'Phiên đăng nhập đã hết hạn');
+    }
+    
     if (!response.ok) {
       throw new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
     }

@@ -30,10 +30,24 @@ const Home: React.FC = memo(() => {
   
   // Fetch products when route changes (e.g. after add product)
   useEffect(() => {
-    fetchAllProducts();
-  }, [location.pathname]);
+    const fetchWithRetry = async (retries = 3) => {
+      try {
+        await fetchAllProducts();
+      } catch (error) {
+        console.error('Failed to fetch products, retries left:', retries - 1, error);
+        if (retries > 1) {
+          // Retry after a short delay
+          setTimeout(() => fetchWithRetry(retries - 1), 1000);
+        }
+      }
+    };
+    
+    fetchWithRetry();
+  }, [location.pathname, fetchAllProducts]);
   const loading = usePageLoading(0);
   const [isScrolling, setIsScrolling] = useState(false);
+  const [hasTimedOut, setHasTimedOut] = useState(false);
+  
   const addToCart = useCartStore(state => state.addToCart);
   const fetchCategories = useCategoryStore(state => state.fetchCategories);
   
@@ -189,6 +203,18 @@ const Home: React.FC = memo(() => {
 
   // Lấy dữ liệu từ store
   const products = useProductStore((state: any) => state.products);
+  
+  // Add timeout for loading state to prevent infinite loading
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (loading || !products || products.length === 0) {
+        console.warn('Page loading timeout - proceeding without full data');
+        setHasTimedOut(true);
+      }
+    }, 10000); // 10 second timeout
+
+    return () => clearTimeout(timeoutId);
+  }, [loading, products]);
 
 
 
@@ -277,7 +303,7 @@ const Home: React.FC = memo(() => {
     };
   }, [products, categories]);
 
-  if (loading || !products || products.length === 0) {
+  if ((loading || !products || products.length === 0) && !hasTimedOut) {
     return (
       <LoadingSpinner
         size="xl"
@@ -296,6 +322,26 @@ const Home: React.FC = memo(() => {
       <HeroSection
         isScrolling={isScrolling}
       />
+      
+      {/* Show message if no products available after timeout */}
+      {hasTimedOut && (!products || products.length === 0) && (
+        <div className="container mx-auto px-4 py-8 text-center">
+          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-6">
+            <h2 className="text-xl font-semibold text-yellow-800 dark:text-yellow-200 mb-2">
+              Đang tải dữ liệu...
+            </h2>
+            <p className="text-yellow-700 dark:text-yellow-300">
+              Vui lòng chờ hoặc thử tải lại trang nếu mất quá nhiều thời gian.
+            </p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="mt-4 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
+            >
+              Tải lại trang
+            </button>
+          </div>
+        </div>
+      )}
       
       {/* Flash Sale Section - Load immediately for high priority content */}
       <LazySection

@@ -54,6 +54,26 @@ const App = memo(() => {
     const runAuthCheck = async () => {
       try {
         const token = localStorage.getItem('token');
+        const lastVisit = localStorage.getItem('lastVisit');
+        const now = Date.now();
+        
+        // Check if it's been more than 24 hours since last visit
+        if (lastVisit) {
+          const lastVisitTime = parseInt(lastVisit);
+          const hoursSinceLastVisit = (now - lastVisitTime) / (1000 * 60 * 60);
+          
+          if (hoursSinceLastVisit > 24) {
+            console.log('Long time since last visit, clearing cache...');
+            // Clear potentially stale data
+            localStorage.removeItem('user-storage');
+            localStorage.removeItem('cart-storage');
+            localStorage.removeItem('product-storage');
+          }
+        }
+        
+        // Update last visit time
+        localStorage.setItem('lastVisit', now.toString());
+        
         if (token && checkAuthStatus) {
           // Delay để tránh block UI thread
           timeoutId = setTimeout(async () => {
@@ -61,6 +81,7 @@ const App = memo(() => {
           }, 100);
         }
       } catch (error) {
+        console.error('Error during auth check:', error);
         localStorage.removeItem('token');
       }
     };
