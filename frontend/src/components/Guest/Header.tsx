@@ -17,7 +17,7 @@ const Header: React.FC = memo(() => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [showDropdown, setShowDropdown] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [showCategoryBar, setShowCategoryBar] = useState(true);
+  const [showCategoryBar, setShowCategoryBar] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showMobileCategoryMenu, setShowMobileCategoryMenu] = useState(false);
   const [showLuckyWheel, setShowLuckyWheel] = useState(false);
@@ -30,10 +30,7 @@ const Header: React.FC = memo(() => {
   const shouldHideCategoryBar = location.pathname.includes('order-success') || location.pathname.includes('guest-order-success');
   
   // Responsive hook
-  const { isMobile, width } = useResponsive();
-  
-  // Debug info (temporary)
-  console.log('Header Debug:', { isMobile, width, windowWidth: typeof window !== 'undefined' ? window.innerWidth : 'SSR' });
+  const { isMobile } = useResponsive();
   
   // Categories
   const { categories } = useCategoryStore();
