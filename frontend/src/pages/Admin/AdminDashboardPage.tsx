@@ -7,16 +7,16 @@ const AdminDashboard: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [loading, setLoading] = useState(false);
-  
+
   // Responsive hook
   const { isMobile } = useResponsive();
-  
+
   // Data states
   // const [stats, setStats] = useState<DashboardStats[]>([]);
   const [quickStats, setQuickStats] = useState<QuickStats[]>([]);
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [, setTopProducts] = useState<TopProduct[]>([]);
-  
+
   // Theme state for reactive background fix
   const [isDarkMode, setIsDarkMode] = useState(document.documentElement.classList.contains('dark'));
   // Chế độ dark: true = nền đen, false = chữ đen
@@ -64,7 +64,7 @@ const AdminDashboard: React.FC = () => {
     try {
       const ordersData = await dashboardService.getRecentOrders({
         limit: 10,
-        status: selectedFilter
+        status: selectedFilter,
       });
       setRecentOrders(ordersData.orders);
     } catch (error) {
@@ -72,7 +72,6 @@ const AdminDashboard: React.FC = () => {
       setRecentOrders([]);
     }
   };
-
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -104,67 +103,71 @@ const AdminDashboard: React.FC = () => {
       <div className="space-y-6 lg:space-y-8">
         <div className="flex justify-between items-start">
           <div>
-            <h1 className={`font-bold text-gray-800 dark:text-white mb-2 ${
-              isMobile ? 'text-2xl lg:text-3xl' : 'text-3xl lg:text-4xl'
-            }`}>
+            <h1
+              className={`font-bold text-gray-800 dark:text-white mb-2 ${
+                isMobile ? 'text-2xl lg:text-3xl' : 'text-3xl lg:text-4xl'
+              }`}
+            >
               {getGreeting()}
             </h1>
-            <p className={`text-gray-600 dark:text-gray-300 ${
-              isMobile ? 'text-sm' : 'text-base'
-            }`}>
+            <p className={`text-gray-600 dark:text-gray-300 ${isMobile ? 'text-sm' : 'text-base'}`}>
               Đây là tổng quan về hoạt động của GreenMart
             </p>
             <p className="text-xs lg:text-sm text-gray-500 dark:text-gray-400 mt-1">
-              {currentTime.toLocaleDateString('vi-VN', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })} - {currentTime.toLocaleTimeString('vi-VN')}
+              {currentTime.toLocaleDateString('vi-VN', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}{' '}
+              - {currentTime.toLocaleTimeString('vi-VN')}
             </p>
           </div>
-          
         </div>
         {/* Quick Stats */}
-        <div className={`grid gap-3 lg:gap-4 ${
-          isMobile ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-4'
-        }`}>
-          {loading ? (
-            // Loading skeleton
-            [...Array(4)].map((_, i) => (
-              <div 
-                key={i} 
-                className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 border-l-4 border-green-500 dark:border-green-400 animate-pulse"
-                style={{ backgroundColor: isDarkMode ? '#18181b' : '#fff' }}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-24 mb-2"></div>
-                    <div className="h-8 bg-gray-300 dark:bg-gray-600 rounded w-16"></div>
+        <div
+          className={`grid gap-3 lg:gap-4 ${
+            isMobile ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-4'
+          }`}
+        >
+          {loading
+            ? // Loading skeleton
+              [...Array(4)].map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 border-l-4 border-green-500 dark:border-green-400 animate-pulse"
+                  style={{ backgroundColor: isDarkMode ? '#18181b' : '#fff' }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-24 mb-2"></div>
+                      <div className="h-8 bg-gray-300 dark:bg-gray-600 rounded w-16"></div>
+                    </div>
+                    <div className="w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded"></div>
                   </div>
-                  <div className="w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded"></div>
                 </div>
-              </div>
-            ))
-          ) : (
-            quickStats.map((stat, i) => (
-              <div 
-                key={i} 
-                className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 border-l-4 border-green-500 dark:border-green-400 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer group"
-                style={{ backgroundColor: isDarkMode ? '#18181b' : '#fff' }}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200 transition-colors">{stat.label}</p>
-                    <p className={`text-2xl font-bold ${stat.color} dark:text-${stat.color?.split('-')[1] || 'green'}-400 group-hover:scale-110 transition-transform`}>
-                      {stat.value}
-                    </p>
+              ))
+            : quickStats.map((stat, i) => (
+                <div
+                  key={i}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 border-l-4 border-green-500 dark:border-green-400 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer group"
+                  style={{ backgroundColor: isDarkMode ? '#18181b' : '#fff' }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200 transition-colors">
+                        {stat.label}
+                      </p>
+                      <p
+                        className={`text-2xl font-bold ${stat.color} dark:text-${stat.color?.split('-')[1] || 'green'}-400 group-hover:scale-110 transition-transform`}
+                      >
+                        {stat.value}
+                      </p>
+                    </div>
+                    <div className="text-2xl group-hover:animate-bounce">{stat.icon}</div>
                   </div>
-                  <div className="text-2xl group-hover:animate-bounce">{stat.icon}</div>
                 </div>
-              </div>
-            ))
-          )}
+              ))}
         </div>
       </div>
 
@@ -176,16 +179,18 @@ const AdminDashboard: React.FC = () => {
           style={{ backgroundColor: isDarkMode ? '#18181b' : '#fff' }}
         >
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">Đơn hàng gần đây</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">
+              Đơn hàng gần đây
+            </h2>
             <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
               <div className="flex flex-wrap gap-2">
-                {['all', 'completed', 'processing', 'shipping'].map((filter) => {
+                {['all', 'completed', 'processing', 'shipping'].map(filter => {
                   const isSelected = selectedFilter === filter;
                   const filterLabels = {
-                    'all': 'Tất cả',
-                    'completed': 'Đã giao', 
-                    'processing': 'Đang xử lý',
-                    'shipping': 'Đang vận chuyển'
+                    all: 'Tất cả',
+                    completed: 'Đã giao',
+                    processing: 'Đang xử lý',
+                    shipping: 'Đang vận chuyển',
                   };
                   return (
                     <button
@@ -195,16 +200,22 @@ const AdminDashboard: React.FC = () => {
                       style={
                         isDarkMode
                           ? isSelected
-                            ? { backgroundColor: '#23272f', color: '#fff', boxShadow: '0 2px 8px 0 #0002' }
+                            ? {
+                                backgroundColor: '#23272f',
+                                color: '#fff',
+                                boxShadow: '0 2px 8px 0 #0002',
+                              }
                             : { backgroundColor: '#23272f', color: '#e5e7eb' }
                           : isSelected
-                            ? { backgroundColor: '#d1fae5', color: '#065f46', boxShadow: '0 2px 8px 0 #10b98122' }
+                            ? {
+                                backgroundColor: '#d1fae5',
+                                color: '#065f46',
+                                boxShadow: '0 2px 8px 0 #10b98122',
+                              }
                             : { backgroundColor: '#f3f4f6', color: '#374151' }
                       }
                       className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium transition-all disabled:opacity-50 ${
-                        isSelected
-                          ? 'shadow-md'
-                          : 'hover:bg-gray-200 dark:hover:bg-[#18181b]'
+                        isSelected ? 'shadow-md' : 'hover:bg-gray-200 dark:hover:bg-[#18181b]'
                       }`}
                     >
                       {filterLabels[filter as keyof typeof filterLabels]}
@@ -221,11 +232,21 @@ const AdminDashboard: React.FC = () => {
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-gray-800 dark:text-gray-200 border-b-2 border-gray-100 dark:border-gray-700">
-                  <th className="py-2 sm:py-3 font-semibold hover:text-green-700 dark:hover:text-green-300 cursor-pointer text-xs sm:text-sm">Mã đơn hàng ↕</th>
-                  <th className="py-2 sm:py-3 font-semibold hover:text-green-700 dark:hover:text-green-300 cursor-pointer text-xs sm:text-sm hidden sm:table-cell">Khách hàng ↕</th>
-                  <th className="py-2 sm:py-3 font-semibold hover:text-green-700 dark:hover:text-green-300 cursor-pointer text-xs sm:text-sm">Tổng tiền ↕</th>
-                  <th className="py-2 sm:py-3 font-semibold hover:text-green-700 dark:hover:text-green-300 cursor-pointer text-xs sm:text-sm">Trạng thái ↕</th>
-                  <th className="py-2 sm:py-3 font-semibold hover:text-green-700 dark:hover:text-green-300 cursor-pointer text-xs sm:text-sm hidden md:table-cell">Thời gian ↕</th>
+                  <th className="py-2 sm:py-3 font-semibold hover:text-green-700 dark:hover:text-green-300 cursor-pointer text-xs sm:text-sm">
+                    Mã đơn hàng ↕
+                  </th>
+                  <th className="py-2 sm:py-3 font-semibold hover:text-green-700 dark:hover:text-green-300 cursor-pointer text-xs sm:text-sm hidden sm:table-cell">
+                    Khách hàng ↕
+                  </th>
+                  <th className="py-2 sm:py-3 font-semibold hover:text-green-700 dark:hover:text-green-300 cursor-pointer text-xs sm:text-sm">
+                    Tổng tiền ↕
+                  </th>
+                  <th className="py-2 sm:py-3 font-semibold hover:text-green-700 dark:hover:text-green-300 cursor-pointer text-xs sm:text-sm">
+                    Trạng thái ↕
+                  </th>
+                  <th className="py-2 sm:py-3 font-semibold hover:text-green-700 dark:hover:text-green-300 cursor-pointer text-xs sm:text-sm hidden md:table-cell">
+                    Thời gian ↕
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -237,7 +258,7 @@ const AdminDashboard: React.FC = () => {
                       animationDelay: `${index * 50}ms`,
                       ...(isDarkMode
                         ? { backgroundColor: undefined }
-                        : { backgroundColor: undefined })
+                        : { backgroundColor: undefined }),
                     }}
                     onMouseEnter={e => {
                       if (isDarkMode) e.currentTarget.style.backgroundColor = '#18181b';
@@ -247,13 +268,20 @@ const AdminDashboard: React.FC = () => {
                       e.currentTarget.style.backgroundColor = '';
                     }}
                   >
-                    <td className="py-3 sm:py-4 font-semibold text-gray-800 dark:text-white text-xs sm:text-sm"
+                    <td
+                      className="py-3 sm:py-4 font-semibold text-gray-800 dark:text-white text-xs sm:text-sm"
                       style={isDarkMode ? { color: '#fff' } : {}}
-                    >{o.id}</td>
-                    <td className="py-3 sm:py-4 text-gray-800 dark:text-gray-200 text-xs sm:text-sm hidden sm:table-cell"
+                    >
+                      {o.id}
+                    </td>
+                    <td
+                      className="py-3 sm:py-4 text-gray-800 dark:text-gray-200 text-xs sm:text-sm hidden sm:table-cell"
                       style={isDarkMode ? { color: '#e5e7eb' } : {}}
-                    >{o.user}</td>
-                    <td className="py-3 sm:py-4 font-bold text-green-600 dark:text-green-400 group-hover:scale-105 transition-transform text-xs sm:text-sm"
+                    >
+                      {o.user}
+                    </td>
+                    <td
+                      className="py-3 sm:py-4 font-bold text-green-600 dark:text-green-400 group-hover:scale-105 transition-transform text-xs sm:text-sm"
                       style={isDarkMode ? { color: '#22d3ee' } : {}}
                     >
                       {o.total.toLocaleString()}đ
@@ -279,21 +307,39 @@ const AdminDashboard: React.FC = () => {
                                   : { backgroundColor: '#fef9c3', color: '#92400e' }
                         }
                       >
-                        {o.status === 'completed' ? 'Đã giao' : 
-                         o.status === 'cancelled' ? 'Đã hủy' :
-                         o.status === 'shipping' ? 'Đang vận chuyển' :
-                         o.status === 'processing' ? 'Đang xử lý' : o.status}
+                        {o.status === 'completed'
+                          ? 'Đã giao'
+                          : o.status === 'cancelled'
+                            ? 'Đã hủy'
+                            : o.status === 'shipping'
+                              ? 'Đang vận chuyển'
+                              : o.status === 'processing'
+                                ? 'Đang xử lý'
+                                : o.status}
                       </span>
                     </td>
-                    <td className="py-3 sm:py-4 hidden md:table-cell"
+                    <td
+                      className="py-3 sm:py-4 hidden md:table-cell"
                       style={isDarkMode ? { color: '#fff' } : {}}
                     >
-                      <div className="font-medium px-2 py-1 rounded text-xs sm:text-sm"
-                        style={{ backgroundColor: isDarkMode ? '#23272f' : '#f3f4f6', color: isDarkMode ? '#fff' : '#23272f' }}
-                      >{o.date}</div>
-                      <div className="text-xs px-2 py-0.5 rounded mt-1"
-                        style={{ backgroundColor: isDarkMode ? '#23272f' : '#f9fafb', color: isDarkMode ? '#e5e7eb' : '#374151' }}
-                      >{o.time}</div>
+                      <div
+                        className="font-medium px-2 py-1 rounded text-xs sm:text-sm"
+                        style={{
+                          backgroundColor: isDarkMode ? '#23272f' : '#f3f4f6',
+                          color: isDarkMode ? '#fff' : '#23272f',
+                        }}
+                      >
+                        {o.date}
+                      </div>
+                      <div
+                        className="text-xs px-2 py-0.5 rounded mt-1"
+                        style={{
+                          backgroundColor: isDarkMode ? '#23272f' : '#f9fafb',
+                          color: isDarkMode ? '#e5e7eb' : '#374151',
+                        }}
+                      >
+                        {o.time}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -301,16 +347,17 @@ const AdminDashboard: React.FC = () => {
             </table>
           </div>
         </div>
-
-        
       </div>
-
-      
 
       {/* Floating Action Button */}
       <div className="fixed bottom-6 right-6 z-50">
         <button className="bg-green-600 text-white p-4 rounded-full shadow-lg hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 hover:scale-110 transition-all duration-300 group">
-          <svg className="w-6 h-6 group-hover:rotate-45 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg
+            className="w-6 h-6 group-hover:rotate-45 transition-transform"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
         </button>

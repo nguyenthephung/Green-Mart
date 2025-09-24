@@ -14,13 +14,13 @@ export default function FooterBanner({ className = '' }: FooterBannerProps) {
       try {
         await fetchBanners('footer', true);
         const storeBanners = useBannerStore.getState().banners;
-        const footerBanners = storeBanners.filter((b: any) => 
-          b.position === 'footer' && b.isActive
+        const footerBanners = storeBanners.filter(
+          (b: any) => b.position === 'footer' && b.isActive
         );
-        
+
         // Sort by priority (lower number = higher priority) and get the first one
         footerBanners.sort((a: any, b: any) => a.priority - b.priority);
-        
+
         if (footerBanners.length > 0) {
           setBanner(footerBanners[0]);
         }
@@ -49,20 +49,20 @@ export default function FooterBanner({ className = '' }: FooterBannerProps) {
 
   return (
     <div className={`w-full ${className}`}>
-      <div 
+      <div
         onClick={handleClick}
         className="bg-gradient-to-r from-gray-800 via-gray-900 to-black text-white rounded-2xl cursor-pointer group transition-all duration-300 hover:scale-[1.02] shadow-2xl overflow-hidden"
       >
         <div className="relative">
           {/* Background Image */}
-          <div 
+          <div
             className="absolute inset-0 bg-cover bg-center opacity-30 group-hover:opacity-40 transition-opacity duration-500"
             style={{ backgroundImage: `url(${banner.imageUrl})` }}
           />
-          
+
           {/* Gradient Overlay */}
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-transparent"></div>
-          
+
           {/* Content */}
           <div className="relative px-8 py-8 md:px-12 md:py-12">
             <div className="max-w-7xl mx-auto">
@@ -75,14 +75,14 @@ export default function FooterBanner({ className = '' }: FooterBannerProps) {
                       ✨ Ưu đãi đặc biệt
                     </span>
                   </div>
-                  
+
                   {/* Title */}
                   <h2 className="text-3xl md:text-4xl lg:text-5xl font-black leading-tight">
                     <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                       {banner.title}
                     </span>
                   </h2>
-                  
+
                   {/* Description */}
                   {banner.description && (
                     <p className="text-lg md:text-xl text-gray-300 leading-relaxed max-w-2xl">
@@ -90,17 +90,27 @@ export default function FooterBanner({ className = '' }: FooterBannerProps) {
                     </p>
                   )}
                 </div>
-                
+
                 {/* Right CTA */}
                 <div className="lg:col-span-1 flex justify-center lg:justify-end">
                   <div className="text-center lg:text-right">
                     <div className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl text-lg font-bold transition-all duration-300 group-hover:scale-110 shadow-lg hover:shadow-xl">
                       <span>{banner.buttonText || 'Khám phá ngay'}</span>
-                      <svg className="w-6 h-6 group-hover:translate-x-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      <svg
+                        className="w-6 h-6 group-hover:translate-x-2 transition-transform"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 7l5 5m0 0l-5 5m5-5H6"
+                        />
                       </svg>
                     </div>
-                    
+
                     {/* Additional Info */}
                     <div className="mt-4 text-sm text-gray-400">
                       <p>Nhấn để xem chi tiết</p>
@@ -110,10 +120,13 @@ export default function FooterBanner({ className = '' }: FooterBannerProps) {
               </div>
             </div>
           </div>
-          
+
           {/* Decorative Elements */}
           <div className="absolute top-4 right-4 w-20 h-20 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-xl animate-pulse"></div>
-          <div className="absolute bottom-4 left-4 w-16 h-16 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-lg animate-pulse" style={{animationDelay: '1s'}}></div>
+          <div
+            className="absolute bottom-4 left-4 w-16 h-16 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-lg animate-pulse"
+            style={{ animationDelay: '1s' }}
+          ></div>
         </div>
       </div>
     </div>

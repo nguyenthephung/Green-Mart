@@ -69,13 +69,13 @@ const StarRating: React.FC<StarRatingProps> = ({
       <div className="flex items-center">
         {Array.from({ length: maxRating }, (_, index) => renderStar(index))}
       </div>
-      
+
       {showValue && (
         <span className={`font-medium text-gray-700 dark:text-gray-300 ${textSizeClasses[size]}`}>
           {rating.toFixed(1)}
         </span>
       )}
-      
+
       {showCount && count > 0 && (
         <span className={`text-gray-500 dark:text-gray-400 ${textSizeClasses[size]}`}>
           ({count})

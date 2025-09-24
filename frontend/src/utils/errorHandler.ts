@@ -28,7 +28,7 @@ export const ERROR_TYPES = {
   NOT_FOUND: 'NOT_FOUND',
   SERVER: 'SERVER_ERROR',
   CLIENT: 'CLIENT_ERROR',
-  UNKNOWN: 'UNKNOWN_ERROR'
+  UNKNOWN: 'UNKNOWN_ERROR',
 } as const;
 
 // Error messages
@@ -41,7 +41,7 @@ export const ERROR_MESSAGES = {
   SERVER: 'Lỗi máy chủ. Vui lòng thử lại sau.',
   CLIENT: 'Yêu cầu không hợp lệ.',
   UNKNOWN: 'Đã xảy ra lỗi không xác định. Vui lòng thử lại.',
-  
+
   // Specific error messages
   LOGIN_FAILED: 'Thông tin đăng nhập không chính xác.',
   REGISTER_FAILED: 'Đăng ký thất bại. Email có thể đã được sử dụng.',
@@ -59,7 +59,6 @@ export const ERROR_MESSAGES = {
 } as const;
 
 export class ErrorHandler {
-
   static getErrorType(error: any): keyof typeof ERROR_TYPES {
     if (!error) return 'UNKNOWN';
 
@@ -71,7 +70,7 @@ export class ErrorHandler {
     // HTTP status code based errors
     if (error.statusCode || error.status) {
       const statusCode = error.statusCode || error.status;
-      
+
       if (statusCode === 400) return 'VALIDATION';
       if (statusCode === 401) return 'AUTHENTICATION';
       if (statusCode === 403) return 'AUTHORIZATION';
@@ -99,18 +98,18 @@ export class ErrorHandler {
 
   static formatError(error: any): ErrorInfo {
     const errorType = this.getErrorType(error);
-    
+
     return {
       message: error.message || ERROR_MESSAGES[errorType] || ERROR_MESSAGES.UNKNOWN,
       code: error.code || errorType,
       statusCode: error.statusCode || error.status,
-      details: error.details || error.response?.data
+      details: error.details || error.response?.data,
     };
   }
 
   static handleError(error: any, context?: string): void {
     console.error('Error occurred:', error, 'Context:', context);
-    
+
     const errorInfo = this.formatError(error);
     const errorType = this.getErrorType(error);
 
@@ -122,11 +121,8 @@ export class ErrorHandler {
       const validationMessages = error.validationErrors
         .map((err: ValidationError) => `${err.field}: ${err.message}`)
         .join('\n');
-      
-      toastStore.showError(
-        'Lỗi xác thực',
-        validationMessages || ERROR_MESSAGES.VALIDATION
-      );
+
+      toastStore.showError('Lỗi xác thực', validationMessages || ERROR_MESSAGES.VALIDATION);
       return;
     }
 
@@ -134,17 +130,21 @@ export class ErrorHandler {
     if (errorType === 'AUTHENTICATION') {
       // Don't redirect to login for automatic auth checks or on homepage/public pages
       const currentPath = window.location.pathname;
-      const isPublicPage = ['/', '/home', '/search', '/products', '/product', '/about', '/policy', '/flash-sale'].some(path => 
-        currentPath === path || currentPath.startsWith(path)
-      );
-      
+      const isPublicPage = [
+        '/',
+        '/home',
+        '/search',
+        '/products',
+        '/product',
+        '/about',
+        '/policy',
+        '/flash-sale',
+      ].some(path => currentPath === path || currentPath.startsWith(path));
+
       // Only show error and redirect if user is on a protected page or explicitly tried to access something
       if (!isPublicPage && context !== 'Auth Check') {
-        toastStore.showError(
-          'Lỗi xác thực',
-          errorInfo.message
-        );
-        
+        toastStore.showError('Lỗi xác thực', errorInfo.message);
+
         // Redirect to login page
         setTimeout(() => {
           window.location.href = '/login';
@@ -179,7 +179,12 @@ export class ErrorHandler {
     }
   }
 
-  static createApiError(message: string, statusCode?: number, code?: string, details?: any): ApiError {
+  static createApiError(
+    message: string,
+    statusCode?: number,
+    code?: string,
+    details?: any
+  ): ApiError {
     const error = new Error(message) as ApiError;
     error.statusCode = statusCode;
     error.code = code;
@@ -223,7 +228,7 @@ export class ErrorHandler {
       if (rule.required && (!value || value.toString().trim() === '')) {
         errors.push({
           field,
-          message: rule.message || ERROR_MESSAGES.REQUIRED_FIELD
+          message: rule.message || ERROR_MESSAGES.REQUIRED_FIELD,
         });
         continue;
       }
@@ -233,7 +238,7 @@ export class ErrorHandler {
         if (!emailRegex.test(value)) {
           errors.push({
             field,
-            message: rule.message || ERROR_MESSAGES.EMAIL_INVALID
+            message: rule.message || ERROR_MESSAGES.EMAIL_INVALID,
           });
         }
       }
@@ -241,21 +246,21 @@ export class ErrorHandler {
       if (value && rule.minLength && value.length < rule.minLength) {
         errors.push({
           field,
-          message: rule.message || `Tối thiểu ${rule.minLength} ký tự`
+          message: rule.message || `Tối thiểu ${rule.minLength} ký tự`,
         });
       }
 
       if (value && rule.maxLength && value.length > rule.maxLength) {
         errors.push({
           field,
-          message: rule.message || `Tối đa ${rule.maxLength} ký tự`
+          message: rule.message || `Tối đa ${rule.maxLength} ký tự`,
         });
       }
 
       if (value && rule.pattern && !rule.pattern.test(value)) {
         errors.push({
           field,
-          message: rule.message || 'Định dạng không hợp lệ'
+          message: rule.message || 'Định dạng không hợp lệ',
         });
       }
     }

@@ -17,13 +17,13 @@ export const profileService = {
         success: response.success,
         data: response.data,
         message: response.message || 'Cập nhật thông tin thành công',
-        errors: response.errors
+        errors: response.errors,
       };
     } catch (error: any) {
       return {
         success: false,
         message: error.message || 'Lỗi cập nhật thông tin',
-        errors: null
+        errors: null,
       };
     }
   },
@@ -32,28 +32,28 @@ export const profileService = {
     try {
       const formData = new FormData();
       formData.append('avatar', file);
-      
+
       const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
       const response = await fetch(`${API_BASE_URL}/upload/avatar`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
-        body: formData
+        body: formData,
       });
-      
+
       const data = await response.json();
       return {
         success: response.ok,
         data: data.data,
-        message: data.message || 'Tải ảnh thành công'
+        message: data.message || 'Tải ảnh thành công',
       };
     } catch (error: any) {
       return {
         success: false,
         message: 'Lỗi tải ảnh',
-        data: null
+        data: null,
       };
     }
-  }
+  },
 };

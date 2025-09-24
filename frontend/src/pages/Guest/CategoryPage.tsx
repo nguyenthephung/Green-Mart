@@ -24,7 +24,6 @@ import { useCartStore } from '../../stores/useCartStore';
 import { StarIcon, FireIcon } from '@heroicons/react/24/solid';
 import ProductCard from '../../components/Guest/home/ProductCard';
 
-
 export default function CategoryPage() {
   // All hooks must be inside the component
   const fetchAllProducts = useProductStore(state => state.fetchAll);
@@ -70,11 +69,11 @@ export default function CategoryPage() {
   // Tìm parent category từ URL param - có thể là parent hoặc sub
   const currentParentCategory = useMemo(() => {
     if (!category) return null;
-    
+
     // Trước tiên kiểm tra xem category có phải là parent category không
     const directParent = categories.find(cat => cat.name === category);
     if (directParent) return directParent;
-    
+
     // Nếu không, tìm parent category có chứa category này trong subs
     return categories.find(cat => Array.isArray(cat.subs) && cat.subs.includes(category));
   }, [category, categories]);
@@ -89,51 +88,55 @@ export default function CategoryPage() {
 
   // Memoize filtered products for performance
   const filteredProducts = useMemo(() => {
-    return products.filter((p) => {
-      if (p.status !== 'active') return false;
-      let categoryMatch = true;
-      if (category) {
-        // Kiểm tra xem category param có phải là parent category không
-        const isParentCategory = categories.some(cat => cat.name === category);
-        
-        if (isParentCategory) {
-          // Nếu là parent category, hiển thị tất cả sản phẩm của các subcategory
-          const parentCat = categories.find(cat => cat.name === category);
-          if (parentCat && parentCat.subs) {
-            categoryMatch = parentCat.subs.includes(p.category);
+    return products
+      .filter(p => {
+        if (p.status !== 'active') return false;
+        let categoryMatch = true;
+        if (category) {
+          // Kiểm tra xem category param có phải là parent category không
+          const isParentCategory = categories.some(cat => cat.name === category);
+
+          if (isParentCategory) {
+            // Nếu là parent category, hiển thị tất cả sản phẩm của các subcategory
+            const parentCat = categories.find(cat => cat.name === category);
+            if (parentCat && parentCat.subs) {
+              categoryMatch = parentCat.subs.includes(p.category);
+            }
+          } else {
+            // Nếu là subcategory, so sánh trực tiếp
+            categoryMatch = p.category === category;
           }
-        } else {
-          // Nếu là subcategory, so sánh trực tiếp
-          categoryMatch = p.category === category;
         }
-      }
-      // Nếu không có category param, hiển thị tất cả sản phẩm active
-      const searchMatch = p.name?.toLowerCase().includes(search.toLowerCase());
-      let typeMatch = true;
-      if (filterType === 'sale') typeMatch = !!p.isSale;
-      else if (filterType === 'featured') typeMatch = !!(p as any).isFeatured;
-      return categoryMatch && searchMatch && typeMatch;
-    }).sort((a, b) => {
-      const priceA = typeof (a as any).salePrice === 'number' ? (a as any).salePrice : (a as any).price;
-      const priceB = typeof (b as any).salePrice === 'number' ? (b as any).salePrice : (b as any).price;
-      if (sort === 'price-asc') {
-        return priceA - priceB;
-      }
-      if (sort === 'price-desc') {
-        return priceB - priceA;
-      }
-      return 0;
-    });
+        // Nếu không có category param, hiển thị tất cả sản phẩm active
+        const searchMatch = p.name?.toLowerCase().includes(search.toLowerCase());
+        let typeMatch = true;
+        if (filterType === 'sale') typeMatch = !!p.isSale;
+        else if (filterType === 'featured') typeMatch = !!(p as any).isFeatured;
+        return categoryMatch && searchMatch && typeMatch;
+      })
+      .sort((a, b) => {
+        const priceA =
+          typeof (a as any).salePrice === 'number' ? (a as any).salePrice : (a as any).price;
+        const priceB =
+          typeof (b as any).salePrice === 'number' ? (b as any).salePrice : (b as any).price;
+        if (sort === 'price-asc') {
+          return priceA - priceB;
+        }
+        if (sort === 'price-desc') {
+          return priceB - priceA;
+        }
+        return 0;
+      });
   }, [products, category, search, filterType, sort, categories]);
 
   // Handle add to cart with Flash Sale support
   // Thêm vào giỏ hàng luôn với số lượng mặc định 1
   const handleAddToCart = (item: Product) => {
     const productId = String(item._id);
-    
+
     // Check if product is in Flash Sale
     const flashSaleInfo = getFlashSaleForProduct(productId);
-    
+
     // Use Flash Sale price if available, otherwise use regular pricing logic
     let price: number;
     if (flashSaleInfo) {
@@ -141,7 +144,7 @@ export default function CategoryPage() {
     } else {
       price = typeof item.salePrice === 'number' ? item.salePrice : item.price;
     }
-    
+
     addToCart({
       id: productId,
       name: item.name,
@@ -152,17 +155,20 @@ export default function CategoryPage() {
       type: item.type,
       weight: item.type === 'weight' ? 1 : undefined,
       // Include Flash Sale info if applicable
-      flashSale: flashSaleInfo ? {
-        flashSaleId: flashSaleInfo.flashSale._id,
-        isFlashSale: true,
-        originalPrice: flashSaleInfo.product.originalPrice,
-        discountPercentage: flashSaleInfo.product.discountPercentage
-      } : undefined
+      flashSale: flashSaleInfo
+        ? {
+            flashSaleId: flashSaleInfo.flashSale._id,
+            isFlashSale: true,
+            originalPrice: flashSaleInfo.product.originalPrice,
+            discountPercentage: flashSaleInfo.product.discountPercentage,
+          }
+        : undefined,
     });
   };
 
   // Lấy địa chỉ đang chọn (nếu có)
-  const selectedAddress = addresses && addresses.length > 0 ? (addresses.find(a => a.isSelected) || addresses[0]) : null;
+  const selectedAddress =
+    addresses && addresses.length > 0 ? addresses.find(a => a.isSelected) || addresses[0] : null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
@@ -170,29 +176,37 @@ export default function CategoryPage() {
         {/* Page Header */}
         <div className="text-center mb-12 pt-8">
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4 leading-tight overflow-hidden">
-            {category ? (
-              // Nếu category param là parent category, hiển thị tên parent
-              categories.some(cat => cat.name === category) ? category :
-              // Nếu là subcategory, hiển thị cả parent và sub
-              currentParentCategory ? `${currentParentCategory.name} - ${category}` : category
-            ) : 'Tất Cả Sản Phẩm'}
+            {category
+              ? // Nếu category param là parent category, hiển thị tên parent
+                categories.some(cat => cat.name === category)
+                ? category
+                : // Nếu là subcategory, hiển thị cả parent và sub
+                  currentParentCategory
+                  ? `${currentParentCategory.name} - ${category}`
+                  : category
+              : 'Tất Cả Sản Phẩm'}
           </h1>
           <p className="text-gray-600 text-lg">
-            {category ? (
-              categories.some(cat => cat.name === category) ? 
-                `Khám phá tất cả sản phẩm ${category.toLowerCase()}` :
-                `Khám phá ${category.toLowerCase()}`
-            ) : 'Khám phá bộ sưu tập tươi ngon chất lượng cao'}
+            {category
+              ? categories.some(cat => cat.name === category)
+                ? `Khám phá tất cả sản phẩm ${category.toLowerCase()}`
+                : `Khám phá ${category.toLowerCase()}`
+              : 'Khám phá bộ sưu tập tươi ngon chất lượng cao'}
           </p>
           {/* Hiển thị tên user và địa chỉ giao hàng nếu có */}
           {user && (
             <div className="mt-2 text-base text-gray-500">
-              Xin chào, <span className="font-semibold text-emerald-700">{user.name || user.email}</span>
+              Xin chào,{' '}
+              <span className="font-semibold text-emerald-700">{user.name || user.email}</span>
               {selectedAddress && (
                 <>
-                  {' '}• Giao đến: <span className="font-semibold text-green-700">
+                  {' '}
+                  • Giao đến:{' '}
+                  <span className="font-semibold text-green-700">
                     {selectedAddress.fullName ? selectedAddress.fullName : ''}
-                    {selectedAddress.wardName || selectedAddress.ward ? `, ${selectedAddress.wardName || selectedAddress.ward}` : ''}
+                    {selectedAddress.wardName || selectedAddress.ward
+                      ? `, ${selectedAddress.wardName || selectedAddress.ward}`
+                      : ''}
                     {selectedAddress.district ? `, ${selectedAddress.district}` : ''}
                   </span>
                 </>
@@ -205,38 +219,38 @@ export default function CategoryPage() {
         <div className="bg-white rounded-2xl shadow-xl p-6 mb-8">
           {/* Special Product Type Filters */}
           <div className="flex flex-wrap gap-4 mb-6 justify-center">
-              <button
-                onClick={() => setFilterType('all')}
-                className={`px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 ${
-                  filterType === 'all'
-                    ? 'bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-lg scale-105'
-                    : 'bg-app-card dark:bg-app-card text-gray-700 dark:text-gray-200 hover:bg-app-secondary dark:hover:bg-app-secondary'
-                }`}
-              >
-                Tất Cả Sản Phẩm
-              </button>
-              <button
-                onClick={() => setFilterType('sale')}
-                className={`px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 flex items-center gap-2 ${
-                  filterType === 'sale'
-                    ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg scale-105'
-                    : 'bg-app-card dark:bg-app-card text-gray-700 dark:text-gray-200 hover:bg-red-50 dark:hover:bg-app-secondary hover:text-red-600 dark:hover:text-red-400'
-                }`}
-              >
-                <FireIcon className="w-5 h-5" />
-                Sản Phẩm Sale
-              </button>
-              <button
-                onClick={() => setFilterType('featured')}
-                className={`px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 flex items-center gap-2 ${
-                  filterType === 'featured'
-                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg scale-105'
-                    : 'bg-app-card dark:bg-app-card text-gray-700 dark:text-gray-200 hover:bg-yellow-50 dark:hover:bg-app-secondary hover:text-yellow-600 dark:hover:text-yellow-400'
-                }`}
-              >
-                <StarIcon className="w-5 h-5" />
-                Sản Phẩm Nổi Bật
-              </button>
+            <button
+              onClick={() => setFilterType('all')}
+              className={`px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 ${
+                filterType === 'all'
+                  ? 'bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-lg scale-105'
+                  : 'bg-app-card dark:bg-app-card text-gray-700 dark:text-gray-200 hover:bg-app-secondary dark:hover:bg-app-secondary'
+              }`}
+            >
+              Tất Cả Sản Phẩm
+            </button>
+            <button
+              onClick={() => setFilterType('sale')}
+              className={`px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 flex items-center gap-2 ${
+                filterType === 'sale'
+                  ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg scale-105'
+                  : 'bg-app-card dark:bg-app-card text-gray-700 dark:text-gray-200 hover:bg-red-50 dark:hover:bg-app-secondary hover:text-red-600 dark:hover:text-red-400'
+              }`}
+            >
+              <FireIcon className="w-5 h-5" />
+              Sản Phẩm Sale
+            </button>
+            <button
+              onClick={() => setFilterType('featured')}
+              className={`px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 flex items-center gap-2 ${
+                filterType === 'featured'
+                  ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg scale-105'
+                  : 'bg-app-card dark:bg-app-card text-gray-700 dark:text-gray-200 hover:bg-yellow-50 dark:hover:bg-app-secondary hover:text-yellow-600 dark:hover:text-yellow-400'
+              }`}
+            >
+              <StarIcon className="w-5 h-5" />
+              Sản Phẩm Nổi Bật
+            </button>
           </div>
 
           {/* Category Navigation */}
@@ -268,7 +282,8 @@ export default function CategoryPage() {
                         : 'text-gray-700 border border-gray-300 bg-white hover:bg-emerald-50 hover:text-emerald-700'
                     }`}
                   >
-                    {cat.icon ? `${cat.icon} ` : ''}{cat.name}
+                    {cat.icon ? `${cat.icon} ` : ''}
+                    {cat.name}
                   </button>
                 ))}
               </div>
@@ -307,8 +322,18 @@ export default function CategoryPage() {
                 onChange={e => setSearch(e.target.value)}
                 className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none text-base"
               />
-              <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <svg
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
               </svg>
             </div>
             <select
@@ -322,7 +347,7 @@ export default function CategoryPage() {
             </select>
           </div>
         </div>
-        
+
         {/* Products Count and Status */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
@@ -353,26 +378,30 @@ export default function CategoryPage() {
             threshold={0.1}
             rootMargin="100px"
             placeholder={
-              <div className={`grid gap-4 lg:gap-6 mb-12 ${
-                isMobile 
-                  ? 'grid-cols-2' 
-                  : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
-              }`}>
+              <div
+                className={`grid gap-4 lg:gap-6 mb-12 ${
+                  isMobile ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
+                }`}
+              >
                 {Array.from({ length: 8 }).map((_, index) => (
                   <div key={index} className="bg-gray-200 animate-pulse rounded-xl h-64" />
                 ))}
               </div>
             }
           >
-            <div className={`grid gap-4 lg:gap-6 mb-12 ${
-              isMobile 
-                ? 'grid-cols-2' 
-                : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
-            }`}>
+            <div
+              className={`grid gap-4 lg:gap-6 mb-12 ${
+                isMobile ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
+              }`}
+            >
               {filteredProducts.map(product => {
                 // Ensure _id is string and remove descriptionImages function for handleAddToCart
                 const { descriptionImages, ...rest } = product;
-                const productForCart = { ...rest, _id: String(product._id), unit: product.unit || "" };
+                const productForCart = {
+                  ...rest,
+                  _id: String(product._id),
+                  unit: product.unit || '',
+                };
                 const isHot = filterType === 'featured' || product.isFeatured;
                 return (
                   <ProductCard
@@ -387,7 +416,7 @@ export default function CategoryPage() {
                       category: product.category,
                       unit: product.unit || '',
                       averageRating: product.averageRating,
-                      totalRatings: product.totalRatings
+                      totalRatings: product.totalRatings,
                     }}
                     quantity={1}
                     onAddToCart={() => handleAddToCart(productForCart)}

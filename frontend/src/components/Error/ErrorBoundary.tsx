@@ -26,13 +26,13 @@ class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     this.setState({ errorInfo });
-    
+
     // Log error
     console.error('Error Boundary caught an error:', error, errorInfo);
-    
+
     // Handle error with our error handler
     ErrorHandler.handleError(error, 'React Error Boundary');
-    
+
     // Call custom error handler if provided
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
@@ -56,9 +56,10 @@ class ErrorBoundary extends Component<Props, State> {
                 Oops! Có lỗi xảy ra
               </h2>
               <p className="text-gray-600 dark:text-gray-400 mb-6">
-                Ứng dụng gặp lỗi không mong muốn. Chúng tôi đã ghi nhận lỗi này và sẽ khắc phục sớm nhất.
+                Ứng dụng gặp lỗi không mong muốn. Chúng tôi đã ghi nhận lỗi này và sẽ khắc phục sớm
+                nhất.
               </p>
-              
+
               <div className="space-y-3">
                 <button
                   onClick={() => window.location.reload()}
@@ -66,9 +67,9 @@ class ErrorBoundary extends Component<Props, State> {
                 >
                   🔄 Tải lại trang
                 </button>
-                
+
                 <button
-                  onClick={() => window.location.href = '/'}
+                  onClick={() => (window.location.href = '/')}
                   className="w-full bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors"
                 >
                   🏠 Về trang chủ

@@ -12,10 +12,10 @@ interface ProductRatingProps {
   totalRatings?: number;
 }
 
-const ProductRating: React.FC<ProductRatingProps> = ({ 
-  productId, 
-  averageRating = 0, 
-  totalRatings = 0 
+const ProductRating: React.FC<ProductRatingProps> = ({
+  productId,
+  averageRating = 0,
+  totalRatings = 0,
 }) => {
   const { user } = useUserStore();
   const [ratings, setRatings] = useState<Rating[]>([]);
@@ -23,11 +23,11 @@ const ProductRating: React.FC<ProductRatingProps> = ({
   const [submitting, setSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingRating, setEditingRating] = useState<Rating | null>(null);
-  
+
   // Form state
   const [userRating, setUserRating] = useState(0);
   const [userReview, setUserReview] = useState('');
-  
+
   // Pagination
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -37,9 +37,10 @@ const ProductRating: React.FC<ProductRatingProps> = ({
 
   // Calculate actual ratings from loaded data
   const actualTotalRatings = ratings.length;
-  const actualAverageRating = ratings.length > 0 
-    ? ratings.reduce((sum, rating) => sum + rating.rating, 0) / ratings.length 
-    : 0;
+  const actualAverageRating =
+    ratings.length > 0
+      ? ratings.reduce((sum, rating) => sum + rating.rating, 0) / ratings.length
+      : 0;
 
   useEffect(() => {
     loadRatings();
@@ -49,13 +50,13 @@ const ProductRating: React.FC<ProductRatingProps> = ({
     setLoading(true);
     try {
       const newRatings = await ratingService.getProductRatings(productId, pageNum, 10);
-      
+
       if (pageNum === 1) {
         setRatings(newRatings);
       } else {
         setRatings(prev => [...prev, ...newRatings]);
       }
-      
+
       setHasMore(newRatings.length === 10);
       setPage(pageNum);
     } catch (error) {
@@ -84,10 +85,10 @@ const ProductRating: React.FC<ProductRatingProps> = ({
       };
 
       let newRating: Rating;
-      
+
       if (editingRating) {
         newRating = await ratingService.updateRating(editingRating._id, data);
-        setRatings(prev => prev.map(r => r._id === editingRating._id ? newRating : r));
+        setRatings(prev => prev.map(r => (r._id === editingRating._id ? newRating : r)));
       } else {
         newRating = await ratingService.createRating(productId, data);
         setRatings(prev => [newRating, ...prev]);
@@ -98,14 +99,16 @@ const ProductRating: React.FC<ProductRatingProps> = ({
       setUserReview('');
       setShowForm(false);
       setEditingRating(null);
-      
+
       // Reload ratings to get updated data without full page reload
       setTimeout(() => {
         loadRatings(1);
         // Trigger a custom event to update product data
-        window.dispatchEvent(new CustomEvent('productRatingUpdated', { 
-          detail: { productId } 
-        }));
+        window.dispatchEvent(
+          new CustomEvent('productRatingUpdated', {
+            detail: { productId },
+          })
+        );
       }, 500);
     } catch (error) {
       console.error('Error submitting rating:', error);
@@ -128,14 +131,16 @@ const ProductRating: React.FC<ProductRatingProps> = ({
     try {
       await ratingService.deleteRating(ratingId);
       setRatings(prev => prev.filter(r => r._id !== ratingId));
-      
+
       // Reload ratings to get updated data without full page reload
       setTimeout(() => {
         loadRatings(1);
         // Trigger a custom event to update product data
-        window.dispatchEvent(new CustomEvent('productRatingUpdated', { 
-          detail: { productId } 
-        }));
+        window.dispatchEvent(
+          new CustomEvent('productRatingUpdated', {
+            detail: { productId },
+          })
+        );
       }, 500);
     } catch (error) {
       console.error('Error deleting rating:', error);
@@ -151,7 +156,7 @@ const ProductRating: React.FC<ProductRatingProps> = ({
 
     try {
       const updatedRating = await ratingService.voteHelpful(ratingId);
-      setRatings(prev => prev.map(r => r._id === ratingId ? updatedRating : r));
+      setRatings(prev => prev.map(r => (r._id === ratingId ? updatedRating : r)));
     } catch (error) {
       console.error('Error voting helpful:', error);
     }
@@ -161,26 +166,29 @@ const ProductRating: React.FC<ProductRatingProps> = ({
     return new Date(dateString).toLocaleDateString('vi-VN', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
   return (
     <div className="mt-8">
-      <h3 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
-        Đánh Giá Sản Phẩm
-      </h3>
+      <h3 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Đánh Giá Sản Phẩm</h3>
 
       {/* Overall Rating Summary */}
       <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg mb-6">
         <div className="flex items-center space-x-4">
           <div className="text-center">
             <div className="text-4xl font-bold text-gray-900 dark:text-white">
-              {actualAverageRating > 0 ? actualAverageRating.toFixed(1) : (averageRating || 0).toFixed(1)}
+              {actualAverageRating > 0
+                ? actualAverageRating.toFixed(1)
+                : (averageRating || 0).toFixed(1)}
             </div>
-            <StarRating rating={actualAverageRating > 0 ? actualAverageRating : (averageRating || 0)} size="lg" />
+            <StarRating
+              rating={actualAverageRating > 0 ? actualAverageRating : averageRating || 0}
+              size="lg"
+            />
             <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              {actualTotalRatings > 0 ? actualTotalRatings : (totalRatings || 0)} đánh giá
+              {actualTotalRatings > 0 ? actualTotalRatings : totalRatings || 0} đánh giá
             </div>
           </div>
         </div>
@@ -221,7 +229,7 @@ const ProductRating: React.FC<ProductRatingProps> = ({
           <h4 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
             {editingRating ? 'Chỉnh Sửa Đánh Giá' : 'Viết Đánh Giá'}
           </h4>
-          
+
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Đánh giá của bạn
@@ -239,7 +247,7 @@ const ProductRating: React.FC<ProductRatingProps> = ({
             </label>
             <textarea
               value={userReview}
-              onChange={(e) => setUserReview(e.target.value)}
+              onChange={e => setUserReview(e.target.value)}
               rows={4}
               className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
               placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..."
@@ -280,7 +288,7 @@ const ProductRating: React.FC<ProductRatingProps> = ({
             Chưa có đánh giá nào cho sản phẩm này
           </div>
         ) : (
-          ratings.map((rating) => (
+          ratings.map(rating => (
             <div key={rating._id} className="border-b border-gray-200 dark:border-gray-700 pb-4">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -298,13 +306,11 @@ const ProductRating: React.FC<ProductRatingProps> = ({
                       </span>
                     )}
                   </div>
-                  
+
                   {rating.review && (
-                    <p className="text-gray-600 dark:text-gray-300 mb-2">
-                      {rating.review}
-                    </p>
+                    <p className="text-gray-600 dark:text-gray-300 mb-2">{rating.review}</p>
                   )}
-                  
+
                   <div className="flex items-center space-x-4 text-sm">
                     <button
                       onClick={() => handleVoteHelpful(rating._id)}

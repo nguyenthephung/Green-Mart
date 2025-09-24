@@ -1,5 +1,5 @@
 // src/pages/PasswordChanged.tsx
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
 
 export default function PasswordChanged() {
   return (
@@ -23,9 +23,7 @@ export default function PasswordChanged() {
 
         {/* Nội dung */}
         <h2 className="text-xl font-bold mb-2">Password Changed!</h2>
-        <p className="text-gray-500 text-sm mb-6">
-          Your password has been changed successfully.
-        </p>
+        <p className="text-gray-500 text-sm mb-6">Your password has been changed successfully.</p>
 
         {/* Nút trở lại trang đăng nhập */}
         <Link

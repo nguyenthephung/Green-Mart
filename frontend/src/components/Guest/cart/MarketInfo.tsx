@@ -1,28 +1,28 @@
-import { Calendar, ChevronRight, ShoppingCart, MapPin } from "lucide-react";
-import { useEffect, useState } from "react";
-import haversine from "haversine-distance";
+import { Calendar, ChevronRight, ShoppingCart, MapPin } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import haversine from 'haversine-distance';
 
 const STORE_LOCATION = {
   latitude: 10.754027, // Quận 5, TP.HCM
   longitude: 106.663874,
-  address: "Quận 5, TP. Hồ Chí Minh",
+  address: 'Quận 5, TP. Hồ Chí Minh',
 };
 
 export function useCurrentLocation() {
-  const [location, setLocation] = useState<string>("Đang xác định...");
+  const [location, setLocation] = useState<string>('Đang xác định...');
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => {
+        pos => {
           const { latitude, longitude } = pos.coords;
           setLocation(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
           setCoords({ latitude, longitude });
         },
-        () => setLocation("Không xác định")
+        () => setLocation('Không xác định')
       );
     } else {
-      setLocation("Không xác định");
+      setLocation('Không xác định');
     }
   }, []);
   return { location, coords };
@@ -49,17 +49,17 @@ export function usePageLoading() {
 
 export default function MarketInfo() {
   const { location, coords } = useCurrentLocation();
-  const [time, setTime] = useState<string>("");
+  const [time, setTime] = useState<string>('');
   const shippingFee = calculateShippingFee(coords);
 
   useEffect(() => {
     // Lấy thời gian hiện tại
     const updateTime = () => {
       const now = new Date();
-      const h = now.getHours().toString().padStart(2, "0");
-      const m = now.getMinutes().toString().padStart(2, "0");
-      const d = now.getDate().toString().padStart(2, "0");
-      const mo = (now.getMonth() + 1).toString().padStart(2, "0");
+      const h = now.getHours().toString().padStart(2, '0');
+      const m = now.getMinutes().toString().padStart(2, '0');
+      const d = now.getDate().toString().padStart(2, '0');
+      const mo = (now.getMonth() + 1).toString().padStart(2, '0');
       const y = now.getFullYear();
       setTime(`${h}:${m} - ${d}/${mo}/${y}`);
     };
@@ -82,7 +82,9 @@ export default function MarketInfo() {
           </div>
           <div className="text-xs text-app-muted">Vị trí của bạn: {location}</div>
           {shippingFee !== null && (
-            <div className="text-xs text-blue-600 font-medium">Phí ship tạm tính: {shippingFee.toLocaleString()}đ</div>
+            <div className="text-xs text-blue-600 font-medium">
+              Phí ship tạm tính: {shippingFee.toLocaleString()}đ
+            </div>
           )}
         </div>
       </div>

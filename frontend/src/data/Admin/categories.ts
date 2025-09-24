@@ -18,7 +18,7 @@ export const adminCategories: Category[] = [
     productCount: 45,
     status: 'active',
     createdAt: '2024-01-15',
-    updatedAt: '2024-03-20'
+    updatedAt: '2024-03-20',
   },
   {
     id: 2,
@@ -28,7 +28,7 @@ export const adminCategories: Category[] = [
     productCount: 32,
     status: 'active',
     createdAt: '2024-01-15',
-    updatedAt: '2024-03-18'
+    updatedAt: '2024-03-18',
   },
   {
     id: 3,
@@ -38,7 +38,7 @@ export const adminCategories: Category[] = [
     productCount: 28,
     status: 'active',
     createdAt: '2024-01-15',
-    updatedAt: '2024-03-15'
+    updatedAt: '2024-03-15',
   },
   {
     id: 4,
@@ -48,7 +48,7 @@ export const adminCategories: Category[] = [
     productCount: 18,
     status: 'active',
     createdAt: '2024-01-15',
-    updatedAt: '2024-03-10'
+    updatedAt: '2024-03-10',
   },
   {
     id: 5,
@@ -58,7 +58,7 @@ export const adminCategories: Category[] = [
     productCount: 22,
     status: 'active',
     createdAt: '2024-01-15',
-    updatedAt: '2024-03-12'
+    updatedAt: '2024-03-12',
   },
   {
     id: 6,
@@ -68,7 +68,7 @@ export const adminCategories: Category[] = [
     productCount: 15,
     status: 'active',
     createdAt: '2024-01-15',
-    updatedAt: '2024-03-08'
+    updatedAt: '2024-03-08',
   },
   {
     id: 7,
@@ -78,6 +78,6 @@ export const adminCategories: Category[] = [
     productCount: 25,
     status: 'active',
     createdAt: '2024-01-15',
-    updatedAt: '2024-03-05'
-  }
+    updatedAt: '2024-03-05',
+  },
 ];

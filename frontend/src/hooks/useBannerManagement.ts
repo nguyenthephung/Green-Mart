@@ -18,42 +18,54 @@ export const useBannerManagement = () => {
   // Helper function to get position text
   const getPositionText = (position: string): string => {
     switch (position) {
-      case 'hero': return 'Hero Banner';
-      case 'sidebar': return 'Sidebar';
-      case 'footer': return 'Footer';
-      case 'category': return 'Category';
-      default: return position;
+      case 'hero':
+        return 'Hero Banner';
+      case 'sidebar':
+        return 'Sidebar';
+      case 'footer':
+        return 'Footer';
+      case 'category':
+        return 'Category';
+      default:
+        return position;
     }
   };
 
   // Helper function to get position color
   const getPositionColor = (position: string): string => {
     switch (position) {
-      case 'hero': return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'sidebar': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'footer': return 'bg-gray-100 text-gray-800 border-gray-200';
-      case 'category': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'hero':
+        return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'sidebar':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'footer':
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'category':
+        return 'bg-green-100 text-green-800 border-green-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
   // Filter and sort logic
   const filteredAndSortedBanners = useMemo(() => {
     let filtered = banners.filter(banner => {
-      const matchesSearch = banner.title.toLowerCase().includes(search.toLowerCase()) ||
-                          (banner.description && banner.description.toLowerCase().includes(search.toLowerCase()));
-      
+      const matchesSearch =
+        banner.title.toLowerCase().includes(search.toLowerCase()) ||
+        (banner.description && banner.description.toLowerCase().includes(search.toLowerCase()));
+
       const matchesPosition = filterPosition === 'all' || banner.position === filterPosition;
-      const matchesStatus = filterStatus === 'all' || 
-                           (filterStatus === 'active' && banner.isActive) ||
-                           (filterStatus === 'inactive' && !banner.isActive);
-      
+      const matchesStatus =
+        filterStatus === 'all' ||
+        (filterStatus === 'active' && banner.isActive) ||
+        (filterStatus === 'inactive' && !banner.isActive);
+
       return matchesSearch && matchesPosition && matchesStatus;
     });
 
     filtered.sort((a, b) => {
       let aValue: any, bValue: any;
-      
+
       switch (sortField) {
         case 'title':
           aValue = a.title.toLowerCase();
@@ -108,18 +120,23 @@ export const useBannerManagement = () => {
   };
 
   // CRUD operations
-  const handleAddBanner = (newBanner: Omit<Banner, 'id' | 'clickCount' | 'createdAt' | 'updatedAt'>) => {
+  const handleAddBanner = (
+    newBanner: Omit<Banner, 'id' | 'clickCount' | 'createdAt' | 'updatedAt'>
+  ) => {
     setIsLoading(true);
     setTimeout(() => {
       const id = Math.max(...banners.map(b => b.id)) + 1;
       const now = new Date().toISOString();
-      setBanners([...banners, { 
-        ...newBanner, 
-        id, 
-        clickCount: 0, 
-        createdAt: now, 
-        updatedAt: now 
-      }]);
+      setBanners([
+        ...banners,
+        {
+          ...newBanner,
+          id,
+          clickCount: 0,
+          createdAt: now,
+          updatedAt: now,
+        },
+      ]);
       setIsLoading(false);
     }, 800);
   };
@@ -127,11 +144,11 @@ export const useBannerManagement = () => {
   const handleEditBanner = (updatedBanner: Banner) => {
     setIsLoading(true);
     setTimeout(() => {
-      setBanners(banners.map(b => 
-        b.id === updatedBanner.id 
-          ? { ...updatedBanner, updatedAt: new Date().toISOString() }
-          : b
-      ));
+      setBanners(
+        banners.map(b =>
+          b.id === updatedBanner.id ? { ...updatedBanner, updatedAt: new Date().toISOString() } : b
+        )
+      );
       setIsLoading(false);
     }, 800);
   };
@@ -145,9 +162,11 @@ export const useBannerManagement = () => {
   };
 
   const handleToggleStatus = (id: number) => {
-    setBanners(banners.map(b => 
-      b.id === id ? { ...b, isActive: !b.isActive, updatedAt: new Date().toISOString() } : b
-    ));
+    setBanners(
+      banners.map(b =>
+        b.id === id ? { ...b, isActive: !b.isActive, updatedAt: new Date().toISOString() } : b
+      )
+    );
   };
 
   // Reset current page when filters change
@@ -168,7 +187,7 @@ export const useBannerManagement = () => {
       month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   };
 
@@ -183,13 +202,13 @@ export const useBannerManagement = () => {
     isLoading,
     currentPage,
     itemsPerPage,
-    
+
     // Computed values
     filteredAndSortedBanners,
     currentBanners,
     totalItems,
     totalPages,
-    
+
     // Setters
     setSearch,
     setSortField,
@@ -198,18 +217,18 @@ export const useBannerManagement = () => {
     setFilterStatus,
     setCurrentPage,
     setItemsPerPage,
-    
+
     // Handlers
     handleSort,
     handleAddBanner,
     handleEditBanner,
     handleDeleteBanner,
     handleToggleStatus,
-    
+
     // Helper functions
     getSortIcon,
     getPositionText,
     getPositionColor,
-    formatDate
+    formatDate,
   };
 };

@@ -36,11 +36,11 @@ export class AddressService {
       const token = localStorage.getItem('token');
       const response = await fetch(`${API_BASE_URL}/users/${userId}/addresses`, {
         headers: {
-          ...(token && { Authorization: `Bearer ${token}` })
-        }
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
       });
       const result: ApiResponse<AddressResponse[]> = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(result.message || 'Lỗi khi lấy danh sách địa chỉ');
       }
@@ -63,17 +63,17 @@ export class AddressService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(token && { Authorization: `Bearer ${token}` })
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
         body: JSON.stringify(addressData),
       });
-      
+
       const result: ApiResponse<AddressResponse> = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(result.message || 'Lỗi khi tạo địa chỉ mới');
       }
-      
+
       return result.data!;
     } catch (error) {
       console.error('Error creating address:', error);
@@ -85,24 +85,28 @@ export class AddressService {
   }
 
   // Cập nhật địa chỉ
-  static async updateAddress(userId: string, addressId: string, addressData: Partial<UserAddress>): Promise<AddressResponse> {
+  static async updateAddress(
+    userId: string,
+    addressId: string,
+    addressData: Partial<UserAddress>
+  ): Promise<AddressResponse> {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(`${API_BASE_URL}/users/${userId}/addresses/${addressId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          ...(token && { Authorization: `Bearer ${token}` })
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
         body: JSON.stringify(addressData),
       });
-      
+
       const result: ApiResponse<AddressResponse> = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(result.message || 'Lỗi khi cập nhật địa chỉ');
       }
-      
+
       return result.data!;
     } catch (error) {
       console.error('Error updating address:', error);
@@ -120,10 +124,10 @@ export class AddressService {
       const response = await fetch(`${API_BASE_URL}/users/${userId}/addresses/${addressId}`, {
         method: 'DELETE',
         headers: {
-          ...(token && { Authorization: `Bearer ${token}` })
-        }
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
       });
-      
+
       if (!response.ok) {
         const result: ApiResponse<void> = await response.json();
         throw new Error(result.message || 'Lỗi khi xóa địa chỉ');
@@ -141,21 +145,24 @@ export class AddressService {
   static async setDefaultAddress(userId: string, addressId: string): Promise<void> {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/users/${userId}/addresses/${addressId}/default`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token && { Authorization: `Bearer ${token}` })
+      const response = await fetch(
+        `${API_BASE_URL}/users/${userId}/addresses/${addressId}/default`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token && { Authorization: `Bearer ${token}` }),
+          },
         }
-      });
-      
+      );
+
       if (!response.ok) {
         const result: ApiResponse<void> = await response.json();
         throw new Error(result.message || 'Lỗi khi đặt địa chỉ mặc định');
       }
-      
+
       const result: ApiResponse<void> = await response.json();
-      
+
       if (!result.success) {
         throw new Error(result.message || 'Lỗi khi đặt địa chỉ mặc định');
       }

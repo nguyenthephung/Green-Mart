@@ -1,9 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   darkMode: 'class', // Enable class-based dark mode
   theme: {
     extend: {
@@ -32,12 +29,12 @@ export default {
           700: '#374151',
           800: '#1f2937',
           900: '#111827',
-        }
+        },
       },
       animation: {
-        'fadeIn': 'fadeIn 0.5s ease-in-out',
-        'slideIn': 'slideIn 0.3s ease-out',
-        'cartBounce': 'cartBounce 0.6s ease-in-out',
+        fadeIn: 'fadeIn 0.5s ease-in-out',
+        slideIn: 'slideIn 0.3s ease-out',
+        cartBounce: 'cartBounce 0.6s ease-in-out',
       },
       keyframes: {
         fadeIn: {
@@ -56,4 +53,4 @@ export default {
     },
   },
   plugins: [],
-}
+};

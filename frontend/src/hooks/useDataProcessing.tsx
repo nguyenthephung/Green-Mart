@@ -32,7 +32,7 @@ export const useSearch = <T extends Record<string, any>>({
   data,
   searchFields,
   searchTerm,
-  searchDelay = 300
+  searchDelay = 300,
 }: UseSearchProps<T>) => {
   const debouncedSearchTerm = useDebounce({ value: searchTerm, delay: searchDelay });
 
@@ -47,7 +47,7 @@ export const useSearch = <T extends Record<string, any>>({
       return searchFields.some(field => {
         const fieldValue = item[field];
         if (fieldValue == null) return false;
-        
+
         return String(fieldValue).toLowerCase().includes(lowercaseSearchTerm);
       });
     });
@@ -56,7 +56,7 @@ export const useSearch = <T extends Record<string, any>>({
   return {
     filteredData,
     isSearching: searchTerm !== debouncedSearchTerm,
-    searchTerm: debouncedSearchTerm
+    searchTerm: debouncedSearchTerm,
   };
 };
 
@@ -66,11 +66,7 @@ interface UseFilterProps<T> {
   filterFunctions: Record<string, (item: T, filterValue: any) => boolean>;
 }
 
-export const useFilter = <T,>({
-  data,
-  filters,
-  filterFunctions
-}: UseFilterProps<T>) => {
+export const useFilter = <T,>({ data, filters, filterFunctions }: UseFilterProps<T>) => {
   const filteredData = useMemo(() => {
     return data.filter(item => {
       return Object.entries(filters).every(([filterKey, filterValue]) => {
@@ -99,11 +95,7 @@ interface UseSortProps<T> {
   sortOrder: 'asc' | 'desc';
 }
 
-export const useSort = <T,>({
-  data,
-  sortField,
-  sortOrder
-}: UseSortProps<T>) => {
+export const useSort = <T,>({ data, sortField, sortOrder }: UseSortProps<T>) => {
   const sortedData = useMemo(() => {
     if (!sortField) return data;
 
@@ -155,28 +147,28 @@ export const useDataProcessing = <T extends Record<string, any>>({
   filterFunctions,
   sortField,
   sortOrder,
-  searchDelay = 300
+  searchDelay = 300,
 }: UseDataProcessingProps<T>) => {
   // Step 1: Search
   const { filteredData: searchedData, isSearching } = useSearch({
     data,
     searchFields,
     searchTerm,
-    searchDelay
+    searchDelay,
   });
 
   // Step 2: Filter
   const filteredData = useFilter({
     data: searchedData,
     filters,
-    filterFunctions
+    filterFunctions,
   });
 
   // Step 3: Sort
   const processedData = useSort({
     data: filteredData,
     sortField,
-    sortOrder
+    sortOrder,
   });
 
   return {
@@ -184,6 +176,6 @@ export const useDataProcessing = <T extends Record<string, any>>({
     isSearching,
     searchedCount: searchedData.length,
     filteredCount: filteredData.length,
-    totalCount: data.length
+    totalCount: data.length,
   };
 };

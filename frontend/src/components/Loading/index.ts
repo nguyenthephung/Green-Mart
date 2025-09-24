@@ -16,19 +16,19 @@ export function useLoading(initialState: boolean = false) {
     isLoading,
     startLoading,
     stopLoading,
-    setIsLoading
+    setIsLoading,
   };
 }
 
 export function usePageLoading(delay: number = 0) {
   const [loading, setLoading] = useState(delay > 0);
-  
+
   useEffect(() => {
     if (delay > 0) {
       const timer = setTimeout(() => setLoading(false), delay);
       return () => clearTimeout(timer);
     }
   }, [delay]);
-  
+
   return loading;
 }

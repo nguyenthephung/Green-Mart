@@ -3,21 +3,23 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 export interface UploadResponse {
   success: boolean;
   message: string;
-  data: {
-    imageUrl: string;
-  } | {
-    imageUrls: string[];
-  };
+  data:
+    | {
+        imageUrl: string;
+      }
+    | {
+        imageUrls: string[];
+      };
 }
 
 // Helper function for upload requests
 const uploadRequest = async (endpoint: string, formData: FormData): Promise<UploadResponse> => {
   const token = localStorage.getItem('token');
-  
+
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
@@ -30,15 +32,15 @@ const uploadRequest = async (endpoint: string, formData: FormData): Promise<Uplo
   return response.json();
 };
 
-// Helper function for JSON requests  
+// Helper function for JSON requests
 const jsonRequest = async (endpoint: string, method: string, data?: any): Promise<any> => {
   const token = localStorage.getItem('token');
-  
+
   const config: RequestInit = {
     method,
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
   };
 
@@ -97,7 +99,10 @@ class UploadService {
   }
 
   // Upload base64 image
-  async uploadBase64(imageData: string, type: 'products' | 'banners' | 'avatars' | 'ratings'): Promise<UploadResponse> {
+  async uploadBase64(
+    imageData: string,
+    type: 'products' | 'banners' | 'avatars' | 'ratings'
+  ): Promise<UploadResponse> {
     return jsonRequest(`/upload/base64/${type}`, 'POST', { imageData });
   }
 

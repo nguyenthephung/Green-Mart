@@ -7,42 +7,62 @@ interface NewToastState {
   removeToast: (id: string) => void;
   clearToasts: () => void;
   // Convenience methods
-  showSuccess: (title: string, message?: string, duration?: number, actions?: ToastData['actions']) => string;
-  showError: (title: string, message?: string, duration?: number, actions?: ToastData['actions']) => string;
-  showWarning: (title: string, message?: string, duration?: number, actions?: ToastData['actions']) => string;
-  showInfo: (title: string, message?: string, duration?: number, actions?: ToastData['actions']) => string;
+  showSuccess: (
+    title: string,
+    message?: string,
+    duration?: number,
+    actions?: ToastData['actions']
+  ) => string;
+  showError: (
+    title: string,
+    message?: string,
+    duration?: number,
+    actions?: ToastData['actions']
+  ) => string;
+  showWarning: (
+    title: string,
+    message?: string,
+    duration?: number,
+    actions?: ToastData['actions']
+  ) => string;
+  showInfo: (
+    title: string,
+    message?: string,
+    duration?: number,
+    actions?: ToastData['actions']
+  ) => string;
 }
 
 const generateId = () => `toast-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
 export const useNewToastStore = create<NewToastState>((set, get) => ({
   toasts: [],
-  
-  addToast: (toast) => {
+
+  addToast: toast => {
     const id = generateId();
     const newToast: ToastData = {
       ...toast,
       id,
       duration: toast.duration ?? 5000, // Default 5 seconds
     };
-    
-    set((state) => ({
+
+    set(state => ({
       toasts: [...state.toasts, newToast],
     }));
-    
+
     return id;
   },
-  
-  removeToast: (id) => {
-    set((state) => ({
-      toasts: state.toasts.filter((toast) => toast.id !== id),
+
+  removeToast: id => {
+    set(state => ({
+      toasts: state.toasts.filter(toast => toast.id !== id),
     }));
   },
-  
+
   clearToasts: () => {
     set({ toasts: [] });
   },
-  
+
   // Convenience methods
   showSuccess: (title, message, duration = 5000, actions) => {
     return get().addToast({
@@ -53,7 +73,7 @@ export const useNewToastStore = create<NewToastState>((set, get) => ({
       actions,
     });
   },
-  
+
   showError: (title, message, duration = 8000, actions) => {
     return get().addToast({
       type: 'error',
@@ -63,7 +83,7 @@ export const useNewToastStore = create<NewToastState>((set, get) => ({
       actions,
     });
   },
-  
+
   showWarning: (title, message, duration = 6000, actions) => {
     return get().addToast({
       type: 'warning',
@@ -73,7 +93,7 @@ export const useNewToastStore = create<NewToastState>((set, get) => ({
       actions,
     });
   },
-  
+
   showInfo: (title, message, duration = 5000, actions) => {
     return get().addToast({
       type: 'info',

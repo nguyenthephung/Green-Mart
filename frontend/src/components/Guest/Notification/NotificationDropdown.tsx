@@ -13,7 +13,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onClose }) 
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'all' | 'unread'>('all');
   const dropdownRef = useRef<HTMLDivElement>(null);
-  
+
   const { user } = useUserStore();
   const {
     notifications,
@@ -25,7 +25,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onClose }) 
     markAllAsRead,
     deleteNotification,
     // fetchUnreadCount,
-    clearError
+    clearError,
   } = useNotificationStore();
 
   // Fetch notifications when component mounts
@@ -52,7 +52,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onClose }) 
     if (!notification.isRead) {
       await markAsRead(notification._id);
     }
-    
+
     // Navigate to action URL if provided
     if (notification.actionUrl) {
       if (notification.actionUrl.startsWith('http')) {
@@ -61,7 +61,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onClose }) 
         window.location.href = notification.actionUrl;
       }
     }
-    
+
     setIsOpen(false);
   };
 
@@ -78,9 +78,8 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onClose }) 
     await deleteNotification(notificationId);
   };
 
-  const filteredNotifications = activeTab === 'unread' 
-    ? notifications.filter(n => !n.isRead)
-    : notifications;
+  const filteredNotifications =
+    activeTab === 'unread' ? notifications.filter(n => !n.isRead) : notifications;
 
   if (!user) return null;
 
@@ -114,7 +113,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onClose }) 
                 <X size={18} />
               </button>
             </div>
-            
+
             {/* Tabs */}
             <div className="flex mt-2 bg-white rounded-lg p-1">
               <button
@@ -173,10 +172,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onClose }) 
             <div className="px-4 py-2 bg-red-50 border-b border-red-100">
               <div className="flex items-center justify-between">
                 <p className="text-sm text-red-600">{error}</p>
-                <button
-                  onClick={clearError}
-                  className="text-red-600 hover:text-red-800"
-                >
+                <button onClick={clearError} className="text-red-600 hover:text-red-800">
                   <X size={14} />
                 </button>
               </div>
@@ -194,18 +190,19 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onClose }) 
               <div className="flex flex-col items-center justify-center py-8 text-gray-500">
                 <Bell size={48} className="text-gray-300 mb-2" />
                 <p className="text-sm font-medium">
-                  {activeTab === 'unread' ? 'Không có thông báo chưa đọc' : 'Không có thông báo nào'}
+                  {activeTab === 'unread'
+                    ? 'Không có thông báo chưa đọc'
+                    : 'Không có thông báo nào'}
                 </p>
                 <p className="text-xs mt-1">
-                  {activeTab === 'unread' 
-                    ? 'Tất cả thông báo đã được đọc' 
-                    : 'Thông báo sẽ xuất hiện ở đây'
-                  }
+                  {activeTab === 'unread'
+                    ? 'Tất cả thông báo đã được đọc'
+                    : 'Thông báo sẽ xuất hiện ở đây'}
                 </p>
               </div>
             ) : (
               <div className="divide-y divide-gray-100">
-                {filteredNotifications.map((notification) => (
+                {filteredNotifications.map(notification => (
                   <div
                     key={notification._id}
                     onClick={() => handleNotificationClick(notification)}
@@ -215,26 +212,30 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onClose }) 
                   >
                     <div className="flex items-start gap-3">
                       {/* Type Icon */}
-                      <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-lg ${
-                        notificationService.getPriorityColor(notification.priority)
-                      }`}>
+                      <div
+                        className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-lg ${notificationService.getPriorityColor(
+                          notification.priority
+                        )}`}
+                      >
                         {notificationService.getTypeIcon(notification.type)}
                       </div>
-                      
+
                       {/* Content */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between">
-                          <h4 className={`text-sm font-medium text-gray-900 ${
-                            !notification.isRead ? 'font-semibold' : ''
-                          }`}>
+                          <h4
+                            className={`text-sm font-medium text-gray-900 ${
+                              !notification.isRead ? 'font-semibold' : ''
+                            }`}
+                          >
                             {notification.title}
                           </h4>
-                          
+
                           {/* Actions */}
                           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             {notification.actionUrl && (
                               <button
-                                onClick={(e) => {
+                                onClick={e => {
                                   e.stopPropagation();
                                   handleNotificationClick(notification);
                                 }}
@@ -245,7 +246,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onClose }) 
                               </button>
                             )}
                             <button
-                              onClick={(e) => handleDeleteNotification(notification._id, e)}
+                              onClick={e => handleDeleteNotification(notification._id, e)}
                               className="p-1 text-gray-400 hover:text-red-600 transition-colors"
                               title="Xóa thông báo"
                             >
@@ -253,17 +254,17 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onClose }) 
                             </button>
                           </div>
                         </div>
-                        
+
                         <p className="text-sm text-gray-600 mt-1 line-clamp-2">
                           {notification.description}
                         </p>
-                        
+
                         {/* Meta Info */}
                         <div className="flex items-center justify-between mt-2">
                           <span className="text-xs text-gray-500">
                             {notificationService.formatTimeAgo(notification.createdAt)}
                           </span>
-                          
+
                           {/* Priority & Action */}
                           <div className="flex items-center gap-2">
                             {notification.priority === 'urgent' && (
@@ -283,7 +284,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onClose }) 
                             )}
                           </div>
                         </div>
-                        
+
                         {/* Unread indicator */}
                         {!notification.isRead && (
                           <div className="absolute top-3 right-3 w-2 h-2 bg-blue-500 rounded-full"></div>

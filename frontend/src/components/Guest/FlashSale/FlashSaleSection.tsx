@@ -22,7 +22,7 @@ const FlashSaleSection: React.FC = () => {
     const interval = setInterval(() => {
       fetchActiveFlashSales();
     }, 30000);
-    
+
     return () => clearInterval(interval);
   }, [fetchActiveFlashSales]);
 
@@ -62,16 +62,18 @@ const FlashSaleSection: React.FC = () => {
       // Navigate with Flash Sale info
       navigate(`/productdetail/${productId}`, {
         state: {
-          flashSale: flashSaleInfo ? {
-            flashSaleId: currentFlashSale?._id,
-            flashSalePrice: flashSaleInfo.flashSalePrice,
-            originalPrice: flashSaleInfo.originalPrice,
-            discountPercentage: flashSaleInfo.discountPercentage,
-            quantity: flashSaleInfo.quantity,
-            sold: flashSaleInfo.sold,
-            endTime: currentFlashSale?.endTime
-          } : null
-        }
+          flashSale: flashSaleInfo
+            ? {
+                flashSaleId: currentFlashSale?._id,
+                flashSalePrice: flashSaleInfo.flashSalePrice,
+                originalPrice: flashSaleInfo.originalPrice,
+                discountPercentage: flashSaleInfo.discountPercentage,
+                quantity: flashSaleInfo.quantity,
+                sold: flashSaleInfo.sold,
+                endTime: currentFlashSale?.endTime,
+              }
+            : null,
+        },
       });
     }
   };
@@ -115,21 +117,24 @@ const FlashSaleSection: React.FC = () => {
   if (!currentFlashSale || availableProducts.length === 0) {
     return null; // Don't render anything when no flash sale or all sold out
   }
-  const visibleProducts = availableProducts.slice(currentProductIndex, currentProductIndex + productsPerView);
+  const visibleProducts = availableProducts.slice(
+    currentProductIndex,
+    currentProductIndex + productsPerView
+  );
 
   return (
     <div className="relative bg-gradient-to-r from-red-500 to-pink-600 rounded-2xl p-6 text-white mb-8 overflow-hidden">
       {/* Background Banner */}
       {currentFlashSale.bannerImage && (
         <div className="absolute inset-0 opacity-20">
-          <img 
-            src={currentFlashSale.bannerImage} 
+          <img
+            src={currentFlashSale.bannerImage}
             alt={currentFlashSale.name}
             className="w-full h-full object-cover"
           />
         </div>
       )}
-      
+
       {/* Content */}
       <div className="relative z-10">
         {/* Header */}
@@ -167,7 +172,7 @@ const FlashSaleSection: React.FC = () => {
         {/* Products */}
         <div className="relative">
           <div className="flex gap-4 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-            {visibleProducts.map((item) => {
+            {visibleProducts.map(item => {
               if ((item.quantity || 0) - (item.sold || 0) <= 0) return null;
               return (
                 <div
@@ -189,22 +194,27 @@ const FlashSaleSection: React.FC = () => {
                     </div>
                   </div>
 
-                  <h3 className="font-medium text-gray-900 mb-2 text-sm truncate" title={item.product?.name || 'Sản phẩm không tên'}>
+                  <h3
+                    className="font-medium text-gray-900 mb-2 text-sm truncate"
+                    title={item.product?.name || 'Sản phẩm không tên'}
+                  >
                     {item.product?.name || 'Sản phẩm không tên'}
                   </h3>
 
                   <div className="flex flex-col gap-1 mb-3">
                     <div className="flex items-center gap-2">
                       <span className="text-red-600 font-bold text-lg">
-                        {item.flashSalePrice && !isNaN(Number(item.flashSalePrice)) 
-                          ? Number(item.flashSalePrice).toLocaleString('vi-VN') 
-                          : '0'}₫
+                        {item.flashSalePrice && !isNaN(Number(item.flashSalePrice))
+                          ? Number(item.flashSalePrice).toLocaleString('vi-VN')
+                          : '0'}
+                        ₫
                       </span>
                     </div>
                     <span className="text-gray-400 line-through text-sm">
                       {item.originalPrice && !isNaN(Number(item.originalPrice))
-                        ? Number(item.originalPrice).toLocaleString('vi-VN') 
-                        : '0'}₫
+                        ? Number(item.originalPrice).toLocaleString('vi-VN')
+                        : '0'}
+                      ₫
                     </span>
                   </div>
 
@@ -218,14 +228,14 @@ const FlashSaleSection: React.FC = () => {
                       <div
                         className="bg-gradient-to-r from-orange-400 to-red-500 h-2 rounded-full"
                         style={{
-                          width: `${item.quantity > 0 ? (item.sold / item.quantity) * 100 : 0}%`
+                          width: `${item.quantity > 0 ? (item.sold / item.quantity) * 100 : 0}%`,
                         }}
                       />
                     </div>
                   </div>
 
                   <button
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation();
                       handleProductClick(item.productId, item);
                     }}

@@ -1,4 +1,3 @@
-
 import { useLocation } from 'react-router-dom';
 import { useEffect, useMemo } from 'react';
 import ProductCard from '../../components/Guest/home/ProductCard';
@@ -12,12 +11,11 @@ function useQuery() {
   return new URLSearchParams(useLocation().search);
 }
 
-
 const SearchPage: React.FC = () => {
   const location = useLocation();
   const query = useQuery();
   const searchTerm = query.get('search')?.toLowerCase().trim() || '';
-  
+
   // Responsive hook
   const { isMobile } = useResponsive();
 
@@ -31,25 +29,27 @@ const SearchPage: React.FC = () => {
   }, [location.pathname]);
 
   const filteredProducts = useMemo(() => {
-    return products.filter((product) =>
-      product.status === 'active' &&
-      product.name.toLowerCase().includes(searchTerm)
+    return products.filter(
+      product => product.status === 'active' && product.name.toLowerCase().includes(searchTerm)
     );
   }, [products, searchTerm]);
 
   // Handler for add to cart (logic giống CategoryPage)
   const handleAddToCart = (item: any) => {
     // Đảm bảo _id là string, unit luôn là string
-    const productForCart = { ...item, _id: String(item._id), unit: item.unit || "" };
+    const productForCart = { ...item, _id: String(item._id), unit: item.unit || '' };
     addToCart({
       id: String(productForCart._id),
       name: productForCart.name,
-      price: typeof productForCart.salePrice === 'number' ? productForCart.salePrice : productForCart.price,
+      price:
+        typeof productForCart.salePrice === 'number'
+          ? productForCart.salePrice
+          : productForCart.price,
       image: productForCart.image,
       unit: productForCart.unit,
       quantity: productForCart.type === 'weight' ? 0 : 1,
       type: productForCart.type,
-      weight: productForCart.type === 'weight' ? 1 : undefined
+      weight: productForCart.type === 'weight' ? 1 : undefined,
     });
   };
 
@@ -57,7 +57,7 @@ const SearchPage: React.FC = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Banner Manager */}
       <BannerManager page="search" />
-      
+
       {/* Hero Section */}
       <section className="bg-green-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-2 sm:px-4 py-12 lg:py-16">
@@ -91,26 +91,30 @@ const SearchPage: React.FC = () => {
             threshold={0.1}
             rootMargin="100px"
             placeholder={
-              <div className={`grid gap-4 lg:gap-6 ${
-                isMobile 
-                  ? 'grid-cols-2' 
-                  : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
-              }`}>
+              <div
+                className={`grid gap-4 lg:gap-6 ${
+                  isMobile ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
+                }`}
+              >
                 {Array.from({ length: 8 }).map((_, index) => (
                   <div key={index} className="bg-gray-200 animate-pulse rounded-xl h-64" />
                 ))}
               </div>
             }
           >
-            <div className={`grid gap-4 lg:gap-6 ${
-              isMobile 
-                ? 'grid-cols-2' 
-                : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
-            }`}>
+            <div
+              className={`grid gap-4 lg:gap-6 ${
+                isMobile ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
+              }`}
+            >
               {filteredProducts.map(product => {
                 // Không cho chỉnh khối lượng, luôn quantity=1
                 const { descriptionImages, ...rest } = product;
-                const productForCart = { ...rest, _id: String(product._id), unit: product.unit || '' };
+                const productForCart = {
+                  ...rest,
+                  _id: String(product._id),
+                  unit: product.unit || '',
+                };
                 return (
                   <ProductCard
                     key={String(product._id)}
@@ -124,7 +128,7 @@ const SearchPage: React.FC = () => {
                       category: product.category,
                       unit: product.unit || '',
                       averageRating: product.averageRating,
-                      totalRatings: product.totalRatings
+                      totalRatings: product.totalRatings,
                     }}
                     quantity={1}
                     onAddToCart={() => handleAddToCart(productForCart)}

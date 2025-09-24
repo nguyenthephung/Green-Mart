@@ -52,7 +52,7 @@ export interface AuthResponse {
 
 // HTTP client utility
 export const apiClient = async <T>(
-  endpoint: string, 
+  endpoint: string,
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> => {
   const url = `${API_BASE_URL}${endpoint}`;
@@ -76,15 +76,15 @@ export const apiClient = async <T>(
 
   try {
     const response = await fetch(url, config);
-    
+
     // Kiểm tra xem response có content không
     const contentType = response.headers.get('content-type');
-    
+
     let data;
     // Nếu response có content-type là JSON và có body
     if (contentType && contentType.includes('application/json')) {
       const text = await response.text();
-      
+
       if (text) {
         try {
           data = JSON.parse(text);
@@ -98,23 +98,35 @@ export const apiClient = async <T>(
     } else {
       // Nếu không phải JSON, tạo response object mặc định
       const text = await response.text();
-      data = { 
-        success: response.ok, 
-        message: response.ok ? 'Thành công' : (text || 'Lỗi server'),
-        data: null
+      data = {
+        success: response.ok,
+        message: response.ok ? 'Thành công' : text || 'Lỗi server',
+        data: null,
       };
     }
-    
+
     // Handle 401 Unauthorized - Token expired or invalid
     if (!response.ok && response.status === 401) {
       // Remove invalid token
       tokenManager.remove();
-      
+
       // Only redirect to login if not already on public pages
       const currentPath = window.location.pathname;
-      const publicPaths = ['/home', '/login', '/register', '/about', '/policy', '/category', '/productdetail', '/search', '/flash-sale', '/guest-checkout', '/guest-order-success'];
+      const publicPaths = [
+        '/home',
+        '/login',
+        '/register',
+        '/about',
+        '/policy',
+        '/category',
+        '/productdetail',
+        '/search',
+        '/flash-sale',
+        '/guest-checkout',
+        '/guest-order-success',
+      ];
       const isPublicPath = publicPaths.some(path => currentPath.startsWith(path));
-      
+
       if (!isPublicPath) {
         // Clear user state
         try {
@@ -123,14 +135,14 @@ export const apiClient = async <T>(
         } catch (e) {
           console.error('Error clearing user state:', e);
         }
-        
+
         // Redirect to login for protected pages
         window.location.href = '/login';
       }
-      
+
       throw new Error(data.message || 'Phiên đăng nhập đã hết hạn');
     }
-    
+
     if (!response.ok) {
       throw new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
     }

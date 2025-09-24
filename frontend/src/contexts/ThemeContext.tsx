@@ -30,31 +30,31 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = memo(({ children }) =
       if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
         return savedTheme;
       }
-      
+
       // Kiểm tra system preference
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         return 'dark';
       }
     }
-    
+
     return 'light';
   });
 
   useEffect(() => {
     const root = window.document.documentElement;
     const body = window.document.body;
-    
+
     // Remove existing theme classes
     root.classList.remove('light', 'dark');
     body.classList.remove('light', 'dark');
-    
+
     // Add new theme class to both html and body
     root.classList.add(theme);
     body.classList.add(theme);
-    
+
     // Save to localStorage
     localStorage.setItem('greenmart-theme', theme);
-    
+
     // Update meta theme-color for mobile browsers
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (metaThemeColor) {
@@ -76,14 +76,10 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = memo(({ children }) =
   const value = {
     theme,
     toggleTheme,
-    setTheme: handleTheme
+    setTheme: handleTheme,
   };
 
-  return (
-    <ThemeContext.Provider value={value}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 });
 
 ThemeProvider.displayName = 'ThemeProvider';

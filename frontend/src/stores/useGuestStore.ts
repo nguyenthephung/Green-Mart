@@ -12,18 +12,18 @@ interface GuestStore {
 
 export const useGuestStore = create<GuestStore>()(
   persist(
-    (set) => ({
-      guestInfo: null,  
+    set => ({
+      guestInfo: null,
       deliveryType: 'delivery',
-      
+
       setGuestInfo: (info: GuestUser) => {
         set({ guestInfo: info });
       },
-      
+
       setDeliveryType: (type: 'pickup' | 'delivery') => {
         set({ deliveryType: type });
       },
-      
+
       clearGuestInfo: () => {
         set({ guestInfo: null });
       },

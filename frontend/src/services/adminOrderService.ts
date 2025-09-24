@@ -61,9 +61,12 @@ class AdminOrderService {
   // Get orders pending admin confirmation
   async getPendingOrders(page: number = 1, limit: number = 20): Promise<AdminOrderResponse> {
     try {
-      const response = await apiClient<AdminOrderResponse>(`${this.BASE_URL}/pending?page=${page}&limit=${limit}`, {
-        method: 'GET'
-      });
+      const response = await apiClient<AdminOrderResponse>(
+        `${this.BASE_URL}/pending?page=${page}&limit=${limit}`,
+        {
+          method: 'GET',
+        }
+      );
       return response as AdminOrderResponse;
     } catch (error: any) {
       console.error('Get pending orders error:', error);
@@ -72,15 +75,17 @@ class AdminOrderService {
   }
 
   // Get all orders (with filters)
-  async getAllOrders(filters: {
-    page?: number;
-    limit?: number;
-    status?: string;
-    paymentStatus?: string;
-    paymentMethod?: string;
-    startDate?: string;
-    endDate?: string;
-  } = {}): Promise<AdminOrderResponse> {
+  async getAllOrders(
+    filters: {
+      page?: number;
+      limit?: number;
+      status?: string;
+      paymentStatus?: string;
+      paymentMethod?: string;
+      startDate?: string;
+      endDate?: string;
+    } = {}
+  ): Promise<AdminOrderResponse> {
     try {
       const params = new URLSearchParams();
       Object.entries(filters).forEach(([key, value]) => {
@@ -88,12 +93,12 @@ class AdminOrderService {
           params.append(key, String(value));
         }
       });
-      
+
       const queryString = params.toString();
       const url = `${this.BASE_URL}/all${queryString ? `?${queryString}` : ''}`;
-      
+
       const response = await apiClient<AdminOrderResponse>(url, {
-        method: 'GET'
+        method: 'GET',
       });
       return response as AdminOrderResponse;
     } catch (error: any) {
@@ -103,12 +108,18 @@ class AdminOrderService {
   }
 
   // Update order status
-  async updateOrderStatus(orderId: string, data: UpdateOrderStatusRequest): Promise<UpdateOrderStatusResponse> {
+  async updateOrderStatus(
+    orderId: string,
+    data: UpdateOrderStatusRequest
+  ): Promise<UpdateOrderStatusResponse> {
     try {
-      const response = await apiClient<UpdateOrderStatusResponse>(`${this.BASE_URL}/${orderId}/status`, {
-        method: 'PATCH',
-        body: JSON.stringify(data)
-      });
+      const response = await apiClient<UpdateOrderStatusResponse>(
+        `${this.BASE_URL}/${orderId}/status`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify(data),
+        }
+      );
       return response as UpdateOrderStatusResponse;
     } catch (error: any) {
       console.error('Update order status error:', error);
@@ -119,10 +130,13 @@ class AdminOrderService {
   // Cancel order
   async cancelOrder(orderId: string, reason: string): Promise<UpdateOrderStatusResponse> {
     try {
-      const response = await apiClient<UpdateOrderStatusResponse>(`${this.BASE_URL}/${orderId}/cancel`, {
-        method: 'POST',
-        body: JSON.stringify({ reason })
-      });
+      const response = await apiClient<UpdateOrderStatusResponse>(
+        `${this.BASE_URL}/${orderId}/cancel`,
+        {
+          method: 'POST',
+          body: JSON.stringify({ reason }),
+        }
+      );
       return response as UpdateOrderStatusResponse;
     } catch (error: any) {
       console.error('Cancel order error:', error);
@@ -134,7 +148,7 @@ class AdminOrderService {
   async getOrderStats(period: '7d' | '30d' | '90d' = '30d') {
     try {
       const response = await apiClient(`${this.BASE_URL}/stats?period=${period}`, {
-        method: 'GET'
+        method: 'GET',
       });
       return response;
     } catch (error: any) {
@@ -145,44 +159,44 @@ class AdminOrderService {
 
   // Helper methods for order status management
   confirmOrder(orderId: string, adminNote?: string) {
-    return this.updateOrderStatus(orderId, { 
-      status: 'confirmed', 
-      adminNote: adminNote || 'Order confirmed by admin' 
+    return this.updateOrderStatus(orderId, {
+      status: 'confirmed',
+      adminNote: adminNote || 'Order confirmed by admin',
     });
   }
 
   rejectOrder(orderId: string, reason: string) {
-    return this.updateOrderStatus(orderId, { 
-      status: 'cancelled', 
-      adminNote: reason || 'Order rejected by admin' 
+    return this.updateOrderStatus(orderId, {
+      status: 'cancelled',
+      adminNote: reason || 'Order rejected by admin',
     });
   }
 
   startPreparing(orderId: string) {
-    return this.updateOrderStatus(orderId, { 
-      status: 'preparing', 
-      adminNote: 'Order preparation started' 
+    return this.updateOrderStatus(orderId, {
+      status: 'preparing',
+      adminNote: 'Order preparation started',
     });
   }
 
   startShipping(orderId: string) {
-    return this.updateOrderStatus(orderId, { 
-      status: 'shipping', 
-      adminNote: 'Order shipped' 
+    return this.updateOrderStatus(orderId, {
+      status: 'shipping',
+      adminNote: 'Order shipped',
     });
   }
 
   markDelivered(orderId: string) {
-    return this.updateOrderStatus(orderId, { 
-      status: 'delivered', 
-      adminNote: 'Order delivered successfully' 
+    return this.updateOrderStatus(orderId, {
+      status: 'delivered',
+      adminNote: 'Order delivered successfully',
     });
   }
 
   markCompleted(orderId: string) {
-    return this.updateOrderStatus(orderId, { 
-      status: 'completed', 
-      adminNote: 'Order completed' 
+    return this.updateOrderStatus(orderId, {
+      status: 'completed',
+      adminNote: 'Order completed',
     });
   }
 }

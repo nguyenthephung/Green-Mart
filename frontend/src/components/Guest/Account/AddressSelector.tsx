@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { districts } from "../../../data/Guest/hcm_districts_sample";
+import { useState } from 'react';
+import { districts } from '../../../data/Guest/hcm_districts_sample';
 
 export interface UserAddress {
   id?: number;
@@ -36,25 +36,25 @@ export default function AddressSelector({
   value?: UserAddress;
   onChange: (address: UserAddress) => void;
 }) {
-  const [selectedDistrict, setSelectedDistrict] = useState<string>(value?.district || "");
-  const [selectedWard, setSelectedWard] = useState<string>(value?.ward || "");
-  const [street, setStreet] = useState<string>(value?.street || "");
+  const [selectedDistrict, setSelectedDistrict] = useState<string>(value?.district || '');
+  const [selectedWard, setSelectedWard] = useState<string>(value?.ward || '');
+  const [street, setStreet] = useState<string>(value?.street || '');
 
   const districtObj = typedDistricts.find((d: District) => d.name === selectedDistrict);
 
   const handleDistrictChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newDistrict = e.target.value;
     setSelectedDistrict(newDistrict);
-    setSelectedWard("");
-    
+    setSelectedWard('');
+
     // Trigger onChange immediately when district changes
     if (newDistrict) {
       const districtData = typedDistricts.find((d: District) => d.name === newDistrict);
       if (districtData) {
         onChange({
-          city: "TP. Hồ Chí Minh", // hoặc lấy từ props nếu đa tỉnh
+          city: 'TP. Hồ Chí Minh', // hoặc lấy từ props nếu đa tỉnh
           district: newDistrict,
-          ward: "",
+          ward: '',
           street: street,
           latitude: 0,
           longitude: 0,
@@ -64,19 +64,19 @@ export default function AddressSelector({
       }
     }
   };
-  
+
   const handleWardChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newWard = e.target.value;
     setSelectedWard(newWard);
-    
+
     // Trigger onChange immediately when ward changes
     if (selectedDistrict && newWard) {
       const districtData = typedDistricts.find((d: District) => d.name === selectedDistrict);
       const wardData = districtData?.wards.find((w: Ward) => w.name === newWard);
-      
+
       if (districtData && wardData) {
         onChange({
-          city: "TP. Hồ Chí Minh", // hoặc lấy từ props nếu đa tỉnh
+          city: 'TP. Hồ Chí Minh', // hoặc lấy từ props nếu đa tỉnh
           district: selectedDistrict,
           ward: newWard,
           street: street,
@@ -88,19 +88,19 @@ export default function AddressSelector({
       }
     }
   };
-  
+
   const handleStreetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newStreet = e.target.value;
     setStreet(newStreet);
-    
+
     // Trigger onChange immediately when street changes
     if (selectedDistrict && selectedWard && newStreet) {
       const districtData = typedDistricts.find((d: District) => d.name === selectedDistrict);
       const wardData = districtData?.wards.find((w: Ward) => w.name === selectedWard);
-      
+
       if (districtData && wardData) {
         onChange({
-          city: "TP. Hồ Chí Minh", // hoặc lấy từ props nếu đa tỉnh
+          city: 'TP. Hồ Chí Minh', // hoặc lấy từ props nếu đa tỉnh
           district: selectedDistrict,
           ward: selectedWard,
           street: newStreet,

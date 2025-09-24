@@ -55,7 +55,9 @@
 .header-button-optimized {
   will-change: background-color, color;
   transform: translateZ(0);
-  transition: background-color 0.1s ease, color 0.1s ease;
+  transition:
+    background-color 0.1s ease,
+    color 0.1s ease;
 }
 
 .header-button-optimized:hover {

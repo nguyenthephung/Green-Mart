@@ -12,7 +12,7 @@ export const useFileUpload = () => {
   const [isUploading, setIsUploading] = useState(false);
 
   const uploadFile = async (
-    file: File, 
+    file: File,
     type: 'products' | 'banners' | 'avatars' | 'ratings' = 'products'
   ): Promise<UploadResponse> => {
     try {
@@ -26,7 +26,7 @@ export const useFileUpload = () => {
       // Validate file size based on type
       const maxSizes = {
         products: 5 * 1024 * 1024, // 5MB
-        banners: 10 * 1024 * 1024, // 10MB  
+        banners: 10 * 1024 * 1024, // 10MB
         avatars: 2 * 1024 * 1024, // 2MB
         ratings: 3 * 1024 * 1024, // 3MB
       };
@@ -58,22 +58,22 @@ export const useFileUpload = () => {
         if (response.success) {
           return {
             success: true,
-            url: (response.data as any).imageUrl || (response.data as any).imageUrls?.[0]
+            url: (response.data as any).imageUrl || (response.data as any).imageUrls?.[0],
           };
         } else {
           throw new Error(response.message || 'Upload failed');
         }
       } catch (cloudinaryError: any) {
         console.warn('Cloudinary upload failed, falling back to base64:', cloudinaryError.message);
-        
+
         // Fallback to base64 for demo purposes
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
-          reader.onload = (e) => {
+          reader.onload = e => {
             const base64 = e.target?.result as string;
             resolve({
               success: true,
-              url: base64
+              url: base64,
             });
           };
           reader.onerror = () => {
@@ -85,7 +85,7 @@ export const useFileUpload = () => {
     } catch (error: any) {
       return {
         success: false,
-        error: error.message || 'Lỗi upload file'
+        error: error.message || 'Lỗi upload file',
       };
     } finally {
       setIsUploading(false);
@@ -93,7 +93,10 @@ export const useFileUpload = () => {
   };
 
   // Upload multiple files
-  const uploadFiles = async (files: File[], type: 'products' | 'banners' | 'avatars' | 'ratings' = 'products'): Promise<UploadResponse[]> => {
+  const uploadFiles = async (
+    files: File[],
+    type: 'products' | 'banners' | 'avatars' | 'ratings' = 'products'
+  ): Promise<UploadResponse[]> => {
     const results: UploadResponse[] = [];
     for (const file of files) {
       const result = await uploadFile(file, type);
@@ -120,7 +123,7 @@ export const useFileUpload = () => {
     uploadFile,
     uploadFiles,
     deleteFile,
-    isUploading
+    isUploading,
   };
 };
 

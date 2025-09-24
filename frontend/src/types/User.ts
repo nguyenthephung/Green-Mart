@@ -5,10 +5,12 @@ export interface CurrentUser {
   phone?: string;
   role?: string;
   avatar?: string;
-  vouchers?: Array<{
-    voucherId: string;
-    quantity: number;
-  }> | string[]; // Support both new format and legacy format
+  vouchers?:
+    | Array<{
+        voucherId: string;
+        quantity: number;
+      }>
+    | string[]; // Support both new format and legacy format
   createdAt?: string;
   updatedAt?: string;
 }

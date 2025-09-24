@@ -28,7 +28,7 @@ const defaultProduct: Partial<AdminProduct> = {
   type: 'count', // Loại sản phẩm mặc định
   isSale: false,
   discountAmount: 0,
-  salePrice: 0
+  salePrice: 0,
 };
 
 const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd }) => {
@@ -109,7 +109,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
           setImagesPreview(prev => prev.concat(sortedUploads));
           setProduct(prev => ({
             ...prev,
-            images: (prev.images || []).concat(sortedUploads)
+            images: (prev.images || []).concat(sortedUploads),
           }));
           setErrors(prev => ({ ...prev, images: '' }));
         }
@@ -166,7 +166,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
       discountAmount: product.discountAmount || 0,
       salePrice: product.isSale ? calculateSalePrice() : undefined,
       descriptionImages: [],
-      _id: undefined
+      _id: undefined,
     };
 
     // Simulate API call
@@ -184,15 +184,13 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
       if (currentStep === 1) return ['name', 'category', 'price', 'stock'].includes(key);
       return false;
     });
-    
+
     if (currentStepErrors.length > 0) {
-      const filteredErrors = Object.fromEntries(
-        currentStepErrors.map(key => [key, err[key]])
-      );
+      const filteredErrors = Object.fromEntries(currentStepErrors.map(key => [key, err[key]]));
       setErrors(filteredErrors);
       return;
     }
-    
+
     setErrors({});
     setCurrentStep(2);
   };
@@ -211,9 +209,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-start justify-center p-4 overflow-y-auto">
-      <div 
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl my-8 overflow-hidden"
-      >
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl my-8 overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6">
           <div className="flex items-center justify-between">
@@ -233,22 +229,30 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
               ❌
             </button>
           </div>
-          
+
           {/* Progress indicator */}
           <div className="mt-4 flex items-center gap-4">
-            <div className={`flex items-center gap-2 ${currentStep >= 1 ? 'text-white' : 'text-green-300'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                currentStep >= 1 ? 'bg-white text-green-600' : 'bg-green-500'
-              }`}>
+            <div
+              className={`flex items-center gap-2 ${currentStep >= 1 ? 'text-white' : 'text-green-300'}`}
+            >
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                  currentStep >= 1 ? 'bg-white text-green-600' : 'bg-green-500'
+                }`}
+              >
                 1
               </div>
               <span className="hidden sm:block">Thông tin cơ bản</span>
             </div>
             <div className="flex-1 h-1 bg-green-500 rounded"></div>
-            <div className={`flex items-center gap-2 ${currentStep >= 2 ? 'text-white' : 'text-green-300'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                currentStep >= 2 ? 'bg-white text-green-600' : 'bg-green-500'
-              }`}>
+            <div
+              className={`flex items-center gap-2 ${currentStep >= 2 ? 'text-white' : 'text-green-300'}`}
+            >
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                  currentStep >= 2 ? 'bg-white text-green-600' : 'bg-green-500'
+                }`}
+              >
                 2
               </div>
               <span className="hidden sm:block">Hình ảnh & Chi tiết</span>
@@ -273,7 +277,11 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                       errors.name ? 'border-red-500 bg-red-50' : 'border-gray-300'
                     }`}
                     placeholder="Nhập tên sản phẩm..."
-                    style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
+                    style={
+                      isDarkMode
+                        ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' }
+                        : {}
+                    }
                   />
                   {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
                 </div>
@@ -292,7 +300,11 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                     className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
                       errors.category ? 'border-red-500 bg-red-50' : 'border-gray-300'
                     }`}
-                    style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
+                    style={
+                      isDarkMode
+                        ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' }
+                        : {}
+                    }
                   >
                     <option value="">Chọn danh mục cha...</option>
                     {categories.map(cat => (
@@ -301,28 +313,47 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                       </option>
                     ))}
                   </select>
-                  {parentCategory && !!categories.find(cat => cat.id === parentCategory) && Array.isArray(categories.find(cat => cat.id === parentCategory)?.subs) && categories.find(cat => cat.id === parentCategory)!.subs.length > 0 && (
-                    <div className="mt-2">
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Danh mục con <span className="text-red-500">*</span></label>
-                      <select
-                        value={subCategory}
-                        onChange={e => {
-                          setSubCategory(e.target.value);
-                          setProduct(prev => ({ ...prev, category: e.target.value }));
-                        }}
-                        className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-                          errors.category ? 'border-red-500 bg-red-50' : 'border-gray-300'
-                        }`}
-                        style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
-                      >
-                        <option value="">Chọn danh mục con...</option>
-                        {categories.find(cat => cat.id === parentCategory)?.subs.map((sub, idx) => (
-                          <option key={sub + '-' + idx} value={sub}>{sub}</option>
-                        ))}
-                      </select>
-                    </div>
+                  {parentCategory &&
+                    !!categories.find(cat => cat.id === parentCategory) &&
+                    Array.isArray(categories.find(cat => cat.id === parentCategory)?.subs) &&
+                    categories.find(cat => cat.id === parentCategory)!.subs.length > 0 && (
+                      <div className="mt-2">
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Danh mục con <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                          value={subCategory}
+                          onChange={e => {
+                            setSubCategory(e.target.value);
+                            setProduct(prev => ({ ...prev, category: e.target.value }));
+                          }}
+                          className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+                            errors.category ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                          }`}
+                          style={
+                            isDarkMode
+                              ? {
+                                  backgroundColor: '#23272f',
+                                  color: '#fff',
+                                  borderColor: '#374151',
+                                }
+                              : {}
+                          }
+                        >
+                          <option value="">Chọn danh mục con...</option>
+                          {categories
+                            .find(cat => cat.id === parentCategory)
+                            ?.subs.map((sub, idx) => (
+                              <option key={sub + '-' + idx} value={sub}>
+                                {sub}
+                              </option>
+                            ))}
+                        </select>
+                      </div>
+                    )}
+                  {errors.category && (
+                    <p className="text-red-500 text-sm mt-1">{errors.category}</p>
                   )}
-                  {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category}</p>}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -332,7 +363,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                     </label>
                     <NumberInput
                       value={product.price || 0}
-                      onChange={(value) => setProduct(prev => ({ ...prev, price: value }))}
+                      onChange={value => setProduct(prev => ({ ...prev, price: value }))}
                       placeholder="Nhập giá bán"
                       className={isDarkMode ? 'bg-[#23272f] text-white border-[#374151]' : ''}
                     />
@@ -346,12 +377,18 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                     <input
                       type="number"
                       value={product.stock || ''}
-                      onChange={e => setProduct(prev => ({ ...prev, stock: Number(e.target.value) }))}
+                      onChange={e =>
+                        setProduct(prev => ({ ...prev, stock: Number(e.target.value) }))
+                      }
                       className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
                         errors.stock ? 'border-red-500 bg-red-50' : 'border-gray-300'
                       }`}
                       placeholder="0"
-                      style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
+                      style={
+                        isDarkMode
+                          ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' }
+                          : {}
+                      }
                     />
                     {errors.stock && <p className="text-red-500 text-sm mt-1">{errors.stock}</p>}
                   </div>
@@ -361,19 +398,27 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Thương hiệu</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Thương hiệu
+                    </label>
                     <input
                       type="text"
                       value={product.brand || ''}
                       onChange={e => setProduct(prev => ({ ...prev, brand: e.target.value }))}
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
                       placeholder="Nhập thương hiệu..."
-                      style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
+                      style={
+                        isDarkMode
+                          ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' }
+                          : {}
+                      }
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Loại sản phẩm <span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Loại sản phẩm <span className="text-red-500">*</span>
+                    </label>
                     <select
                       value={product.type || 'count'}
                       onChange={e => {
@@ -384,21 +429,31 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                         setProduct(prev => ({ ...prev, type, unit }));
                       }}
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
-                      style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
+                      style={
+                        isDarkMode
+                          ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' }
+                          : {}
+                      }
                     >
                       <option value="count">Đếm số lượng (hộp, chai, cái...)</option>
                       <option value="weight">Cân ký (kg, g...)</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Đơn vị <span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Đơn vị <span className="text-red-500">*</span>
+                    </label>
                     <select
                       value={product.unit || ''}
                       onChange={e => setProduct(prev => ({ ...prev, unit: e.target.value }))}
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
                       // Luôn cho chọn đơn vị nếu đã có type (kể cả mặc định)
                       disabled={false}
-                      style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
+                      style={
+                        isDarkMode
+                          ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' }
+                          : {}
+                      }
                     >
                       <option value="">Chọn đơn vị...</option>
                       {product.type === 'weight' ? (
@@ -419,12 +474,23 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Trạng thái</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Trạng thái
+                  </label>
                   <select
                     value={product.status || 'active'}
-                    onChange={e => setProduct(prev => ({ ...prev, status: e.target.value as 'active' | 'inactive' }))}
+                    onChange={e =>
+                      setProduct(prev => ({
+                        ...prev,
+                        status: e.target.value as 'active' | 'inactive',
+                      }))
+                    }
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
-                    style={isDarkMode ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' } : {}}
+                    style={
+                      isDarkMode
+                        ? { backgroundColor: '#23272f', color: '#fff', borderColor: '#374151' }
+                        : {}
+                    }
                   >
                     <option value="active">✅ Đang bán</option>
                     <option value="inactive">❌ Ngừng bán</option>
@@ -435,52 +501,59 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                 <div className="flex flex-col md:flex-row gap-4">
                   <div className="flex-1 bg-gradient-to-br from-red-50 to-orange-50 p-4 rounded-xl border border-red-200">
                     <div className="flex items-center gap-3 mb-3">
-                    <input
-                      type="checkbox"
-                      id="isSale"
-                      checked={!!product.isSale}
-                      onChange={e => {
-                        setProduct(prev => ({ 
-                          ...prev, 
-                          isSale: e.target.checked,
-                          discountAmount: e.target.checked ? prev.discountAmount : 0,
-                          salePrice: e.target.checked ? prev.salePrice : 0
-                        }));
-                        if (!e.target.checked) {
-                          setErrors(prev => ({ ...prev, discountAmount: '' }));
-                        }
-                      }}
-                      className="w-5 h-5 text-red-600 rounded focus:ring-2 focus:ring-red-500"
-                    />
-                    <label htmlFor="isSale" className="text-lg font-semibold text-red-700 cursor-pointer">
-                      🏷️ Sản phẩm khuyến mãi
-                    </label>
-                  </div>
+                      <input
+                        type="checkbox"
+                        id="isSale"
+                        checked={!!product.isSale}
+                        onChange={e => {
+                          setProduct(prev => ({
+                            ...prev,
+                            isSale: e.target.checked,
+                            discountAmount: e.target.checked ? prev.discountAmount : 0,
+                            salePrice: e.target.checked ? prev.salePrice : 0,
+                          }));
+                          if (!e.target.checked) {
+                            setErrors(prev => ({ ...prev, discountAmount: '' }));
+                          }
+                        }}
+                        className="w-5 h-5 text-red-600 rounded focus:ring-2 focus:ring-red-500"
+                      />
+                      <label
+                        htmlFor="isSale"
+                        className="text-lg font-semibold text-red-700 cursor-pointer"
+                      >
+                        🏷️ Sản phẩm khuyến mãi
+                      </label>
+                    </div>
 
                     {product.isSale && (
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-sm font-semibold text-red-700 mb-2">
-                          Số tiền giảm giá <span className="text-red-500">*</span>
-                        </label>
-                        <NumberInput
-                          value={product.discountAmount || 0}
-                          onChange={(value) => setProduct(prev => ({ ...prev, discountAmount: value }))}
-                          placeholder="Nhập số tiền giảm giá"
-                        />
-                        {errors.discountAmount && <p className="text-red-500 text-sm mt-1">{errors.discountAmount}</p>}
-                      </div>
+                      <div className="space-y-3">
+                        <div>
+                          <label className="block text-sm font-semibold text-red-700 mb-2">
+                            Số tiền giảm giá <span className="text-red-500">*</span>
+                          </label>
+                          <NumberInput
+                            value={product.discountAmount || 0}
+                            onChange={value =>
+                              setProduct(prev => ({ ...prev, discountAmount: value }))
+                            }
+                            placeholder="Nhập số tiền giảm giá"
+                          />
+                          {errors.discountAmount && (
+                            <p className="text-red-500 text-sm mt-1">{errors.discountAmount}</p>
+                          )}
+                        </div>
 
-                      <div className="bg-white p-3 rounded-lg border border-red-200">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-600">Giá sau giảm:</span>
-                          <span className="text-lg font-bold text-red-600">
-                            {calculateSalePrice().toLocaleString('vi-VN')}đ
-                          </span>
+                        <div className="bg-white p-3 rounded-lg border border-red-200">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-600">Giá sau giảm:</span>
+                            <span className="text-lg font-bold text-red-600">
+                              {calculateSalePrice().toLocaleString('vi-VN')}đ
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    )}
                   </div>
                   <div className="flex-1 bg-gradient-to-br from-yellow-50 to-green-50 p-4 rounded-xl border border-yellow-200 flex flex-col justify-center">
                     <div className="flex items-center gap-3 mb-3">
@@ -488,14 +561,21 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                         type="checkbox"
                         id="isFeatured"
                         checked={!!product.isFeatured}
-                        onChange={e => setProduct(prev => ({ ...prev, isFeatured: e.target.checked }))}
+                        onChange={e =>
+                          setProduct(prev => ({ ...prev, isFeatured: e.target.checked }))
+                        }
                         className="w-5 h-5 text-yellow-600 rounded focus:ring-2 focus:ring-yellow-500"
                       />
-                      <label htmlFor="isFeatured" className="text-lg font-semibold text-yellow-700 cursor-pointer">
+                      <label
+                        htmlFor="isFeatured"
+                        className="text-lg font-semibold text-yellow-700 cursor-pointer"
+                      >
                         ⭐ Sản phẩm nổi bật
                       </label>
                     </div>
-                    <div className="text-xs text-gray-500">Đánh dấu để sản phẩm xuất hiện ở mục nổi bật trên trang chủ.</div>
+                    <div className="text-xs text-gray-500">
+                      Đánh dấu để sản phẩm xuất hiện ở mục nổi bật trên trang chủ.
+                    </div>
                   </div>
                 </div>
               </div>
@@ -525,7 +605,11 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                     <div className="grid grid-cols-3 gap-3 mb-3">
                       {imagesPreview.map((img, index) => (
                         <div key={index} className="relative group">
-                          <img src={img} alt={`Preview ${index + 1}`} className="w-full h-20 object-cover rounded-lg" />
+                          <img
+                            src={img}
+                            alt={`Preview ${index + 1}`}
+                            className="w-full h-20 object-cover rounded-lg"
+                          />
                           <button
                             type="button"
                             onClick={() => removeImage(index)}
@@ -536,7 +620,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                         </div>
                       ))}
                     </div>
-                    
+
                     <button
                       type="button"
                       onClick={() => multiFileInputRef.current?.click()}
@@ -544,7 +628,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                     >
                       + Thêm ảnh mô tả
                     </button>
-                    
+
                     <input
                       type="file"
                       ref={multiFileInputRef}
@@ -559,7 +643,9 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Mô tả sản phẩm</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Mô tả sản phẩm
+                </label>
                 <ProductDescriptionEditor
                   product={product}
                   onChange={(field, value) => setProduct(prev => ({ ...prev, [field]: value }))}
@@ -581,7 +667,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
               </button>
             )}
           </div>
-          
+
           <div className="flex gap-3">
             <button
               onClick={handleClose}
@@ -589,7 +675,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
             >
               Hủy
             </button>
-            
+
             {currentStep === 1 ? (
               <button
                 onClick={nextStep}
@@ -609,9 +695,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ show, onClose, onAdd 
                     Đang thêm...
                   </>
                 ) : (
-                  <>
-                    ➕ Thêm sản phẩm
-                  </>
+                  <>➕ Thêm sản phẩm</>
                 )}
               </button>
             )}

@@ -77,7 +77,14 @@ export interface OrderDetails {
   };
   paymentId?: string;
   notes?: string;
-  status: 'pending' | 'confirmed' | 'preparing' | 'shipping' | 'delivered' | 'cancelled' | 'returned';
+  status:
+    | 'pending'
+    | 'confirmed'
+    | 'preparing'
+    | 'shipping'
+    | 'delivered'
+    | 'cancelled'
+    | 'returned';
   paymentStatus: 'unpaid' | 'paid' | 'refunded' | 'partially_refunded';
   createdAt: string;
   updatedAt: string;
@@ -102,7 +109,7 @@ class OrderService {
     try {
       const response = await apiClient<OrderResponse>(this.BASE_URL, {
         method: 'POST',
-        body: JSON.stringify(orderData)
+        body: JSON.stringify(orderData),
       });
       // Return the response directly as it already has the correct structure
       return response as OrderResponse;
@@ -141,11 +148,11 @@ class OrderService {
       if (params?.limit) queryParams.append('limit', params.limit.toString());
       if (params?.status) queryParams.append('status', params.status);
       if (params?.paymentStatus) queryParams.append('paymentStatus', params.paymentStatus);
-      
+
       const url = `${this.BASE_URL}/history${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
-      
-      const response = await apiClient<{success: boolean, data: OrderHistory}>(url);
-      
+
+      const response = await apiClient<{ success: boolean; data: OrderHistory }>(url);
+
       // Handle different response structures
       if ((response as any).data?.orders) {
         return (response as any).data;
@@ -164,15 +171,15 @@ class OrderService {
   }
 
   // Get all orders (admin only)
-  async getAllOrders(params?: { 
-    page?: number; 
-    limit?: number; 
-    status?: string; 
-    paymentStatus?: string; 
-    startDate?: string; 
-    endDate?: string; 
+  async getAllOrders(params?: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    paymentStatus?: string;
+    startDate?: string;
+    endDate?: string;
   }): Promise<OrderHistory> {
-  try {
+    try {
       const queryParams = new URLSearchParams();
       if (params?.page) queryParams.append('page', params.page.toString());
       if (params?.limit) queryParams.append('limit', params.limit.toString());
@@ -189,14 +196,14 @@ class OrderService {
       if ((response as any).orders && (response as any).pagination) {
         return {
           orders: (response as any).orders,
-          pagination: (response as any).pagination
+          pagination: (response as any).pagination,
         };
       } else if (response.data?.orders) {
         return response.data;
       } else if (response.success && (response as any).orders) {
         return {
           orders: (response as any).orders,
-          pagination: (response as any).pagination || { page: 1, limit: 20, total: 0, pages: 0 }
+          pagination: (response as any).pagination || { page: 1, limit: 20, total: 0, pages: 0 },
         };
       } else {
         // Empty fallback
@@ -212,7 +219,7 @@ class OrderService {
     try {
       await apiClient(`${this.BASE_URL}/${orderId}/status`, {
         method: 'PATCH',
-        body: JSON.stringify({ status })
+        body: JSON.stringify({ status }),
       });
     } catch (error: any) {
       throw new Error(error.message || 'Failed to update order status');
@@ -224,7 +231,7 @@ class OrderService {
     try {
       await apiClient(`${this.BASE_URL}/${orderId}/cancel`, {
         method: 'POST',
-        body: JSON.stringify({ reason })
+        body: JSON.stringify({ reason }),
       });
     } catch (error: any) {
       throw new Error(error.message || 'Failed to cancel order');
@@ -238,44 +245,44 @@ class OrderService {
         label: 'Chờ xác nhận',
         color: 'text-yellow-600',
         bgColor: 'bg-yellow-100',
-        icon: '⏳'
+        icon: '⏳',
       },
       confirmed: {
         label: 'Đã xác nhận',
         color: 'text-blue-600',
         bgColor: 'bg-blue-100',
-        icon: '✅'
+        icon: '✅',
       },
       preparing: {
         label: 'Đang chuẩn bị',
         color: 'text-purple-600',
         bgColor: 'bg-purple-100',
-        icon: '📦'
+        icon: '📦',
       },
       shipping: {
         label: 'Đang giao hàng',
         color: 'text-indigo-600',
         bgColor: 'bg-indigo-100',
-        icon: '🚚'
+        icon: '🚚',
       },
       delivered: {
         label: 'Đã giao hàng',
         color: 'text-green-600',
         bgColor: 'bg-green-100',
-        icon: '✅'
+        icon: '✅',
       },
       cancelled: {
         label: 'Đã hủy',
         color: 'text-red-600',
         bgColor: 'bg-red-100',
-        icon: '❌'
+        icon: '❌',
       },
       returned: {
         label: 'Đã trả hàng',
         color: 'text-gray-600',
         bgColor: 'bg-gray-100',
-        icon: '↩️'
-      }
+        icon: '↩️',
+      },
     };
 
     return statusMap[status as keyof typeof statusMap] || statusMap.pending;
@@ -288,26 +295,26 @@ class OrderService {
         label: 'Chưa thanh toán',
         color: 'text-red-600',
         bgColor: 'bg-red-100',
-        icon: '💳'
+        icon: '💳',
       },
       paid: {
         label: 'Đã thanh toán',
         color: 'text-green-600',
         bgColor: 'bg-green-100',
-        icon: '✅'
+        icon: '✅',
       },
       refunded: {
         label: 'Đã hoàn tiền',
         color: 'text-purple-600',
         bgColor: 'bg-purple-100',
-        icon: '↩️'
+        icon: '↩️',
       },
       partially_refunded: {
         label: 'Hoàn tiền một phần',
         color: 'text-orange-600',
         bgColor: 'bg-orange-100',
-        icon: '↪️'
-      }
+        icon: '↪️',
+      },
     };
 
     return statusMap[status as keyof typeof statusMap] || statusMap.unpaid;

@@ -19,12 +19,10 @@ export default function CategoryBanner({ categoryId, className = '' }: CategoryB
       try {
         await fetchBanners('category', true);
         const storeBanners = useBannerStore.getState().banners;
-        
+
         // Get all active category banners
-        let banners = storeBanners.filter((b: any) => 
-          b.position === 'category' && b.isActive
-        );
-        
+        let banners = storeBanners.filter((b: any) => b.position === 'category' && b.isActive);
+
         // If categoryId is specified, filter by that category
         if (categoryId) {
           banners = banners.filter((b: any) => b.categoryId === categoryId);
@@ -33,7 +31,7 @@ export default function CategoryBanner({ categoryId, className = '' }: CategoryB
         banners.sort((a: any, b: any) => (a.priority || 999) - (b.priority || 999));
         setCategoryBanners(banners);
       } catch (error) {
-  // ...existing code (đã xóa log)...
+        // ...existing code (đã xóa log)...
       }
     };
 
@@ -48,7 +46,7 @@ export default function CategoryBanner({ categoryId, className = '' }: CategoryB
           window.open(banner.linkUrl, '_blank');
         }
       } catch (error) {
-  // ...existing code (đã xóa log)...
+        // ...existing code (đã xóa log)...
       }
     }
   };
@@ -71,10 +69,10 @@ export default function CategoryBanner({ categoryId, className = '' }: CategoryB
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {categoryBanners.slice(0, 6).map((banner, index) => {
           const linkedCategory = categories.find(cat => cat.id === banner.categoryId);
-          
+
           return (
             <div key={banner._id || index} className="group">
-              <div 
+              <div
                 className="relative overflow-hidden rounded-2xl bg-white shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer transform hover:-translate-y-2"
                 onClick={() => handleClick(banner)}
               >
@@ -85,10 +83,10 @@ export default function CategoryBanner({ categoryId, className = '' }: CategoryB
                     alt={banner.title || `Banner ${index + 1}`}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
-                  
+
                   {/* Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-80"></div>
-                  
+
                   {/* Badge */}
                   <div className="absolute top-4 left-4">
                     <span className="bg-emerald-500 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
@@ -96,15 +94,13 @@ export default function CategoryBanner({ categoryId, className = '' }: CategoryB
                     </span>
                   </div>
                 </div>
-                
+
                 {/* Content */}
                 <div className="absolute inset-x-0 bottom-0 p-6 text-white">
                   {banner.title && (
-                    <h3 className="text-2xl font-bold mb-3 drop-shadow-lg">
-                      {banner.title}
-                    </h3>
+                    <h3 className="text-2xl font-bold mb-3 drop-shadow-lg">{banner.title}</h3>
                   )}
-                  
+
                   {banner.description && (
                     <p className="text-white/90 mb-4 drop-shadow-lg line-clamp-2 leading-relaxed">
                       {banner.description}
@@ -118,7 +114,7 @@ export default function CategoryBanner({ categoryId, className = '' }: CategoryB
                         {banner.buttonText}
                       </button>
                     )}
-                    
+
                     {linkedCategory && (
                       <Link
                         to={`/category/${linkedCategory.name.toLowerCase()}`}

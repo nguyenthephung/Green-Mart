@@ -6,15 +6,21 @@ import type { ToastData } from './NewToast';
 interface NewToastContainerProps {
   toasts: ToastData[];
   onClose: (id: string) => void;
-  position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'top-center' | 'bottom-center';
+  position?:
+    | 'top-right'
+    | 'top-left'
+    | 'bottom-right'
+    | 'bottom-left'
+    | 'top-center'
+    | 'bottom-center';
   maxToasts?: number;
 }
 
-const NewToastContainer: React.FC<NewToastContainerProps> = ({ 
-  toasts, 
-  onClose, 
+const NewToastContainer: React.FC<NewToastContainerProps> = ({
+  toasts,
+  onClose,
   position = 'top-right',
-  maxToasts = 5
+  maxToasts = 5,
 }) => {
   const getPositionClasses = () => {
     switch (position) {
@@ -41,25 +47,21 @@ const NewToastContainer: React.FC<NewToastContainerProps> = ({
 
   // Limit number of toasts
   const visibleToasts = toasts.slice(0, maxToasts);
-  
+
   if (visibleToasts.length === 0) return null;
 
   const containerElement = (
-    <div 
+    <div
       className={`
         fixed z-[9999] pointer-events-none
         ${getPositionClasses()}
       `}
-      role="region" 
+      role="region"
       aria-label="Thông báo"
     >
       <div className={`flex ${getFlexDirection()} gap-3`}>
-        {visibleToasts.map((toast) => (
-          <NewToast
-            key={toast.id}
-            toast={toast}
-            onClose={onClose}
-          />
+        {visibleToasts.map(toast => (
+          <NewToast key={toast.id} toast={toast} onClose={onClose} />
         ))}
       </div>
     </div>

@@ -4,9 +4,12 @@ import type { GuestOrder } from '../types/GuestOrder';
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // Guest API client without authorization header
-const guestApiClient = async <T>(endpoint: string, options: RequestInit = {}): Promise<{ success: boolean; data?: T; message?: string }> => {
+const guestApiClient = async <T>(
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<{ success: boolean; data?: T; message?: string }> => {
   const url = `${API_BASE_URL}${endpoint}`;
-  
+
   const config: RequestInit = {
     headers: {
       'Content-Type': 'application/json',
@@ -17,10 +20,10 @@ const guestApiClient = async <T>(endpoint: string, options: RequestInit = {}): P
 
   try {
     const response = await fetch(url, config);
-    
+
     const contentType = response.headers.get('content-type');
     let data;
-    
+
     if (contentType && contentType.includes('application/json')) {
       const text = await response.text();
       if (text) {

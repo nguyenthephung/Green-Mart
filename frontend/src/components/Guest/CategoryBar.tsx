@@ -4,7 +4,21 @@ import { useState, useEffect, useRef } from 'react';
 import { ChevronDown, Menu, X, Tag } from 'lucide-react';
 import { useResponsive } from '../../hooks/useResponsive';
 
-const hiddenOnRoutes = ['/login', '/register', '/admin', '/checkout', '/category', '/accountdetail', '/myorder', '/myaddress', '/notification-settings', '/myvoucher', '/mycart', '/payment-result','/guest-checkout'];
+const hiddenOnRoutes = [
+  '/login',
+  '/register',
+  '/admin',
+  '/checkout',
+  '/category',
+  '/accountdetail',
+  '/myorder',
+  '/myaddress',
+  '/notification-settings',
+  '/myvoucher',
+  '/mycart',
+  '/payment-result',
+  '/guest-checkout',
+];
 
 const CategoryBar: React.FC = () => {
   const location = useLocation();
@@ -40,7 +54,7 @@ const CategoryBar: React.FC = () => {
 
   const handleParentClick = (categoryId: string, categoryName: string) => {
     const category = categories.find(cat => cat.id === categoryId);
-    
+
     // Nếu có danh mục con, toggle dropdown
     if (category?.subs && category.subs.length > 0) {
       setActiveParent(activeParent === categoryId ? null : categoryId);
@@ -57,17 +71,20 @@ const CategoryBar: React.FC = () => {
     setIsMobileMenuOpen(false);
   };
 
-
   return (
     <div className="relative">
       {/* Category Bar */}
       <div className="z-30 w-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm shadow-lg border-b border-gray-200 dark:border-gray-700 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Mobile Menu Button */}
-          <div className={`${isMobile ? 'flex' : 'lg:hidden flex'} items-center justify-between py-3`}>
+          <div
+            className={`${isMobile ? 'flex' : 'lg:hidden flex'} items-center justify-between py-3`}
+          >
             <div className="flex items-center gap-2">
               <Tag className="text-emerald-600" size={isMobile ? 18 : 20} />
-              <span className={`font-semibold text-gray-800 dark:text-gray-200 ${isMobile ? 'text-sm' : ''}`}>
+              <span
+                className={`font-semibold text-gray-800 dark:text-gray-200 ${isMobile ? 'text-sm' : ''}`}
+              >
                 Danh mục sản phẩm
               </span>
             </div>
@@ -87,7 +104,7 @@ const CategoryBar: React.FC = () => {
           {/* Desktop Menu */}
           <nav className="hidden lg:block py-4" ref={dropdownRef}>
             <div className="flex items-center gap-1">
-              {categories.map((category) => (
+              {categories.map(category => (
                 <div key={category.id} className="relative">
                   <button
                     onClick={() => handleParentClick(category.id, category.name)}
@@ -99,8 +116,8 @@ const CategoryBar: React.FC = () => {
                   >
                     <span>{category.name}</span>
                     {category.subs && category.subs.length > 0 && (
-                      <ChevronDown 
-                        size={14} 
+                      <ChevronDown
+                        size={14}
                         className={`transition-transform duration-200 ${
                           activeParent === category.id ? 'rotate-180' : ''
                         }`}
@@ -117,7 +134,7 @@ const CategoryBar: React.FC = () => {
                       {category.subs.map((sub, subIndex) => (
                         <button
                           key={subIndex}
-                          onClick={(e) => {
+                          onClick={e => {
                             e.preventDefault();
                             e.stopPropagation();
                             handleSubClick(sub);
@@ -135,11 +152,13 @@ const CategoryBar: React.FC = () => {
           </nav>
 
           {/* Mobile Menu */}
-          <div className={`${isMobile ? 'block' : 'lg:hidden'} overflow-hidden transition-all duration-300 ${
-            isMobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-          }`}>
+          <div
+            className={`${isMobile ? 'block' : 'lg:hidden'} overflow-hidden transition-all duration-300 ${
+              isMobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+            }`}
+          >
             <div className={`${isMobile ? 'py-3 space-y-1' : 'py-4 space-y-2'}`}>
-              {categories.map((category) => (
+              {categories.map(category => (
                 <div key={category.id} className="space-y-1">
                   <button
                     onClick={() => handleParentClick(category.id, category.name)}
@@ -151,8 +170,8 @@ const CategoryBar: React.FC = () => {
                   >
                     <span className={isMobile ? 'text-sm' : ''}>{category.name}</span>
                     {category.subs && category.subs.length > 0 && (
-                      <ChevronDown 
-                        size={isMobile ? 14 : 16} 
+                      <ChevronDown
+                        size={isMobile ? 14 : 16}
                         className={`transition-transform duration-200 ${
                           activeParent === category.id ? 'rotate-180' : ''
                         }`}
@@ -162,7 +181,9 @@ const CategoryBar: React.FC = () => {
 
                   {/* Mobile Submenu */}
                   {activeParent === category.id && category.subs && category.subs.length > 0 && (
-                    <div className={`${isMobile ? 'ml-3 space-y-0.5' : 'ml-4 space-y-1'} animate-in slide-in-from-top-2 duration-200`}>
+                    <div
+                      className={`${isMobile ? 'ml-3 space-y-0.5' : 'ml-4 space-y-1'} animate-in slide-in-from-top-2 duration-200`}
+                    >
                       {category.subs.map((sub, subIndex) => (
                         <button
                           key={subIndex}

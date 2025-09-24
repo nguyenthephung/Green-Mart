@@ -21,7 +21,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   maxSize = 10, // 10MB default
   className = '',
   placeholder = 'Chọn hoặc kéo thả hình ảnh vào đây',
-  disabled = false
+  disabled = false,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -63,20 +63,19 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       // Determine upload type and use the upload service
       const uploadType = getUploadType();
       const result = await uploadFile(file, uploadType);
-      
+
       if (result.success && result.url) {
         // Create preview
         setPreview(result.url);
         onChange(result.url);
         showSuccess('Thành công', 'Hình ảnh đã được tải lên Cloudinary thành công.');
-        
+
         if (onFileChange) {
           onFileChange(file);
         }
       } else {
         showError('Lỗi tải file', result.error || 'Có lỗi xảy ra khi tải file.');
       }
-
     } catch (error) {
       showError('Lỗi', 'Có lỗi xảy ra khi xử lý hình ảnh.');
       console.error('Error processing image:', error);
@@ -101,7 +100,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    
+
     if (disabled) return;
 
     const files = Array.from(e.dataTransfer.files);
@@ -128,7 +127,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   // Clear image
   const handleClear = () => {
     if (disabled) return;
-    
+
     setPreview('');
     onChange('');
     if (onFileChange) {
@@ -156,9 +155,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         />
       </div>
 
-      <div className="text-center text-sm text-gray-500 dark:text-gray-400">
-        hoặc
-      </div>
+      <div className="text-center text-sm text-gray-500 dark:text-gray-400">hoặc</div>
 
       {/* File Upload Area */}
       <div
@@ -200,7 +197,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
               />
               <button
                 type="button"
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation();
                   handleClear();
                 }}
@@ -230,9 +227,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
               />
             </svg>
             <div className="mt-4">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {placeholder}
-              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{placeholder}</p>
               <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
                 PNG, JPG, GIF lên đến {maxSize}MB
               </p>

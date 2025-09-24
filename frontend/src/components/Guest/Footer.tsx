@@ -1,5 +1,16 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { FaFacebook, FaInstagram, FaTwitter, FaEnvelope, FaPhone, FaMapMarkerAlt, FaLeaf, FaCertificate, FaTruck, FaShieldAlt } from 'react-icons/fa';
+import {
+  FaFacebook,
+  FaInstagram,
+  FaTwitter,
+  FaEnvelope,
+  FaPhone,
+  FaMapMarkerAlt,
+  FaLeaf,
+  FaCertificate,
+  FaTruck,
+  FaShieldAlt,
+} from 'react-icons/fa';
 
 const Footer: React.FC = () => {
   const navigate = useNavigate();
@@ -71,10 +82,10 @@ const Footer: React.FC = () => {
                   </div>
                 </div>
                 <p className="text-gray-300 leading-relaxed mb-6">
-                  Nền tảng mua sắm thực phẩm organic và tươi sống hàng đầu Việt Nam. 
-                  Cam kết mang đến cho bạn những sản phẩm chất lượng cao nhất.
+                  Nền tảng mua sắm thực phẩm organic và tươi sống hàng đầu Việt Nam. Cam kết mang
+                  đến cho bạn những sản phẩm chất lượng cao nhất.
                 </p>
-                
+
                 {/* Contact Info */}
                 <div className="space-y-3">
                   <div className="flex items-center gap-3 text-gray-300 hover:text-green-400 transition-colors">
@@ -105,8 +116,8 @@ const Footer: React.FC = () => {
                 </h4>
                 <ul className="space-y-4">
                   <li>
-                    <Link 
-                      to="/about" 
+                    <Link
+                      to="/about"
                       className="text-gray-300 hover:text-green-400 flex items-center gap-2 group transition-all duration-300"
                     >
                       <span className="w-1 h-1 bg-green-400 rounded-full group-hover:w-2 transition-all duration-300"></span>
@@ -114,8 +125,8 @@ const Footer: React.FC = () => {
                     </Link>
                   </li>
                   <li>
-                    <Link 
-                      to="/branches" 
+                    <Link
+                      to="/branches"
                       className="text-gray-300 hover:text-green-400 flex items-center gap-2 group transition-all duration-300"
                     >
                       <span className="w-1 h-1 bg-green-400 rounded-full group-hover:w-2 transition-all duration-300"></span>
@@ -123,8 +134,8 @@ const Footer: React.FC = () => {
                     </Link>
                   </li>
                   <li>
-                    <Link 
-                      to="/changelog" 
+                    <Link
+                      to="/changelog"
                       className="text-gray-300 hover:text-green-400 flex items-center gap-2 group transition-all duration-300"
                     >
                       <span className="w-1 h-1 bg-green-400 rounded-full group-hover:w-2 transition-all duration-300"></span>
@@ -132,8 +143,8 @@ const Footer: React.FC = () => {
                     </Link>
                   </li>
                   <li>
-                    <Link 
-                      to="/careers" 
+                    <Link
+                      to="/careers"
                       className="text-gray-300 hover:text-green-400 flex items-center gap-2 group transition-all duration-300"
                     >
                       <span className="w-1 h-1 bg-green-400 rounded-full group-hover:w-2 transition-all duration-300"></span>
@@ -151,7 +162,7 @@ const Footer: React.FC = () => {
                 </h4>
                 <ul className="space-y-4">
                   <li>
-                    <button 
+                    <button
                       onClick={() => handlePolicyClick('faqs')}
                       className="text-gray-300 hover:text-green-400 flex items-center gap-2 group transition-all duration-300 w-full text-left"
                     >
@@ -160,7 +171,7 @@ const Footer: React.FC = () => {
                     </button>
                   </li>
                   <li>
-                    <button 
+                    <button
                       onClick={() => handlePolicyClick('shipping')}
                       className="text-gray-300 hover:text-green-400 flex items-center gap-2 group transition-all duration-300 w-full text-left"
                     >
@@ -169,7 +180,7 @@ const Footer: React.FC = () => {
                     </button>
                   </li>
                   <li>
-                    <button 
+                    <button
                       onClick={() => handlePolicyClick('return')}
                       className="text-gray-300 hover:text-green-400 flex items-center gap-2 group transition-all duration-300 w-full text-left"
                     >
@@ -178,7 +189,7 @@ const Footer: React.FC = () => {
                     </button>
                   </li>
                   <li>
-                    <button 
+                    <button
                       onClick={() => handleContactClick('email')}
                       className="text-gray-300 hover:text-green-400 flex items-center gap-2 group transition-all duration-300 w-full text-left"
                     >
@@ -197,7 +208,7 @@ const Footer: React.FC = () => {
                 </h4>
                 <ul className="space-y-4 mb-8">
                   <li>
-                    <button 
+                    <button
                       onClick={() => handlePolicyClick('terms')}
                       className="text-gray-300 hover:text-green-400 flex items-center gap-2 group transition-all duration-300 w-full text-left"
                     >
@@ -206,7 +217,7 @@ const Footer: React.FC = () => {
                     </button>
                   </li>
                   <li>
-                    <button 
+                    <button
                       onClick={() => handlePolicyClick('privacy')}
                       className="text-gray-300 hover:text-green-400 flex items-center gap-2 group transition-all duration-300 w-full text-left"
                     >
@@ -215,7 +226,7 @@ const Footer: React.FC = () => {
                     </button>
                   </li>
                   <li>
-                    <button 
+                    <button
                       onClick={() => handlePolicyClick('security')}
                       className="text-gray-300 hover:text-green-400 flex items-center gap-2 group transition-all duration-300 w-full text-left"
                     >
@@ -236,7 +247,10 @@ const Footer: React.FC = () => {
                       className="p-3 bg-blue-600 hover:bg-blue-700 rounded-xl transition-all duration-300 hover:scale-110 group"
                       title="Facebook"
                     >
-                      <FaFacebook size={20} className="group-hover:scale-110 transition-transform" />
+                      <FaFacebook
+                        size={20}
+                        className="group-hover:scale-110 transition-transform"
+                      />
                     </a>
                     <a
                       href="https://instagram.com"
@@ -245,7 +259,10 @@ const Footer: React.FC = () => {
                       className="p-3 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 rounded-xl transition-all duration-300 hover:scale-110 group"
                       title="Instagram"
                     >
-                      <FaInstagram size={20} className="group-hover:scale-110 transition-transform" />
+                      <FaInstagram
+                        size={20}
+                        className="group-hover:scale-110 transition-transform"
+                      />
                     </a>
                     <a
                       href="https://twitter.com"
@@ -267,7 +284,9 @@ const Footer: React.FC = () => {
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center">
               <h3 className="text-2xl font-bold text-white mb-2">Đăng ký nhận tin tức</h3>
-              <p className="text-green-100 mb-6">Nhận thông tin về sản phẩm mới và ưu đãi đặc biệt</p>
+              <p className="text-green-100 mb-6">
+                Nhận thông tin về sản phẩm mới và ưu đãi đặc biệt
+              </p>
               <form className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
                 <input
                   type="email"
@@ -291,12 +310,12 @@ const Footer: React.FC = () => {
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <div className="text-center md:text-left">
                 <p className="text-gray-400 text-sm">
-                  © 2025 <span className="text-green-400 font-semibold">GreenMart</span>. 
-                  Đã đăng ký bản quyền. Thiết kế bởi 
+                  © 2025 <span className="text-green-400 font-semibold">GreenMart</span>. Đã đăng
+                  ký bản quyền. Thiết kế bởi
                   <span className="text-green-400 font-medium"> GreenMart Team</span>
                 </p>
               </div>
-              
+
               <div className="flex items-center gap-6 text-sm text-gray-400">
                 <span className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>

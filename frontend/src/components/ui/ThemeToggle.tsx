@@ -8,25 +8,23 @@ interface ThemeToggleProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-const ThemeToggle: React.FC<ThemeToggleProps> = ({ 
-  className = '', 
+const ThemeToggle: React.FC<ThemeToggleProps> = ({
+  className = '',
   showLabel = false,
-  size = 'md'
+  size = 'md',
 }) => {
   const { theme, toggleTheme } = useTheme();
-  
-
 
   const sizeClasses = {
     sm: 'w-8 h-8 p-1',
     md: 'w-10 h-10 p-2',
-    lg: 'w-12 h-12 p-3'
+    lg: 'w-12 h-12 p-3',
   };
 
   const iconClasses = {
     sm: 'w-5 h-5',
-    md: 'w-6 h-6', 
-    lg: 'w-7 h-7'
+    md: 'w-6 h-6',
+    lg: 'w-7 h-7',
   };
 
   return (
@@ -36,12 +34,10 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({
           {theme === 'light' ? 'Light' : 'Dark'}
         </span>
       )}
-      
+
       <button
         onClick={() => {
- 
           toggleTheme();
-
         }}
         className={`
           ${sizeClasses[size]}
@@ -60,29 +56,23 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({
       >
         <div className="relative">
           {/* Light mode icon */}
-          <SunIcon 
+          <SunIcon
             className={`
               ${iconClasses[size]}
               text-yellow-500 absolute inset-0
-              ${theme === 'light' 
-                ? 'opacity-100' 
-                : 'opacity-0'
-              }
+              ${theme === 'light' ? 'opacity-100' : 'opacity-0'}
             `}
           />
-          
+
           {/* Dark mode icon */}
-          <MoonIcon 
+          <MoonIcon
             className={`
               ${iconClasses[size]}
               text-blue-400 absolute inset-0
-              ${theme === 'dark' 
-                ? 'opacity-100' 
-                : 'opacity-0'
-              }
+              ${theme === 'dark' ? 'opacity-100' : 'opacity-0'}
             `}
           />
-          
+
           {/* Invisible spacer to maintain button size */}
           <div className="opacity-0">
             <SunIcon className={iconClasses[size]} />

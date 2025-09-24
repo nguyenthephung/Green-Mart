@@ -1,14 +1,19 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import bannerService from '../services/bannerService';
-import type { Banner, CreateBannerData, UpdateBannerData, BannerStats } from '../services/bannerService';
+import type {
+  Banner,
+  CreateBannerData,
+  UpdateBannerData,
+  BannerStats,
+} from '../services/bannerService';
 
 interface BannerState {
   banners: Banner[];
   loading: boolean;
   error: string | null;
   stats: BannerStats | null;
-  
+
   // Actions
   fetchBanners: (position?: string, isActive?: boolean) => Promise<void>;
   fetchBannerById: (id: string) => Promise<Banner | null>;
@@ -60,9 +65,9 @@ export const useBannerStore = create<BannerState>()(
         try {
           const newBanner = await bannerService.createBanner(bannerData);
           const currentBanners = get().banners;
-          set({ 
+          set({
             banners: [newBanner, ...currentBanners],
-            loading: false 
+            loading: false,
           });
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Failed to create banner';
@@ -76,12 +81,12 @@ export const useBannerStore = create<BannerState>()(
         try {
           const updatedBanner = await bannerService.updateBanner(id, updateData);
           const currentBanners = get().banners;
-          const updatedBanners = currentBanners.map(banner => 
+          const updatedBanners = currentBanners.map(banner =>
             banner._id === id ? updatedBanner : banner
           );
-          set({ 
+          set({
             banners: updatedBanners,
-            loading: false 
+            loading: false,
           });
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Failed to update banner';
@@ -96,9 +101,9 @@ export const useBannerStore = create<BannerState>()(
           await bannerService.deleteBanner(id);
           const currentBanners = get().banners;
           const filteredBanners = currentBanners.filter(banner => banner._id !== id);
-          set({ 
+          set({
             banners: filteredBanners,
-            loading: false 
+            loading: false,
           });
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Failed to delete banner';
@@ -112,15 +117,16 @@ export const useBannerStore = create<BannerState>()(
         try {
           const updatedBanner = await bannerService.toggleBannerStatus(id);
           const currentBanners = get().banners;
-          const updatedBanners = currentBanners.map(banner => 
+          const updatedBanners = currentBanners.map(banner =>
             banner._id === id ? updatedBanner : banner
           );
-          set({ 
+          set({
             banners: updatedBanners,
-            loading: false 
+            loading: false,
           });
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Failed to toggle banner status';
+          const errorMessage =
+            error instanceof Error ? error.message : 'Failed to toggle banner status';
           set({ error: errorMessage, loading: false });
           throw error;
         }
@@ -131,7 +137,7 @@ export const useBannerStore = create<BannerState>()(
           await bannerService.incrementClickCount(id);
           // Optionally update the click count in the local state
           const currentBanners = get().banners;
-          const updatedBanners = currentBanners.map(banner => 
+          const updatedBanners = currentBanners.map(banner =>
             banner._id === id ? { ...banner, clickCount: banner.clickCount + 1 } : banner
           );
           set({ banners: updatedBanners });
@@ -147,17 +153,18 @@ export const useBannerStore = create<BannerState>()(
           const stats = await bannerService.getBannerStats();
           set({ stats, loading: false });
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Failed to fetch banner stats';
+          const errorMessage =
+            error instanceof Error ? error.message : 'Failed to fetch banner stats';
           set({ error: errorMessage, loading: false });
           console.error('Error fetching banner stats:', error);
         }
       },
 
-      clearError: () => set({ error: null })
+      clearError: () => set({ error: null }),
     }),
     {
       name: 'banner-store',
-      partialize: (state) => ({
+      partialize: state => ({
         // Only persist banners, not loading states
         banners: state.banners,
       }),

@@ -16,12 +16,14 @@ export default function SidebarBanner({ className = '' }: SidebarBannerProps) {
       try {
         await fetchBanners('sidebar', true);
         const storeBanners = useBannerStore.getState().banners;
-        const sidebarBanners = storeBanners.filter((b: any) => 
-          b.position === 'sidebar' && b.isActive
+        const sidebarBanners = storeBanners.filter(
+          (b: any) => b.position === 'sidebar' && b.isActive
         );
-        
+
         if (sidebarBanners.length > 0) {
-          const sortedBanners = sidebarBanners.sort((a: any, b: any) => (a.priority || 999) - (b.priority || 999));
+          const sortedBanners = sidebarBanners.sort(
+            (a: any, b: any) => (a.priority || 999) - (b.priority || 999)
+          );
           setBanner(sortedBanners[0]);
         }
       } catch (error) {
@@ -56,17 +58,17 @@ export default function SidebarBanner({ className = '' }: SidebarBannerProps) {
   if (!banner || !isVisible) return null;
 
   return (
-    <div className={`fixed right-6 top-1/2 transform -translate-y-1/2 z-40 transition-all duration-500 ${className}`}>
+    <div
+      className={`fixed right-6 top-1/2 transform -translate-y-1/2 z-40 transition-all duration-500 ${className}`}
+    >
       <div className={`${isMinimized ? 'w-16 h-16' : 'w-80 h-auto'} transition-all duration-300`}>
         {isMinimized ? (
           // Minimized State - Simple Circle
-          <div 
+          <div
             onClick={handleMinimize}
             className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full shadow-2xl cursor-pointer flex items-center justify-center group hover:scale-110 transition-all duration-300 animate-pulse"
           >
-            <div className="text-white text-2xl group-hover:scale-125 transition-transform">
-              📢
-            </div>
+            <div className="text-white text-2xl group-hover:scale-125 transition-transform">📢</div>
           </div>
         ) : (
           // Full Banner
@@ -75,7 +77,9 @@ export default function SidebarBanner({ className = '' }: SidebarBannerProps) {
             <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 border-b border-gray-200 dark:border-gray-600">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">Quảng Cáo</span>
+                <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                  Quảng Cáo
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <button
@@ -96,10 +100,7 @@ export default function SidebarBanner({ className = '' }: SidebarBannerProps) {
             </div>
 
             {/* Banner Content */}
-            <div 
-              onClick={handleClick}
-              className="cursor-pointer group/content"
-            >
+            <div onClick={handleClick} className="cursor-pointer group/content">
               {/* Image Section */}
               <div className="relative h-40 overflow-hidden">
                 <img
@@ -108,7 +109,7 @@ export default function SidebarBanner({ className = '' }: SidebarBannerProps) {
                   className="w-full h-full object-cover group-hover/content:scale-110 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-                
+
                 {/* Floating Elements */}
                 <div className="absolute top-3 left-3">
                   <span className="bg-red-500 text-white px-2 py-1 rounded-lg text-xs font-bold animate-bounce">

@@ -1,26 +1,26 @@
 /**
  * Network Utilities for Localhost Development
- * 
+ *
  * Các trường hợp lỗi mạng phổ biến trong môi trường localhost:
- * 
+ *
  * 1. Backend Server Issues:
  *    - Server crash/dừng hoạt động
  *    - Port conflict (3001 đã được sử dụng)
  *    - Database connection failed
  *    - Out of memory
- * 
+ *
  * 2. Frontend Issues:
  *    - Vite dev server crash
  *    - Hot reload failed
  *    - Build errors
  *    - Memory leaks
- * 
+ *
  * 3. Network Configuration:
  *    - DNS resolution issues
  *    - Firewall blocking
  *    - Proxy conflicts
  *    - Browser cache problems
- * 
+ *
  * 4. API/Data Loading:
  *    - Slow database queries
  *    - Large payload timeout
@@ -48,7 +48,7 @@ export const analyzeNetworkError = (error: any): NetworkErrorDetails => {
       type: 'server_down',
       message: 'Backend server không phản hồi',
       suggestion: 'Kiểm tra xem backend server có đang chạy không tại http://localhost:3001',
-      technicalDetails: 'TypeError: Failed to fetch - Server có thể đã crash hoặc chưa khởi động'
+      technicalDetails: 'TypeError: Failed to fetch - Server có thể đã crash hoặc chưa khởi động',
     };
   }
 
@@ -57,8 +57,9 @@ export const analyzeNetworkError = (error: any): NetworkErrorDetails => {
     return {
       type: 'connection_refused',
       message: 'Không thể kết nối đến server',
-      suggestion: 'Backend server chưa khởi động hoặc port 3001 bị conflict. Chạy: npm run dev (backend)',
-      technicalDetails: 'ECONNREFUSED - Port 3001 không có service nào đang lắng nghe'
+      suggestion:
+        'Backend server chưa khởi động hoặc port 3001 bị conflict. Chạy: npm run dev (backend)',
+      technicalDetails: 'ECONNREFUSED - Port 3001 không có service nào đang lắng nghe',
     };
   }
 
@@ -67,8 +68,9 @@ export const analyzeNetworkError = (error: any): NetworkErrorDetails => {
     return {
       type: 'timeout',
       message: 'Server phản hồi quá chậm',
-      suggestion: 'Database query có thể quá chậm hoặc server đang overload. Kiểm tra console backend.',
-      technicalDetails: 'Request timeout sau 5 giây - Server processing quá lâu'
+      suggestion:
+        'Database query có thể quá chậm hoặc server đang overload. Kiểm tra console backend.',
+      technicalDetails: 'Request timeout sau 5 giây - Server processing quá lâu',
     };
   }
 
@@ -78,7 +80,7 @@ export const analyzeNetworkError = (error: any): NetworkErrorDetails => {
       type: 'cors',
       message: 'Lỗi CORS policy',
       suggestion: 'Backend chưa cấu hình CORS cho localhost:3000. Cần thêm CORS middleware.',
-      technicalDetails: 'CORS policy blocking request từ localhost:3000 đến localhost:3001'
+      technicalDetails: 'CORS policy blocking request từ localhost:3000 đến localhost:3001',
     };
   }
 
@@ -88,7 +90,7 @@ export const analyzeNetworkError = (error: any): NetworkErrorDetails => {
       type: 'parse_error',
       message: 'Dữ liệu trả về không hợp lệ',
       suggestion: 'Backend API trả về format không đúng. Kiểm tra response format.',
-      technicalDetails: 'JSON parse error - API response không phải valid JSON'
+      technicalDetails: 'JSON parse error - API response không phải valid JSON',
     };
   }
 
@@ -97,7 +99,7 @@ export const analyzeNetworkError = (error: any): NetworkErrorDetails => {
     type: 'unknown',
     message: 'Lỗi không xác định',
     suggestion: 'Kiểm tra network tab trong DevTools để xem chi tiết lỗi.',
-    technicalDetails: `${errorName}: ${errorMessage}`
+    technicalDetails: `${errorName}: ${errorMessage}`,
   };
 };
 
@@ -105,8 +107,8 @@ export const analyzeNetworkError = (error: any): NetworkErrorDetails => {
  * Fetch với retry và timeout handling
  */
 export const fetchWithRetry = async (
-  url: string, 
-  options: RequestInit = {}, 
+  url: string,
+  options: RequestInit = {},
   maxRetries = 3,
   timeout = 5000
 ): Promise<Response> => {
@@ -117,7 +119,7 @@ export const fetchWithRetry = async (
 
       const response = await fetch(url, {
         ...options,
-        signal: controller.signal
+        signal: controller.signal,
       });
 
       clearTimeout(timeoutId);
@@ -150,7 +152,7 @@ export const checkBackendHealth = async (): Promise<boolean> => {
   try {
     const response = await fetch('http://localhost:3001/api/health', {
       method: 'GET',
-      timeout: 3000
+      timeout: 3000,
     } as any);
     return response.ok;
   } catch {
@@ -162,7 +164,7 @@ export const checkBackendHealth = async (): Promise<boolean> => {
  * Mock API calls for development when backend is down
  */
 export const createMockApiResponse = <T>(data: T, delay = 500): Promise<T> => {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     setTimeout(() => resolve(data), delay);
   });
 };
@@ -190,7 +192,7 @@ export const DevErrorScenarios = {
   // Simulate invalid JSON
   simulateParseError: () => {
     throw new Error('Unexpected token < in JSON at position 0');
-  }
+  },
 };
 
 /**

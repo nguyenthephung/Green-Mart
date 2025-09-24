@@ -8,16 +8,10 @@ interface PageLoadingProps {
 
 const PageLoading: React.FC<PageLoadingProps> = ({
   text = 'Đang khởi tạo GreenMart...',
-  subText = 'Siêu thị tươi ngon mỗi ngày!'
+  subText = 'Siêu thị tươi ngon mỗi ngày!',
 }) => {
   return (
-    <LoadingSpinner
-      size="xl"
-      text={text}
-      subText={subText}
-      fullScreen={true}
-      variant="primary"
-    />
+    <LoadingSpinner size="xl" text={text} subText={subText} fullScreen={true} variant="primary" />
   );
 };
 

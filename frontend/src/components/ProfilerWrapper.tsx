@@ -7,22 +7,25 @@ interface ProfilerWrapperProps {
 }
 
 // Performance tracking data
-const performanceData: Record<string, {
-  renderCount: number;
-  totalTime: number;
-  averageTime: number;
-  maxTime: number;
-  minTime: number;
-}> = {};
+const performanceData: Record<
+  string,
+  {
+    renderCount: number;
+    totalTime: number;
+    averageTime: number;
+    maxTime: number;
+    minTime: number;
+  }
+> = {};
 
-const ProfilerWrapper: React.FC<ProfilerWrapperProps> = ({ 
-  id, 
-  children, 
-  logToConsole = false 
+const ProfilerWrapper: React.FC<ProfilerWrapperProps> = ({
+  id,
+  children,
+  logToConsole = false,
 }) => {
   const onRender: ProfilerOnRenderCallback = (
     id: string,
-    phase: "mount" | "update" | "nested-update",
+    phase: 'mount' | 'update' | 'nested-update',
     actualDuration: number,
     baseDuration: number,
     startTime: number,
@@ -35,7 +38,7 @@ const ProfilerWrapper: React.FC<ProfilerWrapperProps> = ({
         totalTime: 0,
         averageTime: 0,
         maxTime: 0,
-        minTime: Infinity
+        minTime: Infinity,
       };
     }
 
@@ -47,7 +50,8 @@ const ProfilerWrapper: React.FC<ProfilerWrapperProps> = ({
     data.minTime = Math.min(data.minTime, actualDuration);
 
     // Log to console if enabled and render is slow
-    if (logToConsole && actualDuration > 16) { // 16ms = 60fps threshold
+    if (logToConsole && actualDuration > 16) {
+      // 16ms = 60fps threshold
       console.warn(`⚡ Slow Render Detected:`, {
         component: id,
         phase,
@@ -56,7 +60,7 @@ const ProfilerWrapper: React.FC<ProfilerWrapperProps> = ({
         renderCount: data.renderCount,
         averageTime: `${data.averageTime.toFixed(2)}ms`,
         startTime,
-        commitTime
+        commitTime,
       });
     }
 
@@ -81,7 +85,7 @@ export const getPerformanceReport = () => {
       totalTime: parseFloat(data.totalTime.toFixed(2)),
       averageTime: parseFloat(data.averageTime.toFixed(2)),
       maxTime: parseFloat(data.maxTime.toFixed(2)),
-      minTime: data.minTime === Infinity ? 0 : parseFloat(data.minTime.toFixed(2))
+      minTime: data.minTime === Infinity ? 0 : parseFloat(data.minTime.toFixed(2)),
     }));
 
   console.table(sortedComponents);
@@ -103,7 +107,7 @@ export const getSlowComponents = (threshold = 16) => {
       component: id,
       averageTime: parseFloat(data.averageTime.toFixed(2)),
       maxTime: parseFloat(data.maxTime.toFixed(2)),
-      renderCount: data.renderCount
+      renderCount: data.renderCount,
     }));
 };
 

@@ -76,7 +76,7 @@ class AdminUserService {
       if (filter.status) params.append('status', filter.status);
 
       const response = await apiClient(`/users/admin/all?${params.toString()}`, {
-        method: 'GET'
+        method: 'GET',
       });
 
       if (response.success && response.data) {
@@ -94,7 +94,7 @@ class AdminUserService {
   async getUserById(userId: string): Promise<User> {
     try {
       const response = await apiClient(`/users/admin/${userId}`, {
-        method: 'GET'
+        method: 'GET',
       });
 
       if (response.success && response.data) {
@@ -113,7 +113,7 @@ class AdminUserService {
     try {
       const response = await apiClient(`/users/admin/${userId}`, {
         method: 'PUT',
-        body: JSON.stringify(updates)
+        body: JSON.stringify(updates),
       });
 
       if (response.success && response.data) {
@@ -131,7 +131,7 @@ class AdminUserService {
   async deleteUser(userId: string): Promise<void> {
     try {
       const response = await apiClient(`/users/admin/${userId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
       });
 
       if (!response.success) {
@@ -153,11 +153,11 @@ class AdminUserService {
         },
         body: JSON.stringify(userData),
       });
-      
+
       if (!response.success) {
         throw new Error(response.message || 'Không thể tạo người dùng');
       }
-      
+
       return response.data!.data;
     } catch (error: any) {
       console.error('Error creating user:', error);
@@ -166,11 +166,14 @@ class AdminUserService {
   }
 
   // Update user status
-  async updateUserStatus(userId: string, status: 'active' | 'inactive' | 'suspended'): Promise<User> {
+  async updateUserStatus(
+    userId: string,
+    status: 'active' | 'inactive' | 'suspended'
+  ): Promise<User> {
     try {
       const response = await apiClient(`/users/admin/${userId}/status`, {
         method: 'PATCH',
-        body: JSON.stringify({ status })
+        body: JSON.stringify({ status }),
       });
 
       if (response.success && response.data) {
@@ -189,7 +192,7 @@ class AdminUserService {
     try {
       const response = await apiClient(`/users/admin/${userId}/reset-password`, {
         method: 'PATCH',
-        body: JSON.stringify({ newPassword })
+        body: JSON.stringify({ newPassword }),
       });
 
       if (!response.success) {
@@ -205,7 +208,7 @@ class AdminUserService {
   async getUserStats(): Promise<UserStats> {
     try {
       const response = await apiClient('/users/admin/stats', {
-        method: 'GET'
+        method: 'GET',
       });
 
       if (response.success && response.data) {

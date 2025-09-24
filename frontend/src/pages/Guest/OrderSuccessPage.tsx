@@ -15,7 +15,10 @@ const OrderSuccessPage: React.FC = () => {
           <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md">
             <h2 className="text-xl font-semibold text-red-800 mb-2">Lỗi</h2>
             <p className="text-red-600">Không tìm thấy thông tin đơn hàng</p>
-            <Link to="/cart" className="mt-4 inline-block bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+            <Link
+              to="/cart"
+              className="mt-4 inline-block bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+            >
               Quay lại giỏ hàng
             </Link>
           </div>
@@ -40,12 +43,8 @@ const OrderSuccessPage: React.FC = () => {
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex justify-between items-start mb-6">
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                Đơn hàng #{orderNumber}
-              </h2>
-              <p className="text-gray-600">
-                Ngày đặt: {new Date().toLocaleDateString('vi-VN')}
-              </p>
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">Đơn hàng #{orderNumber}</h2>
+              <p className="text-gray-600">Ngày đặt: {new Date().toLocaleDateString('vi-VN')}</p>
             </div>
             <span className="px-3 py-1 rounded-full text-sm font-medium text-yellow-600 bg-yellow-100">
               Chờ xác nhận

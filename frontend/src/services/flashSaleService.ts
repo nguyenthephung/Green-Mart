@@ -1,8 +1,8 @@
-import type { 
-  FlashSale, 
-  FlashSaleResponse, 
-  CreateFlashSaleRequest, 
-  ProductFlashSaleInfo 
+import type {
+  FlashSale,
+  FlashSaleResponse,
+  CreateFlashSaleRequest,
+  ProductFlashSaleInfo,
 } from '../types/FlashSale';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -13,11 +13,11 @@ class FlashSaleService {
     try {
       const response = await fetch(`${API_BASE_URL}/flash-sales/active`);
       const data: FlashSaleResponse = await response.json();
-      
+
       if (!data.success) {
         throw new Error(data.message || 'Failed to fetch active flash sales');
       }
-      
+
       return Array.isArray(data.data) ? data.data : [];
     } catch (error) {
       console.error('Error fetching active flash sales:', error);
@@ -29,11 +29,11 @@ class FlashSaleService {
     try {
       const response = await fetch(`${API_BASE_URL}/flash-sales/upcoming`);
       const data: FlashSaleResponse = await response.json();
-      
+
       if (!data.success) {
         throw new Error(data.message || 'Failed to fetch upcoming flash sales');
       }
-      
+
       return Array.isArray(data.data) ? data.data : [];
     } catch (error) {
       console.error('Error fetching upcoming flash sales:', error);
@@ -45,11 +45,11 @@ class FlashSaleService {
     try {
       const response = await fetch(`${API_BASE_URL}/flash-sales/check-product/${productId}`);
       const data = await response.json();
-      
+
       if (!data.success) {
         throw new Error(data.message || 'Failed to check product in flash sale');
       }
-      
+
       return data.data;
     } catch (error) {
       console.error('Error checking product in flash sale:', error);
@@ -67,17 +67,17 @@ class FlashSaleService {
 
       const response = await fetch(`${API_BASE_URL}/flash-sales?page=${page}&limit=${limit}`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       });
 
       const data: FlashSaleResponse = await response.json();
-      
+
       if (!data.success) {
         throw new Error(data.message || 'Failed to fetch flash sales');
       }
-      
+
       return data;
     } catch (error) {
       console.error('Error fetching all flash sales:', error);
@@ -95,18 +95,18 @@ class FlashSaleService {
       const response = await fetch(`${API_BASE_URL}/flash-sales`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(flashSaleData)
+        body: JSON.stringify(flashSaleData),
       });
 
       const data: FlashSaleResponse = await response.json();
-      
+
       if (!data.success) {
         throw new Error(data.message || 'Failed to create flash sale');
       }
-      
+
       return data.data as FlashSale;
     } catch (error) {
       console.error('Error creating flash sale:', error);
@@ -114,7 +114,10 @@ class FlashSaleService {
     }
   }
 
-  async updateFlashSale(id: string, flashSaleData: Partial<CreateFlashSaleRequest>): Promise<FlashSale> {
+  async updateFlashSale(
+    id: string,
+    flashSaleData: Partial<CreateFlashSaleRequest>
+  ): Promise<FlashSale> {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -124,18 +127,18 @@ class FlashSaleService {
       const response = await fetch(`${API_BASE_URL}/flash-sales/${id}`, {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(flashSaleData)
+        body: JSON.stringify(flashSaleData),
       });
 
       const data: FlashSaleResponse = await response.json();
-      
+
       if (!data.success) {
         throw new Error(data.message || 'Failed to update flash sale');
       }
-      
+
       return data.data as FlashSale;
     } catch (error) {
       console.error('Error updating flash sale:', error);
@@ -153,13 +156,13 @@ class FlashSaleService {
       const response = await fetch(`${API_BASE_URL}/flash-sales/${id}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       });
 
       const data = await response.json();
-      
+
       if (!data.success) {
         throw new Error(data.message || 'Failed to delete flash sale');
       }
@@ -179,17 +182,17 @@ class FlashSaleService {
       const response = await fetch(`${API_BASE_URL}/flash-sales/${id}/toggle-status`, {
         method: 'PATCH',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       });
 
       const data: FlashSaleResponse = await response.json();
-      
+
       if (!data.success) {
         throw new Error(data.message || 'Failed to toggle flash sale status');
       }
-      
+
       return data.data as FlashSale;
     } catch (error) {
       console.error('Error toggling flash sale status:', error);

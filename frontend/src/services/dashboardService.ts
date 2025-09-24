@@ -58,7 +58,7 @@ class DashboardService {
     }>('/dashboard/stats', {
       method: 'GET',
     });
-    
+
     if (response.success && response.data) {
       return response.data;
     }
@@ -66,11 +66,7 @@ class DashboardService {
   }
 
   // Get recent orders
-  async getRecentOrders(params?: {
-    page?: number;
-    limit?: number;
-    status?: string;
-  }): Promise<{
+  async getRecentOrders(params?: { page?: number; limit?: number; status?: string }): Promise<{
     orders: RecentOrder[];
     pagination: {
       page: number;
@@ -95,7 +91,7 @@ class DashboardService {
     }>(`/dashboard/orders?${queryParams.toString()}`, {
       method: 'GET',
     });
-    
+
     if (response.success && response.data) {
       return response.data;
     }
@@ -103,18 +99,18 @@ class DashboardService {
   }
 
   // Get top products
-  async getTopProducts(params?: {
-    limit?: number;
-    period?: string;
-  }): Promise<TopProduct[]> {
+  async getTopProducts(params?: { limit?: number; period?: string }): Promise<TopProduct[]> {
     const queryParams = new URLSearchParams();
     if (params?.limit) queryParams.append('limit', params.limit.toString());
     if (params?.period) queryParams.append('period', params.period);
 
-    const response = await apiClient<TopProduct[]>(`/dashboard/products?${queryParams.toString()}`, {
-      method: 'GET',
-    });
-    
+    const response = await apiClient<TopProduct[]>(
+      `/dashboard/products?${queryParams.toString()}`,
+      {
+        method: 'GET',
+      }
+    );
+
     if (response.success && response.data) {
       return response.data;
     }
@@ -132,7 +128,7 @@ class DashboardService {
     }>(`/dashboard/revenue?period=${period}`, {
       method: 'GET',
     });
-    
+
     if (response.success && response.data) {
       return response.data;
     }

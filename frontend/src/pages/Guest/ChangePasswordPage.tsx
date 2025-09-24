@@ -8,12 +8,12 @@ const ChangePasswordPage: React.FC = () => {
   const [formData, setFormData] = useState({
     currentPassword: '',
     newPassword: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
   const [showPasswords, setShowPasswords] = useState({
     current: false,
     new: false,
-    confirm: false
+    confirm: false,
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -56,7 +56,7 @@ const ChangePasswordPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     setIsLoading(true);
@@ -65,14 +65,14 @@ const ChangePasswordPage: React.FC = () => {
     try {
       await updateProfile({
         currentPassword: formData.currentPassword,
-        newPassword: formData.newPassword
+        newPassword: formData.newPassword,
       });
 
       setSuccess(true);
       setFormData({
         currentPassword: '',
         newPassword: '',
-        confirmPassword: ''
+        confirmPassword: '',
       });
 
       // Hide success message after 5 seconds
@@ -86,7 +86,7 @@ const ChangePasswordPage: React.FC = () => {
 
   const getPasswordStrength = (password: string) => {
     if (!password) return { strength: 0, text: '', color: '' };
-    
+
     let strength = 0;
     if (password.length >= 6) strength++;
     if (password.length >= 8) strength++;
@@ -109,9 +109,7 @@ const ChangePasswordPage: React.FC = () => {
         <div className="max-w-2xl mx-auto px-4">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Đổi mật khẩu
-            </h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Đổi mật khẩu</h1>
             <p className="text-gray-600 dark:text-gray-400 mt-2">
               Cập nhật mật khẩu của bạn để bảo mật tài khoản
             </p>
@@ -200,17 +198,21 @@ const ChangePasswordPage: React.FC = () => {
                     )}
                   </button>
                 </div>
-                
+
                 {/* Password Strength Indicator */}
                 {formData.newPassword && (
                   <div className="mt-2">
                     <div className="flex items-center gap-2 mb-1">
                       <div className="flex-1 bg-gray-200 rounded-full h-2">
-                        <div 
+                        <div
                           className={`h-2 rounded-full transition-all duration-300 ${
-                            passwordStrength.strength < 2 ? 'bg-red-500' :
-                            passwordStrength.strength < 4 ? 'bg-yellow-500' :
-                            passwordStrength.strength < 5 ? 'bg-green-500' : 'bg-green-600'
+                            passwordStrength.strength < 2
+                              ? 'bg-red-500'
+                              : passwordStrength.strength < 4
+                                ? 'bg-yellow-500'
+                                : passwordStrength.strength < 5
+                                  ? 'bg-green-500'
+                                  : 'bg-green-600'
                           }`}
                           style={{ width: `${(passwordStrength.strength / 6) * 100}%` }}
                         />
@@ -256,7 +258,7 @@ const ChangePasswordPage: React.FC = () => {
                     )}
                   </button>
                 </div>
-                
+
                 {/* Password Match Indicator */}
                 {formData.confirmPassword && (
                   <div className="mt-2">
@@ -266,9 +268,7 @@ const ChangePasswordPage: React.FC = () => {
                         Mật khẩu khớp
                       </p>
                     ) : (
-                      <p className="text-sm text-red-600">
-                        Mật khẩu không khớp
-                      </p>
+                      <p className="text-sm text-red-600">Mật khẩu không khớp</p>
                     )}
                   </div>
                 )}

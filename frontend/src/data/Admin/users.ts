@@ -32,7 +32,7 @@ export const adminUsers: User[] = [
     totalSpent: 2450000,
     address: '123 Nguyễn Huệ, Q1, TP.HCM',
     dateOfBirth: '1990-05-15',
-    gender: 'male'
+    gender: 'male',
   },
   {
     id: 2,
@@ -49,7 +49,7 @@ export const adminUsers: User[] = [
     totalSpent: 1890000,
     address: '456 Lê Lợi, Q3, TP.HCM',
     dateOfBirth: '1985-08-22',
-    gender: 'female'
+    gender: 'female',
   },
   {
     id: 3,
@@ -65,7 +65,7 @@ export const adminUsers: User[] = [
     totalSpent: 0,
     address: '789 Hai Bà Trưng, Q1, TP.HCM',
     dateOfBirth: '1992-12-10',
-    gender: 'male'
+    gender: 'male',
   },
   {
     id: 4,
@@ -82,6 +82,6 @@ export const adminUsers: User[] = [
     totalSpent: 320000,
     address: '321 Nguyễn Trãi, Q5, TP.HCM',
     dateOfBirth: '1995-03-30',
-    gender: 'female'
-  }
+    gender: 'female',
+  },
 ];

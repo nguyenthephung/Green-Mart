@@ -65,10 +65,10 @@ class BannerService {
       const params = new URLSearchParams();
       if (position) params.append('position', position);
       if (isActive !== undefined) params.append('isActive', isActive.toString());
-      
+
       const response = await fetch(`${API_BASE_URL}/banners?${params.toString()}`);
       const data = await response.json();
-      
+
       if (data.success) {
         return data.data;
       }
@@ -84,7 +84,7 @@ class BannerService {
     try {
       const response = await fetch(`${API_BASE_URL}/banners/${id}`);
       const data = await response.json();
-      
+
       if (data.success) {
         return data.data;
       }
@@ -102,14 +102,14 @@ class BannerService {
       const response = await fetch(`${API_BASE_URL}/banners`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(bannerData)
+        body: JSON.stringify(bannerData),
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         return data.data;
       }
@@ -127,14 +127,14 @@ class BannerService {
       const response = await fetch(`${API_BASE_URL}/banners/${id}`, {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(updateData)
+        body: JSON.stringify(updateData),
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         return data.data;
       }
@@ -152,12 +152,12 @@ class BannerService {
       const response = await fetch(`${API_BASE_URL}/banners/${id}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
-      
+
       const data = await response.json();
-      
+
       if (!data.success) {
         throw new Error(data.message || 'Failed to delete banner');
       }
@@ -174,12 +174,12 @@ class BannerService {
       const response = await fetch(`${API_BASE_URL}/banners/${id}/toggle`, {
         method: 'PATCH',
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         return data.data;
       }
@@ -194,7 +194,7 @@ class BannerService {
   async incrementClickCount(id: string): Promise<void> {
     try {
       await fetch(`${API_BASE_URL}/banners/${id}/click`, {
-        method: 'POST'
+        method: 'POST',
       });
     } catch (error) {
       console.error('Error incrementing click count:', error);
@@ -208,12 +208,12 @@ class BannerService {
       const token = localStorage.getItem('token');
       const response = await fetch(`${API_BASE_URL}/banners/admin/stats`, {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         return data.data;
       }

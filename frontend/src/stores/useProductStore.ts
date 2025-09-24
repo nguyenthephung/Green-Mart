@@ -1,5 +1,10 @@
 import { create } from 'zustand';
-import { fetchProducts, addProduct, updateProduct, deleteProduct } from '../services/productService';
+import {
+  fetchProducts,
+  addProduct,
+  updateProduct,
+  deleteProduct,
+} from '../services/productService';
 import type { AdminProduct } from '../types/AdminProduct';
 
 interface ProductState {
@@ -29,7 +34,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
     }
   },
 
-  add: async (product) => {
+  add: async product => {
     set({ loading: true, error: undefined });
     try {
       const newProduct = await addProduct(product);
@@ -44,21 +49,21 @@ export const useProductStore = create<ProductState>((set, get) => ({
     try {
       const updated = await updateProduct(id, product);
       set({
-        products: get().products.map(p => p.id === updated.id ? updated : p),
-        loading: false
+        products: get().products.map(p => (p.id === updated.id ? updated : p)),
+        loading: false,
       });
     } catch (err: any) {
       set({ error: err.message || 'Lỗi cập nhật sản phẩm', loading: false });
     }
   },
 
-  remove: async (id) => {
+  remove: async id => {
     set({ loading: true, error: undefined });
     try {
       await deleteProduct(id);
       set({
         products: get().products.filter(p => p.id !== id),
-        loading: false
+        loading: false,
       });
     } catch (err: any) {
       set({ error: err.message || 'Lỗi xóa sản phẩm', loading: false });

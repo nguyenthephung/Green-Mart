@@ -1,7 +1,6 @@
 import React from 'react';
 import CategorySection from '../CategorySection';
 
-
 interface CategorySectionConfig {
   title: string;
   category: string;
@@ -18,8 +17,11 @@ interface CategoriesSectionProps {
   sections: CategorySectionConfig[];
 }
 
-
-const CategoriesSection: React.FC<CategoriesSectionProps> = ({ getProductsByCategory, handleAddToCart, sections }) => (
+const CategoriesSection: React.FC<CategoriesSectionProps> = ({
+  getProductsByCategory,
+  handleAddToCart,
+  sections,
+}) => (
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
     <div className="text-center mb-16 min-h-[200px] flex flex-col justify-center">
       <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-full text-emerald-700 dark:text-emerald-300 font-semibold mb-4">

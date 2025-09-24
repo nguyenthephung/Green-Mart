@@ -17,7 +17,7 @@ export const comments: Comment[] = [
     userId: 2,
     userName: 'Nguyễn Văn A',
     content: 'Sản phẩm rất tốt, giao nhanh!',
-    createdAt: '2025-07-10T10:00:00Z'
+    createdAt: '2025-07-10T10:00:00Z',
   },
   {
     id: 2,
@@ -25,6 +25,6 @@ export const comments: Comment[] = [
     userId: 3,
     userName: 'Trần Thị B',
     content: 'Đóng gói cẩn thận, sẽ ủng hộ tiếp.',
-    createdAt: '2025-07-10T11:00:00Z'
-  }
+    createdAt: '2025-07-10T11:00:00Z',
+  },
 ];

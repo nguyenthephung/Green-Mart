@@ -1,19 +1,19 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function ResetPassword() {
-  const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
   const navigate = useNavigate();
 
   const handleReset = (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirm) {
-      alert("Passwords do not match!");
+      alert('Passwords do not match!');
       return;
     }
     // Sau khi đổi mật khẩu thành công:
-    navigate("/password-changed");
+    navigate('/password-changed');
   };
 
   return (
@@ -35,7 +35,7 @@ export default function ResetPassword() {
             placeholder="New Password"
             className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={e => setPassword(e.target.value)}
             required
           />
           <input
@@ -43,7 +43,7 @@ export default function ResetPassword() {
             placeholder="Confirm Password"
             className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black"
             value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
+            onChange={e => setConfirm(e.target.value)}
             required
           />
 

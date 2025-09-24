@@ -29,7 +29,7 @@ interface UsePaginationReturn<T> extends PaginationState {
 export const usePagination = <T,>({
   data,
   itemsPerPage: initialItemsPerPage = 10,
-  initialPage = 1
+  initialPage = 1,
 }: UsePaginationProps<T>): UsePaginationReturn<T> => {
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [itemsPerPage, setItemsPerPageState] = useState(initialItemsPerPage);
@@ -96,6 +96,6 @@ export const usePagination = <T,>({
     goToFirst,
     goToLast,
     setItemsPerPage,
-    itemsPerPage
+    itemsPerPage,
   };
 };

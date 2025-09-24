@@ -1,5 +1,5 @@
-import { ShoppingCart } from "lucide-react";
-import type { FC } from "react";
+import { ShoppingCart } from 'lucide-react';
+import type { FC } from 'react';
 
 interface Product {
   id: number;

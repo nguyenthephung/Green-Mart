@@ -24,7 +24,7 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId }) => {
 
   const loadComments = async () => {
     if (!productId) return;
-    
+
     try {
       setLoading(true);
       console.log('Loading comments for product:', productId);
@@ -47,7 +47,7 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId }) => {
       console.log('Creating comment for product:', productId, 'content:', commentInput.trim());
       const newComment = await commentService.createComment({
         productId,
-        content: commentInput.trim()
+        content: commentInput.trim(),
       });
       console.log('Created comment:', newComment);
       setComments(prev => [newComment, ...prev]);
@@ -72,12 +72,10 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId }) => {
     try {
       setLoading(true);
       const updatedComment = await commentService.updateComment(editingId, {
-        content: editingContent.trim()
+        content: editingContent.trim(),
       });
-      setComments(prev => 
-        prev.map(comment => 
-          comment._id === editingId ? updatedComment : comment
-        )
+      setComments(prev =>
+        prev.map(comment => (comment._id === editingId ? updatedComment : comment))
       );
       setEditingId(null);
       setEditingContent('');
@@ -122,7 +120,7 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId }) => {
         Bình luận sản phẩm
         <span className="ml-2 text-base text-gray-400 font-normal">({comments.length})</span>
       </h3>
-      
+
       {/* Add Comment - chỉ hiện khi user đã đăng nhập */}
       {user && (
         <div className="flex gap-2 mb-6">
@@ -137,7 +135,9 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId }) => {
             placeholder="Chia sẻ cảm nhận về sản phẩm..."
             value={commentInput}
             onChange={e => setCommentInput(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') handleAddComment(); }}
+            onKeyDown={e => {
+              if (e.key === 'Enter') handleAddComment();
+            }}
             disabled={loading}
           />
           <button
@@ -149,7 +149,7 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId }) => {
           </button>
         </div>
       )}
-      
+
       {/* Comments List */}
       <div className="divide-y divide-gray-100">
         {comments.length === 0 && (
@@ -157,7 +157,7 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId }) => {
             {user ? 'Chưa có bình luận nào. Hãy là người đầu tiên!' : 'Chưa có bình luận nào.'}
           </div>
         )}
-        
+
         {comments.map(comment => (
           <div key={comment._id} className="py-4 flex items-start gap-3 group relative">
             <img
@@ -165,7 +165,7 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId }) => {
               alt={comment.user.fullName}
               className="w-10 h-10 rounded-full border border-green-200"
             />
-            
+
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
                 <span className="font-semibold text-green-700">{comment.user.fullName}</span>
@@ -185,7 +185,7 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId }) => {
                   </span>
                 )}
               </div>
-              
+
               {editingId === comment._id ? (
                 <div className="flex gap-2 items-center">
                   <input
@@ -217,30 +217,32 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId }) => {
                 <div className="text-gray-800 leading-relaxed">{comment.content}</div>
               )}
             </div>
-            
+
             {/* Edit/Delete buttons - for comment owner OR admin */}
-            {user && (comment.user._id === user.id || user.role === 'admin') && editingId !== comment._id && (
-              <div className="absolute right-0 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                {/* Only show edit button for comment owner */}
-                {comment.user._id === user.id && (
+            {user &&
+              (comment.user._id === user.id || user.role === 'admin') &&
+              editingId !== comment._id && (
+                <div className="absolute right-0 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {/* Only show edit button for comment owner */}
+                  {comment.user._id === user.id && (
+                    <button
+                      className="text-blue-600 text-xs px-2 py-1 hover:underline disabled:opacity-50"
+                      onClick={() => handleEditComment(comment)}
+                      disabled={loading}
+                    >
+                      Sửa
+                    </button>
+                  )}
+                  {/* Show delete button for comment owner or admin */}
                   <button
-                    className="text-blue-600 text-xs px-2 py-1 hover:underline disabled:opacity-50"
-                    onClick={() => handleEditComment(comment)}
+                    className="text-red-500 text-xs px-2 py-1 hover:underline ml-2 disabled:opacity-50"
+                    onClick={() => handleDeleteComment(comment._id)}
                     disabled={loading}
                   >
-                    Sửa
+                    {user.role === 'admin' && comment.user._id !== user.id ? 'Xóa (Admin)' : 'Xóa'}
                   </button>
-                )}
-                {/* Show delete button for comment owner or admin */}
-                <button
-                  className="text-red-500 text-xs px-2 py-1 hover:underline ml-2 disabled:opacity-50"
-                  onClick={() => handleDeleteComment(comment._id)}
-                  disabled={loading}
-                >
-                  {user.role === 'admin' && comment.user._id !== user.id ? 'Xóa (Admin)' : 'Xóa'}
-                </button>
-              </div>
-            )}
+                </div>
+              )}
           </div>
         ))}
       </div>

@@ -1,7 +1,16 @@
 export interface Notification {
   _id: string;
   userId?: string;
-  type: 'order' | 'promotion' | 'system' | 'review' | 'shipping' | 'admin' | 'voucher' | 'payment' | 'account';
+  type:
+    | 'order'
+    | 'promotion'
+    | 'system'
+    | 'review'
+    | 'shipping'
+    | 'admin'
+    | 'voucher'
+    | 'payment'
+    | 'account';
   title: string;
   description: string;
   orderId?: string;

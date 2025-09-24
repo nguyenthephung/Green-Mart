@@ -17,7 +17,7 @@ const LazySection: React.FC<LazySectionProps> = ({
   rootMargin = '50px',
   placeholder,
   className = '',
-  delay = 0
+  delay = 0,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
@@ -33,7 +33,7 @@ const LazySection: React.FC<LazySectionProps> = ({
       },
       {
         threshold,
-        rootMargin
+        rootMargin,
       }
     );
 
@@ -65,7 +65,7 @@ const LazySection: React.FC<LazySectionProps> = ({
 
   return (
     <div ref={ref} className={className}>
-      {shouldRender ? children : (placeholder || defaultPlaceholder)}
+      {shouldRender ? children : placeholder || defaultPlaceholder}
     </div>
   );
 };

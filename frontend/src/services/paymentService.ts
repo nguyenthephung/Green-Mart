@@ -75,34 +75,33 @@ class PaymentService {
   // Create a new payment
   async createPayment(paymentData: PaymentRequest): Promise<PaymentResponse> {
     try {
-      
       const response = await apiClient<any>(this.BASE_URL, {
         method: 'POST',
-        body: JSON.stringify(paymentData)
+        body: JSON.stringify(paymentData),
       });
-      
+
       // Handle different response structures
       let result: PaymentResponse;
-      
+
       if (response.data && typeof response.data === 'object') {
         // Backend returns: { success: true, message: "...", data: { paymentId, redirectUrl, ... } }
         result = {
           success: response.success || true,
           message: response.message || 'Payment created successfully',
-          data: response.data
+          data: response.data,
         };
       } else if ((response as any).paymentId) {
         // Backend returns: { paymentId, redirectUrl, status, ... } (flat structure)
         result = {
           success: true,
           message: 'Payment created successfully',
-          data: response as any
+          data: response as any,
         };
       } else {
         // Fallback: treat the whole response as data
         result = response as PaymentResponse;
       }
-      
+
       return result;
     } catch (error: any) {
       console.error('PaymentService: Payment creation error:', error);
@@ -134,7 +133,7 @@ class PaymentService {
       if (params?.limit) queryParams.append('limit', params.limit.toString());
       if (params?.status) queryParams.append('status', params.status);
       if (params?.paymentMethod) queryParams.append('paymentMethod', params.paymentMethod);
-      
+
       const url = `${this.BASE_URL}/history${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
       const response = await apiClient<PaymentHistory>(url);
       return response.data!;
@@ -149,9 +148,9 @@ class PaymentService {
     try {
       const response = await apiClient<RefundResponse>(`${this.BASE_URL}/${paymentId}/refund`, {
         method: 'POST',
-        body: JSON.stringify(refundData)
+        body: JSON.stringify(refundData),
       });
-      return response.data || response as RefundResponse;
+      return response.data || (response as RefundResponse);
     } catch (error: any) {
       console.error('Payment refund error:', error);
       throw new Error(error.message || 'Failed to refund payment');
@@ -159,15 +158,20 @@ class PaymentService {
   }
 
   // Process payment based on method
-  async processPayment(paymentMethod: string, orderId: string, amount: number, metadata?: any): Promise<PaymentResponse> {
+  async processPayment(
+    paymentMethod: string,
+    orderId: string,
+    amount: number,
+    metadata?: any
+  ): Promise<PaymentResponse> {
     const paymentData: PaymentRequest = {
       orderId,
       paymentMethod,
       amount,
       returnUrl: `${window.location.origin}/payment-result`,
       metadata: {
-        ...metadata
-      }
+        ...metadata,
+      },
     };
 
     return await this.createPayment(paymentData);
@@ -179,15 +183,15 @@ class PaymentService {
       // Poll payment status for a few seconds to get updated status
       for (let i = 0; i < 10; i++) {
         const payment = await this.getPayment(paymentId);
-        
+
         if (payment.status === 'completed' || payment.status === 'failed') {
           return payment;
         }
-        
+
         // Wait 1 second before checking again
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
-      
+
       // If still processing after 10 seconds, return current status
       return await this.getPayment(paymentId);
     } catch (error: any) {
@@ -216,7 +220,7 @@ class PaymentService {
         description: 'Thanh toán bằng tiền mặt khi nhận hàng',
         icon: '💰',
         isOnline: false,
-        processingTime: 'Ngay lập tức'
+        processingTime: 'Ngay lập tức',
       },
       {
         id: 'bank_transfer',
@@ -224,7 +228,7 @@ class PaymentService {
         description: 'Chuyển khoản qua tài khoản ngân hàng',
         icon: '🏦',
         isOnline: false,
-        processingTime: '1-2 giờ'
+        processingTime: '1-2 giờ',
       },
       {
         id: 'momo',
@@ -232,7 +236,7 @@ class PaymentService {
         description: 'Thanh toán qua ứng dụng MoMo',
         icon: '🟣',
         isOnline: true,
-        processingTime: 'Ngay lập tức'
+        processingTime: 'Ngay lập tức',
       },
       {
         id: 'credit_card',
@@ -240,8 +244,8 @@ class PaymentService {
         description: 'Thanh toán bằng thẻ Visa, Mastercard, JCB',
         icon: '💳',
         isOnline: true,
-        processingTime: 'Ngay lập tức'
-      }
+        processingTime: 'Ngay lập tức',
+      },
     ];
   }
 
@@ -252,38 +256,38 @@ class PaymentService {
         label: 'Chờ thanh toán',
         color: 'text-yellow-600',
         bgColor: 'bg-yellow-100',
-        icon: '⏳'
+        icon: '⏳',
       },
       processing: {
         label: 'Đang xử lý',
         color: 'text-blue-600',
         bgColor: 'bg-blue-100',
-        icon: '⚙️'
+        icon: '⚙️',
       },
       completed: {
         label: 'Thành công',
         color: 'text-green-600',
         bgColor: 'bg-green-100',
-        icon: '✅'
+        icon: '✅',
       },
       failed: {
         label: 'Thất bại',
         color: 'text-red-600',
         bgColor: 'bg-red-100',
-        icon: '❌'
+        icon: '❌',
       },
       cancelled: {
         label: 'Đã hủy',
         color: 'text-gray-600',
         bgColor: 'bg-gray-100',
-        icon: '🚫'
+        icon: '🚫',
       },
       refunded: {
         label: 'Đã hoàn tiền',
         color: 'text-purple-600',
         bgColor: 'bg-purple-100',
-        icon: '↩️'
-      }
+        icon: '↩️',
+      },
     };
 
     return statusMap[status as keyof typeof statusMap] || statusMap.pending;
@@ -292,12 +296,11 @@ class PaymentService {
   // PayPal specific methods
   async capturePayPalPayment(orderId: string): Promise<any> {
     try {
-      
       const response = await apiClient<any>('/payments/paypal/capture', {
         method: 'POST',
-        body: JSON.stringify({ orderId })
+        body: JSON.stringify({ orderId }),
       });
-      
+
       return response;
     } catch (error: any) {
       console.error('PaymentService: PayPal capture error:', error);
@@ -316,8 +319,8 @@ class PaymentService {
       amount,
       returnUrl,
       metadata: {
-        cancelUrl
-      }
+        cancelUrl,
+      },
     };
 
     return await this.createPayment(paymentData);

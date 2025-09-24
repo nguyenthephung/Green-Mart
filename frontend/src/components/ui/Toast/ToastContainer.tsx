@@ -5,13 +5,19 @@ import type { Toast } from './Toast';
 interface ToastContainerProps {
   toasts: Toast[];
   onClose: (id: string) => void;
-  position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'top-center' | 'bottom-center';
+  position?:
+    | 'top-right'
+    | 'top-left'
+    | 'bottom-right'
+    | 'bottom-left'
+    | 'top-center'
+    | 'bottom-center';
 }
 
-const ToastContainer: React.FC<ToastContainerProps> = ({ 
-  toasts, 
-  onClose, 
-  position = 'top-right' 
+const ToastContainer: React.FC<ToastContainerProps> = ({
+  toasts,
+  onClose,
+  position = 'top-right',
 }) => {
   const getPositionClasses = () => {
     switch (position) {
@@ -37,12 +43,8 @@ const ToastContainer: React.FC<ToastContainerProps> = ({
   return (
     <div className={`fixed z-[9999] pointer-events-none ${getPositionClasses()}`}>
       <div className="flex flex-col-reverse gap-2">
-        {toasts.map((toast) => (
-          <ToastComponent
-            key={toast.id}
-            toast={toast}
-            onClose={onClose}
-          />
+        {toasts.map(toast => (
+          <ToastComponent key={toast.id} toast={toast} onClose={onClose} />
         ))}
       </div>
     </div>

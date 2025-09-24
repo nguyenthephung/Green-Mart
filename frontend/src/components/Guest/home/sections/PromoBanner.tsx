@@ -18,7 +18,7 @@ export default function PromoBanner({ className = '' }: PromoBannerProps) {
         const promoBanners = storeBanners
           .filter((b: any) => b.position === 'promo' && b.isActive)
           .sort((a: any, b: any) => (a.priority || 999) - (b.priority || 999));
-        
+
         setBanners(promoBanners);
       } catch (error) {
         console.error('Failed to load promo banners:', error);
@@ -31,7 +31,7 @@ export default function PromoBanner({ className = '' }: PromoBannerProps) {
   useEffect(() => {
     if (banners.length > 1) {
       const interval = setInterval(() => {
-        setCurrentBanner((prev) => (prev + 1) % banners.length);
+        setCurrentBanner(prev => (prev + 1) % banners.length);
       }, 4000);
       return () => clearInterval(interval);
     }
@@ -58,9 +58,12 @@ export default function PromoBanner({ className = '' }: PromoBannerProps) {
         <div className="relative">
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-20">
-            <div className="absolute inset-0" style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='white' fill-opacity='0.3'%3E%3Cpath d='M20 20c0 5.5-4.5 10-10 10s-10-4.5-10-10 4.5-10 10-10 10 4.5 10 10zM30 20c0 5.5-4.5 10-10 10s-10-4.5-10-10 4.5-10 10-10 10 4.5 10 10z'/%3E%3C/g%3E%3C/svg%3E")`
-            }}></div>
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='white' fill-opacity='0.3'%3E%3Cpath d='M20 20c0 5.5-4.5 10-10 10s-10-4.5-10-10 4.5-10 10-10 10 4.5 10 10zM30 20c0 5.5-4.5 10-10 10s-10-4.5-10-10 4.5-10 10-10 10 4.5 10 10z'/%3E%3C/g%3E%3C/svg%3E")`,
+              }}
+            ></div>
           </div>
 
           {/* Content */}
@@ -101,8 +104,18 @@ export default function PromoBanner({ className = '' }: PromoBannerProps) {
                   className="inline-flex items-center gap-3 bg-white text-orange-600 hover:text-orange-700 px-8 py-4 rounded-2xl text-lg font-bold transition-all duration-300 hover:scale-110 shadow-lg hover:shadow-xl group/btn"
                 >
                   <span>{banner.buttonText || 'Mua Ngay'}</span>
-                  <svg className="w-6 h-6 group-hover/btn:translate-x-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  <svg
+                    className="w-6 h-6 group-hover/btn:translate-x-2 transition-transform"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 7l5 5m0 0l-5 5m5-5H6"
+                    />
                   </svg>
                 </button>
               </div>
@@ -115,10 +128,10 @@ export default function PromoBanner({ className = '' }: PromoBannerProps) {
                     alt={banner.title}
                     className="w-full h-full object-cover rounded-2xl shadow-2xl group-hover:scale-105 transition-transform duration-500"
                   />
-                  
+
                   {/* Image Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-2xl"></div>
-                  
+
                   {/* Floating Badge */}
                   <div className="absolute -top-3 -right-3 bg-yellow-400 text-orange-900 p-3 rounded-full font-bold text-sm shadow-lg animate-bounce">
                     HOT!
@@ -135,8 +148,8 @@ export default function PromoBanner({ className = '' }: PromoBannerProps) {
                     key={index}
                     onClick={() => setCurrentBanner(index)}
                     className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                      index === currentBanner 
-                        ? 'bg-white scale-125' 
+                      index === currentBanner
+                        ? 'bg-white scale-125'
                         : 'bg-white/50 hover:bg-white/70'
                     }`}
                   />
@@ -147,7 +160,10 @@ export default function PromoBanner({ className = '' }: PromoBannerProps) {
 
           {/* Decorative Elements */}
           <div className="absolute top-4 right-4 w-20 h-20 bg-white/10 rounded-full blur-xl animate-pulse"></div>
-          <div className="absolute bottom-4 left-4 w-16 h-16 bg-yellow-400/20 rounded-full blur-lg animate-pulse" style={{animationDelay: '1.5s'}}></div>
+          <div
+            className="absolute bottom-4 left-4 w-16 h-16 bg-yellow-400/20 rounded-full blur-lg animate-pulse"
+            style={{ animationDelay: '1.5s' }}
+          ></div>
         </div>
       </div>
     </div>

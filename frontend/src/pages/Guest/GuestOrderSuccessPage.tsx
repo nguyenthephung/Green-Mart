@@ -5,15 +5,9 @@ import { CheckCircle, Package, CreditCard, Phone, MapPin } from 'lucide-react';
 const GuestOrderSuccessPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   const orderData = location.state || {};
-  const {
-    orderId,
-    orderNumber,
-    totalAmount,
-    paymentMethod,
-    paymentUrl,
-  } = orderData;
+  const { orderId, orderNumber, totalAmount, paymentMethod, paymentUrl } = orderData;
 
   const handleContinueShopping = () => {
     navigate('/');
@@ -47,7 +41,6 @@ const GuestOrderSuccessPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-        
         {/* Success Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full mb-4">
@@ -67,20 +60,20 @@ const GuestOrderSuccessPage: React.FC = () => {
             <Package className="w-5 h-5 mr-2 text-green-600" />
             Thông tin đơn hàng
           </h2>
-          
+
           <div className="space-y-3">
             <div className="flex justify-between">
               <span className="text-gray-600 dark:text-gray-400">Mã đơn hàng:</span>
               <span className="font-medium text-gray-900 dark:text-white">{orderNumber}</span>
             </div>
-            
+
             <div className="flex justify-between">
               <span className="text-gray-600 dark:text-gray-400">Tổng tiền:</span>
               <span className="font-bold text-lg text-green-600 dark:text-green-400">
                 {totalAmount?.toLocaleString('vi-VN')}₫
               </span>
             </div>
-            
+
             <div className="flex justify-between">
               <span className="text-gray-600 dark:text-gray-400">Phương thức thanh toán:</span>
               <span className="font-medium text-gray-900 dark:text-white">
@@ -136,9 +129,7 @@ const GuestOrderSuccessPage: React.FC = () => {
 
         {/* Contact Info */}
         <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-6 mb-6">
-          <h3 className="font-semibold text-gray-900 dark:text-white mb-3">
-            Cần hỗ trợ?
-          </h3>
+          <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Cần hỗ trợ?</h3>
           <div className="space-y-2">
             <div className="flex items-center text-gray-600 dark:text-gray-400">
               <Phone className="w-4 h-4 mr-2" />
@@ -159,7 +150,7 @@ const GuestOrderSuccessPage: React.FC = () => {
           >
             Tiếp tục mua sắm
           </button>
-          
+
           <button
             onClick={() => window.print()}
             className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 px-6 rounded-lg font-medium transition-colors"

@@ -3,7 +3,15 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import orderService from '../../services/orderService';
 import paymentService from '../../services/paymentService';
 import { useCartStore } from '../../stores/useCartStore';
-import { CheckCircle, XCircle, AlertCircle, Home, ShoppingBag, Receipt, CreditCard } from 'lucide-react';
+import {
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Home,
+  ShoppingBag,
+  Receipt,
+  CreditCard,
+} from 'lucide-react';
 
 interface PaymentResult {
   success: boolean;
@@ -36,13 +44,13 @@ const PaymentResultPage = () => {
         const paypalToken = searchParams.get('token'); // PayPal returns 'token'
         const paypalPayerId = searchParams.get('PayerID'); // PayPal payer ID
         const momoResult = searchParams.get('resultCode'); // MoMo returns 'resultCode'
-        
-        console.log('PaymentResultPage: Processing payment result:', { 
-          method, 
-          paypalToken, 
-          paypalPayerId, 
+
+        console.log('PaymentResultPage: Processing payment result:', {
+          method,
+          paypalToken,
+          paypalPayerId,
           momoResult,
-          allParams: Object.fromEntries(searchParams.entries())
+          allParams: Object.fromEntries(searchParams.entries()),
         });
 
         let paymentResult: PaymentResult;
@@ -72,13 +80,13 @@ const PaymentResultPage = () => {
               message: 'Không xác định được kết quả thanh toán. Vui lòng kiểm tra lại.',
               orderId: orderData.orderId,
               orderNumber: orderData.orderNumber,
-              paymentMethod: method || 'unknown'
+              paymentMethod: method || 'unknown',
             };
           } else {
             paymentResult = {
               success: false,
               message: 'Không tìm thấy thông tin thanh toán',
-              paymentMethod: method || 'unknown'
+              paymentMethod: method || 'unknown',
             };
           }
         }
@@ -98,14 +106,13 @@ const PaymentResultPage = () => {
             console.error('Error fetching order details:', error);
           }
         }
-
       } catch (error) {
         console.error('Error processing payment result:', error);
         setTimeout(() => {
           setResult({
             success: false,
             message: 'Có lỗi xảy ra khi xử lý kết quả thanh toán',
-            paymentMethod: searchParams.get('method') || 'unknown'
+            paymentMethod: searchParams.get('method') || 'unknown',
           });
         }, 500);
       } finally {
@@ -118,7 +125,10 @@ const PaymentResultPage = () => {
     processPaymentResult();
   }, [searchParams]);
 
-  const processPayPalResult = async (paypalToken: string, paypalPayerId?: string | null): Promise<PaymentResult> => {
+  const processPayPalResult = async (
+    paypalToken: string,
+    paypalPayerId?: string | null
+  ): Promise<PaymentResult> => {
     try {
       // Lấy thông tin đơn hàng đang chờ từ localStorage
       const pendingOrderStr = localStorage.getItem('pendingOrder');
@@ -127,7 +137,7 @@ const PaymentResultPage = () => {
       console.log('PaymentResultPage: Processing PayPal result with:', {
         token: paypalToken,
         payerId: paypalPayerId,
-        pendingOrder
+        pendingOrder,
       });
 
       // Kiểm tra xem người dùng có cancel thanh toán không
@@ -138,7 +148,7 @@ const PaymentResultPage = () => {
           message: 'Thanh toán PayPal đã bị hủy bởi người dùng',
           orderId: pendingOrder?.orderId,
           orderNumber: pendingOrder?.orderNumber,
-          paymentMethod: 'paypal'
+          paymentMethod: 'paypal',
         };
       }
 
@@ -160,7 +170,7 @@ const PaymentResultPage = () => {
           transactionId: result.data?.transactionId || paypalToken,
           amount: pendingOrder?.totalAmount || result.data?.amount,
           paymentMethod: 'paypal',
-          details: result.data
+          details: result.data,
         };
       } else {
         return {
@@ -168,15 +178,15 @@ const PaymentResultPage = () => {
           message: result.message || 'Thanh toán PayPal thất bại. Vui lòng thử lại.',
           orderId: pendingOrder?.orderId,
           orderNumber: pendingOrder?.orderNumber,
-          paymentMethod: 'paypal'
+          paymentMethod: 'paypal',
         };
       }
     } catch (error: any) {
       console.error('PaymentResultPage: PayPal processing error:', error);
-      
+
       // Xử lý các lỗi cụ thể từ PayPal
       let errorMessage = 'Có lỗi xảy ra khi xử lý thanh toán PayPal';
-      
+
       if (error.message?.includes('TOKEN_NOT_FOUND')) {
         errorMessage = 'Phiên thanh toán PayPal đã hết hạn. Vui lòng thử lại.';
       } else if (error.message?.includes('PAYMENT_ALREADY_DONE')) {
@@ -185,12 +195,12 @@ const PaymentResultPage = () => {
         // Thử check với pending order
         const pendingOrderStr = localStorage.getItem('pendingOrder');
         const pendingOrder = pendingOrderStr ? JSON.parse(pendingOrderStr) : null;
-        
+
         if (pendingOrder) {
           // Xóa giỏ hàng vì payment có thể đã thành công
           await clearCart();
           localStorage.removeItem('pendingOrder');
-          
+
           return {
             success: true,
             message: 'Thanh toán PayPal đã được xử lý thành công trước đó.',
@@ -198,7 +208,7 @@ const PaymentResultPage = () => {
             orderNumber: pendingOrder.orderNumber,
             transactionId: paypalToken,
             amount: pendingOrder.totalAmount,
-            paymentMethod: 'paypal'
+            paymentMethod: 'paypal',
           };
         }
       } else if (error.message?.includes('INSUFFICIENT_FUNDS')) {
@@ -208,12 +218,12 @@ const PaymentResultPage = () => {
         // Trong sandbox, đôi khi PayPal tự động approve payment
         const pendingOrderStr = localStorage.getItem('pendingOrder');
         const pendingOrder = pendingOrderStr ? JSON.parse(pendingOrderStr) : null;
-        
+
         if (pendingOrder && paypalPayerId) {
           // Có PayerID nghĩa là user đã approve, có thể coi như thành công
           await clearCart();
           localStorage.removeItem('pendingOrder');
-          
+
           return {
             success: true,
             message: 'Thanh toán PayPal thành công! Đơn hàng đã được tạo.',
@@ -221,7 +231,7 @@ const PaymentResultPage = () => {
             orderNumber: pendingOrder.orderNumber,
             transactionId: paypalToken,
             amount: pendingOrder.totalAmount,
-            paymentMethod: 'paypal'
+            paymentMethod: 'paypal',
           };
         }
         errorMessage = 'Không thể xác nhận thanh toán PayPal. Vui lòng liên hệ hỗ trợ.';
@@ -232,7 +242,7 @@ const PaymentResultPage = () => {
       return {
         success: false,
         message: errorMessage,
-        paymentMethod: 'paypal'
+        paymentMethod: 'paypal',
       };
     }
   };
@@ -248,13 +258,13 @@ const PaymentResultPage = () => {
     const pendingOrderStr = localStorage.getItem('pendingOrder');
     const pendingOrder = pendingOrderStr ? JSON.parse(pendingOrderStr) : null;
 
-    console.log('PaymentResultPage: Processing MoMo result:', { 
-      resultCode, 
-      orderId, 
-      amount, 
-      transId, 
+    console.log('PaymentResultPage: Processing MoMo result:', {
+      resultCode,
+      orderId,
+      amount,
+      transId,
       message,
-      pendingOrder 
+      pendingOrder,
     });
 
     if (resultCode === '0') {
@@ -269,7 +279,7 @@ const PaymentResultPage = () => {
         orderNumber: pendingOrder?.orderNumber,
         transactionId: transId || undefined,
         amount: amount ? parseInt(amount) : pendingOrder?.totalAmount,
-        paymentMethod: 'momo'
+        paymentMethod: 'momo',
       };
     } else {
       // Thanh toán thất bại - giữ lại giỏ hàng, xóa pending order
@@ -294,7 +304,7 @@ const PaymentResultPage = () => {
         '2001': 'Giao dịch thất bại do sai thông tin',
         '2007': 'Giao dịch bị từ chối do tài khoản người nhận',
         '4001': 'Giao dịch bị từ chối do không đủ số dư',
-        '4100': 'Giao dịch thất bại'
+        '4100': 'Giao dịch thất bại',
       };
 
       return {
@@ -302,7 +312,7 @@ const PaymentResultPage = () => {
         message: errorMessages[resultCode || ''] || message || 'Thanh toán MoMo thất bại',
         orderId: pendingOrder?.orderId || orderId,
         orderNumber: pendingOrder?.orderNumber,
-        paymentMethod: 'momo'
+        paymentMethod: 'momo',
       };
     }
   };
@@ -323,7 +333,7 @@ const PaymentResultPage = () => {
         orderId: vnpTxnRef || undefined,
         transactionId: vnpTransactionNo || undefined,
         amount: vnpAmount ? parseInt(vnpAmount) / 100 : undefined,
-        paymentMethod: 'vnpay'
+        paymentMethod: 'vnpay',
       };
     } else {
       const errorMessages: { [key: string]: string } = {
@@ -337,14 +347,14 @@ const PaymentResultPage = () => {
         '51': 'Giao dịch không thành công do: Tài khoản của quý khách không đủ số dư để thực hiện giao dịch.',
         '65': 'Giao dịch không thành công do: Tài khoản của Quý khách đã vượt quá hạn mức giao dịch trong ngày.',
         '75': 'Ngân hàng thanh toán đang bảo trì.',
-        '79': 'Giao dịch không thành công do: KH nhập sai mật khẩu thanh toán quá số lần quy định.'
+        '79': 'Giao dịch không thành công do: KH nhập sai mật khẩu thanh toán quá số lần quy định.',
       };
 
       return {
         success: false,
         message: errorMessages[vnpResponseCode || ''] || 'Thanh toán VNPay thất bại',
         orderId: vnpTxnRef || undefined,
-        paymentMethod: 'vnpay'
+        paymentMethod: 'vnpay',
       };
     }
   };
@@ -404,9 +414,18 @@ const PaymentResultPage = () => {
           </p>
           <div className="mt-8 space-y-2">
             <div className="flex justify-center space-x-1">
-              <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-              <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-              <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              <div
+                className="w-2 h-2 bg-green-600 rounded-full animate-bounce"
+                style={{ animationDelay: '0ms' }}
+              ></div>
+              <div
+                className="w-2 h-2 bg-green-600 rounded-full animate-bounce"
+                style={{ animationDelay: '150ms' }}
+              ></div>
+              <div
+                className="w-2 h-2 bg-green-600 rounded-full animate-bounce"
+                style={{ animationDelay: '300ms' }}
+              ></div>
             </div>
             <div className="w-64 h-1 bg-gray-200 dark:bg-gray-700 rounded-full mx-auto overflow-hidden">
               <div className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full animate-progress"></div>
@@ -452,25 +471,28 @@ const PaymentResultPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        
         {/* Result Header */}
         <div className="text-center mb-8">
-          <div className={`inline-flex items-center justify-center w-24 h-24 rounded-full mb-6 ${
-            result.success 
-              ? 'bg-green-100 dark:bg-green-900/30 animate-bounce' 
-              : 'bg-red-100 dark:bg-red-900/30'
-          }`}>
+          <div
+            className={`inline-flex items-center justify-center w-24 h-24 rounded-full mb-6 ${
+              result.success
+                ? 'bg-green-100 dark:bg-green-900/30 animate-bounce'
+                : 'bg-red-100 dark:bg-red-900/30'
+            }`}
+          >
             {result.success ? (
               <CheckCircle className="w-16 h-16 text-green-600 dark:text-green-400" />
             ) : (
               <XCircle className="w-16 h-16 text-red-600 dark:text-red-400" />
             )}
           </div>
-          <h1 className={`text-4xl font-bold mb-3 ${
-            result.success 
-              ? 'text-green-600 dark:text-green-400' 
-              : 'text-red-600 dark:text-red-400'
-          }`}>
+          <h1
+            className={`text-4xl font-bold mb-3 ${
+              result.success
+                ? 'text-green-600 dark:text-green-400'
+                : 'text-red-600 dark:text-red-400'
+            }`}
+          >
             {result.success ? 'Thanh toán thành công!' : 'Thanh toán thất bại!'}
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
@@ -486,7 +508,7 @@ const PaymentResultPage = () => {
               Chi tiết thanh toán
             </h2>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               {result.paymentMethod && (
@@ -500,7 +522,7 @@ const PaymentResultPage = () => {
                   </div>
                 </div>
               )}
-              
+
               {result.orderId && (
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 dark:text-gray-400">Mã đơn hàng:</span>
@@ -509,7 +531,7 @@ const PaymentResultPage = () => {
                   </span>
                 </div>
               )}
-              
+
               {result.transactionId && (
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 dark:text-gray-400">Mã giao dịch:</span>
@@ -540,11 +562,13 @@ const PaymentResultPage = () => {
               {order && (
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 dark:text-gray-400">Trạng thái đơn hàng:</span>
-                  <span className={`font-medium px-2 py-1 rounded-full text-xs ${
-                    order.status === 'confirmed' 
-                      ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' 
-                      : 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400'
-                  }`}>
+                  <span
+                    className={`font-medium px-2 py-1 rounded-full text-xs ${
+                      order.status === 'confirmed'
+                        ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
+                        : 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400'
+                    }`}
+                  >
                     {order.status === 'confirmed' && 'Đã xác nhận'}
                     {order.status === 'pending' && 'Chờ xác nhận'}
                     {order.status === 'processing' && 'Đang xử lý'}
@@ -567,8 +591,8 @@ const PaymentResultPage = () => {
                   PayPal Sandbox Environment
                 </h3>
                 <p className="text-sm text-blue-700 dark:text-blue-300">
-                  Giao dịch này được thực hiện trong môi trường thử nghiệm PayPal Sandbox. 
-                  Đây là giao dịch demo và không có tiền thực được xử lý.
+                  Giao dịch này được thực hiện trong môi trường thử nghiệm PayPal Sandbox. Đây là
+                  giao dịch demo và không có tiền thực được xử lý.
                 </p>
               </div>
             </div>
@@ -639,7 +663,7 @@ const PaymentResultPage = () => {
                 <ShoppingBag className="w-5 h-5" />
                 Xem đơn hàng
               </button>
-              
+
               <button
                 onClick={handleContinueShopping}
                 className="bg-gray-600 hover:bg-gray-700 text-white py-3 px-6 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
@@ -663,7 +687,7 @@ const PaymentResultPage = () => {
               >
                 Thử lại thanh toán
               </button>
-              
+
               <button
                 onClick={handleContinueShopping}
                 className="bg-gray-600 hover:bg-gray-700 text-white py-3 px-6 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
@@ -685,24 +709,24 @@ const PaymentResultPage = () => {
         {/* Support Contact */}
         <div className="text-center">
           <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-6">
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-3">
-              Cần hỗ trợ?
-            </h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Cần hỗ trợ?</h3>
             <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
               <p>
                 📞 Hotline: <strong className="text-gray-900 dark:text-white">1900 1234</strong>
               </p>
               <p>
-                📧 Email: <strong className="text-gray-900 dark:text-white">support@greenmart.vn</strong>
+                📧 Email:{' '}
+                <strong className="text-gray-900 dark:text-white">support@greenmart.vn</strong>
               </p>
               {result.orderId && (
                 <p>
-                  🔗 Mã đơn hàng: <strong className="text-gray-900 dark:text-white">{result.orderNumber || `#${result.orderId.slice(-8).toUpperCase()}`}</strong>
+                  🔗 Mã đơn hàng:{' '}
+                  <strong className="text-gray-900 dark:text-white">
+                    {result.orderNumber || `#${result.orderId.slice(-8).toUpperCase()}`}
+                  </strong>
                 </p>
               )}
-              <p className="text-xs mt-3">
-                Thời gian hỗ trợ: 8:00 - 22:00 (Thứ 2 - Chủ nhật)
-              </p>
+              <p className="text-xs mt-3">Thời gian hỗ trợ: 8:00 - 22:00 (Thứ 2 - Chủ nhật)</p>
             </div>
           </div>
         </div>

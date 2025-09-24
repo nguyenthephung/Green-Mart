@@ -36,8 +36,12 @@ const CategorySection: React.FC<CategorySectionProps> = ({
         </div>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
-        {products.map((product) => (
-          <ProductCard key={`${category}-${product.id}`} product={product} onAddToCart={onAddToCart} />
+        {products.map(product => (
+          <ProductCard
+            key={`${category}-${product.id}`}
+            product={product}
+            onAddToCart={onAddToCart}
+          />
         ))}
       </div>
       {remainingCount > 0 && (
@@ -50,13 +54,7 @@ const CategorySection: React.FC<CategorySectionProps> = ({
               Xem thêm <span className="font-bold">{remainingCount}</span> sản phẩm{' '}
               <span className="font-bold">{title}</span>
             </span>
-            <svg
-              width="22"
-              height="22"
-              fill="none"
-              viewBox="0 0 24 24"
-              className="text-red-500"
-            >
+            <svg width="22" height="22" fill="none" viewBox="0 0 24 24" className="text-red-500">
               <path
                 d="M19 9l-7 7-7-7"
                 stroke="currentColor"

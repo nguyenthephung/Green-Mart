@@ -28,7 +28,7 @@ export const WishlistService = {
     try {
       const response = await fetch(`${API_BASE_URL}/users/${userId}/wishlist`);
       const result: ApiResponse<WishlistResponse[]> = await response.json();
-      
+
       if (result.success) {
         return result.data;
       } else {
@@ -41,16 +41,19 @@ export const WishlistService = {
   },
 
   // Thêm sản phẩm vào wishlist
-  async addToWishlist(userId: number, productData: {
-    productId: string;
-    productName: string;
-    productImage: string;
-    productPrice: number;
-    originalPrice?: number;
-    discount?: number;
-    inStock: boolean;
-    category: string;
-  }): Promise<WishlistResponse> {
+  async addToWishlist(
+    userId: number,
+    productData: {
+      productId: string;
+      productName: string;
+      productImage: string;
+      productPrice: number;
+      originalPrice?: number;
+      discount?: number;
+      inStock: boolean;
+      category: string;
+    }
+  ): Promise<WishlistResponse> {
     try {
       const response = await fetch(`${API_BASE_URL}/users/${userId}/wishlist`, {
         method: 'POST',
@@ -59,9 +62,9 @@ export const WishlistService = {
         },
         body: JSON.stringify(productData),
       });
-      
+
       const result: ApiResponse<WishlistResponse> = await response.json();
-      
+
       if (result.success) {
         return result.data;
       } else {
@@ -83,9 +86,9 @@ export const WishlistService = {
       const response = await fetch(`${API_BASE_URL}/users/${userId}/wishlist/${productId}`, {
         method: 'DELETE',
       });
-      
+
       const result: ApiResponse<void> = await response.json();
-      
+
       if (!result.success) {
         throw new Error(result.error || 'Không thể xóa khỏi danh sách yêu thích');
       }
@@ -101,9 +104,9 @@ export const WishlistService = {
       const response = await fetch(`${API_BASE_URL}/users/${userId}/wishlist`, {
         method: 'DELETE',
       });
-      
+
       const result: ApiResponse<void> = await response.json();
-      
+
       if (!result.success) {
         throw new Error(result.error || 'Không thể xóa danh sách yêu thích');
       }
@@ -118,7 +121,7 @@ export const WishlistService = {
     try {
       const response = await fetch(`${API_BASE_URL}/users/${userId}/wishlist/${productId}/check`);
       const result: ApiResponse<{ inWishlist: boolean }> = await response.json();
-      
+
       if (result.success) {
         return result.data.inWishlist;
       } else {
@@ -128,5 +131,5 @@ export const WishlistService = {
       console.error('Error checking wishlist:', error);
       return false;
     }
-  }
+  },
 };

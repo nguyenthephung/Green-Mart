@@ -5,15 +5,17 @@ const PaymentTestPage = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
 
-  const testPaymentGateway = async (method: 'vnpay' | 'momo' | 'zalopay' | 'bank_transfer' | 'credit_card') => {
+  const testPaymentGateway = async (
+    method: 'vnpay' | 'momo' | 'zalopay' | 'bank_transfer' | 'credit_card'
+  ) => {
     setLoading(true);
     setResult(null);
 
     try {
       const testOrderId = `TEST_${Date.now()}`;
-      
+
       console.log(`Testing ${method} payment gateway...`);
-      
+
       const response = await paymentService.createPayment({
         orderId: testOrderId,
         paymentMethod: method,
@@ -21,8 +23,8 @@ const PaymentTestPage = () => {
         returnUrl: `${window.location.origin}/payment-result?method=${method}&test=true`,
         metadata: {
           test: true,
-          note: `Test payment for ${method}`
-        }
+          note: `Test payment for ${method}`,
+        },
       });
 
       console.log(`${method} response:`, response);
@@ -33,19 +35,20 @@ const PaymentTestPage = () => {
         setTimeout(() => {
           if (
             response.data &&
-            window.confirm(`Thanh toán ${method} được tạo thành công! Bạn có muốn chuyển đến trang thanh toán không?`)
+            window.confirm(
+              `Thanh toán ${method} được tạo thành công! Bạn có muốn chuyển đến trang thanh toán không?`
+            )
           ) {
             window.open(response.data.redirectUrl, '_blank');
           }
         }, 2000);
       }
-
     } catch (error) {
       console.error(`${method} payment test failed:`, error);
       setResult({
         success: false,
         message: error instanceof Error ? error.message : 'Test failed',
-        error: error
+        error: error,
       });
     } finally {
       setLoading(false);
@@ -56,13 +59,14 @@ const PaymentTestPage = () => {
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Payment Gateway Testing</h1>
-        
+
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <h2 className="text-xl font-semibold mb-4">Test Payment Methods</h2>
           <p className="text-gray-600 mb-6">
-            Click the buttons below to test different payment gateways. Make sure your backend is running with proper environment variables.
+            Click the buttons below to test different payment gateways. Make sure your backend is
+            running with proper environment variables.
           </p>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* VNPay Test */}
             <div className="border rounded-lg p-4">
@@ -115,24 +119,32 @@ const PaymentTestPage = () => {
         {result && (
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold mb-4">Test Result</h2>
-            
+
             {result.success ? (
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                 <h3 className="text-green-800 font-medium mb-2">✅ Success</h3>
                 <div className="space-y-2 text-sm">
                   {result.message && (
-                    <p><strong>Message:</strong> {result.message}</p>
+                    <p>
+                      <strong>Message:</strong> {result.message}
+                    </p>
                   )}
                   {result.data?.paymentId && (
-                    <p><strong>Payment ID:</strong> {result.data.paymentId}</p>
+                    <p>
+                      <strong>Payment ID:</strong> {result.data.paymentId}
+                    </p>
                   )}
                   {result.data?.transactionId && (
-                    <p><strong>Transaction ID:</strong> {result.data.transactionId}</p>
+                    <p>
+                      <strong>Transaction ID:</strong> {result.data.transactionId}
+                    </p>
                   )}
                   {result.data?.redirectUrl && (
                     <div>
-                      <p><strong>Redirect URL:</strong></p>
-                      <a 
+                      <p>
+                        <strong>Redirect URL:</strong>
+                      </p>
+                      <a
                         href={result.data.redirectUrl}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -144,8 +156,10 @@ const PaymentTestPage = () => {
                   )}
                   {result.data?.qrCode && (
                     <div>
-                      <p><strong>QR Code URL:</strong></p>
-                      <a 
+                      <p>
+                        <strong>QR Code URL:</strong>
+                      </p>
+                      <a
                         href={result.data.qrCode}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -161,7 +175,9 @@ const PaymentTestPage = () => {
               <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                 <h3 className="text-red-800 font-medium mb-2">❌ Failed</h3>
                 <div className="space-y-2 text-sm">
-                  <p><strong>Message:</strong> {result.message}</p>
+                  <p>
+                    <strong>Message:</strong> {result.message}
+                  </p>
                   {result.error && (
                     <details className="mt-2">
                       <summary className="cursor-pointer text-red-700">Show Error Details</summary>
@@ -177,9 +193,7 @@ const PaymentTestPage = () => {
             <div className="mt-4 bg-gray-50 p-4 rounded">
               <details>
                 <summary className="cursor-pointer font-medium">Show Full Response</summary>
-                <pre className="mt-2 text-xs overflow-auto">
-                  {JSON.stringify(result, null, 2)}
-                </pre>
+                <pre className="mt-2 text-xs overflow-auto">{JSON.stringify(result, null, 2)}</pre>
               </details>
             </div>
           </div>
@@ -192,31 +206,74 @@ const PaymentTestPage = () => {
             <div>
               <h3 className="font-medium">Backend Environment Variables Required:</h3>
               <ul className="list-disc list-inside mt-2 ml-4 space-y-1">
-                <li><code>VNPAY_TMN_CODE</code> - VNPay terminal code</li>
-                <li><code>VNPAY_HASH_SECRET</code> - VNPay hash secret</li>
-                <li><code>MOMO_PARTNER_CODE</code> - MoMo partner code</li>
-                <li><code>MOMO_ACCESS_KEY</code> - MoMo access key</li>
-                <li><code>MOMO_SECRET_KEY</code> - MoMo secret key</li>
-                <li><code>ZALOPAY_APP_ID</code> - ZaloPay app ID</li>
-                <li><code>ZALOPAY_KEY1</code> - ZaloPay key1</li>
-                <li><code>ZALOPAY_KEY2</code> - ZaloPay key2</li>
+                <li>
+                  <code>VNPAY_TMN_CODE</code> - VNPay terminal code
+                </li>
+                <li>
+                  <code>VNPAY_HASH_SECRET</code> - VNPay hash secret
+                </li>
+                <li>
+                  <code>MOMO_PARTNER_CODE</code> - MoMo partner code
+                </li>
+                <li>
+                  <code>MOMO_ACCESS_KEY</code> - MoMo access key
+                </li>
+                <li>
+                  <code>MOMO_SECRET_KEY</code> - MoMo secret key
+                </li>
+                <li>
+                  <code>ZALOPAY_APP_ID</code> - ZaloPay app ID
+                </li>
+                <li>
+                  <code>ZALOPAY_KEY1</code> - ZaloPay key1
+                </li>
+                <li>
+                  <code>ZALOPAY_KEY2</code> - ZaloPay key2
+                </li>
               </ul>
             </div>
-            
+
             <div>
               <h3 className="font-medium">Free Registration Links:</h3>
               <ul className="list-disc list-inside mt-2 ml-4 space-y-1">
-                <li><a href="https://sandbox.vnpayment.vn/" target="_blank" rel="noopener noreferrer" className="underline">VNPay Sandbox</a></li>
-                <li><a href="https://developers.momo.vn/" target="_blank" rel="noopener noreferrer" className="underline">MoMo Developer</a></li>
-                <li><a href="https://developers.zalopay.vn/" target="_blank" rel="noopener noreferrer" className="underline">ZaloPay Developer</a></li>
+                <li>
+                  <a
+                    href="https://sandbox.vnpayment.vn/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline"
+                  >
+                    VNPay Sandbox
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://developers.momo.vn/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline"
+                  >
+                    MoMo Developer
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://developers.zalopay.vn/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline"
+                  >
+                    ZaloPay Developer
+                  </a>
+                </li>
               </ul>
             </div>
 
             <div>
               <h3 className="font-medium">Demo Credentials (for testing):</h3>
               <p className="text-xs bg-blue-100 p-2 rounded mt-1">
-                The services are configured with demo credentials that may work for testing, 
-                but for production use, you need to register and get your own credentials.
+                The services are configured with demo credentials that may work for testing, but for
+                production use, you need to register and get your own credentials.
               </p>
             </div>
           </div>

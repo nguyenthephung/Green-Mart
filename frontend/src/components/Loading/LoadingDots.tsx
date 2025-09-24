@@ -7,7 +7,7 @@ interface LoadingDotsProps {
 
 const LoadingDots: React.FC<LoadingDotsProps> = ({
   text = 'Đang tải',
-  color = 'var(--brand-green)'
+  color = 'var(--brand-green)',
 }) => {
   return (
     <div className="flex items-center justify-center space-x-2">

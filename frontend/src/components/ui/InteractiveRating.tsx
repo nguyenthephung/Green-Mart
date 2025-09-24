@@ -26,7 +26,7 @@ const InteractiveRating: React.FC<InteractiveRatingProps> = ({
 
   const handleStarClick = (value: number) => {
     if (disabled) return;
-    
+
     setRating(value);
     onRatingChange(value);
   };
@@ -59,9 +59,7 @@ const InteractiveRating: React.FC<InteractiveRatingProps> = ({
       >
         <svg
           className={`${sizeClasses[size]} transition-colors duration-150 ${
-            filled
-              ? 'text-yellow-400'
-              : 'text-gray-300 hover:text-yellow-300'
+            filled ? 'text-yellow-400' : 'text-gray-300 hover:text-yellow-300'
           } ${disabled ? 'opacity-50' : ''}`}
           fill="currentColor"
           viewBox="0 0 20 20"

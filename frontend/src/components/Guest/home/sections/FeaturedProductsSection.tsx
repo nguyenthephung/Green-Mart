@@ -8,7 +8,10 @@ interface FeaturedProductsSectionProps {
   handleAddToCart: (product: any, event?: React.MouseEvent) => void;
 }
 
-const FeaturedProductsSection: React.FC<FeaturedProductsSectionProps> = ({ featuredProducts, handleAddToCart }) => (
+const FeaturedProductsSection: React.FC<FeaturedProductsSectionProps> = ({
+  featuredProducts,
+  handleAddToCart,
+}) => (
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
     <div className="text-center mb-12 min-h-[200px] flex flex-col justify-center">
       <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full text-white font-bold text-lg shadow-xl mb-4">
@@ -24,7 +27,7 @@ const FeaturedProductsSection: React.FC<FeaturedProductsSectionProps> = ({ featu
       </p>
     </div>
     <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-      {featuredProducts.map((product) => (
+      {featuredProducts.map(product => (
         <div key={product.id} className="relative transform-gpu">
           <div className="absolute top-1 left-1 z-20">
             <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-1.5 py-0.5 rounded-md text-xs font-bold shadow-lg flex items-center gap-1">
@@ -43,7 +46,7 @@ const FeaturedProductsSection: React.FC<FeaturedProductsSectionProps> = ({ featu
               category: product.category,
               unit: product.unit || '',
               averageRating: product.averageRating,
-              totalRatings: product.totalRatings
+              totalRatings: product.totalRatings,
             }}
             onAddToCart={handleAddToCart}
             showHotBadge={false}
@@ -53,7 +56,7 @@ const FeaturedProductsSection: React.FC<FeaturedProductsSectionProps> = ({ featu
       ))}
     </div>
     <div className="text-center mt-12">
-      <Link 
+      <Link
         to="/category?featured=true"
         className="inline-flex items-center gap-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:scale-105 transition-transform duration-300 shadow-xl"
       >

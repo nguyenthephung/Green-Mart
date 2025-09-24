@@ -9,7 +9,7 @@ export const notifications = [
     product: 'BEAR FIT - GẤU TẬP GYM',
     image: 'https://cf.shopee.vn/file/sg-11134201-7rbk2-lq2w2w2w2w2w2w',
     time: '11:44 09-07-2025',
-    desc: 'Đơn hàng 250709N09F0E4W với mã vận đơn SPXVN056159087257 đã được Người bán BEAR FIT - GẤU TẬP GYM giao cho đơn vị vận chuyển qua phương thức vận chuyển SPX Express.'
+    desc: 'Đơn hàng 250709N09F0E4W với mã vận đơn SPXVN056159087257 đã được Người bán BEAR FIT - GẤU TẬP GYM giao cho đơn vị vận chuyển qua phương thức vận chuyển SPX Express.',
   },
   {
     id: 2,
@@ -20,7 +20,7 @@ export const notifications = [
     product: 'Arisman - Sportwear',
     image: 'https://cf.shopee.vn/file/sg-11134201-7rbk2-lq2w2w2w2w2w2w',
     time: '11:17 09-07-2025',
-    desc: 'Đơn hàng 250709N09F0E4X với mã vận đơn SPXVN059033511067 đã được Người bán Arisman - Sportwear giao cho đơn vị vận chuyển qua phương thức vận chuyển SPX Express.'
+    desc: 'Đơn hàng 250709N09F0E4X với mã vận đơn SPXVN059033511067 đã được Người bán Arisman - Sportwear giao cho đơn vị vận chuyển qua phương thức vận chuyển SPX Express.',
   },
   {
     id: 3,
@@ -30,7 +30,7 @@ export const notifications = [
     time: '00:26 09-07-2025',
     image: 'https://cf.shopee.vn/file/sg-11134201-7rbk2-lq2w2w2w2w2w2w',
     desc: 'Đơn hàng 2507023UXV1QA0 đã hoàn thành. Bạn hãy đánh giá sản phẩm trước ngày 08-08-2025 để nhận 200 xu và giúp người dùng khác hiểu hơn về sản phẩm nhé!',
-    reward: 200
+    reward: 200,
   },
   {
     id: 4,
@@ -40,6 +40,6 @@ export const notifications = [
     time: '00:26 09-07-2025',
     image: 'https://cf.shopee.vn/file/sg-11134201-7rbk2-lq2w2w2w2w2w2w',
     desc: 'Đơn hàng 250630VVCDH8CA đã hoàn thành. Bạn hãy đánh giá sản phẩm trước ngày 08-08-2025 để nhận 200 xu và giúp người dùng khác hiểu hơn về sản phẩm nhé!',
-    reward: 200
-  }
+    reward: 200,
+  },
 ];

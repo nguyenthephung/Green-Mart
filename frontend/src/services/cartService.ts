@@ -5,10 +5,10 @@ export async function fetchCart() {
 }
 
 export async function addToCart(
-  productId: string, 
-  quantity?: number, 
-  unit?: string, 
-  weight?: number, 
+  productId: string,
+  quantity?: number,
+  unit?: string,
+  weight?: number,
   type?: 'count' | 'weight',
   flashSale?: {
     flashSaleId: string;
@@ -17,60 +17,60 @@ export async function addToCart(
     discountPercentage: number;
   }
 ) {
-  return apiClient('/cart/add', { 
-    method: 'POST', 
-    body: JSON.stringify({ 
-      productId, 
-      quantity, 
-      unit, 
-      weight, 
+  return apiClient('/cart/add', {
+    method: 'POST',
+    body: JSON.stringify({
+      productId,
+      quantity,
+      unit,
+      weight,
       type,
-      ...(flashSale && { flashSale })
-    }) 
+      ...(flashSale && { flashSale }),
+    }),
   });
 }
 
 export async function updateCartItem(
-  productId: string, 
-  quantity?: number, 
-  unit?: string, 
-  weight?: number, 
+  productId: string,
+  quantity?: number,
+  unit?: string,
+  weight?: number,
   type?: 'count' | 'weight',
   flashSale?: any
 ) {
-  return apiClient('/cart/update', { 
-    method: 'PUT', 
-    body: JSON.stringify({ 
-      productId, 
-      quantity, 
-      unit, 
-      weight, 
+  return apiClient('/cart/update', {
+    method: 'PUT',
+    body: JSON.stringify({
+      productId,
+      quantity,
+      unit,
+      weight,
       type,
-      ...(flashSale && { flashSale })
-    }) 
+      ...(flashSale && { flashSale }),
+    }),
   });
 }
 
 export async function removeCartItem(
-  productId: string, 
-  unit?: string, 
+  productId: string,
+  unit?: string,
   type?: 'count' | 'weight',
   flashSale?: any
 ) {
   return apiClient(`/cart/remove`, {
     method: 'DELETE',
-    body: JSON.stringify({ 
-      productId, 
-      unit, 
+    body: JSON.stringify({
+      productId,
+      unit,
       type,
-      ...(flashSale && { flashSale })
-    })
+      ...(flashSale && { flashSale }),
+    }),
   });
 }
 
 export async function clearCart(userId?: string) {
-  return apiClient('/cart/clear', { 
+  return apiClient('/cart/clear', {
     method: 'DELETE',
-    body: JSON.stringify({ userId })
+    body: JSON.stringify({ userId }),
   });
 }

@@ -7,22 +7,22 @@ interface AdminUserState {
   users: User[];
   selectedUser: User | null;
   stats: UserStats | null;
-  
+
   // Pagination
   currentPage: number;
   totalPages: number;
   totalUsers: number;
   hasNext: boolean;
   hasPrev: boolean;
-  
+
   // Filters
   currentFilter: UserFilter;
-  
+
   // UI State
   loading: boolean;
   error: string | null;
   loadingStats: boolean;
-  
+
   // Actions
   fetchUsers: (filter?: UserFilter) => Promise<void>;
   fetchUserById: (userId: string) => Promise<void>;
@@ -32,7 +32,7 @@ interface AdminUserState {
   updateUserStatus: (userId: string, status: 'active' | 'inactive' | 'suspended') => Promise<void>;
   resetUserPassword: (userId: string, newPassword: string) => Promise<void>;
   fetchUserStats: () => Promise<void>;
-  
+
   // Utility
   setFilter: (filter: UserFilter) => void;
   clearError: () => void;
@@ -58,11 +58,11 @@ export const useAdminUserStore = create<AdminUserState>((set, get) => ({
   fetchUsers: async (filter = {}) => {
     const state = get();
     set({ loading: true, error: null });
-    
+
     try {
       const mergedFilter = { ...state.currentFilter, ...filter };
       const response = await adminUserService.getAllUsers(mergedFilter);
-      
+
       set({
         users: response.data.users,
         currentPage: response.data.pagination.page,
@@ -72,12 +72,12 @@ export const useAdminUserStore = create<AdminUserState>((set, get) => ({
         hasPrev: response.data.pagination.hasPrev,
         currentFilter: mergedFilter,
         loading: false,
-        error: null
+        error: null,
       });
     } catch (error: any) {
       set({
         loading: false,
-        error: error.message || 'Lỗi khi tải danh sách người dùng'
+        error: error.message || 'Lỗi khi tải danh sách người dùng',
       });
     }
   },
@@ -85,18 +85,18 @@ export const useAdminUserStore = create<AdminUserState>((set, get) => ({
   // Fetch user by ID
   fetchUserById: async (userId: string) => {
     set({ loading: true, error: null });
-    
+
     try {
       const user = await adminUserService.getUserById(userId);
       set({
         selectedUser: user,
         loading: false,
-        error: null
+        error: null,
       });
     } catch (error: any) {
       set({
         loading: false,
-        error: error.message || 'Lỗi khi tải thông tin người dùng'
+        error: error.message || 'Lỗi khi tải thông tin người dùng',
       });
     }
   },
@@ -104,20 +104,20 @@ export const useAdminUserStore = create<AdminUserState>((set, get) => ({
   // Create new user
   createUser: async (userData: CreateUserRequest) => {
     set({ loading: true, error: null });
-    
+
     try {
       const newUser = await adminUserService.createUser(userData);
-      
+
       // Instead of optimistic update, refresh the entire list to ensure consistency
       const state = get();
       await state.fetchUsers(); // This will refresh the users list
-      
+
       set({ loading: false, error: null });
       return newUser;
     } catch (error: any) {
       set({
         loading: false,
-        error: error.message || 'Lỗi khi tạo người dùng mới'
+        error: error.message || 'Lỗi khi tạo người dùng mới',
       });
       throw error;
     }
@@ -126,25 +126,23 @@ export const useAdminUserStore = create<AdminUserState>((set, get) => ({
   // Update user
   updateUser: async (userId: string, updates: Partial<User>) => {
     set({ loading: true, error: null });
-    
+
     try {
       const updatedUser = await adminUserService.updateUser(userId, updates);
-      
+
       const state = get();
-      const updatedUsers = state.users.map(user =>
-        user._id === userId ? updatedUser : user
-      );
-      
+      const updatedUsers = state.users.map(user => (user._id === userId ? updatedUser : user));
+
       set({
         users: updatedUsers,
         selectedUser: state.selectedUser?._id === userId ? updatedUser : state.selectedUser,
         loading: false,
-        error: null
+        error: null,
       });
     } catch (error: any) {
       set({
         loading: false,
-        error: error.message || 'Lỗi khi cập nhật thông tin người dùng'
+        error: error.message || 'Lỗi khi cập nhật thông tin người dùng',
       });
     }
   },
@@ -152,24 +150,24 @@ export const useAdminUserStore = create<AdminUserState>((set, get) => ({
   // Delete user
   deleteUser: async (userId: string) => {
     set({ loading: true, error: null });
-    
+
     try {
       await adminUserService.deleteUser(userId);
-      
+
       const state = get();
       const filteredUsers = state.users.filter(user => user._id !== userId);
-      
+
       set({
         users: filteredUsers,
         selectedUser: state.selectedUser?._id === userId ? null : state.selectedUser,
         totalUsers: state.totalUsers - 1,
         loading: false,
-        error: null
+        error: null,
       });
     } catch (error: any) {
       set({
         loading: false,
-        error: error.message || 'Lỗi khi xóa người dùng'
+        error: error.message || 'Lỗi khi xóa người dùng',
       });
     }
   },
@@ -177,25 +175,23 @@ export const useAdminUserStore = create<AdminUserState>((set, get) => ({
   // Update user status
   updateUserStatus: async (userId: string, status: 'active' | 'inactive' | 'suspended') => {
     set({ loading: true, error: null });
-    
+
     try {
       const updatedUser = await adminUserService.updateUserStatus(userId, status);
-      
+
       const state = get();
-      const updatedUsers = state.users.map(user =>
-        user._id === userId ? updatedUser : user
-      );
-      
+      const updatedUsers = state.users.map(user => (user._id === userId ? updatedUser : user));
+
       set({
         users: updatedUsers,
         selectedUser: state.selectedUser?._id === userId ? updatedUser : state.selectedUser,
         loading: false,
-        error: null
+        error: null,
       });
     } catch (error: any) {
       set({
         loading: false,
-        error: error.message || 'Lỗi khi cập nhật trạng thái người dùng'
+        error: error.message || 'Lỗi khi cập nhật trạng thái người dùng',
       });
     }
   },
@@ -203,17 +199,17 @@ export const useAdminUserStore = create<AdminUserState>((set, get) => ({
   // Reset user password
   resetUserPassword: async (userId: string, newPassword: string) => {
     set({ loading: true, error: null });
-    
+
     try {
       await adminUserService.resetUserPassword(userId, newPassword);
       set({
         loading: false,
-        error: null
+        error: null,
       });
     } catch (error: any) {
       set({
         loading: false,
-        error: error.message || 'Lỗi khi đặt lại mật khẩu'
+        error: error.message || 'Lỗi khi đặt lại mật khẩu',
       });
     }
   },
@@ -221,18 +217,18 @@ export const useAdminUserStore = create<AdminUserState>((set, get) => ({
   // Fetch user statistics
   fetchUserStats: async () => {
     set({ loadingStats: true, error: null });
-    
+
     try {
       const stats = await adminUserService.getUserStats();
       set({
         stats,
         loadingStats: false,
-        error: null
+        error: null,
       });
     } catch (error: any) {
       set({
         loadingStats: false,
-        error: error.message || 'Lỗi khi tải thống kê người dùng'
+        error: error.message || 'Lỗi khi tải thống kê người dùng',
       });
     }
   },
@@ -250,5 +246,5 @@ export const useAdminUserStore = create<AdminUserState>((set, get) => ({
   // Clear selected user
   clearSelectedUser: () => {
     set({ selectedUser: null });
-  }
+  },
 }));

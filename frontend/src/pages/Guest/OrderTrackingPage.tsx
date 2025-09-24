@@ -1,6 +1,5 @@
-
-import OrderSummary from "../../components/Guest/myOrder/OrderSummary";
-import OrderItems from "../../components/Guest/myOrder/OrderItems";
+import OrderSummary from '../../components/Guest/myOrder/OrderSummary';
+import OrderItems from '../../components/Guest/myOrder/OrderItems';
 import { Link, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import orderService from '../../services/orderService';
@@ -76,11 +75,11 @@ export default function OrderTrackingPage() {
             oldPrice: item.price,
             quantity: item.quantity,
             image: item.image || '',
-            variant: ''
+            variant: '',
           })),
           deliveryFee: (orderData as any).deliveryFee || 0,
           payWith: getPaymentMethodText(orderData.paymentMethod),
-          deliveryAddress: (orderData as any).customerAddress || 'Chưa có địa chỉ'
+          deliveryAddress: (orderData as any).customerAddress || 'Chưa có địa chỉ',
         };
         setOrder(convertedOrder);
 
@@ -106,12 +105,12 @@ export default function OrderTrackingPage() {
   const getStatusText = (status: string) => {
     const statusMap: { [key: string]: string } = {
       pending: 'Chờ xác nhận',
-      confirmed: 'Chờ giao hàng', 
+      confirmed: 'Chờ giao hàng',
       preparing: 'Chờ giao hàng',
       shipping: 'Chờ giao hàng',
       delivered: 'Hoàn thành',
       cancelled: 'Đã hủy',
-      returned: 'Đã hủy'
+      returned: 'Đã hủy',
     };
     return statusMap[status] || status;
   };
@@ -124,7 +123,7 @@ export default function OrderTrackingPage() {
       zalopay: 'ZaloPay',
       vnpay: 'VNPay',
       credit_card: 'Thẻ tín dụng',
-      shopeepay: 'ShopeePay'
+      shopeepay: 'ShopeePay',
     };
     return methodMap[method] || method;
   };
@@ -148,15 +147,15 @@ export default function OrderTrackingPage() {
           <h3 className="text-xl font-bold text-gray-900 mb-2">Không tìm thấy đơn hàng</h3>
           <p className="text-gray-600 mb-4">{error}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link 
-              to="/myorder" 
+            <Link
+              to="/myorder"
               className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition-colors"
             >
               Quay lại danh sách đơn hàng
             </Link>
             {error && error.includes('đăng nhập') && (
-              <Link 
-                to="/login" 
+              <Link
+                to="/login"
                 className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition-colors"
               >
                 Đăng nhập
@@ -169,34 +168,55 @@ export default function OrderTrackingPage() {
   }
 
   const { id, status, date, items, deliveryFee, payWith, deliveryAddress } = order;
-  const total = items.reduce((sum: number, item: OrderItem) => sum + item.price * item.quantity, 0) + deliveryFee;
+  const total =
+    items.reduce((sum: number, item: OrderItem) => sum + item.price * item.quantity, 0) +
+    deliveryFee;
 
   return (
     <div className={`${isMobile ? 'p-2' : 'p-4'} max-w-5xl mx-auto`}>
-      <Link 
-        to="/myorder"  
-        className={`text-sm text-brand-green hover:text-brand-green/80 hover:underline flex items-center gap-2 mb-4 bg-app-card ${isMobile ? 'px-3 py-2' : 'px-4 py-2'} rounded-lg border-app-border hover:bg-app-secondary transition-all duration-200`} 
+      <Link
+        to="/myorder"
+        className={`text-sm text-brand-green hover:text-brand-green/80 hover:underline flex items-center gap-2 mb-4 bg-app-card ${isMobile ? 'px-3 py-2' : 'px-4 py-2'} rounded-lg border-app-border hover:bg-app-secondary transition-all duration-200`}
       >
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
+        >
           <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
         Quay lại danh sách đơn hàng
       </Link>
-      
-      <div className={`bg-app-card rounded-xl shadow-lg ${isMobile ? 'p-4' : 'p-6'} mb-6 border-app-border`}>
-        <div className={`flex flex-col ${isMobile ? 'gap-3' : 'md:flex-row md:items-center md:justify-between gap-2'} mb-4`}>
+
+      <div
+        className={`bg-app-card rounded-xl shadow-lg ${isMobile ? 'p-4' : 'p-6'} mb-6 border-app-border`}
+      >
+        <div
+          className={`flex flex-col ${isMobile ? 'gap-3' : 'md:flex-row md:items-center md:justify-between gap-2'} mb-4`}
+        >
           <div className={`flex ${isMobile ? 'flex-col gap-2' : 'items-center gap-3'}`}>
-            <span className={`text-sm font-bold ${isMobile ? 'px-3 py-1.5' : 'px-4 py-2'} rounded-full border-2 ${
-              status === 'Hoàn thành' ? 'text-green-600 border-green-500 bg-green-50' : 
-              status === 'Đã hủy' ? 'text-red-600 border-red-500 bg-red-50' : 
-              status === 'Chờ giao hàng' ? 'text-orange-600 border-orange-500 bg-orange-50' : 
-              'text-app-secondary border-app-border bg-app-secondary'
-            } ${isMobile ? 'text-center' : ''}`}>
+            <span
+              className={`text-sm font-bold ${isMobile ? 'px-3 py-1.5' : 'px-4 py-2'} rounded-full border-2 ${
+                status === 'Hoàn thành'
+                  ? 'text-green-600 border-green-500 bg-green-50'
+                  : status === 'Đã hủy'
+                    ? 'text-red-600 border-red-500 bg-red-50'
+                    : status === 'Chờ giao hàng'
+                      ? 'text-orange-600 border-orange-500 bg-orange-50'
+                      : 'text-app-secondary border-app-border bg-app-secondary'
+              } ${isMobile ? 'text-center' : ''}`}
+            >
               {status}
             </span>
             <div className={isMobile ? 'text-center' : ''}>
               <span className="text-xs text-app-muted">Mã đơn hàng:</span>
-              <span className={`${isMobile ? 'text-sm' : 'text-sm'} font-bold text-app-primary ml-1 ${isMobile ? 'block' : ''}`}>#{id}</span>
+              <span
+                className={`${isMobile ? 'text-sm' : 'text-sm'} font-bold text-app-primary ml-1 ${isMobile ? 'block' : ''}`}
+              >
+                #{id}
+              </span>
             </div>
           </div>
           <div className={`text-xs text-app-muted ${isMobile ? 'text-center' : ''}`}>
@@ -205,17 +225,25 @@ export default function OrderTrackingPage() {
         </div>
         {/* Timeline tracking thật sự */}
         <div className="mt-6">
-          <h3 className={`${isMobile ? 'text-sm' : 'text-base'} font-semibold mb-2 text-app-primary`}>Lịch sử trạng thái & vị trí đơn hàng</h3>
+          <h3
+            className={`${isMobile ? 'text-sm' : 'text-base'} font-semibold mb-2 text-app-primary`}
+          >
+            Lịch sử trạng thái & vị trí đơn hàng
+          </h3>
           {trackingLoading ? (
-            <div className={`${isMobile ? 'text-xs' : 'text-sm'} text-app-muted`}>Đang tải lịch sử tracking...</div>
+            <div className={`${isMobile ? 'text-xs' : 'text-sm'} text-app-muted`}>
+              Đang tải lịch sử tracking...
+            </div>
           ) : trackingHistory && trackingHistory.length > 0 ? (
             <OrderTrackingTimeline history={trackingHistory} />
           ) : (
-            <div className={`${isMobile ? 'text-xs' : 'text-sm'} text-app-muted`}>Chưa có lịch sử vị trí/trạng thái cho đơn hàng này.</div>
+            <div className={`${isMobile ? 'text-xs' : 'text-sm'} text-app-muted`}>
+              Chưa có lịch sử vị trí/trạng thái cho đơn hàng này.
+            </div>
           )}
         </div>
       </div>
-      
+
       <div className={`grid grid-cols-1 ${isMobile ? 'gap-4' : 'md:grid-cols-3 gap-6'}`}>
         <div className={isMobile ? '' : 'md:col-span-2'}>
           <OrderItems items={items} />
@@ -228,10 +256,18 @@ export default function OrderTrackingPage() {
             payWith={payWith}
             deliveryAddress={deliveryAddress}
           />
-          <div className={`mt-6 ${isMobile ? 'p-3' : 'p-4'} bg-app-card rounded-lg border-app-border`}>
+          <div
+            className={`mt-6 ${isMobile ? 'p-3' : 'p-4'} bg-app-card rounded-lg border-app-border`}
+          >
             <div className="flex justify-between items-center">
-              <span className={`text-app-secondary ${isMobile ? 'text-xs' : 'text-sm'} font-medium`}>Thành tiền:</span>
-              <span className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-brand-green`}>{total.toLocaleString()}₫</span>
+              <span
+                className={`text-app-secondary ${isMobile ? 'text-xs' : 'text-sm'} font-medium`}
+              >
+                Thành tiền:
+              </span>
+              <span className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-brand-green`}>
+                {total.toLocaleString()}₫
+              </span>
             </div>
           </div>
         </div>

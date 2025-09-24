@@ -6,9 +6,9 @@ import Pagination from '../../components/Admin/Product/Pagination';
 import ImageUpload from '../../components/ui/ImageUpload';
 import { useErrorHandler } from '../../hooks/useErrorHandler';
 import { LoadingSpinner } from '../../components/Loading';
-import { 
-  PlusIcon, 
-  MagnifyingGlassIcon, 
+import {
+  PlusIcon,
+  MagnifyingGlassIcon,
   FunnelIcon,
   Squares2X2Icon,
   ListBulletIcon,
@@ -20,10 +20,8 @@ import {
   ChartBarIcon,
   CalendarIcon,
   MapPinIcon,
-  SparklesIcon
+  SparklesIcon,
 } from '@heroicons/react/24/outline';
-
-
 
 type SortField = 'title' | 'position' | 'priority' | 'clickCount' | 'createdAt' | 'startDate';
 type SortOrder = 'asc' | 'desc';
@@ -33,14 +31,14 @@ type FilterStatus = 'all' | 'active' | 'inactive';
 
 const AdminBanners: React.FC = () => {
   // Store state
-  const { 
-    banners, 
-    loading, 
-    fetchBanners, 
+  const {
+    banners,
+    loading,
+    fetchBanners,
     createBanner,
-    updateBanner, 
-    deleteBanner, 
-    toggleBannerStatus
+    updateBanner,
+    deleteBanner,
+    toggleBannerStatus,
   } = useBannerStore();
 
   const { fetchCategories } = useCategoryStore();
@@ -73,21 +71,23 @@ const AdminBanners: React.FC = () => {
   // Filter and sort logic
   const filteredAndSortedBanners = useMemo(() => {
     let filtered = banners.filter(banner => {
-      const matchesSearch = banner.title.toLowerCase().includes(search.toLowerCase()) ||
-                          (banner.subtitle && banner.subtitle.toLowerCase().includes(search.toLowerCase())) ||
-                          (banner.description && banner.description.toLowerCase().includes(search.toLowerCase()));
-      
+      const matchesSearch =
+        banner.title.toLowerCase().includes(search.toLowerCase()) ||
+        (banner.subtitle && banner.subtitle.toLowerCase().includes(search.toLowerCase())) ||
+        (banner.description && banner.description.toLowerCase().includes(search.toLowerCase()));
+
       const matchesPosition = filterPosition === 'all' || banner.position === filterPosition;
-      const matchesStatus = filterStatus === 'all' || 
-                           (filterStatus === 'active' && banner.isActive) ||
-                           (filterStatus === 'inactive' && !banner.isActive);
-      
+      const matchesStatus =
+        filterStatus === 'all' ||
+        (filterStatus === 'active' && banner.isActive) ||
+        (filterStatus === 'inactive' && !banner.isActive);
+
       return matchesSearch && matchesPosition && matchesStatus;
     });
 
     filtered.sort((a, b) => {
       let aValue: any, bValue: any;
-      
+
       switch (sortField) {
         case 'title':
           aValue = a.title.toLowerCase();
@@ -199,25 +199,39 @@ const AdminBanners: React.FC = () => {
 
   const getPositionColor = (position: string) => {
     switch (position) {
-      case 'hero': return 'bg-red-100 text-red-800 border-red-200';
-      case 'sidebar': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'footer': return 'bg-gray-100 text-red-800 border-gray-200';
-      case 'category': return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'sale': return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'featured': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'hero':
+        return 'bg-red-100 text-red-800 border-red-200';
+      case 'sidebar':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'footer':
+        return 'bg-gray-100 text-red-800 border-gray-200';
+      case 'category':
+        return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'sale':
+        return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'featured':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
   const getPositionText = (position: string) => {
     switch (position) {
-      case 'hero': return 'Hero Banner';
-      case 'sidebar': return 'Sidebar';
-      case 'footer': return 'Footer';
-      case 'category': return 'Category';
-      case 'sale': return 'Sale Banner';
-      case 'featured': return 'Featured Banner';
-      default: return position;
+      case 'hero':
+        return 'Hero Banner';
+      case 'sidebar':
+        return 'Sidebar';
+      case 'footer':
+        return 'Footer';
+      case 'category':
+        return 'Category';
+      case 'sale':
+        return 'Sale Banner';
+      case 'featured':
+        return 'Featured Banner';
+      default:
+        return position;
     }
   };
 
@@ -233,7 +247,7 @@ const AdminBanners: React.FC = () => {
   return (
     <div className="space-y-8 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-slate-900 dark:to-gray-900 min-h-screen transition-colors duration-300">
       {/* Enhanced Header with Stats Cards */}
-  <div className="bg-app-card dark:bg-app-card backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 p-8">
+      <div className="bg-app-card dark:bg-app-card backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 p-8">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           {/* Title Section */}
           <div className="space-y-4">
@@ -242,14 +256,15 @@ const AdminBanners: React.FC = () => {
                 <SparklesIcon className="w-8 h-8 text-white" />
               </div>
               <div>
- 
                 <h1 className="text-3xl font-bold tracking-tight font-serif text-gray-600 dark:text-gray-400 mt-1">
                   Quản lý Banner
                 </h1>
-                <p className="text-gray-600 dark:text-gray-400 mt-1">Tạo và quản lý banner quảng cáo</p>
+                <p className="text-gray-600 dark:text-gray-400 mt-1">
+                  Tạo và quản lý banner quảng cáo
+                </p>
               </div>
             </div>
-            
+
             {/* Stats Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-4 rounded-xl text-white shadow-lg">
@@ -261,7 +276,7 @@ const AdminBanners: React.FC = () => {
                   <ChartBarIcon className="w-8 h-8 text-blue-200" />
                 </div>
               </div>
-              
+
               <div className="bg-gradient-to-r from-green-500 to-green-600 p-4 rounded-xl text-white shadow-lg">
                 <div className="flex items-center justify-between">
                   <div>
@@ -271,7 +286,7 @@ const AdminBanners: React.FC = () => {
                   <CheckCircleIcon className="w-8 h-8 text-green-200" />
                 </div>
               </div>
-              
+
               <div className="bg-gradient-to-r from-red-500 to-red-600 p-4 rounded-xl text-white shadow-lg">
                 <div className="flex items-center justify-between">
                   <div>
@@ -281,7 +296,7 @@ const AdminBanners: React.FC = () => {
                   <MapPinIcon className="w-8 h-8 text-red-200" />
                 </div>
               </div>
-              
+
               <div className="bg-gradient-to-r from-purple-500 to-purple-600 p-4 rounded-xl text-white shadow-lg">
                 <div className="flex items-center justify-between">
                   <div>
@@ -293,14 +308,14 @@ const AdminBanners: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
               className={`px-6 py-3 rounded-xl transition-all duration-200 flex items-center gap-3 font-semibold shadow-lg ${
-                showFilters 
-                  ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-blue-200' 
+                showFilters
+                  ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-blue-200'
                   : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200 hover:shadow-xl'
               }`}
             >
@@ -311,8 +326,8 @@ const AdminBanners: React.FC = () => {
               <button
                 onClick={() => setViewMode('table')}
                 className={`px-4 py-3 rounded-xl transition-all duration-200 flex items-center gap-2 font-medium shadow-lg ${
-                  viewMode === 'table' 
-                    ? 'bg-gradient-to-r from-green-600 to-green-700 text-white shadow-green-200' 
+                  viewMode === 'table'
+                    ? 'bg-gradient-to-r from-green-600 to-green-700 text-white shadow-green-200'
                     : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 hover:shadow-xl'
                 }`}
                 title="Xem dạng bảng"
@@ -323,8 +338,8 @@ const AdminBanners: React.FC = () => {
               <button
                 onClick={() => setViewMode('grid')}
                 className={`px-4 py-3 rounded-xl transition-all duration-200 flex items-center gap-2 font-medium shadow-lg ${
-                  viewMode === 'grid' 
-                    ? 'bg-gradient-to-r from-green-600 to-green-700 text-white shadow-green-200' 
+                  viewMode === 'grid'
+                    ? 'bg-gradient-to-r from-green-600 to-green-700 text-white shadow-green-200'
                     : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 hover:shadow-xl'
                 }`}
                 title="Xem dạng thẻ"
@@ -350,7 +365,9 @@ const AdminBanners: React.FC = () => {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <FunnelIcon className="w-6 h-6 text-blue-600" />
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white">Bộ lọc và tìm kiếm</h3>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                Bộ lọc và tìm kiếm
+              </h3>
             </div>
             <button
               onClick={() => {
@@ -367,12 +384,14 @@ const AdminBanners: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Tìm kiếm</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                Tìm kiếm
+              </label>
               <div className="relative group">
                 <input
                   type="text"
                   value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  onChange={e => setSearch(e.target.value)}
                   placeholder="Tiêu đề, mô tả banner..."
                   className="w-full px-4 py-3 pl-12 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white group-hover:shadow-lg"
                 />
@@ -380,10 +399,12 @@ const AdminBanners: React.FC = () => {
               </div>
             </div>
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Vị trí</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                Vị trí
+              </label>
               <select
                 value={filterPosition}
-                onChange={(e) => setFilterPosition(e.target.value as FilterPosition)}
+                onChange={e => setFilterPosition(e.target.value as FilterPosition)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
               >
                 <option value="all">Tất cả vị trí</option>
@@ -399,7 +420,7 @@ const AdminBanners: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">Trạng thái</label>
               <select
                 value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value as FilterStatus)}
+                onChange={e => setFilterStatus(e.target.value as FilterStatus)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
               >
                 <option value="all">Tất cả</option>
@@ -411,7 +432,7 @@ const AdminBanners: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">Sắp xếp theo</label>
               <select
                 value={`${sortField}-${sortOrder}`}
-                onChange={(e) => {
+                onChange={e => {
                   const [field, order] = e.target.value.split('-');
                   setSortField(field as SortField);
                   setSortOrder(order as SortOrder);
@@ -440,34 +461,28 @@ const AdminBanners: React.FC = () => {
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Banner
                   </th>
-                  <th 
+                  <th
                     className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     onClick={() => handleSort('position')}
                   >
-                    <div className="flex items-center gap-1">
-                      Vị trí {getSortIcon('position')}
-                    </div>
+                    <div className="flex items-center gap-1">Vị trí {getSortIcon('position')}</div>
                   </th>
-                  <th 
+                  <th
                     className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     onClick={() => handleSort('priority')}
                   >
-                    <div className="flex items-center gap-1">
-                      Ưu tiên {getSortIcon('priority')}
-                    </div>
+                    <div className="flex items-center gap-1">Ưu tiên {getSortIcon('priority')}</div>
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Trạng thái
                   </th>
-                  <th 
+                  <th
                     className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     onClick={() => handleSort('clickCount')}
                   >
-                    <div className="flex items-center gap-1">
-                      Click {getSortIcon('clickCount')}
-                    </div>
+                    <div className="flex items-center gap-1">Click {getSortIcon('clickCount')}</div>
                   </th>
-                  <th 
+                  <th
                     className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     onClick={() => handleSort('startDate')}
                   >
@@ -481,23 +496,34 @@ const AdminBanners: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-                {currentBanners.map((banner) => (
-                  <tr key={banner._id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                {currentBanners.map(banner => (
+                  <tr
+                    key={banner._id}
+                    className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
                         <div className="w-20 h-12 bg-gray-200 rounded-lg overflow-hidden">
-                          <img src={banner.imageUrl} alt={banner.title} className="w-full h-full object-cover" />
+                          <img
+                            src={banner.imageUrl}
+                            alt={banner.title}
+                            className="w-full h-full object-cover"
+                          />
                         </div>
                         <div className="flex-1">
                           <div className="text-sm font-medium text-gray-900">{banner.title}</div>
                           {banner.description && (
-                            <div className="text-xs text-gray-500 truncate max-w-xs">{banner.description}</div>
+                            <div className="text-xs text-gray-500 truncate max-w-xs">
+                              {banner.description}
+                            </div>
                           )}
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getPositionColor(banner.position)}`}>
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getPositionColor(banner.position)}`}
+                      >
                         {getPositionText(banner.position)}
                       </span>
                     </td>
@@ -507,7 +533,8 @@ const AdminBanners: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <button
                         onClick={() => handleToggleStatus(banner._id)}
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors ` +
+                        className={
+                          `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors ` +
                           (banner.isActive
                             ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200'
                             : 'custom-inactive-status hover:bg-yellow-200 dark:hover:bg-yellow-800')
@@ -555,7 +582,7 @@ const AdminBanners: React.FC = () => {
               </tbody>
             </table>
           </div>
-          
+
           {filteredAndSortedBanners.length === 0 && (
             <div className="text-center py-12">
               <div className="text-gray-400 text-6xl mb-4">🖼️</div>
@@ -569,45 +596,54 @@ const AdminBanners: React.FC = () => {
       ) : (
         /* Enhanced Grid View */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-8">
-          {currentBanners.map((banner) => (
-            <div key={banner._id} className="group bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 dark:border-gray-700/50 overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105 flex flex-col">
+          {currentBanners.map(banner => (
+            <div
+              key={banner._id}
+              className="group bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 dark:border-gray-700/50 overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105 flex flex-col"
+            >
               {/* Banner Image */}
               <div className="aspect-video bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 overflow-hidden relative flex-shrink-0">
-                <img 
-                  src={banner.imageUrl} 
-                  alt={banner.title} 
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                <img
+                  src={banner.imageUrl}
+                  alt={banner.title}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                
+
                 {/* Priority Badge */}
                 <div className="absolute top-3 left-3">
                   <span className="bg-black/60 backdrop-blur-sm text-white px-2 py-1 rounded-lg text-xs font-bold">
                     #{banner.priority}
                   </span>
                 </div>
-                
+
                 {/* Status Toggle */}
                 <div className="absolute top-3 right-3">
                   <button
                     onClick={() => handleToggleStatus(banner._id)}
                     className={`p-2 rounded-full backdrop-blur-sm transition-all duration-200 ${
-                      banner.isActive 
-                        ? 'bg-green-500/90 text-white hover:bg-green-600' 
+                      banner.isActive
+                        ? 'bg-green-500/90 text-white hover:bg-green-600'
                         : 'bg-gray-400/90 text-white hover:bg-gray-500'
                     }`}
                   >
-                    {banner.isActive ? <CheckCircleIcon className="w-4 h-4" /> : <XCircleIcon className="w-4 h-4" />}
+                    {banner.isActive ? (
+                      <CheckCircleIcon className="w-4 h-4" />
+                    ) : (
+                      <XCircleIcon className="w-4 h-4" />
+                    )}
                   </button>
                 </div>
               </div>
-              
+
               {/* Card Content */}
               <div className="p-6 space-y-4 flex-grow flex flex-col justify-between">
                 <div className="space-y-4">
                   {/* Position Badge */}
                   <div className="flex items-center justify-between">
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold border-2 ${getPositionColor(banner.position)}`}>
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-semibold border-2 ${getPositionColor(banner.position)}`}
+                    >
                       {getPositionText(banner.position)}
                     </span>
                     <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
@@ -615,7 +651,7 @@ const AdminBanners: React.FC = () => {
                       <span className="text-sm font-medium">{banner.clickCount}</span>
                     </div>
                   </div>
-                  
+
                   {/* Title & Description */}
                   <div className="space-y-2">
                     <h3 className="font-bold text-gray-900 dark:text-white text-lg line-clamp-2 group-hover:text-blue-600 transition-colors">
@@ -627,24 +663,22 @@ const AdminBanners: React.FC = () => {
                       </p>
                     )}
                   </div>
-                  
+
                   {/* Date Info */}
                   <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                     <CalendarIcon className="w-4 h-4" />
                     <div className="flex-1">
                       <div>Từ: {formatDate(banner.startDate)}</div>
-                      {banner.endDate && (
-                        <div>Đến: {formatDate(banner.endDate)}</div>
-                      )}
+                      {banner.endDate && <div>Đến: {formatDate(banner.endDate)}</div>}
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Action Buttons */}
                 <div className="flex gap-2 pt-4 mt-auto">
                   <button
                     onClick={() => openViewModal(banner)}
-                             className="flex-1 px-3 py-2.5 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 text-sm font-medium flex items-center justify-center gap-2 hover:scale-105"
+                    className="flex-1 px-3 py-2.5 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 text-sm font-medium flex items-center justify-center gap-2 hover:scale-105"
                   >
                     <EyeIcon className="w-4 h-4" />
                     Xem
@@ -666,7 +700,7 @@ const AdminBanners: React.FC = () => {
               </div>
             </div>
           ))}
-          
+
           {filteredAndSortedBanners.length === 0 && (
             <div className="col-span-full text-center py-12">
               <div className="text-gray-400 text-6xl mb-4">🖼️</div>
@@ -709,11 +743,7 @@ const AdminBanners: React.FC = () => {
 
       {/* Modals */}
       {showAdd && (
-        <AddBannerModal
-          show={showAdd}
-          onAdd={handleAddBanner}
-          onClose={() => setShowAdd(false)}
-        />
+        <AddBannerModal show={showAdd} onAdd={handleAddBanner} onClose={() => setShowAdd(false)} />
       )}
 
       {showEdit && editBanner && (
@@ -752,10 +782,14 @@ const AdminBanners: React.FC = () => {
 };
 
 // Modal components (enhanced with category support)
-const AddBannerModal: React.FC<{show: boolean, onAdd: (banner: Omit<Banner, '_id' | 'clickCount' | 'createdAt' | 'updatedAt'>) => void, onClose: () => void}> = ({ show, onAdd, onClose }) => {
+const AddBannerModal: React.FC<{
+  show: boolean;
+  onAdd: (banner: Omit<Banner, '_id' | 'clickCount' | 'createdAt' | 'updatedAt'>) => void;
+  onClose: () => void;
+}> = ({ show, onAdd, onClose }) => {
   const { categories } = useCategoryStore();
   const { handleError } = useErrorHandler();
-  
+
   const [formData, setFormData] = useState({
     title: '',
     subtitle: '',
@@ -768,13 +802,13 @@ const AddBannerModal: React.FC<{show: boolean, onAdd: (banner: Omit<Banner, '_id
     categoryId: '',
     priority: 1,
     startDate: new Date().toISOString().split('T')[0],
-    endDate: ''
+    endDate: '',
   });
 
   if (!show) return null;
 
   const handleImageUpload = (imageData: string) => {
-    setFormData({...formData, imageUrl: imageData});
+    setFormData({ ...formData, imageUrl: imageData });
   };
 
   const handleAdd = async () => {
@@ -791,9 +825,9 @@ const AddBannerModal: React.FC<{show: boolean, onAdd: (banner: Omit<Banner, '_id
       await onAdd({
         ...formData,
         categoryId: formData.categoryId || undefined,
-        endDate: formData.endDate || undefined
+        endDate: formData.endDate || undefined,
       });
-      
+
       // Reset form
       setFormData({
         title: '',
@@ -807,7 +841,7 @@ const AddBannerModal: React.FC<{show: boolean, onAdd: (banner: Omit<Banner, '_id
         categoryId: '',
         priority: 1,
         startDate: new Date().toISOString().split('T')[0],
-        endDate: ''
+        endDate: '',
       });
     } catch (error: any) {
       handleError(error.message || 'Có lỗi khi thêm banner', 'Add Banner Error');
@@ -816,14 +850,14 @@ const AddBannerModal: React.FC<{show: boolean, onAdd: (banner: Omit<Banner, '_id
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
-      <div 
+      <div
         className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
         style={{
           position: 'fixed',
           top: '20px',
           left: '50%',
           transform: 'translateX(-50%)',
-          margin: '16px'
+          margin: '16px',
         }}
       >
         <div className="p-6">
@@ -833,45 +867,53 @@ const AddBannerModal: React.FC<{show: boolean, onAdd: (banner: Omit<Banner, '_id
             </div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Thêm Banner Mới</h2>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Left Column */}
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Tiêu đề *</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Tiêu đề *
+                </label>
                 <input
                   type="text"
                   value={formData.title}
-                  onChange={(e) => setFormData({...formData, title: e.target.value})}
+                  onChange={e => setFormData({ ...formData, title: e.target.value })}
                   placeholder="Nhập tiêu đề banner"
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Tiêu đề phụ</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Tiêu đề phụ
+                </label>
                 <input
                   type="text"
                   value={formData.subtitle}
-                  onChange={(e) => setFormData({...formData, subtitle: e.target.value})}
+                  onChange={e => setFormData({ ...formData, subtitle: e.target.value })}
                   placeholder="Nhập tiêu đề phụ (tùy chọn)"
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Mô tả</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Mô tả
+                </label>
                 <textarea
                   value={formData.description}
-                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  onChange={e => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Mô tả chi tiết banner"
                   rows={3}
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Hình ảnh Banner *</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Hình ảnh Banner *
+                </label>
                 <ImageUpload
                   value={formData.imageUrl}
                   onChange={handleImageUpload}
@@ -880,37 +922,45 @@ const AddBannerModal: React.FC<{show: boolean, onAdd: (banner: Omit<Banner, '_id
                   maxSize={5 * 1024 * 1024} // 5MB
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">URL Liên kết</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  URL Liên kết
+                </label>
                 <input
                   type="url"
                   value={formData.linkUrl}
-                  onChange={(e) => setFormData({...formData, linkUrl: e.target.value})}
+                  onChange={e => setFormData({ ...formData, linkUrl: e.target.value })}
                   placeholder="https://example.com/target"
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Văn bản nút</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Văn bản nút
+                </label>
                 <input
                   type="text"
                   value={formData.buttonText}
-                  onChange={(e) => setFormData({...formData, buttonText: e.target.value})}
+                  onChange={e => setFormData({ ...formData, buttonText: e.target.value })}
                   placeholder="Xem thêm"
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
                 />
               </div>
             </div>
-            
+
             {/* Right Column */}
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Vị trí Banner</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Vị trí Banner
+                </label>
                 <select
                   value={formData.position}
-                  onChange={(e) => setFormData({...formData, position: e.target.value as Banner['position']})}
+                  onChange={e =>
+                    setFormData({ ...formData, position: e.target.value as Banner['position'] })
+                  }
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
                 >
                   <option value="hero">🏆 Hero Banner</option>
@@ -921,84 +971,99 @@ const AddBannerModal: React.FC<{show: boolean, onAdd: (banner: Omit<Banner, '_id
                   <option value="featured">⭐ Featured Banner</option>
                 </select>
               </div>
-              
+
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Danh mục (tùy chọn)</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Danh mục (tùy chọn)
+                </label>
                 <select
                   value={formData.categoryId}
-                  onChange={(e) => setFormData({...formData, categoryId: e.target.value})}
+                  onChange={e => setFormData({ ...formData, categoryId: e.target.value })}
                   disabled={formData.position !== 'category'}
                   className={`w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all ${
                     formData.position !== 'category' ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
                 >
                   <option value="">
-                    {formData.position === 'category' ? 'Chọn danh mục...' : 'Chỉ áp dụng cho Category Banner'}
+                    {formData.position === 'category'
+                      ? 'Chọn danh mục...'
+                      : 'Chỉ áp dụng cho Category Banner'}
                   </option>
-                  {formData.position === 'category' && categories.map(category => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
+                  {formData.position === 'category' &&
+                    categories.map(category => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
                 </select>
                 {formData.position !== 'category' && (
-                  <p className="text-xs text-gray-500 mt-1">* Chỉ có thể chọn danh mục khi vị trí là "Category"</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    * Chỉ có thể chọn danh mục khi vị trí là "Category"
+                  </p>
                 )}
               </div>
-              
+
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Ưu tiên</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Ưu tiên
+                </label>
                 <input
                   type="number"
                   value={formData.priority}
-                  onChange={(e) => setFormData({...formData, priority: parseInt(e.target.value) || 1})}
+                  onChange={e =>
+                    setFormData({ ...formData, priority: parseInt(e.target.value) || 1 })
+                  }
                   placeholder="1"
                   min="1"
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Ngày bắt đầu</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Ngày bắt đầu
+                </label>
                 <input
                   type="date"
                   value={formData.startDate}
-                  onChange={(e) => setFormData({...formData, startDate: e.target.value})}
+                  onChange={e => setFormData({ ...formData, startDate: e.target.value })}
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Ngày kết thúc (tùy chọn)</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Ngày kết thúc (tùy chọn)
+                </label>
                 <input
                   type="date"
                   value={formData.endDate}
-                  onChange={(e) => setFormData({...formData, endDate: e.target.value})}
+                  onChange={e => setFormData({ ...formData, endDate: e.target.value })}
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
                 />
               </div>
-              
+
               <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
                 <input
                   type="checkbox"
                   checked={formData.isActive}
-                  onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
+                  onChange={e => setFormData({ ...formData, isActive: e.target.checked })}
                   className="w-5 h-5 text-green-600 rounded focus:ring-green-500"
                 />
                 <label className="text-gray-900 dark:text-white font-medium">Kích hoạt ngay</label>
               </div>
             </div>
           </div>
-          
+
           <div className="flex gap-3 mt-8">
-            <button 
-              onClick={onClose} 
+            <button
+              onClick={onClose}
               className="flex-1 px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all font-medium"
             >
               Hủy
             </button>
-            <button 
-              onClick={handleAdd} 
+            <button
+              onClick={handleAdd}
               className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white rounded-xl transition-all font-medium shadow-lg hover:shadow-xl"
             >
               Thêm Banner
@@ -1010,7 +1075,12 @@ const AddBannerModal: React.FC<{show: boolean, onAdd: (banner: Omit<Banner, '_id
   );
 };
 
-const EditBannerModal: React.FC<{show: boolean, banner: Banner, onSave: (banner: Banner) => void, onClose: () => void}> = ({ show, banner, onSave, onClose }) => {
+const EditBannerModal: React.FC<{
+  show: boolean;
+  banner: Banner;
+  onSave: (banner: Banner) => void;
+  onClose: () => void;
+}> = ({ show, banner, onSave, onClose }) => {
   const { categories } = useCategoryStore();
   const { handleError } = useErrorHandler();
   const [formData, setFormData] = useState(banner);
@@ -1018,7 +1088,7 @@ const EditBannerModal: React.FC<{show: boolean, banner: Banner, onSave: (banner:
   if (!show) return null;
 
   const handleImageUpload = (imageData: string) => {
-    setFormData({...formData, imageUrl: imageData});
+    setFormData({ ...formData, imageUrl: imageData });
   };
 
   const handleSave = async () => {
@@ -1040,14 +1110,14 @@ const EditBannerModal: React.FC<{show: boolean, banner: Banner, onSave: (banner:
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
-      <div 
+      <div
         className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
         style={{
           position: 'fixed',
           top: '20px',
           left: '50%',
           transform: 'translateX(-50%)',
-          margin: '16px'
+          margin: '16px',
         }}
       >
         <div className="p-6">
@@ -1057,45 +1127,53 @@ const EditBannerModal: React.FC<{show: boolean, banner: Banner, onSave: (banner:
             </div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Chỉnh sửa Banner</h2>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Left Column */}
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Tiêu đề *</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Tiêu đề *
+                </label>
                 <input
                   type="text"
                   value={formData.title}
-                  onChange={(e) => setFormData({...formData, title: e.target.value})}
+                  onChange={e => setFormData({ ...formData, title: e.target.value })}
                   placeholder="Nhập tiêu đề banner"
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Tiêu đề phụ</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Tiêu đề phụ
+                </label>
                 <input
                   type="text"
                   value={formData.subtitle || ''}
-                  onChange={(e) => setFormData({...formData, subtitle: e.target.value})}
+                  onChange={e => setFormData({ ...formData, subtitle: e.target.value })}
                   placeholder="Nhập tiêu đề phụ (tùy chọn)"
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Mô tả</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Mô tả
+                </label>
                 <textarea
                   value={formData.description || ''}
-                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  onChange={e => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Mô tả chi tiết banner"
                   rows={3}
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Hình ảnh Banner *</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Hình ảnh Banner *
+                </label>
                 <ImageUpload
                   value={formData.imageUrl}
                   onChange={handleImageUpload}
@@ -1104,37 +1182,45 @@ const EditBannerModal: React.FC<{show: boolean, banner: Banner, onSave: (banner:
                   maxSize={5 * 1024 * 1024} // 5MB
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">URL Liên kết</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  URL Liên kết
+                </label>
                 <input
                   type="url"
                   value={formData.linkUrl || ''}
-                  onChange={(e) => setFormData({...formData, linkUrl: e.target.value})}
+                  onChange={e => setFormData({ ...formData, linkUrl: e.target.value })}
                   placeholder="https://example.com/target"
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Văn bản nút</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Văn bản nút
+                </label>
                 <input
                   type="text"
                   value={formData.buttonText || 'Xem thêm'}
-                  onChange={(e) => setFormData({...formData, buttonText: e.target.value})}
+                  onChange={e => setFormData({ ...formData, buttonText: e.target.value })}
                   placeholder="Xem thêm"
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
             </div>
-            
+
             {/* Right Column */}
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Vị trí Banner</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Vị trí Banner
+                </label>
                 <select
                   value={formData.position}
-                  onChange={(e) => setFormData({...formData, position: e.target.value as Banner['position']})}
+                  onChange={e =>
+                    setFormData({ ...formData, position: e.target.value as Banner['position'] })
+                  }
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 >
                   <option value="hero">🏆 Hero Banner</option>
@@ -1145,84 +1231,101 @@ const EditBannerModal: React.FC<{show: boolean, banner: Banner, onSave: (banner:
                   <option value="featured">⭐ Featured Banner</option>
                 </select>
               </div>
-              
+
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Danh mục (tùy chọn)</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Danh mục (tùy chọn)
+                </label>
                 <select
                   value={formData.categoryId || ''}
-                  onChange={(e) => setFormData({...formData, categoryId: e.target.value || undefined})}
+                  onChange={e =>
+                    setFormData({ ...formData, categoryId: e.target.value || undefined })
+                  }
                   disabled={formData.position !== 'category'}
                   className={`w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
                     formData.position !== 'category' ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
                 >
                   <option value="">
-                    {formData.position === 'category' ? 'Chọn danh mục...' : 'Chỉ áp dụng cho Category Banner'}
+                    {formData.position === 'category'
+                      ? 'Chọn danh mục...'
+                      : 'Chỉ áp dụng cho Category Banner'}
                   </option>
-                  {formData.position === 'category' && categories.map(category => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
+                  {formData.position === 'category' &&
+                    categories.map(category => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
                 </select>
                 {formData.position !== 'category' && (
-                  <p className="text-xs text-gray-500 mt-1">* Chỉ có thể chọn danh mục khi vị trí là "Category"</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    * Chỉ có thể chọn danh mục khi vị trí là "Category"
+                  </p>
                 )}
               </div>
-              
+
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Ưu tiên</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Ưu tiên
+                </label>
                 <input
                   type="number"
                   value={formData.priority}
-                  onChange={(e) => setFormData({...formData, priority: parseInt(e.target.value) || 1})}
+                  onChange={e =>
+                    setFormData({ ...formData, priority: parseInt(e.target.value) || 1 })
+                  }
                   placeholder="1"
                   min="1"
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Ngày bắt đầu</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Ngày bắt đầu
+                </label>
                 <input
                   type="date"
                   value={formData.startDate}
-                  onChange={(e) => setFormData({...formData, startDate: e.target.value})}
+                  onChange={e => setFormData({ ...formData, startDate: e.target.value })}
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Ngày kết thúc (tùy chọn)</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Ngày kết thúc (tùy chọn)
+                </label>
                 <input
                   type="date"
                   value={formData.endDate || ''}
-                  onChange={(e) => setFormData({...formData, endDate: e.target.value || undefined})}
+                  onChange={e => setFormData({ ...formData, endDate: e.target.value || undefined })}
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
-              
+
               <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
                 <input
                   type="checkbox"
                   checked={formData.isActive}
-                  onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
+                  onChange={e => setFormData({ ...formData, isActive: e.target.checked })}
                   className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
                 />
                 <label className="text-gray-900 dark:text-white font-medium">Đang hoạt động</label>
               </div>
             </div>
           </div>
-          
+
           <div className="flex gap-3 mt-8">
-            <button 
-              onClick={onClose} 
+            <button
+              onClick={onClose}
               className="flex-1 px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all font-medium"
             >
               Hủy
             </button>
-            <button 
-              onClick={handleSave} 
+            <button
+              onClick={handleSave}
               className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white rounded-xl transition-all font-medium shadow-lg hover:shadow-xl"
             >
               Lưu thay đổi
@@ -1234,68 +1337,110 @@ const EditBannerModal: React.FC<{show: boolean, banner: Banner, onSave: (banner:
   );
 };
 
-const ViewBannerModal: React.FC<{show: boolean, banner: Banner, onClose: () => void}> = ({ show, banner, onClose }) => {
+const ViewBannerModal: React.FC<{ show: boolean; banner: Banner; onClose: () => void }> = ({
+  show,
+  banner,
+  onClose,
+}) => {
   if (!show) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
-      <div 
+      <div
         className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
         style={{
           position: 'fixed',
           top: '20px',
           left: '50%',
           transform: 'translateX(-50%)',
-          margin: '16px'
+          margin: '16px',
         }}
       >
         <div className="p-6">
           <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Chi tiết banner</h2>
           <div className="space-y-4">
             <div className="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
-              <img src={banner.imageUrl} alt={banner.title} className="w-full h-full object-cover" />
+              <img
+                src={banner.imageUrl}
+                alt={banner.title}
+                className="w-full h-full object-cover"
+              />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tiêu đề</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Tiêu đề
+                </label>
                 <p className="text-gray-900 dark:text-white">{banner.title}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Vị trí</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Vị trí
+                </label>
                 <p className="text-gray-900 dark:text-white">{banner.position}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Ưu tiên</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Ưu tiên
+                </label>
                 <p className="text-gray-900 dark:text-white">{banner.priority}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Trạng thái</label>
-                <p className="text-gray-900 dark:text-white">{banner.isActive ? 'Đang hoạt động' : 'Tạm dừng'}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Trạng thái
+                </label>
+                <p className="text-gray-900 dark:text-white">
+                  {banner.isActive ? 'Đang hoạt động' : 'Tạm dừng'}
+                </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Lượt click</label>
-                <p className="text-gray-900 dark:text-white">{banner.clickCount.toLocaleString()}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Lượt click
+                </label>
+                <p className="text-gray-900 dark:text-white">
+                  {banner.clickCount.toLocaleString()}
+                </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Ngày tạo</label>
-                <p className="text-gray-900 dark:text-white">{new Date(banner.createdAt).toLocaleString('vi-VN')}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Ngày tạo
+                </label>
+                <p className="text-gray-900 dark:text-white">
+                  {new Date(banner.createdAt).toLocaleString('vi-VN')}
+                </p>
               </div>
             </div>
             {banner.description && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Mô tả</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Mô tả
+                </label>
                 <p className="text-gray-900 dark:text-white">{banner.description}</p>
               </div>
             )}
             {banner.linkUrl && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Liên kết</label>
-                <a href={banner.linkUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">{banner.linkUrl}</a>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Liên kết
+                </label>
+                <a
+                  href={banner.linkUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  {banner.linkUrl}
+                </a>
               </div>
             )}
           </div>
           <div className="flex justify-end mt-6">
-            <button onClick={onClose} className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg">Đóng</button>
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg"
+            >
+              Đóng
+            </button>
           </div>
         </div>
       </div>
@@ -1303,26 +1448,43 @@ const ViewBannerModal: React.FC<{show: boolean, banner: Banner, onClose: () => v
   );
 };
 
-const ConfirmDeleteBannerModal: React.FC<{show: boolean, bannerTitle: string, onConfirm: () => void, onCancel: () => void}> = ({ show, bannerTitle, onConfirm, onCancel }) => {
+const ConfirmDeleteBannerModal: React.FC<{
+  show: boolean;
+  bannerTitle: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}> = ({ show, bannerTitle, onConfirm, onCancel }) => {
   if (!show) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
-      <div 
+      <div
         className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-sm"
         style={{
           position: 'fixed',
           top: '20px',
           left: '50%',
           transform: 'translateX(-50%)',
-          margin: '16px'
+          margin: '16px',
         }}
       >
         <h2 className="text-xl font-bold mb-4 text-red-700 dark:text-red-400">Xác nhận xóa</h2>
-        <p className="mb-6 text-gray-900 dark:text-white">Bạn có chắc chắn muốn xóa banner <strong>"{bannerTitle}"</strong> không?</p>
+        <p className="mb-6 text-gray-900 dark:text-white">
+          Bạn có chắc chắn muốn xóa banner <strong>"{bannerTitle}"</strong> không?
+        </p>
         <div className="flex gap-2">
-          <button onClick={onCancel} className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">Hủy</button>
-          <button onClick={onConfirm} className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg">Xóa</button>
+          <button
+            onClick={onCancel}
+            className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+          >
+            Hủy
+          </button>
+          <button
+            onClick={onConfirm}
+            className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
+          >
+            Xóa
+          </button>
         </div>
       </div>
     </div>

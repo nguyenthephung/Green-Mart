@@ -36,7 +36,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
   startIndex,
   endIndex,
   showItemsPerPage = true,
-  className = ''
+  className = '',
 }) => {
   const getVisiblePages = () => {
     const delta = 2;
@@ -75,16 +75,16 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
   }
 
   return (
-    <div className={`flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 ${className}`}>
+    <div
+      className={`flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 ${className}`}
+    >
       {/* Items per page selector */}
       {showItemsPerPage && (
         <div className="flex items-center space-x-2">
-          <span className="text-sm text-gray-700 dark:text-gray-300">
-            Hiển thị:
-          </span>
+          <span className="text-sm text-gray-700 dark:text-gray-300">Hiển thị:</span>
           <select
             value={itemsPerPage}
-            onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
+            onChange={e => onItemsPerPageChange(Number(e.target.value))}
             className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
           >
             <option value={10}>10</option>
@@ -92,9 +92,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
             <option value={50}>50</option>
             <option value={100}>100</option>
           </select>
-          <span className="text-sm text-gray-700 dark:text-gray-300">
-            mục
-          </span>
+          <span className="text-sm text-gray-700 dark:text-gray-300">mục</span>
         </div>
       )}
 
@@ -130,9 +128,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
           {visiblePages.map((page, index) => (
             <React.Fragment key={index}>
               {page === '...' ? (
-                <span className="px-3 py-2 text-gray-500 dark:text-gray-400">
-                  ...
-                </span>
+                <span className="px-3 py-2 text-gray-500 dark:text-gray-400">...</span>
               ) : (
                 <button
                   onClick={() => onPageChange(page as number)}

@@ -28,15 +28,8 @@ interface ToastProviderProps {
 }
 
 export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
-  const { 
-    toasts, 
-    showSuccess, 
-    showError, 
-    showWarning, 
-    showInfo, 
-    removeToast, 
-    clearToasts 
-  } = useNewToastStore();
+  const { toasts, showSuccess, showError, showWarning, showInfo, removeToast, clearToasts } =
+    useNewToastStore();
 
   const toastManager: ToastContextType = {
     toasts,

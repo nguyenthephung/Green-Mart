@@ -17,25 +17,25 @@ export const authService = {
   login: async (data: LoginData): Promise<AuthResult> => {
     try {
       console.log('Attempting login with:', { email: data.email });
-      
+
       const response: ApiResponse<AuthResponse> = await authAPI.login(data);
-      
+
       console.log('Login response:', response);
-      
+
       if (response.success && response.data) {
         return {
           success: response.success,
           data: {
             token: response.data.token,
-            user: response.data.user
+            user: response.data.user,
           },
-          message: response.message || 'Đăng nhập thành công'
+          message: response.message || 'Đăng nhập thành công',
         };
       } else {
         return {
           success: false,
           message: response.message || 'Đăng nhập thất bại',
-          errors: response.errors
+          errors: response.errors,
         };
       }
     } catch (error: any) {
@@ -49,30 +49,30 @@ export const authService = {
 
   register: async (data: RegisterData): Promise<AuthResult> => {
     try {
-      console.log('Attempting register with:', { 
-        name: data.name, 
-        email: data.email, 
-        phone: data.phone 
+      console.log('Attempting register with:', {
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
       });
-      
+
       const response: ApiResponse<AuthResponse> = await authAPI.register(data);
-      
+
       console.log('Register response:', response);
-      
+
       if (response.success && response.data) {
         return {
           success: response.success,
           data: {
             token: response.data.token,
-            user: response.data.user
+            user: response.data.user,
           },
-          message: response.message || 'Đăng ký thành công'
+          message: response.message || 'Đăng ký thành công',
         };
       } else {
         return {
           success: false,
           message: response.message || 'Đăng ký thất bại',
-          errors: response.errors
+          errors: response.errors,
         };
       }
     } catch (error: any) {
@@ -90,7 +90,7 @@ export const authService = {
       return {
         success: response.success,
         data: response.data,
-        message: response.message
+        message: response.message,
       };
     } catch (error: any) {
       return {
@@ -106,14 +106,14 @@ export const authService = {
       tokenManager.remove();
       return {
         success: response.success,
-        message: response.message
+        message: response.message,
       };
     } catch (error: any) {
       // Vẫn remove token local dù API lỗi
       tokenManager.remove();
       return {
         success: true,
-        message: 'Đăng xuất thành công'
+        message: 'Đăng xuất thành công',
       };
     }
   },

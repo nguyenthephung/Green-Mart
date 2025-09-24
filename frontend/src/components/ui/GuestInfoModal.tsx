@@ -13,7 +13,7 @@ interface GuestInfoModalProps {
 
 const GuestInfoModal: React.FC<GuestInfoModalProps> = ({ isOpen, onClose, onSave }) => {
   const { guestInfo, setGuestInfo } = useGuestStore();
-  
+
   const [formData, setFormData] = useState<GuestUser>({
     name: guestInfo?.name || '',
     phone: guestInfo?.phone || '',
@@ -38,7 +38,7 @@ const GuestInfoModal: React.FC<GuestInfoModalProps> = ({ isOpen, onClose, onSave
     // This should match the logic in your checkout system
     const centralDistricts = ['Quận 1', 'Quận 3', 'Quận 5', 'Quận 10'];
     const nearDistricts = ['Quận 2', 'Quận 4', 'Quận 6', 'Quận 7', 'Quận 8', 'Quận 11', 'Quận 12'];
-    
+
     if (centralDistricts.includes(address.district)) {
       return 15000; // Central districts - cheaper shipping
     } else if (nearDistricts.includes(address.district)) {
@@ -75,7 +75,7 @@ const GuestInfoModal: React.FC<GuestInfoModalProps> = ({ isOpen, onClose, onSave
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (validateForm()) {
       const fullAddress = `${addressData.street}, ${addressData.ward}, ${addressData.district}`;
       const cleanedData = {
@@ -101,14 +101,14 @@ const GuestInfoModal: React.FC<GuestInfoModalProps> = ({ isOpen, onClose, onSave
 
   const handleAddressChange = (address: UserAddress) => {
     setAddressData(address);
-    
+
     // Only update name and phone if they are empty, preserve user input
     setFormData(prev => ({
       ...prev,
       name: prev.name.trim() || address.fullName, // Keep existing name if user typed something
-      phone: prev.phone.trim() || address.phone,  // Keep existing phone if user typed something
+      phone: prev.phone.trim() || address.phone, // Keep existing phone if user typed something
     }));
-    
+
     // Clear address error when address is selected
     if (errors.address) {
       setErrors(prev => ({ ...prev, address: undefined }));
@@ -146,17 +146,15 @@ const GuestInfoModal: React.FC<GuestInfoModalProps> = ({ isOpen, onClose, onSave
             <input
               type="text"
               value={formData.name}
-              onChange={(e) => handleInputChange('name', e.target.value)}
+              onChange={e => handleInputChange('name', e.target.value)}
               className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white ${
-                errors.name 
-                  ? 'border-red-500 dark:border-red-500' 
+                errors.name
+                  ? 'border-red-500 dark:border-red-500'
                   : 'border-gray-300 dark:border-gray-600'
               }`}
               placeholder="Nhập họ và tên của bạn"
             />
-            {errors.name && (
-              <p className="text-red-500 text-sm mt-1">{errors.name}</p>
-            )}
+            {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
           </div>
 
           {/* Phone */}
@@ -168,17 +166,15 @@ const GuestInfoModal: React.FC<GuestInfoModalProps> = ({ isOpen, onClose, onSave
             <input
               type="tel"
               value={formData.phone}
-              onChange={(e) => handleInputChange('phone', e.target.value)}
+              onChange={e => handleInputChange('phone', e.target.value)}
               className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white ${
-                errors.phone 
-                  ? 'border-red-500 dark:border-red-500' 
+                errors.phone
+                  ? 'border-red-500 dark:border-red-500'
                   : 'border-gray-300 dark:border-gray-600'
               }`}
               placeholder="Nhập số điện thoại"
             />
-            {errors.phone && (
-              <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
-            )}
+            {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
           </div>
 
           {/* Address Selector */}
@@ -187,14 +183,9 @@ const GuestInfoModal: React.FC<GuestInfoModalProps> = ({ isOpen, onClose, onSave
               <MapPin className="inline w-4 h-4 mr-2" />
               Địa chỉ nhận hàng *
             </label>
-            <AddressSelector
-              value={addressData}
-              onChange={handleAddressChange}
-            />
-            {errors.address && (
-              <p className="text-red-500 text-sm mt-1">{errors.address}</p>
-            )}
-            
+            <AddressSelector value={addressData} onChange={handleAddressChange} />
+            {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
+
             {/* Shipping Fee Display */}
             {shippingFee > 0 && (
               <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
@@ -214,17 +205,15 @@ const GuestInfoModal: React.FC<GuestInfoModalProps> = ({ isOpen, onClose, onSave
             <input
               type="email"
               value={formData.email}
-              onChange={(e) => handleInputChange('email', e.target.value)}
+              onChange={e => handleInputChange('email', e.target.value)}
               className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white ${
-                errors.email 
-                  ? 'border-red-500 dark:border-red-500' 
+                errors.email
+                  ? 'border-red-500 dark:border-red-500'
                   : 'border-gray-300 dark:border-gray-600'
               }`}
               placeholder="Nhập email để nhận thông báo"
             />
-            {errors.email && (
-              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-            )}
+            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
           </div>
 
           {/* Actions */}

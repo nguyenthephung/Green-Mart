@@ -2,12 +2,15 @@ import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-export const updateOrderTracking = async (id: string, data: {
-  lat: number;
-  lng: number;
-  address?: string;
-  status: string;
-}) => {
+export const updateOrderTracking = async (
+  id: string,
+  data: {
+    lat: number;
+    lng: number;
+    address?: string;
+    status: string;
+  }
+) => {
   return axios.put(`${API_BASE_URL}/order-tracking/${id}`, data);
 };
 

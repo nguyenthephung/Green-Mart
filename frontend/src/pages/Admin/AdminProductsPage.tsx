@@ -18,11 +18,10 @@ type ViewMode = 'table' | 'grid';
 type FilterStatus = 'all' | 'active' | 'inactive';
 // FilterCategory chỉ cần là string vì dropdown lấy từ store
 
-
 const AdminProducts: React.FC = () => {
   const { products, fetchAll, add, update, remove } = useProductStore();
   const { categories, fetchCategories } = useCategoryStore();
-  
+
   // Helper function to check if category exists and get parent category info
   const getCategoryInfo = (categoryName: string) => {
     // Check if it's a direct parent category
@@ -33,10 +32,10 @@ const AdminProducts: React.FC = () => {
         isParent: true,
         parentName: categoryName,
         displayName: categoryName,
-        status: 'parent'
+        status: 'parent',
       };
     }
-    
+
     // Check if it's a subcategory
     const parentWithSub = categories.find(cat => cat.subs?.includes(categoryName));
     if (parentWithSub) {
@@ -45,17 +44,17 @@ const AdminProducts: React.FC = () => {
         isParent: false,
         parentName: parentWithSub.name,
         displayName: categoryName,
-        status: 'sub'
+        status: 'sub',
       };
     }
-    
+
     // Category doesn't exist (deleted)
     return {
       exists: false,
       isParent: false,
       parentName: null,
       displayName: categoryName,
-      status: 'deleted'
+      status: 'deleted',
     };
   };
   // Loading states for each action
@@ -71,7 +70,7 @@ const AdminProducts: React.FC = () => {
       setFetchLoading(true);
       Promise.all([
         fetchAll().catch((err: any) => setFetchError(err?.message || 'Lỗi tải sản phẩm')),
-        fetchCategories().catch(() => {})
+        fetchCategories().catch(() => {}),
       ]).finally(() => {
         setFetchLoading(false);
         setFetchTried(true);
@@ -106,11 +105,13 @@ const AdminProducts: React.FC = () => {
   // Filter and sort logic
   const filteredAndSortedProducts = useMemo(() => {
     let filtered = products.filter(product => {
-      const matchesSearch = product.name.toLowerCase().includes(search.toLowerCase()) ||
+      const matchesSearch =
+        product.name.toLowerCase().includes(search.toLowerCase()) ||
         product.category.toLowerCase().includes(search.toLowerCase()) ||
         (product.brand?.toLowerCase() || '').includes(search.toLowerCase());
 
-      const matchesStatus = filterStatus === 'all' ||
+      const matchesStatus =
+        filterStatus === 'all' ||
         (filterStatus === 'active' && product.status === 'active') ||
         (filterStatus === 'inactive' && product.status === 'inactive');
 
@@ -134,7 +135,7 @@ const AdminProducts: React.FC = () => {
 
     filtered.sort((a, b) => {
       let aValue: any, bValue: any;
-      
+
       switch (sortField) {
         case 'name':
           aValue = a.name.toLowerCase();
@@ -170,13 +171,22 @@ const AdminProducts: React.FC = () => {
     });
 
     return filtered;
-  }, [products, search, sortField, sortOrder, filterStatus, filterParentCategory, filterSubCategory, categories]);
+  }, [
+    products,
+    search,
+    sortField,
+    sortOrder,
+    filterStatus,
+    filterParentCategory,
+    filterSubCategory,
+    categories,
+  ]);
 
   // Use pagination hook
   const pagination = usePagination({
     data: filteredAndSortedProducts,
     itemsPerPage: 10,
-    initialPage: 1
+    initialPage: 1,
   });
 
   const handleSort = (field: SortField) => {
@@ -194,7 +204,7 @@ const AdminProducts: React.FC = () => {
     try {
       await add(newProduct);
       // Không cần fetchAll() ngay lập tức, store sẽ tự cập nhật
-      // await fetchAll(); 
+      // await fetchAll();
       toast.success('Thêm sản phẩm thành công!');
       // Không setShowAdd(false) ở đây vì AddProductModal sẽ tự đóng
     } catch (err: any) {
@@ -264,10 +274,10 @@ const AdminProducts: React.FC = () => {
     }
   };
 
-const openEditModal = (product: AdminProduct) => {
-  setEditProduct(product);
-  setShowEdit(true);
-};
+  const openEditModal = (product: AdminProduct) => {
+    setEditProduct(product);
+    setShowEdit(true);
+  };
 
   const getSortIcon = (field: SortField) => {
     if (sortField !== field) return '↕️';
@@ -276,7 +286,7 @@ const openEditModal = (product: AdminProduct) => {
 
   const getStatusColor = (status: string) => {
     return status === 'active'
-      ? 'bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700' 
+      ? 'bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700'
       : 'bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-200 border-red-200 dark:border-red-700';
   };
 
@@ -289,7 +299,7 @@ const openEditModal = (product: AdminProduct) => {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
-      currency: 'VND'
+      currency: 'VND',
     }).format(price);
   };
 
@@ -304,33 +314,42 @@ const openEditModal = (product: AdminProduct) => {
   }, []);
 
   return (
-    <div
-      className="min-h-screen"
-      style={{ background: isDarkMode ? '#18181b' : '#f9fafb' }}
-    >
+    <div className="min-h-screen" style={{ background: isDarkMode ? '#18181b' : '#f9fafb' }}>
       {/* Toast Container */}
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover />
-      
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Quản lý sản phẩm</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+              Quản lý sản phẩm
+            </h1>
             <p className="text-gray-600 dark:text-gray-300">
-              Tổng cộng: <span className="font-semibold text-green-600">      {filteredAndSortedProducts.length}</span> sản phẩm
-              {search && (
-                <span className="ml-2 text-sm">
-                  (lọc từ {products.length} sản phẩm)
-                </span>
-              )}
+              Tổng cộng:{' '}
+              <span className="font-semibold text-green-600">
+                {' '}
+                {filteredAndSortedProducts.length}
+              </span>{' '}
+              sản phẩm
+              {search && <span className="ml-2 text-sm">(lọc từ {products.length} sản phẩm)</span>}
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
               className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 ${
-                showFilters 
-                  ? 'bg-blue-600 text-white shadow-lg' 
+                showFilters
+                  ? 'bg-blue-600 text-white shadow-lg'
                   : 'bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-700'
               }`}
             >
@@ -341,8 +360,8 @@ const openEditModal = (product: AdminProduct) => {
               <button
                 onClick={() => setViewMode('table')}
                 className={`px-3 py-2 rounded-lg transition-all duration-200 ${
-                  viewMode === 'table' 
-                    ? 'bg-green-600 text-white shadow-lg' 
+                  viewMode === 'table'
+                    ? 'bg-green-600 text-white shadow-lg'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
                 title="Xem dạng bảng"
@@ -352,8 +371,8 @@ const openEditModal = (product: AdminProduct) => {
               <button
                 onClick={() => setViewMode('grid')}
                 className={`px-3 py-2 rounded-lg transition-all duration-200 ${
-                  viewMode === 'grid' 
-                    ? 'bg-green-600 text-white shadow-lg' 
+                  viewMode === 'grid'
+                    ? 'bg-green-600 text-white shadow-lg'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
                 title="Xem dạng thẻ"
@@ -398,7 +417,7 @@ const openEditModal = (product: AdminProduct) => {
                 <input
                   type="text"
                   value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  onChange={e => setSearch(e.target.value)}
                   placeholder="Tên sản phẩm, danh mục, thương hiệu..."
                   className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
                 />
@@ -409,7 +428,7 @@ const openEditModal = (product: AdminProduct) => {
               <label className="block text-sm font-medium text-gray-700 mb-2">Trạng thái</label>
               <select
                 value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value as FilterStatus)}
+                onChange={e => setFilterStatus(e.target.value as FilterStatus)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
               >
                 <option value="all">Tất cả</option>
@@ -430,17 +449,29 @@ const openEditModal = (product: AdminProduct) => {
               >
                 <option value="all">Tất cả danh mục cha</option>
                 {categories.map(cat => (
-                  <option key={cat.id} value={cat.id}>{cat.icon ? `${cat.icon} ` : ''}{cat.name}</option>
+                  <option key={cat.id} value={cat.id}>
+                    {cat.icon ? `${cat.icon} ` : ''}
+                    {cat.name}
+                  </option>
                 ))}
               </select>
               {filterParentCategory !== 'all' && (
                 <div className="mt-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Danh mục con</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Danh mục con
+                  </label>
                   {(() => {
                     const parentCat = categories.find(cat => cat.id === filterParentCategory);
-                    if (!parentCat) return <div className="text-sm text-red-500">Không tìm thấy danh mục cha này.</div>;
+                    if (!parentCat)
+                      return (
+                        <div className="text-sm text-red-500">Không tìm thấy danh mục cha này.</div>
+                      );
                     if (!parentCat.subs || parentCat.subs.length === 0) {
-                      return <div className="text-sm text-gray-500">Danh mục này chưa có danh mục con.</div>;
+                      return (
+                        <div className="text-sm text-gray-500">
+                          Danh mục này chưa có danh mục con.
+                        </div>
+                      );
                     }
                     return (
                       <select
@@ -450,7 +481,9 @@ const openEditModal = (product: AdminProduct) => {
                       >
                         <option value="all">Tất cả danh mục con</option>
                         {parentCat.subs.map((sub, idx) => (
-                          <option key={sub + '-' + idx} value={sub}>{sub}</option>
+                          <option key={sub + '-' + idx} value={sub}>
+                            {sub}
+                          </option>
                         ))}
                       </select>
                     );
@@ -462,7 +495,7 @@ const openEditModal = (product: AdminProduct) => {
               <label className="block text-sm font-medium text-gray-700 mb-2">Sắp xếp theo</label>
               <select
                 value={`${sortField}-${sortOrder}`}
-                onChange={(e) => {
+                onChange={e => {
                   const [field, order] = e.target.value.split('-');
                   setSortField(field as SortField);
                   setSortOrder(order as SortOrder);
@@ -490,23 +523,38 @@ const openEditModal = (product: AdminProduct) => {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead
-                style={{ background: isDarkMode ? '#23272f' : '#f3f4f6', borderBottom: isDarkMode ? '1px solid #23272f' : '1px solid #e5e7eb' }}
+                style={{
+                  background: isDarkMode ? '#23272f' : '#f3f4f6',
+                  borderBottom: isDarkMode ? '1px solid #23272f' : '1px solid #e5e7eb',
+                }}
               >
                 <tr>
-                  <th style={{ color: isDarkMode ? '#e5e7eb' : '#6b7280', background: isDarkMode ? '#23272f' : undefined }} className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">
+                  <th
+                    style={{
+                      color: isDarkMode ? '#e5e7eb' : '#6b7280',
+                      background: isDarkMode ? '#23272f' : undefined,
+                    }}
+                    className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider"
+                  >
                     Hình ảnh
                   </th>
                   <th
-                    style={{ color: isDarkMode ? '#e5e7eb' : '#6b7280', background: isDarkMode ? '#23272f' : undefined, cursor: 'pointer' }}
+                    style={{
+                      color: isDarkMode ? '#e5e7eb' : '#6b7280',
+                      background: isDarkMode ? '#23272f' : undefined,
+                      cursor: 'pointer',
+                    }}
                     className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider transition-colors"
                     onClick={() => handleSort('name')}
                   >
-                    <div className="flex items-center gap-1">
-                      Sản phẩm {getSortIcon('name')}
-                    </div>
+                    <div className="flex items-center gap-1">Sản phẩm {getSortIcon('name')}</div>
                   </th>
                   <th
-                    style={{ color: isDarkMode ? '#e5e7eb' : '#6b7280', background: isDarkMode ? '#23272f' : undefined, cursor: 'pointer' }}
+                    style={{
+                      color: isDarkMode ? '#e5e7eb' : '#6b7280',
+                      background: isDarkMode ? '#23272f' : undefined,
+                      cursor: 'pointer',
+                    }}
                     className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider transition-colors"
                     onClick={() => handleSort('category')}
                   >
@@ -515,30 +563,52 @@ const openEditModal = (product: AdminProduct) => {
                     </div>
                   </th>
                   <th
-                    style={{ color: isDarkMode ? '#e5e7eb' : '#6b7280', background: isDarkMode ? '#23272f' : undefined, cursor: 'pointer' }}
+                    style={{
+                      color: isDarkMode ? '#e5e7eb' : '#6b7280',
+                      background: isDarkMode ? '#23272f' : undefined,
+                      cursor: 'pointer',
+                    }}
                     className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider transition-colors"
                     onClick={() => handleSort('price')}
                   >
-                    <div className="flex items-center gap-1">
-                      Giá {getSortIcon('price')}
-                    </div>
+                    <div className="flex items-center gap-1">Giá {getSortIcon('price')}</div>
                   </th>
                   <th
-                    style={{ color: isDarkMode ? '#e5e7eb' : '#6b7280', background: isDarkMode ? '#23272f' : undefined, cursor: 'pointer' }}
+                    style={{
+                      color: isDarkMode ? '#e5e7eb' : '#6b7280',
+                      background: isDarkMode ? '#23272f' : undefined,
+                      cursor: 'pointer',
+                    }}
                     className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider transition-colors"
                     onClick={() => handleSort('stock')}
                   >
-                    <div className="flex items-center gap-1">
-                      Tồn kho {getSortIcon('stock')}
-                    </div>
+                    <div className="flex items-center gap-1">Tồn kho {getSortIcon('stock')}</div>
                   </th>
-                  <th style={{ color: isDarkMode ? '#e5e7eb' : '#6b7280', background: isDarkMode ? '#23272f' : undefined }} className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">
+                  <th
+                    style={{
+                      color: isDarkMode ? '#e5e7eb' : '#6b7280',
+                      background: isDarkMode ? '#23272f' : undefined,
+                    }}
+                    className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider"
+                  >
                     Trạng thái
                   </th>
-                  <th style={{ color: isDarkMode ? '#e5e7eb' : '#6b7280', background: isDarkMode ? '#23272f' : undefined }} className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">
+                  <th
+                    style={{
+                      color: isDarkMode ? '#e5e7eb' : '#6b7280',
+                      background: isDarkMode ? '#23272f' : undefined,
+                    }}
+                    className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider"
+                  >
                     Khuyến mãi
                   </th>
-                  <th style={{ color: isDarkMode ? '#e5e7eb' : '#6b7280', background: isDarkMode ? '#23272f' : undefined }} className="px-6 py-4 text-right text-xs font-medium uppercase tracking-wider">
+                  <th
+                    style={{
+                      color: isDarkMode ? '#e5e7eb' : '#6b7280',
+                      background: isDarkMode ? '#23272f' : undefined,
+                    }}
+                    className="px-6 py-4 text-right text-xs font-medium uppercase tracking-wider"
+                  >
                     Thao tác
                   </th>
                 </tr>
@@ -547,93 +617,285 @@ const openEditModal = (product: AdminProduct) => {
                 style={{ background: isDarkMode ? '#18181b' : '#fff' }}
                 className="divide-y divide-gray-200 dark:divide-gray-700"
               >
-                {fetchLoading ? (
-                  // Show loading skeleton rows
-                  [...Array(pagination.itemsPerPage)].map((_, idx) => (
-                    <tr key={idx} className="animate-pulse">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="space-y-2">
-                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-                          <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                {fetchLoading
+                  ? // Show loading skeleton rows
+                    [...Array(pagination.itemsPerPage)].map((_, idx) => (
+                      <tr key={idx} className="animate-pulse">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="space-y-2">
+                            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex justify-end gap-2">
+                            <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                            <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  : pagination.currentData.map((product, idx) => {
+                      const stockStatus = getStockStatus(product.stock);
+                      // Sử dụng product.id nếu có, nếu không thì dùng idx làm key phụ
+                      const key = product.id ?? idx;
+                      return (
+                        <tr
+                          key={key}
+                          style={{ transition: 'none' }}
+                          onMouseEnter={e => {
+                            if (isDarkMode) e.currentTarget.style.background = '#23272f';
+                            else e.currentTarget.style.background = '#f3f4f6';
+                          }}
+                          onMouseLeave={e => {
+                            e.currentTarget.style.background = '';
+                          }}
+                        >
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <img
+                              src={product.image}
+                              alt={product.name}
+                              className="w-12 h-12 rounded-lg object-cover shadow-sm"
+                            />
+                          </td>
+                          <td className="px-6 py-4">
+                            <div>
+                              <div className="text-sm font-medium text-gray-900">
+                                {product.name}
+                              </div>
+                              <div className="text-sm text-gray-500">{product.brand}</div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {(() => {
+                              const categoryInfo = getCategoryInfo(product.category);
+                              if (!categoryInfo.exists) {
+                                return (
+                                  <div className="flex flex-col gap-1">
+                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                      ❌ {product.category}
+                                    </span>
+                                    <span className="text-xs text-red-600">Danh mục đã bị xóa</span>
+                                  </div>
+                                );
+                              }
+
+                              return (
+                                <div className="flex flex-col gap-1">
+                                  <span
+                                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                      categoryInfo.isParent
+                                        ? 'bg-blue-100 text-blue-800'
+                                        : 'bg-green-100 text-green-800'
+                                    }`}
+                                  >
+                                    {categoryInfo.isParent ? '📁' : '📄'} {product.category}
+                                  </span>
+                                  {!categoryInfo.isParent && (
+                                    <span className="text-xs text-gray-500">
+                                      Thuộc: {categoryInfo.parentName}
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            })()}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div>
+                              {product.isSale ? (
+                                <>
+                                  <div className="text-sm font-medium text-red-600">
+                                    {formatPrice(product.salePrice || 0)}
+                                  </div>
+                                  <div className="text-xs text-gray-500 line-through">
+                                    {formatPrice(product.price)}
+                                  </div>
+                                </>
+                              ) : (
+                                <div className="text-sm font-medium text-gray-900">
+                                  {formatPrice(product.price)}
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div>
+                              <div className={`text-sm font-medium ${stockStatus.color}`}>
+                                {product.stock} {product.unit}
+                              </div>
+                              <div className={`text-xs ${stockStatus.color}`}>
+                                {stockStatus.label}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <button
+                              onClick={() => {
+                                if (!product.id || typeof product.id !== 'string') {
+                                  // toast.error('ID sản phẩm không hợp lệ!');
+                                  return;
+                                }
+                                handleToggleStatus(product.id);
+                              }}
+                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors ${getStatusColor(product.status)}`}
+                            >
+                              {product.status === 'active' ? 'Đang bán' : 'Ngừng bán'}
+                            </button>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {product.isSale ? (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">
+                                🏷️ Giảm {product.discountAmount?.toLocaleString()}đ
+                              </span>
+                            ) : (
+                              <span className="text-gray-400 text-xs">Không có</span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div className="flex items-center justify-end gap-2">
+                              <button
+                                onClick={() =>
+                                  openEditModal({
+                                    ...product,
+                                    id:
+                                      typeof product.id === 'string'
+                                        ? product.id
+                                        : String(product.id),
+                                  })
+                                }
+                                className="text-blue-600 hover:text-blue-900 p-1 rounded transition-colors"
+                                title="Chỉnh sửa"
+                              >
+                                ✏️
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (!product.id || typeof product.id !== 'string') {
+                                    // toast.error('ID sản phẩm không hợp lệ!');
+                                    return;
+                                  }
+                                  setDeleteId(product.id);
+                                }}
+                                className="text-red-600 hover:text-red-900 p-1 rounded transition-colors"
+                                title="Xóa"
+                              >
+                                🗑️
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+              </tbody>
+            </table>
+          </div>
+
+          {filteredAndSortedProducts.length === 0 && (
+            <div className="text-center py-12">
+              <div className="text-gray-400 text-6xl mb-4">📦</div>
+              <h3
+                style={{ color: isDarkMode ? '#e5e7eb' : '#111827' }}
+                className="text-lg font-medium mb-2"
+              >
+                Không tìm thấy sản phẩm
+              </h3>
+              <p style={{ color: isDarkMode ? '#a1a1aa' : '#6b7280' }}>
+                {search ? 'Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc' : 'Chưa có sản phẩm nào'}
+              </p>
+            </div>
+          )}
+        </div>
+      ) : (
+        /* Grid View */
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {fetchLoading
+            ? // Show loading skeleton cards
+              [...Array(pagination.itemsPerPage)].map((_, idx) => (
+                <div
+                  key={idx}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden animate-pulse"
+                >
+                  <div className="w-full h-48 bg-gray-200 dark:bg-gray-700"></div>
+                  <div className="p-4 space-y-3">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                    <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                    <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
+                    <div className="flex gap-2 mt-4">
+                      <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                      <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            : pagination.currentData.map((product, idx) => {
+                const stockStatus = getStockStatus(product.stock);
+                // Sử dụng product.id nếu có, nếu không thì dùng idx làm key phụ
+                const key = product.id ?? idx;
+                return (
+                  <div
+                    key={key}
+                    className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1"
+                  >
+                    <div className="relative">
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-48 object-cover"
+                      />
+                      {product.isSale && (
+                        <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-lg text-xs font-bold">
+                          Giảm {product.discountAmount?.toLocaleString()}đ
                         </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex justify-end gap-2">
-                          <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                          <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  pagination.currentData.map((product, idx) => {
-                  const stockStatus = getStockStatus(product.stock);
-                  // Sử dụng product.id nếu có, nếu không thì dùng idx làm key phụ
-                  const key = product.id ?? idx;
-                  return (
-                    <tr
-                      key={key}
-                      style={{ transition: 'none' }}
-                      onMouseEnter={e => {
-                        if (isDarkMode) e.currentTarget.style.background = '#23272f';
-                        else e.currentTarget.style.background = '#f3f4f6';
-                      }}
-                      onMouseLeave={e => {
-                        e.currentTarget.style.background = '';
-                      }}
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <img 
-                          src={product.image} 
-                          alt={product.name}
-                          className="w-12 h-12 rounded-lg object-cover shadow-sm"
-                        />
-                      </td>
-                      <td className="px-6 py-4">
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">{product.name}</div>
-                          <div className="text-sm text-gray-500">{product.brand}</div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      )}
+                      <div
+                        className={`absolute top-2 right-2 px-2 py-1 rounded-lg text-xs font-medium ${getStatusColor(product.status)}`}
+                      >
+                        {product.status === 'active' ? '✅' : '❌'}
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <div className="mb-2">
                         {(() => {
                           const categoryInfo = getCategoryInfo(product.category);
                           if (!categoryInfo.exists) {
                             return (
                               <div className="flex flex-col gap-1">
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                   ❌ {product.category}
                                 </span>
                                 <span className="text-xs text-red-600">Danh mục đã bị xóa</span>
                               </div>
                             );
                           }
-                          
+
                           return (
                             <div className="flex flex-col gap-1">
-                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                categoryInfo.isParent 
-                                  ? 'bg-blue-100 text-blue-800' 
-                                  : 'bg-green-100 text-green-800'
-                              }`}>
+                              <span
+                                className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                  categoryInfo.isParent
+                                    ? 'bg-blue-100 text-blue-800'
+                                    : 'bg-green-100 text-green-800'
+                                }`}
+                              >
                                 {categoryInfo.isParent ? '📁' : '📄'} {product.category}
                               </span>
                               {!categoryInfo.isParent && (
@@ -644,229 +906,63 @@ const openEditModal = (product: AdminProduct) => {
                             </div>
                           );
                         })()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          {product.isSale ? (
-                            <>
-                              <div className="text-sm font-medium text-red-600">
-                                {formatPrice(product.salePrice || 0)}
-                              </div>
-                              <div className="text-xs text-gray-500 line-through">
-                                {formatPrice(product.price)}
-                              </div>
-                            </>
-                          ) : (
-                            <div className="text-sm font-medium text-gray-900">
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-1 line-clamp-2">
+                        {product.name}
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-3">{product.brand}</p>
+                      <div className="mb-3">
+                        {product.isSale ? (
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg font-bold text-red-600">
+                              {formatPrice(product.salePrice || 0)}
+                            </span>
+                            <span className="text-sm text-gray-500 line-through">
                               {formatPrice(product.price)}
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className={`text-sm font-medium ${stockStatus.color}`}>
-                            {product.stock} {product.unit}
+                            </span>
                           </div>
-                          <div className={`text-xs ${stockStatus.color}`}>
-                            {stockStatus.label}
-                          </div>
+                        ) : (
+                          <span className="text-lg font-bold text-gray-900">
+                            {formatPrice(product.price)}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between mb-4">
+                        <div className={`text-sm font-medium ${stockStatus.color}`}>
+                          {product.stock} {product.unit}
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className={`text-xs ${stockStatus.color}`}>{stockStatus.label}</div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() =>
+                            openEditModal({
+                              ...product,
+                              id: typeof product.id === 'string' ? product.id : String(product.id),
+                            })
+                          }
+                          className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                        >
+                          Sửa
+                        </button>
                         <button
                           onClick={() => {
                             if (!product.id || typeof product.id !== 'string') {
                               // toast.error('ID sản phẩm không hợp lệ!');
                               return;
                             }
-                            handleToggleStatus(product.id);
+                            setDeleteId(product.id);
                           }}
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors ${getStatusColor(product.status)}`}
+                          className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
                         >
-                          {product.status === 'active' ? 'Đang bán' : 'Ngừng bán'}
+                          Xóa
                         </button>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {product.isSale ? (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">
-                            🏷️ Giảm {product.discountAmount?.toLocaleString()}đ
-                          </span>
-                        ) : (
-                          <span className="text-gray-400 text-xs">Không có</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => openEditModal({ ...product, id: typeof product.id === 'string' ? product.id : String(product.id) })}
-                            className="text-blue-600 hover:text-blue-900 p-1 rounded transition-colors"
-                            title="Chỉnh sửa"
-                          >
-                            ✏️
-                          </button>
-                          <button
-                            onClick={() => {
-                              if (!product.id || typeof product.id !== 'string') {
-                                // toast.error('ID sản phẩm không hợp lệ!');
-                                return;
-                              }
-                              setDeleteId(product.id);
-                            }}
-                            className="text-red-600 hover:text-red-900 p-1 rounded transition-colors"
-                            title="Xóa"
-                          >
-                            🗑️
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-          
-          {filteredAndSortedProducts.length === 0 && (
-            <div className="text-center py-12">
-              <div className="text-gray-400 text-6xl mb-4">📦</div>
-              <h3 style={{ color: isDarkMode ? '#e5e7eb' : '#111827' }} className="text-lg font-medium mb-2">Không tìm thấy sản phẩm</h3>
-              <p style={{ color: isDarkMode ? '#a1a1aa' : '#6b7280' }}>
-                {search ? 'Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc' : 'Chưa có sản phẩm nào'}
-              </p>
-            </div>
-          )}
-        </div>
-      ) : (
-        /* Grid View */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {fetchLoading ? (
-            // Show loading skeleton cards
-            [...Array(pagination.itemsPerPage)].map((_, idx) => (
-              <div key={idx} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden animate-pulse">
-                <div className="w-full h-48 bg-gray-200 dark:bg-gray-700"></div>
-                <div className="p-4 space-y-3">
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
-                  <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
-                  <div className="flex gap-2 mt-4">
-                    <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                    <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                  </div>
-                </div>
-              </div>
-            ))
-          ) : (
-            pagination.currentData.map((product, idx) => {
-            const stockStatus = getStockStatus(product.stock);
-            // Sử dụng product.id nếu có, nếu không thì dùng idx làm key phụ
-            const key = product.id ?? idx;
-            return (
-              <div key={key} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1">
-                <div className="relative">
-                  <img 
-                    src={product.image} 
-                    alt={product.name}
-                    className="w-full h-48 object-cover"
-                  />
-                  {product.isSale && (
-                    <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-lg text-xs font-bold">
-                      Giảm {product.discountAmount?.toLocaleString()}đ
-                    </div>
-                  )}
-                  <div className={`absolute top-2 right-2 px-2 py-1 rounded-lg text-xs font-medium ${getStatusColor(product.status)}`}>
-                    {product.status === 'active' ? '✅' : '❌'}
-                  </div>
-                </div>
-                <div className="p-4">
-                  <div className="mb-2">
-                    {(() => {
-                      const categoryInfo = getCategoryInfo(product.category);
-                      if (!categoryInfo.exists) {
-                        return (
-                          <div className="flex flex-col gap-1">
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                              ❌ {product.category}
-                            </span>
-                            <span className="text-xs text-red-600">Danh mục đã bị xóa</span>
-                          </div>
-                        );
-                      }
-                      
-                      return (
-                        <div className="flex flex-col gap-1">
-                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                            categoryInfo.isParent 
-                              ? 'bg-blue-100 text-blue-800' 
-                              : 'bg-green-100 text-green-800'
-                          }`}>
-                            {categoryInfo.isParent ? '📁' : '📄'} {product.category}
-                          </span>
-                          {!categoryInfo.isParent && (
-                            <span className="text-xs text-gray-500">
-                              Thuộc: {categoryInfo.parentName}
-                            </span>
-                          )}
-                        </div>
-                      );
-                    })()}
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-1 line-clamp-2">
-                    {product.name}
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-3">{product.brand}</p>
-                  <div className="mb-3">
-                    {product.isSale ? (
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg font-bold text-red-600">
-                          {formatPrice(product.salePrice || 0)}
-                        </span>
-                        <span className="text-sm text-gray-500 line-through">
-                          {formatPrice(product.price)}
-                        </span>
                       </div>
-                    ) : (
-                      <span className="text-lg font-bold text-gray-900">
-                        {formatPrice(product.price)}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className={`text-sm font-medium ${stockStatus.color}`}>
-                      {product.stock} {product.unit}
-                    </div>
-                    <div className={`text-xs ${stockStatus.color}`}>
-                      {stockStatus.label}
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => openEditModal({ ...product, id: typeof product.id === 'string' ? product.id : String(product.id) })}
-                      className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-                    >
-                      Sửa
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (!product.id || typeof product.id !== 'string') {
-                          // toast.error('ID sản phẩm không hợp lệ!');
-                          return;
-                        }
-                        setDeleteId(product.id);
-                      }}
-                      className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
-                    >
-                      Xóa
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-            })
-          )}
-          
+                );
+              })}
+
           {filteredAndSortedProducts.length === 0 && !fetchLoading && (
             <div className="col-span-full text-center py-12">
               <div className="text-gray-400 text-6xl mb-4">📦</div>
@@ -933,10 +1029,10 @@ const openEditModal = (product: AdminProduct) => {
       {/* Modals */}
       {showAdd && (
         <AddProductModal
-  show={showAdd}
-  onAdd={handleAddProduct}
-  onClose={() => setShowAdd(false)}
-/>
+          show={showAdd}
+          onAdd={handleAddProduct}
+          onClose={() => setShowAdd(false)}
+        />
       )}
 
       {showEdit && editProduct && (
@@ -959,8 +1055,8 @@ const openEditModal = (product: AdminProduct) => {
           textClassName="text-gray-900 dark:text-gray-100"
         />
       )}
-    {/* Toast Container đã được tạm thời disable */}
-    {/* <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover aria-label="Thông báo hệ thống" /> */}
+      {/* Toast Container đã được tạm thời disable */}
+      {/* <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover aria-label="Thông báo hệ thống" /> */}
     </div>
   );
 };

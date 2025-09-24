@@ -37,7 +37,12 @@ export interface RatingResponse {
 
 class RatingService {
   // Get ratings for a product
-  async getProductRatings(productId: string, page = 1, limit = 10, sort = '-createdAt'): Promise<Rating[]> {
+  async getProductRatings(
+    productId: string,
+    page = 1,
+    limit = 10,
+    sort = '-createdAt'
+  ): Promise<Rating[]> {
     const response = await apiClient<{
       ratings: Rating[];
       pagination: {
@@ -49,7 +54,7 @@ class RatingService {
     }>(`/ratings/product/${productId}?page=${page}&limit=${limit}&sort=${sort}`, {
       method: 'GET',
     });
-    
+
     if (response.success && response.data) {
       return response.data.ratings || [];
     }
@@ -62,7 +67,7 @@ class RatingService {
       method: 'POST',
       body: JSON.stringify(data),
     });
-    
+
     if (response.success && response.data) {
       return response.data;
     }
@@ -75,7 +80,7 @@ class RatingService {
       method: 'PUT',
       body: JSON.stringify(data),
     });
-    
+
     if (response.success && response.data) {
       return response.data;
     }
@@ -84,10 +89,13 @@ class RatingService {
 
   // Delete a rating
   async deleteRating(ratingId: string): Promise<{ success: boolean; message: string }> {
-    const response = await apiClient<{ success: boolean; message: string }>(`/ratings/${ratingId}`, {
-      method: 'DELETE',
-    });
-    
+    const response = await apiClient<{ success: boolean; message: string }>(
+      `/ratings/${ratingId}`,
+      {
+        method: 'DELETE',
+      }
+    );
+
     if (response.success) {
       return { success: true, message: (response as any).message || 'Rating deleted successfully' };
     }
@@ -99,7 +107,7 @@ class RatingService {
     const response = await apiClient<Rating>(`/ratings/${ratingId}/helpful`, {
       method: 'POST',
     });
-    
+
     if (response.success && response.data) {
       return response.data;
     }

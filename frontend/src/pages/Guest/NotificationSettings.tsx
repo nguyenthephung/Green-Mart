@@ -3,14 +3,8 @@ import { useNotificationStore } from '../../stores/useNotificationStore';
 import { Bell, Settings, Save, RefreshCw, CheckCircle, AlertCircle } from 'lucide-react';
 
 const NotificationSettings: React.FC = () => {
-  const {
-    settings,
-    loadingSettings,
-    error,
-    fetchSettings,
-    updateSettings,
-    clearError
-  } = useNotificationStore();
+  const { settings, loadingSettings, error, fetchSettings, updateSettings, clearError } =
+    useNotificationStore();
 
   const [localSettings, setLocalSettings] = useState(settings);
   const [isSaving, setIsSaving] = useState(false);
@@ -36,23 +30,39 @@ const NotificationSettings: React.FC = () => {
   }, [error]);
 
   const handleSettingChange = (
-    category: 'order' | 'promotion' | 'system' | 'review' | 'shipping' | 'admin' | 'voucher' | 'payment' | 'account' | 'pushNotifications' | 'emailNotifications' | 'smsNotifications',
+    category:
+      | 'order'
+      | 'promotion'
+      | 'system'
+      | 'review'
+      | 'shipping'
+      | 'admin'
+      | 'voucher'
+      | 'payment'
+      | 'account'
+      | 'pushNotifications'
+      | 'emailNotifications'
+      | 'smsNotifications',
     value: boolean
   ) => {
     if (!localSettings) return;
 
-    if (category === 'pushNotifications' || category === 'emailNotifications' || category === 'smsNotifications') {
+    if (
+      category === 'pushNotifications' ||
+      category === 'emailNotifications' ||
+      category === 'smsNotifications'
+    ) {
       setLocalSettings({
         ...localSettings,
-        [category]: value
+        [category]: value,
       });
     } else {
       setLocalSettings({
         ...localSettings,
         settings: {
           ...localSettings.settings,
-          [category]: value
-        }
+          [category]: value,
+        },
       });
     }
   };
@@ -86,57 +96,57 @@ const NotificationSettings: React.FC = () => {
       title: 'Đơn hàng',
       description: 'Thông báo về trạng thái đơn hàng, xác nhận thanh toán',
       icon: '🛍️',
-      color: 'text-blue-600 bg-blue-50'
+      color: 'text-blue-600 bg-blue-50',
     },
     {
       key: 'shipping' as const,
       title: 'Vận chuyển',
       description: 'Cập nhật về quá trình giao hàng, tracking',
       icon: '🚚',
-      color: 'text-green-600 bg-green-50'
+      color: 'text-green-600 bg-green-50',
     },
     {
       key: 'payment' as const,
       title: 'Thanh toán',
       description: 'Thông báo thanh toán thành công, thất bại',
       icon: '💳',
-      color: 'text-purple-600 bg-purple-50'
+      color: 'text-purple-600 bg-purple-50',
     },
     {
       key: 'promotion' as const,
       title: 'Khuyến mãi',
       description: 'Ưu đãi đặc biệt, voucher mới, flash sale',
       icon: '🎉',
-      color: 'text-pink-600 bg-pink-50'
+      color: 'text-pink-600 bg-pink-50',
     },
     {
       key: 'voucher' as const,
       title: 'Voucher',
       description: 'Voucher mới, voucher sắp hết hạn',
       icon: '🎫',
-      color: 'text-yellow-600 bg-yellow-50'
+      color: 'text-yellow-600 bg-yellow-50',
     },
     {
       key: 'review' as const,
       title: 'Đánh giá',
       description: 'Nhắc nhở đánh giá sản phẩm, phản hồi đánh giá',
       icon: '⭐',
-      color: 'text-orange-600 bg-orange-50'
+      color: 'text-orange-600 bg-orange-50',
     },
     {
       key: 'account' as const,
       title: 'Tài khoản',
       description: 'Cập nhật bảo mật, thay đổi thông tin',
       icon: '👤',
-      color: 'text-indigo-600 bg-indigo-50'
+      color: 'text-indigo-600 bg-indigo-50',
     },
     {
       key: 'system' as const,
       title: 'Hệ thống',
       description: 'Thông báo bảo trì, cập nhật hệ thống',
       icon: '⚙️',
-      color: 'text-gray-600 bg-gray-50'
-    }
+      color: 'text-gray-600 bg-gray-50',
+    },
   ];
 
   const deliveryMethods = [
@@ -145,22 +155,22 @@ const NotificationSettings: React.FC = () => {
       title: 'Thông báo đẩy',
       description: 'Nhận thông báo trực tiếp trên trình duyệt',
       icon: '🔔',
-      color: 'text-blue-600'
+      color: 'text-blue-600',
     },
     {
       key: 'emailNotifications' as const,
       title: 'Email',
       description: 'Gửi thông báo qua email',
       icon: '📧',
-      color: 'text-green-600'
+      color: 'text-green-600',
     },
     {
       key: 'smsNotifications' as const,
       title: 'SMS',
       description: 'Gửi thông báo qua tin nhắn (chỉ thông báo quan trọng)',
       icon: '📱',
-      color: 'text-purple-600'
-    }
+      color: 'text-purple-600',
+    },
   ];
 
   if (loadingSettings) {
@@ -220,10 +230,7 @@ const NotificationSettings: React.FC = () => {
               <h4 className="font-medium text-red-900">Có lỗi xảy ra</h4>
               <p className="text-red-700 text-sm mt-1">{error}</p>
             </div>
-            <button
-              onClick={clearError}
-              className="ml-auto text-red-600 hover:text-red-800"
-            >
+            <button onClick={clearError} className="ml-auto text-red-600 hover:text-red-800">
               ✕
             </button>
           </div>
@@ -248,7 +255,7 @@ const NotificationSettings: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {deliveryMethods.map((method) => (
+          {deliveryMethods.map(method => (
             <div
               key={method.key}
               className="border border-gray-200 rounded-xl p-4 hover:border-gray-300 transition-colors"
@@ -262,7 +269,7 @@ const NotificationSettings: React.FC = () => {
                       <input
                         type="checkbox"
                         checked={localSettings[method.key]}
-                        onChange={(e) => handleSettingChange(method.key, e.target.checked)}
+                        onChange={e => handleSettingChange(method.key, e.target.checked)}
                         className="sr-only peer"
                       />
                       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
@@ -284,13 +291,15 @@ const NotificationSettings: React.FC = () => {
         </div>
 
         <div className="space-y-4">
-          {notificationTypes.map((type) => (
+          {notificationTypes.map(type => (
             <div
               key={type.key}
               className="flex items-center justify-between p-4 border border-gray-200 rounded-xl hover:border-gray-300 transition-colors"
             >
               <div className="flex items-center gap-4">
-                <div className={`w-12 h-12 rounded-xl ${type.color} flex items-center justify-center`}>
+                <div
+                  className={`w-12 h-12 rounded-xl ${type.color} flex items-center justify-center`}
+                >
                   <span className="text-xl">{type.icon}</span>
                 </div>
                 <div>
@@ -298,12 +307,12 @@ const NotificationSettings: React.FC = () => {
                   <p className="text-sm text-gray-600">{type.description}</p>
                 </div>
               </div>
-              
+
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
                   checked={localSettings.settings[type.key]}
-                  onChange={(e) => handleSettingChange(type.key, e.target.checked)}
+                  onChange={e => handleSettingChange(type.key, e.target.checked)}
                   className="sr-only peer"
                 />
                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
@@ -318,11 +327,9 @@ const NotificationSettings: React.FC = () => {
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-medium text-gray-900">Lưu thay đổi</h3>
-            <p className="text-sm text-gray-600 mt-1">
-              Các thay đổi sẽ có hiệu lực ngay lập tức
-            </p>
+            <p className="text-sm text-gray-600 mt-1">Các thay đổi sẽ có hiệu lực ngay lập tức</p>
           </div>
-          
+
           <div className="flex gap-3">
             <button
               onClick={handleReset}

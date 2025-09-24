@@ -15,7 +15,10 @@ export const addProduct = async (product: Partial<AdminProduct>): Promise<AdminP
   return res.data;
 };
 
-export const updateProduct = async (id: number | string, product: Partial<AdminProduct>): Promise<AdminProduct> => {
+export const updateProduct = async (
+  id: number | string,
+  product: Partial<AdminProduct>
+): Promise<AdminProduct> => {
   const res = await apiClient<AdminProduct>(`/products/${id}`, {
     method: 'PUT',
     body: JSON.stringify(product),

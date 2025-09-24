@@ -18,10 +18,10 @@ const MyVoucherPage: React.FC = () => {
     if (!user || !user.vouchers || typeof user.vouchers !== 'object') {
       return [];
     }
-    
+
     // Với cấu trúc mới đơn giản: vouchers: {[voucherId: string]: number}
     const uniqueVouchers: Voucher[] = [];
-    
+
     // Lặp qua các voucher trong user.vouchers
     Object.entries(user.vouchers).forEach(([voucherId, quantity]) => {
       const quantityNum = Number(quantity);
@@ -44,8 +44,8 @@ const MyVoucherPage: React.FC = () => {
         }
       }
     });
-    
-  // ...existing code (đã xóa log)...
+
+    // ...existing code (đã xóa log)...
     return uniqueVouchers;
   }, [rawVouchers, user?.vouchers]);
   const loading = useVoucherStore(state => state.loading);
@@ -57,10 +57,10 @@ const MyVoucherPage: React.FC = () => {
   // ...existing code...
 
   useEffect(() => {
-  if (!user || !user.id) return;
-    
+    if (!user || !user.id) return;
+
     // Vouchers are already fetched in App.tsx, no need to fetch again here
-    
+
     // Refresh user data to get latest vouchers
     const refreshUserData = async () => {
       try {
@@ -72,7 +72,7 @@ const MyVoucherPage: React.FC = () => {
         console.error('Failed to refresh user data:', error);
       }
     };
-    
+
     refreshUserData();
   }, [user?.id]); // Only depend on user.id to avoid infinite loop
 
@@ -109,27 +109,57 @@ const MyVoucherPage: React.FC = () => {
 
   return (
     <DashboardLayout>
-      <div className={`bg-app-secondary ${isMobile ? 'p-4' : 'p-8'} rounded-3xl shadow-xl border-app-default`}>
+      <div
+        className={`bg-app-secondary ${isMobile ? 'p-4' : 'p-8'} rounded-3xl shadow-xl border-app-default`}
+      >
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-app-primary mb-2 flex items-center justify-center gap-3`}>
-            <div className={`${isMobile ? 'w-8 h-8' : 'w-10 h-10'} bg-brand-green rounded-full flex items-center justify-center`}>
-              <svg className={`${isMobile ? 'w-4 h-4' : 'w-6 h-6'} text-white`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+          <h1
+            className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-app-primary mb-2 flex items-center justify-center gap-3`}
+          >
+            <div
+              className={`${isMobile ? 'w-8 h-8' : 'w-10 h-10'} bg-brand-green rounded-full flex items-center justify-center`}
+            >
+              <svg
+                className={`${isMobile ? 'w-4 h-4' : 'w-6 h-6'} text-white`}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+                />
               </svg>
             </div>
             Voucher của tôi
           </h1>
-          <p className={`text-app-secondary ${isMobile ? 'text-sm' : ''}`}>Quản lý và sử dụng các voucher ưu đãi</p>
+          <p className={`text-app-secondary ${isMobile ? 'text-sm' : ''}`}>
+            Quản lý và sử dụng các voucher ưu đãi
+          </p>
         </div>
 
         {/* Statistics */}
-        <div className={`grid ${isMobile ? 'grid-cols-1 gap-4' : 'grid-cols-1 md:grid-cols-3 gap-6'} mb-8`}>
+        <div
+          className={`grid ${isMobile ? 'grid-cols-1 gap-4' : 'grid-cols-1 md:grid-cols-3 gap-6'} mb-8`}
+        >
           <div className="bg-app-card rounded-2xl p-6 shadow-lg border-app-default">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                <svg
+                  className="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+                  />
                 </svg>
               </div>
               <div>
@@ -141,12 +171,20 @@ const MyVoucherPage: React.FC = () => {
           <div className="bg-app-card rounded-2xl p-6 shadow-lg border-app-default">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <svg
+                  className="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
               </div>
               <div>
-                <div className="text-2xl font-bold text-app-primary">{vouchers.filter(v => v.usedPercent < 100).length}</div>
+                <div className="text-2xl font-bold text-app-primary">
+                  {vouchers.filter(v => v.usedPercent < 100).length}
+                </div>
                 <div className="text-app-secondary">Còn hiệu lực</div>
               </div>
             </div>
@@ -154,8 +192,18 @@ const MyVoucherPage: React.FC = () => {
           <div className="bg-app-card rounded-2xl p-6 shadow-lg border-app-default">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                <svg
+                  className="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
+                  />
                 </svg>
               </div>
               <div>
@@ -170,8 +218,18 @@ const MyVoucherPage: React.FC = () => {
           {vouchers.length === 0 ? (
             <div className="text-center py-16">
               <div className="w-24 h-24 bg-app-secondary rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-12 h-12 text-app-muted" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                <svg
+                  className="w-12 h-12 text-app-muted"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+                  />
                 </svg>
               </div>
               <h3 className="text-xl font-semibold text-app-primary mb-2">Chưa có voucher nào</h3>
@@ -183,13 +241,20 @@ const MyVoucherPage: React.FC = () => {
                 const active = voucher && voucher._id === v._id;
                 const quantity = (v as any).quantity || 1;
                 return (
-                  <div key={v._id} className={`relative overflow-hidden rounded-2xl border-2 transition-all duration-300 ${active ? 'border-brand-green bg-brand-green/5 shadow-lg shadow-green-200/50' : 'border-app-border bg-app-card hover:border-brand-green/50 hover:shadow-lg'}`}>
+                  <div
+                    key={v._id}
+                    className={`relative overflow-hidden rounded-2xl border-2 transition-all duration-300 ${active ? 'border-brand-green bg-brand-green/5 shadow-lg shadow-green-200/50' : 'border-app-border bg-app-card hover:border-brand-green/50 hover:shadow-lg'}`}
+                  >
                     <div className={`${isMobile ? 'flex-col' : 'flex'}`}>
                       {/* Left side - Discount */}
-                      <div className={`flex items-center justify-center ${isMobile ? 'w-full h-16' : 'w-32'} ${active ? 'bg-green-600' : 'bg-gradient-to-br from-orange-500 to-red-500'}`}>
+                      <div
+                        className={`flex items-center justify-center ${isMobile ? 'w-full h-16' : 'w-32'} ${active ? 'bg-green-600' : 'bg-gradient-to-br from-orange-500 to-red-500'}`}
+                      >
                         <div className="text-center text-white">
                           <div className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>
-                            {v.discountType === 'percent' ? `${v.discountValue}%` : `${(v.discountValue / 1000).toFixed(0)}K`}
+                            {v.discountType === 'percent'
+                              ? `${v.discountValue}%`
+                              : `${(v.discountValue / 1000).toFixed(0)}K`}
                           </div>
                           <div className="text-xs">GIẢM</div>
                         </div>
@@ -197,44 +262,67 @@ const MyVoucherPage: React.FC = () => {
 
                       {/* Right side - Details */}
                       <div className={`flex-1 ${isMobile ? 'p-4' : 'p-6'}`}>
-                        <div className={`${isMobile ? 'block space-y-3' : 'flex items-start justify-between'}`}>
+                        <div
+                          className={`${isMobile ? 'block space-y-3' : 'flex items-start justify-between'}`}
+                        >
                           <div className="flex-1">
-                            <div className={`flex items-center ${isMobile ? 'gap-2 flex-col text-center' : 'gap-3'} mb-2`}>
+                            <div
+                              className={`flex items-center ${isMobile ? 'gap-2 flex-col text-center' : 'gap-3'} mb-2`}
+                            >
                               {getVoucherIcon(v.discountType)}
                               <div>
-                                <div className={`font-bold ${isMobile ? 'text-base' : 'text-lg'} text-gray-900`}>{v.code}</div>
-                                <div className={`text-gray-600 ${isMobile ? 'text-sm' : ''}`}>{v.label}</div>
+                                <div
+                                  className={`font-bold ${isMobile ? 'text-base' : 'text-lg'} text-gray-900`}
+                                >
+                                  {v.code}
+                                </div>
+                                <div className={`text-gray-600 ${isMobile ? 'text-sm' : ''}`}>
+                                  {v.label}
+                                </div>
                                 {quantity > 1 && (
-                                  <div className={`${isMobile ? 'text-xs' : 'text-sm'} text-blue-600 font-semibold`}>
+                                  <div
+                                    className={`${isMobile ? 'text-xs' : 'text-sm'} text-blue-600 font-semibold`}
+                                  >
                                     Số lượng: {quantity}
                                   </div>
                                 )}
                               </div>
                             </div>
-                            <div className={`text-app-primary mb-2 ${isMobile ? 'text-sm' : ''}`}>{v.description}</div>
-                            <div className={`${isMobile ? 'text-xs' : 'text-sm'} text-app-secondary mb-2`}>
-                              Đơn tối thiểu: <span className="font-semibold text-brand-green">{v.minOrder.toLocaleString()}₫</span>
+                            <div className={`text-app-primary mb-2 ${isMobile ? 'text-sm' : ''}`}>
+                              {v.description}
                             </div>
-                            <div className={`flex items-center ${isMobile ? 'gap-2 text-xs' : 'gap-4 text-xs'} text-app-muted`}>
+                            <div
+                              className={`${isMobile ? 'text-xs' : 'text-sm'} text-app-secondary mb-2`}
+                            >
+                              Đơn tối thiểu:{' '}
+                              <span className="font-semibold text-brand-green">
+                                {v.minOrder.toLocaleString()}₫
+                              </span>
+                            </div>
+                            <div
+                              className={`flex items-center ${isMobile ? 'gap-2 text-xs' : 'gap-4 text-xs'} text-app-muted`}
+                            >
                               <span>HSD: {v.expired}</span>
                               <span>Đã dùng {v.usedPercent}%</span>
                             </div>
                             {v.onlyOn && (
-                              <div className={`${isMobile ? 'text-xs' : 'text-xs'} text-blue-600 bg-blue-50 rounded px-2 py-1 inline-block mt-1`}>
+                              <div
+                                className={`${isMobile ? 'text-xs' : 'text-xs'} text-blue-600 bg-blue-50 rounded px-2 py-1 inline-block mt-1`}
+                              >
                                 * Chỉ dùng cho các sản phẩm hoặc danh mục: <b>{v.onlyOn}</b>
                               </div>
                             )}
                             {v.note && (
-                              <div className={`mt-2 ${isMobile ? 'text-xs' : 'text-xs'} text-red-500 bg-red-50/50 px-3 py-1 rounded-full inline-block`}>
+                              <div
+                                className={`mt-2 ${isMobile ? 'text-xs' : 'text-xs'} text-red-500 bg-red-50/50 px-3 py-1 rounded-full inline-block`}
+                              >
                                 {v.note}
                               </div>
                             )}
                           </div>
                           <button
                             className={`${isMobile ? 'px-4 py-2 text-sm w-full mt-3' : 'px-6 py-3'} rounded-xl font-semibold transition-all duration-200 ${
-                              active 
-                                ? 'bg-gray-400 text-white cursor-not-allowed' 
-                                : 'btn-primary'
+                              active ? 'bg-gray-400 text-white cursor-not-allowed' : 'btn-primary'
                             }`}
                             onClick={() => setVoucher(active ? null : (v as Voucher))}
                             disabled={!!active}
@@ -248,8 +336,16 @@ const MyVoucherPage: React.FC = () => {
                     {/* Active voucher indicator */}
                     {active && (
                       <div className={`absolute ${isMobile ? 'top-2 right-2' : 'top-4 right-4'}`}>
-                        <div className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6'} bg-green-500 rounded-full flex items-center justify-center`}>
-                          <svg className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-white`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <div
+                          className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6'} bg-green-500 rounded-full flex items-center justify-center`}
+                        >
+                          <svg
+                            className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-white`}
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            viewBox="0 0 24 24"
+                          >
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                           </svg>
                         </div>
@@ -259,7 +355,9 @@ const MyVoucherPage: React.FC = () => {
                     {/* Quantity badge */}
                     {quantity > 1 && (
                       <div className={`absolute ${isMobile ? 'top-2 left-2' : 'top-4 left-4'}`}>
-                        <div className={`bg-red-500 text-white ${isMobile ? 'text-xs' : 'text-xs'} font-bold px-2 py-1 rounded-full`}>
+                        <div
+                          className={`bg-red-500 text-white ${isMobile ? 'text-xs' : 'text-xs'} font-bold px-2 py-1 rounded-full`}
+                        >
                           x{quantity}
                         </div>
                       </div>
@@ -275,7 +373,13 @@ const MyVoucherPage: React.FC = () => {
             <div className="mt-8 p-6 bg-gradient-to-r from-green-100 to-emerald-100 rounded-2xl border border-green-200">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <svg
+                    className="w-6 h-6 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>

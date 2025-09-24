@@ -1,18 +1,35 @@
 import { useState, useEffect, useMemo } from 'react';
-import type { Order, SortField, SortOrder, FilterStatus, FilterPayment, FilterPaymentMethod } from '../types/order';
+import type {
+  Order,
+  SortField,
+  SortOrder,
+  FilterStatus,
+  FilterPayment,
+  FilterPaymentMethod,
+} from '../types/order';
 import orderService from '../services/orderService';
 
 // Helper function to map API status to UI status
-const mapOrderStatus = (apiStatus: string): 'pending' | 'confirmed' | 'shipping' | 'delivered' | 'cancelled' => {
+const mapOrderStatus = (
+  apiStatus: string
+): 'pending' | 'confirmed' | 'shipping' | 'delivered' | 'cancelled' => {
   switch (apiStatus) {
-    case 'pending': return 'pending';
-    case 'confirmed': return 'confirmed';
-    case 'preparing': return 'confirmed';
-    case 'shipping': return 'shipping';
-    case 'delivered': return 'delivered';
-    case 'cancelled': return 'cancelled';
-    case 'returned': return 'cancelled';
-    default: return 'pending';
+    case 'pending':
+      return 'pending';
+    case 'confirmed':
+      return 'confirmed';
+    case 'preparing':
+      return 'confirmed';
+    case 'shipping':
+      return 'shipping';
+    case 'delivered':
+      return 'delivered';
+    case 'cancelled':
+      return 'cancelled';
+    case 'returned':
+      return 'cancelled';
+    default:
+      return 'pending';
   }
 };
 
@@ -36,11 +53,11 @@ export const useOrderManagement = () => {
       setError(null);
       // Optimized: fetch fewer orders initially, implement pagination if needed
       const response = await orderService.getAllOrders({ page: 1, limit: 100 });
-      
+
       if (response && response.orders) {
         // Add safety check for orders array and optimize processing
         const validOrders = response.orders.filter((order: any) => order && order._id);
-        
+
         // Memoize the conversion to avoid reprocessing on every render
         const convertedOrders = validOrders.map((order: any, index: number) => {
           try {
@@ -49,9 +66,12 @@ export const useOrderManagement = () => {
               orderNumber: order._id || `ORDER-${index}`,
               orderDate: order.createdAt || order.orderDate || new Date().toISOString(),
               // Handle both user orders and guest orders
-              customerName: order.customerName || order.guestInfo?.name || order.userId?.name || 'Khách hàng',
-              customerEmail: order.customerEmail || order.guestInfo?.email || order.userId?.email || '',
-              customerPhone: order.customerPhone || order.guestInfo?.phone || order.userId?.phone || '',
+              customerName:
+                order.customerName || order.guestInfo?.name || order.userId?.name || 'Khách hàng',
+              customerEmail:
+                order.customerEmail || order.guestInfo?.email || order.userId?.email || '',
+              customerPhone:
+                order.customerPhone || order.guestInfo?.phone || order.userId?.phone || '',
               customerAddress: order.customerAddress || order.guestInfo?.address || '',
               items: (order.items || []).map((item: any) => ({
                 // Handle both populated and non-populated productId
@@ -65,7 +85,11 @@ export const useOrderManagement = () => {
               shippingFee: order.deliveryFee || order.shippingFee || 0,
               discount: order.voucherDiscount || 0,
               totalAmount: order.totalAmount || 0,
-              paymentMethod: order.paymentMethod as 'cod' | 'momo' | 'bank_transfer' | 'credit_card',
+              paymentMethod: order.paymentMethod as
+                | 'cod'
+                | 'momo'
+                | 'bank_transfer'
+                | 'credit_card',
               paymentStatus: order.paymentStatus as 'pending' | 'paid' | 'failed',
               status: mapOrderStatus(order.status),
               notes: order.notes || '',
@@ -73,9 +97,11 @@ export const useOrderManagement = () => {
               lastUpdated: order.updatedAt || order.createdAt || new Date().toISOString(),
               shippingInfo: {
                 address: order.customerAddress || order.guestInfo?.address || '',
-                estimatedDelivery: order.deliveryDate || new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-                courier: 'GreenMart Express'
-              }
+                estimatedDelivery:
+                  order.deliveryDate ||
+                  new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+                courier: 'GreenMart Express',
+              },
             };
           } catch (error) {
             console.error('Error processing order:', error, order);
@@ -102,12 +128,12 @@ export const useOrderManagement = () => {
               shippingInfo: {
                 address: '',
                 estimatedDelivery: new Date().toISOString(),
-                courier: 'GreenMart Express'
-              }
+                courier: 'GreenMart Express',
+              },
             };
           }
         });
-        
+
         setOrders(convertedOrders);
         setLastRefresh(new Date());
       } else {
@@ -128,10 +154,12 @@ export const useOrderManagement = () => {
   };
 
   // Batch update multiple orders (for bulk operations)
-  const batchUpdateOrders = async (updates: Array<{ orderId: number, newStatus: Order['status'] }>) => {
+  const batchUpdateOrders = async (
+    updates: Array<{ orderId: number; newStatus: Order['status'] }>
+  ) => {
     try {
       setIsLoading(true);
-      
+
       // Apply optimistic updates
       const optimisticOrders = [...orders];
       for (const update of updates) {
@@ -140,26 +168,26 @@ export const useOrderManagement = () => {
           optimisticOrders[orderIndex] = {
             ...optimisticOrders[orderIndex],
             status: update.newStatus,
-            lastUpdated: new Date().toISOString()
+            lastUpdated: new Date().toISOString(),
           };
         }
       }
       setOrders(optimisticOrders);
-      
+
       // Execute all updates
-      const updatePromises = updates.map(async (update) => {
+      const updatePromises = updates.map(async update => {
         const orderToUpdate = orders.find(order => order.id === update.orderId);
         if (orderToUpdate?.orderNumber) {
           return orderService.updateOrderStatus(orderToUpdate.orderNumber, update.newStatus);
         }
       });
-      
+
       await Promise.all(updatePromises);
       setError(null);
     } catch (err: any) {
       console.error('Failed to batch update orders:', err);
       setError(`Không thể cập nhật hàng loạt: ${err.message}`);
-      
+
       // Revert on error and refresh
       await refreshData();
     } finally {
@@ -169,21 +197,30 @@ export const useOrderManagement = () => {
 
   // Update order status
   const handleStatusChange = async (orderId: string, newStatus: Order['status']) => {
-    const orderToUpdate = orders.find((order: Order) => order.id === orderId || order.orderNumber === orderId);
-    console.log('[Order Status Change] orderId:', orderId, 'newStatus:', newStatus, 'orderToUpdate:', orderToUpdate);
+    const orderToUpdate = orders.find(
+      (order: Order) => order.id === orderId || order.orderNumber === orderId
+    );
+    console.log(
+      '[Order Status Change] orderId:',
+      orderId,
+      'newStatus:',
+      newStatus,
+      'orderToUpdate:',
+      orderToUpdate
+    );
     if (!orderToUpdate || !orderToUpdate.orderNumber) {
       setError('Không tìm thấy đơn hàng để cập nhật');
       return;
     }
-    
+
     // Optimistically update the local state first
-    const optimisticOrders = orders.map((order: Order) => 
-      order.id === orderId 
+    const optimisticOrders = orders.map((order: Order) =>
+      order.id === orderId
         ? { ...order, status: newStatus, lastUpdated: new Date().toISOString() }
         : order
     );
     setOrders(optimisticOrders);
-    
+
     try {
       // Then update on the server
       await orderService.updateOrderStatus(orderToUpdate.orderNumber, newStatus);
@@ -198,22 +235,24 @@ export const useOrderManagement = () => {
   // Filter and sort logic
   const filteredAndSortedOrders = useMemo(() => {
     let filtered = orders.filter((order: Order) => {
-      const matchesSearch = order.customerName.toLowerCase().includes(search.toLowerCase()) ||
-                          order.customerEmail.toLowerCase().includes(search.toLowerCase()) ||
-                          order.customerPhone.includes(search) ||
-                          order.id.toString().includes(search) ||
-                          order.trackingCode?.toLowerCase().includes(search.toLowerCase());
-      
+      const matchesSearch =
+        order.customerName.toLowerCase().includes(search.toLowerCase()) ||
+        order.customerEmail.toLowerCase().includes(search.toLowerCase()) ||
+        order.customerPhone.includes(search) ||
+        order.id.toString().includes(search) ||
+        order.trackingCode?.toLowerCase().includes(search.toLowerCase());
+
       const matchesStatus = filterStatus === 'all' || order.status === filterStatus;
       const matchesPayment = filterPayment === 'all' || order.paymentStatus === filterPayment;
-      const matchesPaymentMethod = filterPaymentMethod === 'all' || order.paymentMethod === filterPaymentMethod;
-      
+      const matchesPaymentMethod =
+        filterPaymentMethod === 'all' || order.paymentMethod === filterPaymentMethod;
+
       return matchesSearch && matchesStatus && matchesPayment && matchesPaymentMethod;
     });
 
     filtered.sort((a: Order, b: Order) => {
       let aValue: any, bValue: any;
-      
+
       switch (sortField) {
         case 'id':
           aValue = a.id;
@@ -273,6 +312,6 @@ export const useOrderManagement = () => {
     lastRefresh,
     handleStatusChange,
     batchUpdateOrders,
-    refreshData
+    refreshData,
   };
 };

@@ -14,12 +14,12 @@ interface NumberInputProps {
 export const NumberInput: React.FC<NumberInputProps> = ({
   value,
   onChange,
-  placeholder = "0",
+  placeholder = '0',
   min = 0,
   max = Number.MAX_SAFE_INTEGER,
-  className = "",
+  className = '',
   label,
-  suffix = ""
+  suffix = '',
 }) => {
   const [displayValue, setDisplayValue] = useState<string>('');
 
@@ -42,14 +42,14 @@ export const NumberInput: React.FC<NumberInputProps> = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
-    
+
     // Allow only numbers, commas, dots, and spaces
     if (!/^[\d.,\s]*$/.test(inputValue)) {
       return;
     }
 
     setDisplayValue(inputValue);
-    
+
     // Parse and update the actual value
     const numericValue = parseNumber(inputValue);
     onChange(numericValue);
@@ -62,11 +62,7 @@ export const NumberInput: React.FC<NumberInputProps> = ({
 
   return (
     <div className="space-y-2">
-      {label && (
-        <label className="block text-sm font-medium text-gray-700">
-          {label}
-        </label>
-      )}
+      {label && <label className="block text-sm font-medium text-gray-700">{label}</label>}
       <div className="relative">
         <input
           type="text"
@@ -85,16 +81,13 @@ export const NumberInput: React.FC<NumberInputProps> = ({
       {/* Helper text showing formatted value */}
       {value > 0 && (
         <div className="text-xs text-gray-500">
-          Giá trị: {formatNumber(value)}{suffix}
+          Giá trị: {formatNumber(value)}
+          {suffix}
           {value >= 1000000 && (
-            <span className="ml-2 text-green-600">
-              ({(value / 1000000).toFixed(1)} triệu)
-            </span>
+            <span className="ml-2 text-green-600">({(value / 1000000).toFixed(1)} triệu)</span>
           )}
           {value >= 1000 && value < 1000000 && (
-            <span className="ml-2 text-blue-600">
-              ({(value / 1000).toFixed(1)} nghìn)
-            </span>
+            <span className="ml-2 text-blue-600">({(value / 1000).toFixed(1)} nghìn)</span>
           )}
         </div>
       )}

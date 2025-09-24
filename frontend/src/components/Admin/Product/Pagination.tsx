@@ -19,7 +19,7 @@ const Pagination: React.FC<PaginationProps> = ({
   startIndex,
   endIndex,
   onPageChange,
-  onItemsPerPageChange
+  onItemsPerPageChange,
 }) => {
   if (totalPages <= 1) return null;
 
@@ -27,7 +27,7 @@ const Pagination: React.FC<PaginationProps> = ({
   const getPageNumbers = () => {
     const pages = [];
     const maxVisiblePages = 7; // Show maximum 7 page numbers
-    
+
     if (totalPages <= maxVisiblePages) {
       // If total pages is less than max visible, show all pages
       for (let i = 1; i <= totalPages; i++) {
@@ -36,10 +36,10 @@ const Pagination: React.FC<PaginationProps> = ({
     } else {
       // Always show first page
       pages.push(1);
-      
+
       let startPage = Math.max(2, currentPage - 2);
       let endPage = Math.min(totalPages - 1, currentPage + 2);
-      
+
       // Adjust range if we're near the beginning or end
       if (currentPage <= 4) {
         startPage = 2;
@@ -48,28 +48,28 @@ const Pagination: React.FC<PaginationProps> = ({
         startPage = Math.max(totalPages - 5, 2);
         endPage = totalPages - 1;
       }
-      
+
       // Add ellipsis if there's a gap after page 1
       if (startPage > 2) {
         pages.push('...');
       }
-      
+
       // Add middle pages
       for (let i = startPage; i <= endPage; i++) {
         pages.push(i);
       }
-      
+
       // Add ellipsis if there's a gap before last page
       if (endPage < totalPages - 1) {
         pages.push('...');
       }
-      
+
       // Always show last page
       if (totalPages > 1) {
         pages.push(totalPages);
       }
     }
-    
+
     return pages;
   };
 
@@ -84,12 +84,12 @@ const Pagination: React.FC<PaginationProps> = ({
             <span className="font-medium">{Math.min(endIndex, totalItems)}</span> của{' '}
             <span className="font-medium">{totalItems}</span> kết quả
           </div>
-          
+
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-600">Hiển thị:</span>
             <select
               value={itemsPerPage}
-              onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
+              onChange={e => onItemsPerPageChange(Number(e.target.value))}
               className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
             >
               <option value={5}>5</option>
@@ -101,7 +101,7 @@ const Pagination: React.FC<PaginationProps> = ({
             <span className="text-sm text-gray-600">mục/trang</span>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-2">
           {/* First page button */}
           <button
@@ -112,7 +112,7 @@ const Pagination: React.FC<PaginationProps> = ({
           >
             ««
           </button>
-          
+
           {/* Previous page button */}
           <button
             onClick={() => onPageChange(Math.max(1, currentPage - 1))}
@@ -122,10 +122,10 @@ const Pagination: React.FC<PaginationProps> = ({
           >
             ‹
           </button>
-          
+
           {/* Page numbers */}
           <div className="flex gap-1">
-            {pageNumbers.map((page, index) => (
+            {pageNumbers.map((page, index) =>
               page === '...' ? (
                 <span key={`ellipsis-${index}`} className="px-3 py-2 text-sm text-gray-500">
                   ...
@@ -143,9 +143,9 @@ const Pagination: React.FC<PaginationProps> = ({
                   {page}
                 </button>
               )
-            ))}
+            )}
           </div>
-          
+
           {/* Next page button */}
           <button
             onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
@@ -155,7 +155,7 @@ const Pagination: React.FC<PaginationProps> = ({
           >
             ›
           </button>
-          
+
           {/* Last page button */}
           <button
             onClick={() => onPageChange(totalPages)}

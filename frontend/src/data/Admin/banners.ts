@@ -28,7 +28,7 @@ export const adminBanners: Banner[] = [
     endDate: '2024-03-25',
     clickCount: 245,
     createdAt: '2024-03-18T10:00:00',
-    updatedAt: '2024-03-20T14:30:00'
+    updatedAt: '2024-03-20T14:30:00',
   },
   {
     id: 2,
@@ -43,7 +43,7 @@ export const adminBanners: Banner[] = [
     endDate: '2024-04-15',
     clickCount: 189,
     createdAt: '2024-03-15T09:00:00',
-    updatedAt: '2024-03-18T16:20:00'
+    updatedAt: '2024-03-18T16:20:00',
   },
   {
     id: 3,
@@ -57,7 +57,7 @@ export const adminBanners: Banner[] = [
     startDate: '2024-03-10',
     clickCount: 98,
     createdAt: '2024-03-10T11:30:00',
-    updatedAt: '2024-03-15T10:15:00'
+    updatedAt: '2024-03-15T10:15:00',
   },
   {
     id: 4,
@@ -72,6 +72,6 @@ export const adminBanners: Banner[] = [
     endDate: '2024-03-31',
     clickCount: 156,
     createdAt: '2024-02-28T14:00:00',
-    updatedAt: '2024-03-18T09:45:00'
-  }
+    updatedAt: '2024-03-18T09:45:00',
+  },
 ];

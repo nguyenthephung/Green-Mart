@@ -51,7 +51,7 @@ export const useHomeErrorHandling = () => {
     handleServerError,
     handleGeneralError,
     clearError,
-    ErrorComponent
+    ErrorComponent,
   };
 };
 
@@ -117,7 +117,7 @@ export const useCartErrorHandling = () => {
     handleNetworkError,
     handleSyncFailed,
     clearError,
-    ErrorComponent
+    ErrorComponent,
   };
 };
 
@@ -192,5 +192,5 @@ export default {
   useHomeErrorHandling,
   useCartErrorHandling,
   HomePageWithErrorHandling,
-  CartPageWithErrorHandling
+  CartPageWithErrorHandling,
 };

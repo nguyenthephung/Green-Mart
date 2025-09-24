@@ -18,7 +18,7 @@ export const AddBannerModal: React.FC<AddBannerModalProps> = ({
   isOpen,
   onClose,
   onSubmit,
-  isLoading
+  isLoading,
 }) => {
   const [formData, setFormData] = useState({
     title: '',
@@ -35,7 +35,7 @@ export const AddBannerModal: React.FC<AddBannerModalProps> = ({
     priority: 1,
     isActive: true,
     startDate: '',
-    endDate: ''
+    endDate: '',
   });
 
   const { validationErrors, handleValidationErrors, clearValidationErrors } = useErrorHandler();
@@ -45,7 +45,7 @@ export const AddBannerModal: React.FC<AddBannerModalProps> = ({
       title: { required: true, minLength: 2, maxLength: 100 },
       imageUrl: { required: true },
       linkUrl: { type: 'url' },
-      priority: { required: true }
+      priority: { required: true },
     });
 
     if (errors.length > 0) {
@@ -59,7 +59,7 @@ export const AddBannerModal: React.FC<AddBannerModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -67,13 +67,15 @@ export const AddBannerModal: React.FC<AddBannerModalProps> = ({
     onSubmit(formData);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value, type } = e.target;
-    
+
     // Preserve existing values when changing form fields
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
     }));
   };
 
@@ -81,12 +83,15 @@ export const AddBannerModal: React.FC<AddBannerModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div 
+      <div
         className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
         style={isDarkMode ? { backgroundColor: '#18181b', color: '#fff' } : undefined}
       >
         <div className="p-6 border-b" style={isDarkMode ? { borderColor: '#374151' } : undefined}>
-          <h2 className="text-xl font-bold" style={isDarkMode ? { color: '#fff' } : { color: '#111827' }}>
+          <h2
+            className="text-xl font-bold"
+            style={isDarkMode ? { color: '#fff' } : { color: '#111827' }}
+          >
             ➕ Thêm Banner Mới
           </h2>
         </div>
@@ -102,14 +107,19 @@ export const AddBannerModal: React.FC<AddBannerModalProps> = ({
               </div>
               <ul className="text-sm text-red-600 dark:text-red-400 space-y-1">
                 {validationErrors.map((error, index) => (
-                  <li key={index}>• {error.field}: {error.message}</li>
+                  <li key={index}>
+                    • {error.field}: {error.message}
+                  </li>
                 ))}
               </ul>
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium mb-2" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>
+            <label
+              className="block text-sm font-medium mb-2"
+              style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}
+            >
               Tiêu đề *
             </label>
             <input
@@ -119,13 +129,20 @@ export const AddBannerModal: React.FC<AddBannerModalProps> = ({
               onChange={handleInputChange}
               required
               className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              style={isDarkMode ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' } : undefined}
+              style={
+                isDarkMode
+                  ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' }
+                  : undefined
+              }
               placeholder="Nhập tiêu đề banner"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>
+            <label
+              className="block text-sm font-medium mb-2"
+              style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}
+            >
               Phụ đề
             </label>
             <input
@@ -134,13 +151,20 @@ export const AddBannerModal: React.FC<AddBannerModalProps> = ({
               value={formData.subtitle}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              style={isDarkMode ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' } : undefined}
+              style={
+                isDarkMode
+                  ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' }
+                  : undefined
+              }
               placeholder="Nhập phụ đề banner"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>
+            <label
+              className="block text-sm font-medium mb-2"
+              style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}
+            >
               Mô tả
             </label>
             <textarea
@@ -149,18 +173,25 @@ export const AddBannerModal: React.FC<AddBannerModalProps> = ({
               onChange={handleInputChange}
               rows={3}
               className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              style={isDarkMode ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' } : undefined}
+              style={
+                isDarkMode
+                  ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' }
+                  : undefined
+              }
               placeholder="Nhập mô tả banner"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>
+            <label
+              className="block text-sm font-medium mb-2"
+              style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}
+            >
               Hình ảnh Banner *
             </label>
             <ImageUpload
               value={formData.imageUrl}
-              onChange={(imageUrl) => setFormData(prev => ({ ...prev, imageUrl }))}
+              onChange={imageUrl => setFormData(prev => ({ ...prev, imageUrl }))}
               placeholder="Chọn hoặc kéo thả hình ảnh banner vào đây"
               maxSize={5}
               disabled={isLoading}
@@ -168,7 +199,10 @@ export const AddBannerModal: React.FC<AddBannerModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>
+            <label
+              className="block text-sm font-medium mb-2"
+              style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}
+            >
               URL Liên kết
             </label>
             <input
@@ -177,14 +211,21 @@ export const AddBannerModal: React.FC<AddBannerModalProps> = ({
               value={formData.linkUrl}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              style={isDarkMode ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' } : undefined}
+              style={
+                isDarkMode
+                  ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' }
+                  : undefined
+              }
               placeholder="https://example.com/link"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>
+              <label
+                className="block text-sm font-medium mb-2"
+                style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}
+              >
                 Text Button
               </label>
               <input
@@ -193,13 +234,20 @@ export const AddBannerModal: React.FC<AddBannerModalProps> = ({
                 value={formData.buttonText}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                style={isDarkMode ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' } : undefined}
+                style={
+                  isDarkMode
+                    ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' }
+                    : undefined
+                }
                 placeholder="Xem ngay"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>
+              <label
+                className="block text-sm font-medium mb-2"
+                style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}
+              >
                 Link Button
               </label>
               <input
@@ -208,7 +256,11 @@ export const AddBannerModal: React.FC<AddBannerModalProps> = ({
                 value={formData.buttonLink}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                style={isDarkMode ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' } : undefined}
+                style={
+                  isDarkMode
+                    ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' }
+                    : undefined
+                }
                 placeholder="https://example.com/button-link"
               />
             </div>
@@ -216,7 +268,10 @@ export const AddBannerModal: React.FC<AddBannerModalProps> = ({
 
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>
+              <label
+                className="block text-sm font-medium mb-2"
+                style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}
+              >
                 Màu nền
               </label>
               <input
@@ -230,7 +285,10 @@ export const AddBannerModal: React.FC<AddBannerModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>
+              <label
+                className="block text-sm font-medium mb-2"
+                style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}
+              >
                 Màu chữ
               </label>
               <input
@@ -244,7 +302,10 @@ export const AddBannerModal: React.FC<AddBannerModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>
+              <label
+                className="block text-sm font-medium mb-2"
+                style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}
+              >
                 Category ID
               </label>
               <input
@@ -253,7 +314,11 @@ export const AddBannerModal: React.FC<AddBannerModalProps> = ({
                 value={formData.categoryId}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                style={isDarkMode ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' } : undefined}
+                style={
+                  isDarkMode
+                    ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' }
+                    : undefined
+                }
                 placeholder="ID danh mục"
               />
             </div>
@@ -261,7 +326,10 @@ export const AddBannerModal: React.FC<AddBannerModalProps> = ({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>
+              <label
+                className="block text-sm font-medium mb-2"
+                style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}
+              >
                 Vị trí hiển thị
               </label>
               <select
@@ -269,7 +337,11 @@ export const AddBannerModal: React.FC<AddBannerModalProps> = ({
                 value={formData.position}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                style={isDarkMode ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' } : undefined}
+                style={
+                  isDarkMode
+                    ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' }
+                    : undefined
+                }
               >
                 <option value="hero">🎯 Hero Banner</option>
                 <option value="sidebar">📱 Sidebar</option>
@@ -279,7 +351,10 @@ export const AddBannerModal: React.FC<AddBannerModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>
+              <label
+                className="block text-sm font-medium mb-2"
+                style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}
+              >
                 Độ ưu tiên
               </label>
               <input
@@ -290,14 +365,21 @@ export const AddBannerModal: React.FC<AddBannerModalProps> = ({
                 min="1"
                 max="100"
                 className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                style={isDarkMode ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' } : undefined}
+                style={
+                  isDarkMode
+                    ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' }
+                    : undefined
+                }
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>
+              <label
+                className="block text-sm font-medium mb-2"
+                style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}
+              >
                 Ngày bắt đầu
               </label>
               <input
@@ -306,12 +388,19 @@ export const AddBannerModal: React.FC<AddBannerModalProps> = ({
                 value={formData.startDate}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                style={isDarkMode ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' } : undefined}
+                style={
+                  isDarkMode
+                    ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' }
+                    : undefined
+                }
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>
+              <label
+                className="block text-sm font-medium mb-2"
+                style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}
+              >
                 Ngày kết thúc
               </label>
               <input
@@ -320,7 +409,11 @@ export const AddBannerModal: React.FC<AddBannerModalProps> = ({
                 value={formData.endDate}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                style={isDarkMode ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' } : undefined}
+                style={
+                  isDarkMode
+                    ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' }
+                    : undefined
+                }
               />
             </div>
           </div>
@@ -333,12 +426,18 @@ export const AddBannerModal: React.FC<AddBannerModalProps> = ({
               onChange={handleInputChange}
               className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
-            <label className="ml-2 text-sm" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>
+            <label
+              className="ml-2 text-sm"
+              style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}
+            >
               Kích hoạt ngay
             </label>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t" style={isDarkMode ? { borderColor: '#374151' } : undefined}>
+          <div
+            className="flex justify-end gap-3 pt-4 border-t"
+            style={isDarkMode ? { borderColor: '#374151' } : undefined}
+          >
             <button
               type="button"
               onClick={onClose}
@@ -352,7 +451,9 @@ export const AddBannerModal: React.FC<AddBannerModalProps> = ({
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
               disabled={isLoading}
             >
-              {isLoading && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>}
+              {isLoading && (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              )}
               Thêm Banner
             </button>
           </div>
@@ -378,7 +479,7 @@ export const EditBannerModal: React.FC<EditBannerModalProps> = ({
   banner,
   onClose,
   onSubmit,
-  isLoading
+  isLoading,
 }) => {
   const [formData, setFormData] = useState({
     title: banner?.title || '',
@@ -395,7 +496,7 @@ export const EditBannerModal: React.FC<EditBannerModalProps> = ({
     priority: banner?.priority || 1,
     isActive: banner?.isActive ?? true,
     startDate: banner?.startDate || '',
-    endDate: banner?.endDate || ''
+    endDate: banner?.endDate || '',
   });
 
   const { validationErrors, handleValidationErrors, clearValidationErrors } = useErrorHandler();
@@ -405,7 +506,7 @@ export const EditBannerModal: React.FC<EditBannerModalProps> = ({
       title: { required: true, minLength: 2, maxLength: 100 },
       imageUrl: { required: true },
       linkUrl: { type: 'url' },
-      priority: { required: true }
+      priority: { required: true },
     });
 
     if (errors.length > 0) {
@@ -434,33 +535,35 @@ export const EditBannerModal: React.FC<EditBannerModalProps> = ({
         priority: banner.priority,
         isActive: banner.isActive,
         startDate: banner.startDate || '',
-        endDate: banner.endDate || ''
+        endDate: banner.endDate || '',
       });
     }
   }, [banner]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     if (banner) {
       onSubmit({
         ...banner,
-        ...formData
+        ...formData,
       });
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value, type } = e.target;
-    
+
     // Preserve existing date values when changing position
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
     }));
   };
 
@@ -468,12 +571,15 @@ export const EditBannerModal: React.FC<EditBannerModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div 
+      <div
         className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
         style={isDarkMode ? { backgroundColor: '#18181b', color: '#fff' } : undefined}
       >
         <div className="p-6 border-b" style={isDarkMode ? { borderColor: '#374151' } : undefined}>
-          <h2 className="text-xl font-bold" style={isDarkMode ? { color: '#fff' } : { color: '#111827' }}>
+          <h2
+            className="text-xl font-bold"
+            style={isDarkMode ? { color: '#fff' } : { color: '#111827' }}
+          >
             ✏️ Chỉnh sửa Banner
           </h2>
         </div>
@@ -489,7 +595,9 @@ export const EditBannerModal: React.FC<EditBannerModalProps> = ({
               </div>
               <ul className="text-sm text-red-600 dark:text-red-400 space-y-1">
                 {validationErrors.map((error, index) => (
-                  <li key={index}>• {error.field}: {error.message}</li>
+                  <li key={index}>
+                    • {error.field}: {error.message}
+                  </li>
                 ))}
               </ul>
             </div>
@@ -497,7 +605,10 @@ export const EditBannerModal: React.FC<EditBannerModalProps> = ({
 
           {/* Form fields same as AddBannerModal */}
           <div>
-            <label className="block text-sm font-medium mb-2" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>
+            <label
+              className="block text-sm font-medium mb-2"
+              style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}
+            >
               Tiêu đề *
             </label>
             <input
@@ -507,12 +618,19 @@ export const EditBannerModal: React.FC<EditBannerModalProps> = ({
               onChange={handleInputChange}
               required
               className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              style={isDarkMode ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' } : undefined}
+              style={
+                isDarkMode
+                  ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' }
+                  : undefined
+              }
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>
+            <label
+              className="block text-sm font-medium mb-2"
+              style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}
+            >
               Phụ đề
             </label>
             <input
@@ -521,12 +639,19 @@ export const EditBannerModal: React.FC<EditBannerModalProps> = ({
               value={formData.subtitle}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              style={isDarkMode ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' } : undefined}
+              style={
+                isDarkMode
+                  ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' }
+                  : undefined
+              }
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>
+            <label
+              className="block text-sm font-medium mb-2"
+              style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}
+            >
               Mô tả
             </label>
             <textarea
@@ -535,17 +660,24 @@ export const EditBannerModal: React.FC<EditBannerModalProps> = ({
               onChange={handleInputChange}
               rows={3}
               className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              style={isDarkMode ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' } : undefined}
+              style={
+                isDarkMode
+                  ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' }
+                  : undefined
+              }
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>
+            <label
+              className="block text-sm font-medium mb-2"
+              style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}
+            >
               Hình ảnh Banner *
             </label>
             <ImageUpload
               value={formData.imageUrl}
-              onChange={(imageUrl) => setFormData(prev => ({ ...prev, imageUrl }))}
+              onChange={imageUrl => setFormData(prev => ({ ...prev, imageUrl }))}
               placeholder="Chọn hoặc kéo thả hình ảnh banner vào đây"
               maxSize={5}
               disabled={isLoading}
@@ -554,7 +686,10 @@ export const EditBannerModal: React.FC<EditBannerModalProps> = ({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>
+              <label
+                className="block text-sm font-medium mb-2"
+                style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}
+              >
                 Vị trí hiển thị
               </label>
               <select
@@ -562,7 +697,11 @@ export const EditBannerModal: React.FC<EditBannerModalProps> = ({
                 value={formData.position}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                style={isDarkMode ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' } : undefined}
+                style={
+                  isDarkMode
+                    ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' }
+                    : undefined
+                }
               >
                 <option value="hero">🎯 Hero Banner</option>
                 <option value="sidebar">📱 Sidebar</option>
@@ -572,7 +711,10 @@ export const EditBannerModal: React.FC<EditBannerModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>
+              <label
+                className="block text-sm font-medium mb-2"
+                style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}
+              >
                 Độ ưu tiên
               </label>
               <input
@@ -583,14 +725,21 @@ export const EditBannerModal: React.FC<EditBannerModalProps> = ({
                 min="1"
                 max="100"
                 className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                style={isDarkMode ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' } : undefined}
+                style={
+                  isDarkMode
+                    ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' }
+                    : undefined
+                }
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>
+              <label
+                className="block text-sm font-medium mb-2"
+                style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}
+              >
                 Ngày bắt đầu
               </label>
               <input
@@ -599,12 +748,19 @@ export const EditBannerModal: React.FC<EditBannerModalProps> = ({
                 value={formData.startDate}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                style={isDarkMode ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' } : undefined}
+                style={
+                  isDarkMode
+                    ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' }
+                    : undefined
+                }
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>
+              <label
+                className="block text-sm font-medium mb-2"
+                style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}
+              >
                 Ngày kết thúc
               </label>
               <input
@@ -613,7 +769,11 @@ export const EditBannerModal: React.FC<EditBannerModalProps> = ({
                 value={formData.endDate}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                style={isDarkMode ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' } : undefined}
+                style={
+                  isDarkMode
+                    ? { backgroundColor: '#374151', borderColor: '#4b5563', color: '#fff' }
+                    : undefined
+                }
               />
             </div>
           </div>
@@ -626,12 +786,18 @@ export const EditBannerModal: React.FC<EditBannerModalProps> = ({
               onChange={handleInputChange}
               className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
-            <label className="ml-2 text-sm" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}>
+            <label
+              className="ml-2 text-sm"
+              style={isDarkMode ? { color: '#e5e7eb' } : { color: '#374151' }}
+            >
               Kích hoạt
             </label>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t" style={isDarkMode ? { borderColor: '#374151' } : undefined}>
+          <div
+            className="flex justify-end gap-3 pt-4 border-t"
+            style={isDarkMode ? { borderColor: '#374151' } : undefined}
+          >
             <button
               type="button"
               onClick={onClose}
@@ -645,7 +811,9 @@ export const EditBannerModal: React.FC<EditBannerModalProps> = ({
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
               disabled={isLoading}
             >
-              {isLoading && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>}
+              {isLoading && (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              )}
               Cập nhật
             </button>
           </div>
@@ -671,26 +839,29 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
   bannerId,
   onClose,
   onConfirm,
-  isLoading
+  isLoading,
 }) => {
   if (!isOpen || !bannerId) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div 
+      <div
         className="bg-white rounded-lg shadow-xl w-full max-w-md"
         style={isDarkMode ? { backgroundColor: '#18181b', color: '#fff' } : undefined}
       >
         <div className="p-6">
           <div className="text-center">
             <div className="text-6xl mb-4">🗑️</div>
-            <h2 className="text-xl font-bold mb-2" style={isDarkMode ? { color: '#fff' } : { color: '#111827' }}>
+            <h2
+              className="text-xl font-bold mb-2"
+              style={isDarkMode ? { color: '#fff' } : { color: '#111827' }}
+            >
               Xác nhận xóa banner
             </h2>
             <p className="mb-6" style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>
               Bạn có chắc chắn muốn xóa banner này? Hành động này không thể hoàn tác.
             </p>
-            
+
             <div className="flex justify-center gap-3">
               <button
                 onClick={onClose}
@@ -704,7 +875,9 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
                 disabled={isLoading}
               >
-                {isLoading && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>}
+                {isLoading && (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                )}
                 Xóa
               </button>
             </div>

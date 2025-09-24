@@ -3,7 +3,12 @@ import { useUserStore } from '../../stores/useUserStore';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { type UserAddress } from '../../components/Guest/Account/AddressSelector';
 import { AddressService, type AddressResponse } from '../../services/addressService';
-import { LocationService, type Province, type District, type Ward } from '../../services/locationService';
+import {
+  LocationService,
+  type Province,
+  type District,
+  type Ward,
+} from '../../services/locationService';
 import type { AddressInfo } from '../../types/User';
 import { useResponsive } from '../../hooks/useResponsive';
 
@@ -21,7 +26,7 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
   onSubmit,
   onCancel,
   loading,
-  submitText
+  submitText,
 }) => {
   const [formData, setFormData] = useState<UserAddress>({
     fullName: address?.fullName || '',
@@ -34,11 +39,11 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
     label: address?.label || '',
     wardName: address?.wardName || '',
     latitude: address?.latitude || 0,
-    longitude: address?.longitude || 0
+    longitude: address?.longitude || 0,
   });
 
   const [errors, setErrors] = useState<Partial<UserAddress>>({});
-  
+
   // Location state
   const [provinces] = useState<Province[]>(LocationService.getProvinces());
   const [districts, setDistricts] = useState<District[]>([]);
@@ -52,20 +57,19 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
   useEffect(() => {
     if (address) {
       // Try to find matching province/district/ward
-      const province = provinces.find(p => 
-        p.name === address.district || 
-        p.districts.some(d => d.name === address.district)
+      const province = provinces.find(
+        p => p.name === address.district || p.districts.some(d => d.name === address.district)
       );
-      
+
       if (province) {
         setSelectedProvince(province.code);
         setDistricts(province.districts);
-        
+
         const district = province.districts.find(d => d.name === address.district);
         if (district) {
           setSelectedDistrict(district.code);
           setWards(district.wards);
-          
+
           const ward = district.wards.find(w => w.name === address.ward);
           if (ward) {
             setSelectedWard(ward.code);
@@ -92,7 +96,7 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
       const newWards = LocationService.getWardsByDistrict(selectedDistrict);
       setWards(newWards);
       setSelectedWard('');
-      
+
       // Calculate shipping fee
       const fee = LocationService.calculateShippingFee(selectedProvince);
       setShippingFee(fee);
@@ -106,19 +110,19 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
     const ward = LocationService.getWardByCode(selectedWard);
 
     if (province && district) {
-        setFormData(prev => ({
-          ...prev,
-          city: province.name,
-          district: district.name,
-          ward: ward?.name || '',
-          wardName: ward?.name || ''
-        }));
+      setFormData(prev => ({
+        ...prev,
+        city: province.name,
+        district: district.name,
+        ward: ward?.name || '',
+        wardName: ward?.name || '',
+      }));
     }
   }, [selectedProvince, selectedDistrict, selectedWard]);
 
   const validateForm = () => {
     const newErrors: Partial<UserAddress> = {};
-    
+
     if (!formData.fullName.trim()) newErrors.fullName = 'Vui lòng nhập họ tên';
     if (!formData.phone.trim()) newErrors.phone = 'Vui lòng nhập số điện thoại';
     if (!selectedProvince) newErrors.district = 'Vui lòng chọn tỉnh/thành phố';
@@ -133,13 +137,13 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-    const fullAddress = `${formData.street}, ${formData.ward}, ${formData.district}, ${formData.city || ''}`;
+      const fullAddress = `${formData.street}, ${formData.ward}, ${formData.district}, ${formData.city || ''}`;
       const submittedData = {
         ...formData,
         address: fullAddress,
-        wardName: formData.ward
+        wardName: formData.ward,
       };
-      
+
       // Call onSubmit and then close modal
       onSubmit(submittedData);
     }
@@ -163,13 +167,15 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
           <input
             type="text"
             value={formData.fullName}
-            onChange={(e) => handleInputChange('fullName', e.target.value)}
+            onChange={e => handleInputChange('fullName', e.target.value)}
             className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors text-sm sm:text-base ${
               errors.fullName ? 'border-red-500 bg-red-50' : 'border-gray-300 dark:border-gray-600'
             } bg-white dark:bg-gray-700 text-gray-900 dark:text-white`}
             placeholder="Nhập họ và tên"
           />
-          {errors.fullName && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.fullName}</p>}
+          {errors.fullName && (
+            <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.fullName}</p>
+          )}
         </div>
 
         <div>
@@ -179,7 +185,7 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
           <input
             type="tel"
             value={formData.phone}
-            onChange={(e) => handleInputChange('phone', e.target.value)}
+            onChange={e => handleInputChange('phone', e.target.value)}
             className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors text-sm sm:text-base ${
               errors.phone ? 'border-red-500 bg-red-50' : 'border-gray-300 dark:border-gray-600'
             } bg-white dark:bg-gray-700 text-gray-900 dark:text-white`}
@@ -194,7 +200,7 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
         <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-600 pb-2">
           Thông tin địa chỉ
         </h3>
-        
+
         {/* Location Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
           {/* Province */}
@@ -204,19 +210,23 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
             </label>
             <select
               value={selectedProvince}
-              onChange={(e) => setSelectedProvince(e.target.value)}
+              onChange={e => setSelectedProvince(e.target.value)}
               className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors text-sm sm:text-base ${
-                errors.district ? 'border-red-500 bg-red-50' : 'border-gray-300 dark:border-gray-600'
+                errors.district
+                  ? 'border-red-500 bg-red-50'
+                  : 'border-gray-300 dark:border-gray-600'
               } bg-white dark:bg-gray-700 text-gray-900 dark:text-white`}
             >
               <option value="">Chọn tỉnh/thành phố</option>
-              {provinces.map((province) => (
+              {provinces.map(province => (
                 <option key={province.code} value={province.code}>
                   {province.name}
                 </option>
               ))}
             </select>
-            {errors.district && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.district}</p>}
+            {errors.district && (
+              <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.district}</p>
+            )}
           </div>
 
           {/* District */}
@@ -226,20 +236,24 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
             </label>
             <select
               value={selectedDistrict}
-              onChange={(e) => setSelectedDistrict(e.target.value)}
+              onChange={e => setSelectedDistrict(e.target.value)}
               disabled={!selectedProvince}
               className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors text-sm sm:text-base ${
-                errors.district ? 'border-red-500 bg-red-50' : 'border-gray-300 dark:border-gray-600'
+                errors.district
+                  ? 'border-red-500 bg-red-50'
+                  : 'border-gray-300 dark:border-gray-600'
               } bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               <option value="">Chọn quận/huyện</option>
-              {districts.map((district) => (
+              {districts.map(district => (
                 <option key={district.code} value={district.code}>
                   {district.name}
                 </option>
               ))}
             </select>
-            {errors.district && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.district}</p>}
+            {errors.district && (
+              <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.district}</p>
+            )}
           </div>
 
           {/* Ward */}
@@ -249,14 +263,14 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
             </label>
             <select
               value={selectedWard}
-              onChange={(e) => setSelectedWard(e.target.value)}
+              onChange={e => setSelectedWard(e.target.value)}
               disabled={!selectedDistrict}
               className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors text-sm sm:text-base ${
                 errors.ward ? 'border-red-500 bg-red-50' : 'border-gray-300 dark:border-gray-600'
               } bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               <option value="">Chọn phường/xã</option>
-              {wards.map((ward) => (
+              {wards.map(ward => (
                 <option key={ward.code} value={ward.code}>
                   {ward.name}
                 </option>
@@ -271,8 +285,18 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg sm:rounded-xl p-3 sm:p-4">
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 dark:bg-blue-900/40 rounded-full flex items-center justify-center">
-                <svg className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600 dark:text-blue-400"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
               </div>
               <div>
@@ -296,7 +320,7 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
         <input
           type="text"
           value={formData.street}
-          onChange={(e) => handleInputChange('street', e.target.value)}
+          onChange={e => handleInputChange('street', e.target.value)}
           className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors text-sm sm:text-base ${
             errors.street ? 'border-red-500 bg-red-50' : 'border-gray-300 dark:border-gray-600'
           } bg-white dark:bg-gray-700 text-gray-900 dark:text-white`}
@@ -313,7 +337,7 @@ const AddressFormContent: React.FC<AddressFormContentProps> = ({
         <input
           type="text"
           value={formData.label || ''}
-          onChange={(e) => handleInputChange('label', e.target.value)}
+          onChange={e => handleInputChange('label', e.target.value)}
           className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors text-sm sm:text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           placeholder="Ví dụ: Nhà, Công ty, Trường học..."
         />
@@ -349,39 +373,42 @@ const MyAddresses: React.FC = () => {
   const user = useUserStore(state => state.user);
   const addresses = useUserStore(state => state.addresses);
   const setAddresses = useUserStore(state => state.setAddresses);
-  
+
   // Optimize state - combine related states
   const [modals, setModals] = useState({
     showAdd: false,
-    editId: null as string | null
+    editId: null as string | null,
   });
-  
+
   const [addressData, setAddressData] = useState<{
     new: UserAddress | null;
     edit: UserAddress | null;
   }>({
     new: null,
-    edit: null
+    edit: null,
   });
-  
+
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
   // Memoize conversion function
-  const convertToAddressInfo = useCallback((addressResponse: AddressResponse): AddressInfo => ({
-    id: addressResponse.id, // Keep as string for MongoDB ObjectId
-    isSelected: addressResponse.isSelected,
-    label: addressResponse.label,
-    address: addressResponse.address,
-    wardName: addressResponse.wardName,
-    phone: addressResponse.phone,
-    fullName: addressResponse.fullName,
-    district: addressResponse.district || '',
-    ward: addressResponse.ward || '',
-    street: addressResponse.street || '',
-    latitude: addressResponse.latitude || 0,
-    longitude: addressResponse.longitude || 0,
-  }), []);
+  const convertToAddressInfo = useCallback(
+    (addressResponse: AddressResponse): AddressInfo => ({
+      id: addressResponse.id, // Keep as string for MongoDB ObjectId
+      isSelected: addressResponse.isSelected,
+      label: addressResponse.label,
+      address: addressResponse.address,
+      wardName: addressResponse.wardName,
+      phone: addressResponse.phone,
+      fullName: addressResponse.fullName,
+      district: addressResponse.district || '',
+      ward: addressResponse.ward || '',
+      street: addressResponse.street || '',
+      latitude: addressResponse.latitude || 0,
+      longitude: addressResponse.longitude || 0,
+    }),
+    []
+  );
 
   // Optimized modal handlers
   const handleModalToggle = useCallback((type: 'add' | 'edit', value?: boolean | string) => {
@@ -399,7 +426,7 @@ const MyAddresses: React.FC = () => {
   useEffect(() => {
     const loadAddresses = async () => {
       if (!user?.id) return;
-      
+
       try {
         setLoading(true);
         setError('');
@@ -407,7 +434,7 @@ const MyAddresses: React.FC = () => {
         const convertedAddresses = apiAddresses.map(convertToAddressInfo);
         setAddresses(convertedAddresses);
       } catch (err) {
-  setError(err instanceof Error ? err.message : 'Lỗi khi tải danh sách địa chỉ');
+        setError(err instanceof Error ? err.message : 'Lỗi khi tải danh sách địa chỉ');
       } finally {
         setLoading(false);
       }
@@ -417,130 +444,170 @@ const MyAddresses: React.FC = () => {
   }, [user?.id, setAddresses, convertToAddressInfo]);
 
   // Optimized address handlers with better error handling
-  const handleAddAddress = useCallback(async (newAddressData: UserAddress) => {
-    if (!newAddressData || !user?.id) return;
-    
-    try {
-      setLoading(true);
-      setError('');
-      
-      const addressResponse = await AddressService.createAddress(user.id, newAddressData);
-      const newAddressInfo = convertToAddressInfo(addressResponse);
-      
-      setAddresses([
-        ...addresses.map((a: AddressInfo) => ({ ...a, isSelected: false })),
-        { ...newAddressInfo },
-      ]);
-      
-      // Reset form data and close modal
-      setAddressData(prev => ({ ...prev, new: null }));
-      handleModalToggle('add', false);
-    } catch (err) {
-  setError(err instanceof Error ? err.message : 'Lỗi khi thêm địa chỉ mới');
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.id, addresses, setAddresses, convertToAddressInfo, handleModalToggle]);
+  const handleAddAddress = useCallback(
+    async (newAddressData: UserAddress) => {
+      if (!newAddressData || !user?.id) return;
+
+      try {
+        setLoading(true);
+        setError('');
+
+        const addressResponse = await AddressService.createAddress(user.id, newAddressData);
+        const newAddressInfo = convertToAddressInfo(addressResponse);
+
+        setAddresses([
+          ...addresses.map((a: AddressInfo) => ({ ...a, isSelected: false })),
+          { ...newAddressInfo },
+        ]);
+
+        // Reset form data and close modal
+        setAddressData(prev => ({ ...prev, new: null }));
+        handleModalToggle('add', false);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Lỗi khi thêm địa chỉ mới');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [user?.id, addresses, setAddresses, convertToAddressInfo, handleModalToggle]
+  );
 
   // Optimized edit address handler
-  const handleEditAddress = useCallback(async (editedAddressData: UserAddress) => {
-    if (!editedAddressData || !modals.editId || !user?.id) return;
-    
-    try {
-      setLoading(true);
-      setError('');
-      
-      const addressResponse = await AddressService.updateAddress(
-        user.id,
-        modals.editId,
-        editedAddressData
-      );
-      
-      const updatedAddressInfo = convertToAddressInfo(addressResponse);
-      
-      setAddresses(
-        addresses.map((a: AddressInfo) =>
-          a.id === modals.editId ? updatedAddressInfo : a
-        )
-      );
-      
-      // Reset form data and close modal
-      setAddressData(prev => ({ ...prev, edit: null }));
-      handleModalToggle('edit', undefined);
-    } catch (err) {
-  setError(err instanceof Error ? err.message : 'Lỗi khi cập nhật địa chỉ');
-    } finally {
-      setLoading(false);
-    }
-  }, [modals.editId, user?.id, addresses, setAddresses, convertToAddressInfo, handleModalToggle]);
+  const handleEditAddress = useCallback(
+    async (editedAddressData: UserAddress) => {
+      if (!editedAddressData || !modals.editId || !user?.id) return;
+
+      try {
+        setLoading(true);
+        setError('');
+
+        const addressResponse = await AddressService.updateAddress(
+          user.id,
+          modals.editId,
+          editedAddressData
+        );
+
+        const updatedAddressInfo = convertToAddressInfo(addressResponse);
+
+        setAddresses(
+          addresses.map((a: AddressInfo) => (a.id === modals.editId ? updatedAddressInfo : a))
+        );
+
+        // Reset form data and close modal
+        setAddressData(prev => ({ ...prev, edit: null }));
+        handleModalToggle('edit', undefined);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Lỗi khi cập nhật địa chỉ');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [modals.editId, user?.id, addresses, setAddresses, convertToAddressInfo, handleModalToggle]
+  );
 
   // Optimized select address handler
-  const handleSelectAddress = useCallback(async (id: string) => {
-    if (!user?.id) return;
-    
-    try {
-      setLoading(true);
-      setError('');
-      
-      await AddressService.setDefaultAddress(user.id, id);
-      
-      setAddresses(
-        addresses.map((address: AddressInfo) => ({
-          ...address,
-          isSelected: address.id === id
-        }))
-      );
-    } catch (err) {
-  setError(err instanceof Error ? err.message : 'Lỗi khi đặt địa chỉ mặc định');
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.id, addresses, setAddresses]);
+  const handleSelectAddress = useCallback(
+    async (id: string) => {
+      if (!user?.id) return;
+
+      try {
+        setLoading(true);
+        setError('');
+
+        await AddressService.setDefaultAddress(user.id, id);
+
+        setAddresses(
+          addresses.map((address: AddressInfo) => ({
+            ...address,
+            isSelected: address.id === id,
+          }))
+        );
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Lỗi khi đặt địa chỉ mặc định');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [user?.id, addresses, setAddresses]
+  );
 
   // Optimized delete address handler
-  const handleDeleteAddress = useCallback(async (id: string) => {
-    if (!user?.id) return;
-    
-    try {
-      setLoading(true);
-      setError('');
-      
-      await AddressService.deleteAddress(user.id, id);
-      
-      setAddresses(addresses.filter((address: AddressInfo) => address.id !== id));
-    } catch (err) {
-  setError(err instanceof Error ? err.message : 'Lỗi khi xóa địa chỉ');
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.id, addresses, setAddresses]);
+  const handleDeleteAddress = useCallback(
+    async (id: string) => {
+      if (!user?.id) return;
+
+      try {
+        setLoading(true);
+        setError('');
+
+        await AddressService.deleteAddress(user.id, id);
+
+        setAddresses(addresses.filter((address: AddressInfo) => address.id !== id));
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Lỗi khi xóa địa chỉ');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [user?.id, addresses, setAddresses]
+  );
 
   return (
     <DashboardLayout>
       <div className={`max-w-6xl mx-auto ${isMobile ? 'p-4' : 'p-6'} space-y-6`}>
         {/* Enhanced Header */}
-        <div className={`bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl ${isMobile ? 'p-6' : 'p-8'} text-white shadow-xl`}>
-          <div className={`flex items-center ${isMobile ? 'flex-col gap-4 text-center' : 'justify-between'}`}>
+        <div
+          className={`bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl ${isMobile ? 'p-6' : 'p-8'} text-white shadow-xl`}
+        >
+          <div
+            className={`flex items-center ${isMobile ? 'flex-col gap-4 text-center' : 'justify-between'}`}
+          >
             <div className={`flex items-center gap-4 ${isMobile ? 'flex-col text-center' : ''}`}>
-              <div className={`${isMobile ? 'w-12 h-12' : 'w-16 h-16'} bg-white/20 rounded-xl flex items-center justify-center`}>
-                <svg className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} text-white`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              <div
+                className={`${isMobile ? 'w-12 h-12' : 'w-16 h-16'} bg-white/20 rounded-xl flex items-center justify-center`}
+              >
+                <svg
+                  className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} text-white`}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
                 </svg>
               </div>
               <div>
-                <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Địa chỉ của tôi</h1>
-                <p className={`text-green-100 ${isMobile ? 'text-base' : 'text-lg'}`}>Quản lý các địa chỉ giao hàng của bạn</p>
+                <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>
+                  Địa chỉ của tôi
+                </h1>
+                <p className={`text-green-100 ${isMobile ? 'text-base' : 'text-lg'}`}>
+                  Quản lý các địa chỉ giao hàng của bạn
+                </p>
               </div>
             </div>
-            
+
             {/* Add Button */}
             <button
               onClick={() => handleModalToggle('add', true)}
               disabled={loading}
               className={`${isMobile ? 'px-4 py-2 text-sm w-full' : 'px-6 py-3'} bg-white text-green-600 rounded-xl font-semibold hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center ${isMobile ? 'justify-center' : ''} gap-2`}
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
               </svg>
               Thêm địa chỉ mới
@@ -553,16 +620,32 @@ const MyAddresses: React.FC = () => {
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 shadow-lg">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-red-100 dark:bg-red-900/40 rounded-full flex items-center justify-center">
-                <svg className="w-4 h-4 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  className="w-4 h-4 text-red-600 dark:text-red-400"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
               </div>
               <p className="text-red-800 dark:text-red-200 font-medium">{error}</p>
-              <button 
+              <button
                 onClick={() => setError('')}
                 className="ml-auto text-red-400 hover:text-red-600"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -580,13 +663,31 @@ const MyAddresses: React.FC = () => {
           ) : addresses.length === 0 ? (
             <div className="p-12 text-center">
               <div className="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full mx-auto mb-6 flex items-center justify-center">
-                <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" strokeWidth="1" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                <svg
+                  className="w-12 h-12 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Chưa có địa chỉ nào</h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">Thêm địa chỉ đầu tiên để thuận tiện cho việc giao hàng</p>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                Chưa có địa chỉ nào
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                Thêm địa chỉ đầu tiên để thuận tiện cho việc giao hàng
+              </p>
               <button
                 onClick={() => handleModalToggle('add', true)}
                 className="px-6 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors"
@@ -596,21 +697,25 @@ const MyAddresses: React.FC = () => {
             </div>
           ) : (
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
-              {addresses.map((address) => (
+              {addresses.map(address => (
                 <div
                   key={address.id}
                   className={`p-6 transition-all duration-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 ${
-                    address.isSelected ? 'bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500' : ''
+                    address.isSelected
+                      ? 'bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500'
+                      : ''
                   }`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-3">
-                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          address.isSelected 
-                            ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200' 
-                            : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
-                        }`}>
+                        <span
+                          className={`px-3 py-1 rounded-full text-sm font-medium ${
+                            address.isSelected
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200'
+                              : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                          }`}
+                        >
                           {address.label}
                         </span>
                         {address.isSelected && (
@@ -619,32 +724,70 @@ const MyAddresses: React.FC = () => {
                           </span>
                         )}
                       </div>
-                      
+
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
-                          <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          <svg
+                            className="w-4 h-4 text-gray-500"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                            />
                           </svg>
-                          <span className="font-semibold text-gray-900 dark:text-white">{address.fullName}</span>
+                          <span className="font-semibold text-gray-900 dark:text-white">
+                            {address.fullName}
+                          </span>
                         </div>
-                        
+
                         <div className="flex items-center gap-2">
-                          <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                          <svg
+                            className="w-4 h-4 text-gray-500"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                            />
                           </svg>
                           <span className="text-gray-700 dark:text-gray-300">{address.phone}</span>
                         </div>
-                        
+
                         <div className="flex items-start gap-2">
-                          <svg className="w-4 h-4 text-gray-500 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <svg
+                            className="w-4 h-4 text-gray-500 mt-0.5"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
                           </svg>
-                          <span className="text-gray-700 dark:text-gray-300 leading-relaxed">{address.address}</span>
+                          <span className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                            {address.address}
+                          </span>
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* Action Buttons */}
                     <div className="flex items-center gap-2 ml-4">
                       {!address.isSelected && (
@@ -656,7 +799,7 @@ const MyAddresses: React.FC = () => {
                           Đặt mặc định
                         </button>
                       )}
-                      
+
                       <button
                         onClick={() => {
                           const editAddress = addresses.find(a => a.id === address.id);
@@ -671,7 +814,7 @@ const MyAddresses: React.FC = () => {
                               wardName: editAddress.wardName || '',
                               street: editAddress.street || '',
                               latitude: editAddress.latitude || 0,
-                              longitude: editAddress.longitude || 0
+                              longitude: editAddress.longitude || 0,
                             };
                             setAddressData(prev => ({ ...prev, edit: addressForEdit }));
                             handleModalToggle('edit', address.id);
@@ -682,7 +825,7 @@ const MyAddresses: React.FC = () => {
                       >
                         Sửa
                       </button>
-                      
+
                       <button
                         onClick={() => handleDeleteAddress(address.id)}
                         disabled={loading || address.isSelected}
@@ -704,12 +847,20 @@ const MyAddresses: React.FC = () => {
             <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl w-full max-w-sm sm:max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto shadow-2xl mx-2 sm:mx-0">
               <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-600 sticky top-0 bg-white dark:bg-gray-800 z-10">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">Thêm địa chỉ mới</h2>
+                  <h2 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">
+                    Thêm địa chỉ mới
+                  </h2>
                   <button
                     onClick={() => handleModalToggle('add', false)}
                     className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1.5 sm:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
-                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <svg
+                      className="w-5 h-5 sm:w-6 sm:h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                    >
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
@@ -725,18 +876,26 @@ const MyAddresses: React.FC = () => {
             </div>
           </div>
         )}
-        
+
         {modals.editId && addressData.edit && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-2 sm:p-4 pt-2 sm:pt-8">
             <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl w-full max-w-sm sm:max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto shadow-2xl mx-2 sm:mx-0">
               <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-600 sticky top-0 bg-white dark:bg-gray-800 z-10">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">Chỉnh sửa địa chỉ</h2>
+                  <h2 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">
+                    Chỉnh sửa địa chỉ
+                  </h2>
                   <button
                     onClick={() => handleModalToggle('edit', undefined)}
                     className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1.5 sm:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
-                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <svg
+                      className="w-5 h-5 sm:w-6 sm:h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                    >
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>

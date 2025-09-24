@@ -71,7 +71,7 @@ class CommentService {
     }>(`/comments/product/${productId}?page=${page}&limit=${limit}`, {
       method: 'GET',
     });
-    
+
     if (response.success && response.data) {
       // Backend returns response.data.comments directly
       return response.data.comments || [];
@@ -85,7 +85,7 @@ class CommentService {
       method: 'POST',
       body: JSON.stringify(data),
     });
-    
+
     if (response.success && response.data) {
       // Backend returns the comment in response.data
       return response.data;
@@ -99,7 +99,7 @@ class CommentService {
       method: 'PUT',
       body: JSON.stringify(data),
     });
-    
+
     if (response.success && response.data) {
       return response.data;
     }
@@ -108,22 +108,31 @@ class CommentService {
 
   // Delete a comment
   async deleteComment(commentId: string): Promise<{ success: boolean; message: string }> {
-    const response = await apiClient<{ success: boolean; message: string }>(`/comments/${commentId}`, {
-      method: 'DELETE',
-    });
-    
+    const response = await apiClient<{ success: boolean; message: string }>(
+      `/comments/${commentId}`,
+      {
+        method: 'DELETE',
+      }
+    );
+
     if (response.success) {
-      return { success: true, message: (response as any).message || 'Comment deleted successfully' };
+      return {
+        success: true,
+        message: (response as any).message || 'Comment deleted successfully',
+      };
     }
     throw new Error((response as any).message || 'Failed to delete comment');
   }
 
   // Get user's comments
   async getUserComments(page = 1, limit = 10): Promise<CommentResponse> {
-    const response = await apiClient<CommentResponse>(`/comments/my-comments?page=${page}&limit=${limit}`, {
-      method: 'GET',
-    });
-    
+    const response = await apiClient<CommentResponse>(
+      `/comments/my-comments?page=${page}&limit=${limit}`,
+      {
+        method: 'GET',
+      }
+    );
+
     if (response.success && response.data) {
       return response.data;
     }

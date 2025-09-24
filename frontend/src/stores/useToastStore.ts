@@ -15,30 +15,30 @@ interface ToastState {
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
-export const useToastStore = create<ToastState>((set) => ({
+export const useToastStore = create<ToastState>(set => ({
   toasts: [],
-  
-  addToast: (toast) => {
+
+  addToast: toast => {
     const newToast: Toast = {
       ...toast,
       id: generateId(),
     };
-    
-    set((state) => ({
+
+    set(state => ({
       toasts: [...state.toasts, newToast],
     }));
   },
-  
-  removeToast: (id) => {
-    set((state) => ({
-      toasts: state.toasts.filter((toast) => toast.id !== id),
+
+  removeToast: id => {
+    set(state => ({
+      toasts: state.toasts.filter(toast => toast.id !== id),
     }));
   },
-  
+
   clearToasts: () => {
     set({ toasts: [] });
   },
-  
+
   // Convenience methods - All disabled
   showSuccess: () => {
     // get().addToast({
@@ -48,7 +48,7 @@ export const useToastStore = create<ToastState>((set) => ({
     //   duration,
     // });
   },
-  
+
   showError: () => {
     // get().addToast({
     //   type: 'error',
@@ -57,7 +57,7 @@ export const useToastStore = create<ToastState>((set) => ({
     //   duration,
     // });
   },
-  
+
   showWarning: () => {
     // get().addToast({
     //   type: 'warning',
@@ -66,7 +66,7 @@ export const useToastStore = create<ToastState>((set) => ({
     //   duration,
     // });
   },
-  
+
   showInfo: () => {
     // get().addToast({
     //   type: 'info',

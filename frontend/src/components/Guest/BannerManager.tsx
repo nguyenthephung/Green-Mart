@@ -37,43 +37,43 @@ export default function BannerManager({ page, categoryId, className = '' }: Bann
         sale: true,
         featured: true,
         category: true,
-        showInSections: true
+        showInSections: true,
       },
       category: {
         sidebar: true,
         category: true,
         sale: false,
         featured: false,
-        showInSections: false
+        showInSections: false,
       },
       search: {
         sidebar: true,
         sale: true,
         featured: false,
         category: false,
-        showInSections: false
+        showInSections: false,
       },
       product: {
         sidebar: true,
         sale: false,
         featured: true,
         category: false,
-        showInSections: false
+        showInSections: false,
       },
       cart: {
         sidebar: false,
         sale: false,
         featured: false,
         category: false,
-        showInSections: false
+        showInSections: false,
       },
       checkout: {
         sidebar: false,
         sale: false,
         featured: false,
         category: false,
-        showInSections: false
-      }
+        showInSections: false,
+      },
     };
 
     return bannerConfig[page] || {};
@@ -85,7 +85,7 @@ export default function BannerManager({ page, categoryId, className = '' }: Bann
     <div className={`banner-manager ${className}`}>
       {/* Sidebar Banner - Shows on most pages except cart/checkout */}
       {config.sidebar && <SidebarBanner />}
-      
+
       {/* Page-specific banners in content area */}
       <div className="banner-content space-y-8">
         {/* Sale Banner - Hot sales and deals */}
@@ -94,14 +94,14 @@ export default function BannerManager({ page, categoryId, className = '' }: Bann
             <SaleBanner className="shadow-lg" />
           </div>
         )}
-        
+
         {/* Category Banner - Category-specific promotions */}
         {config.category && (
           <div className="max-w-7xl mx-auto px-4 py-4">
             <CategoryBanner categoryId={categoryId} className="shadow-lg" />
           </div>
         )}
-        
+
         {/* Featured Banner - Highlight featured products */}
         {config.featured && (
           <div className="max-w-7xl mx-auto px-4 py-4">

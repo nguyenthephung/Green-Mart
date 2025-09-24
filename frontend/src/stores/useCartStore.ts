@@ -1,5 +1,10 @@
 import { create } from 'zustand';
-import { fetchCart, addToCart as apiAddToCart, updateCartItem, removeCartItem } from '../services/cartService';
+import {
+  fetchCart,
+  addToCart as apiAddToCart,
+  updateCartItem,
+  removeCartItem,
+} from '../services/cartService';
 import { useNewToastStore } from './useNewToastStore';
 
 // Local storage key for guest cart
@@ -19,16 +24,16 @@ const getCartCache = (): CartCache | null => {
   try {
     const stored = localStorage.getItem(CART_CACHE_KEY);
     if (!stored) return null;
-    
+
     const cache: CartCache = JSON.parse(stored);
     const now = Date.now();
-    
+
     // Check if cache is expired
     if (now - cache.timestamp > CACHE_DURATION) {
       localStorage.removeItem(CART_CACHE_KEY);
       return null;
     }
-    
+
     return cache;
   } catch {
     localStorage.removeItem(CART_CACHE_KEY);
@@ -41,7 +46,7 @@ const setCartCache = (data: CartItem[], userId?: string) => {
     const cache: CartCache = {
       data,
       timestamp: Date.now(),
-      userId
+      userId,
     };
     localStorage.setItem(CART_CACHE_KEY, JSON.stringify(cache));
   } catch (error) {
@@ -108,8 +113,19 @@ interface CartState {
   error?: string;
   fetchCart: (force?: boolean) => Promise<void>;
   addToCart: (item: Omit<CartItem, 'quantity'> & { quantity: number }) => Promise<void>;
-  updateQuantity: (productId: string | number, value: number, unit?: string, type?: 'count' | 'weight', flashSale?: any) => Promise<void>;
-  removeFromCart: (productId: string | number, unit?: string, type?: 'count' | 'weight', flashSale?: any) => Promise<void>;
+  updateQuantity: (
+    productId: string | number,
+    value: number,
+    unit?: string,
+    type?: 'count' | 'weight',
+    flashSale?: any
+  ) => Promise<void>;
+  removeFromCart: (
+    productId: string | number,
+    unit?: string,
+    type?: 'count' | 'weight',
+    flashSale?: any
+  ) => Promise<void>;
   clearCart: () => Promise<void>;
   clearAllCartData: () => void; // Clear both server and guest cart
   cleanInvalidItems: () => Promise<void>;
@@ -129,9 +145,9 @@ const calculateTotals = (items: CartItem[]) => {
   }, 0);
   const totalAmount = items.reduce((sum, item) => {
     if (item.type === 'weight') {
-      return sum + (item.price * (item.weight || 0));
+      return sum + item.price * (item.weight || 0);
     } else {
-      return sum + (item.price * (item.quantity || 0));
+      return sum + item.price * (item.quantity || 0);
     }
   }, 0);
   return { totalItems, totalAmount };
@@ -178,12 +194,12 @@ export const useCartStore = create<CartState>((set, get) => ({
             isSale: item.isSale ?? false,
             salePrice: typeof item.salePrice === 'number' ? item.salePrice : undefined,
             // Preserve Flash Sale information
-            flashSale: item.flashSale || undefined
+            flashSale: item.flashSale || undefined,
           }));
         } else if (Array.isArray(res.data)) {
           items = res.data as CartItem[];
         }
-        
+
         const { totalItems, totalAmount } = calculateTotals(items);
         // Cache the cart data
         setCartCache(items);
@@ -200,21 +216,28 @@ export const useCartStore = create<CartState>((set, get) => ({
       set({ items: guestItems, totalItems, totalAmount, loading: false });
     }
   },
-  addToCart: async (item: Omit<CartItem, 'quantity'> & { quantity: number; weight?: number; type?: 'count' | 'weight' }) => {
-  // ...existing code...
-    
+  addToCart: async (
+    item: Omit<CartItem, 'quantity'> & {
+      quantity: number;
+      weight?: number;
+      type?: 'count' | 'weight';
+    }
+  ) => {
+    // ...existing code...
+
     // Optimistic update - update UI immediately
-    set((state) => {
-      const existingIndex = state.items.findIndex(cartItem => 
-        String(cartItem.id) === String(item.id) && 
-        cartItem.unit === item.unit &&
-        cartItem.type === item.type &&
-        // Include Flash Sale status in matching to keep Flash Sale and regular items separate
-        Boolean(cartItem.flashSale?.isFlashSale) === Boolean(item.flashSale?.isFlashSale)
+    set(state => {
+      const existingIndex = state.items.findIndex(
+        cartItem =>
+          String(cartItem.id) === String(item.id) &&
+          cartItem.unit === item.unit &&
+          cartItem.type === item.type &&
+          // Include Flash Sale status in matching to keep Flash Sale and regular items separate
+          Boolean(cartItem.flashSale?.isFlashSale) === Boolean(item.flashSale?.isFlashSale)
       );
-      
+
       let newItems = [...state.items];
-      
+
       if (existingIndex >= 0) {
         // Update existing item
         if (item.type === 'weight') {
@@ -222,14 +245,14 @@ export const useCartStore = create<CartState>((set, get) => ({
             ...newItems[existingIndex],
             weight: (newItems[existingIndex].weight || 0) + (item.weight || 0),
             // Update flash sale info if provided
-            ...(item.flashSale && { flashSale: item.flashSale })
+            ...(item.flashSale && { flashSale: item.flashSale }),
           };
         } else {
           newItems[existingIndex] = {
             ...newItems[existingIndex],
             quantity: newItems[existingIndex].quantity + item.quantity,
             // Update flash sale info if provided
-            ...(item.flashSale && { flashSale: item.flashSale })
+            ...(item.flashSale && { flashSale: item.flashSale }),
           };
         }
       } else {
@@ -244,22 +267,22 @@ export const useCartStore = create<CartState>((set, get) => ({
           type: item.type,
           weight: item.weight,
           // Include flash sale info if provided
-          ...(item.flashSale && { flashSale: item.flashSale })
+          ...(item.flashSale && { flashSale: item.flashSale }),
         });
       }
-      
+
       const { totalItems, totalAmount } = calculateTotals(newItems);
-      
+
       // Clear cache since we're updating
       clearCartCache();
-      
-      return { 
+
+      return {
         ...state,
-        items: newItems, 
-        totalItems, 
-        totalAmount, 
+        items: newItems,
+        totalItems,
+        totalAmount,
         loading: false,
-        error: undefined
+        error: undefined,
       };
     });
 
@@ -267,31 +290,42 @@ export const useCartStore = create<CartState>((set, get) => ({
     try {
       let res;
       if (item.type === 'weight') {
-        res = await apiAddToCart(String(item.id), undefined, item.unit, item.weight, 'weight', item.flashSale);
+        res = await apiAddToCart(
+          String(item.id),
+          undefined,
+          item.unit,
+          item.weight,
+          'weight',
+          item.flashSale
+        );
       } else {
-        res = await apiAddToCart(String(item.id), item.quantity, item.unit, undefined, 'count', item.flashSale);
+        res = await apiAddToCart(
+          String(item.id),
+          item.quantity,
+          item.unit,
+          undefined,
+          'count',
+          item.flashSale
+        );
       }
-      
+
       if (res.success) {
         // Update cache with current state
         const currentState = get();
         setCartCache(currentState.items);
-        
+
         // Show success notification
-        useNewToastStore.getState().showSuccess(
-          'Thành công!',
-          `Đã thêm "${item.name}" vào giỏ hàng`,
-          3000,
-          [
+        useNewToastStore
+          .getState()
+          .showSuccess('Thành công!', `Đã thêm "${item.name}" vào giỏ hàng`, 3000, [
             {
               label: 'Xem giỏ hàng',
               action: () => {
                 window.location.href = '/mycart';
-              }
-            }
-          ]
-        );
-        
+              },
+            },
+          ]);
+
         // Auto scroll to top when item is added to cart (from any page)
         if (window.location.pathname !== '/mycart') {
           setTimeout(() => {
@@ -303,32 +337,37 @@ export const useCartStore = create<CartState>((set, get) => ({
         const currentState = get();
         setGuestCart(currentState.items);
       } else {
-  // API error - revert optimistic update by refetching
-  await get().fetchCart(true); // Force refresh
-  set({ error: res.message || 'Lỗi thêm sản phẩm' });
+        // API error - revert optimistic update by refetching
+        await get().fetchCart(true); // Force refresh
+        set({ error: res.message || 'Lỗi thêm sản phẩm' });
       }
     } catch (err: any) {
-  // Revert optimistic update on error
-  await get().fetchCart(true); // Force refresh
-  set({ error: err.message || 'Lỗi thêm sản phẩm' });
+      // Revert optimistic update on error
+      await get().fetchCart(true); // Force refresh
+      set({ error: err.message || 'Lỗi thêm sản phẩm' });
     }
   },
-  updateQuantity: async (productId: string | number, value: number, unit?: string, type?: 'count' | 'weight', flashSale?: any) => {
-  // ...existing code...
+  updateQuantity: async (
+    productId: string | number,
+    value: number,
+    unit?: string,
+    type?: 'count' | 'weight',
+    flashSale?: any
+  ) => {
+    // ...existing code...
     // Find the item to get its flashSale info first (include flashSaleId in matching)
 
-
     // Optimistic update - update UI immediately
-    set((state) => {
+    set(state => {
       const newItems = state.items.map(item => {
         if (
           String(item.id) === String(productId) &&
           item.unit === unit &&
           item.type === type &&
-          (
-            (item.flashSale?.isFlashSale && flashSale?.isFlashSale && String(item.flashSale?.flashSaleId) === String(flashSale?.flashSaleId)) ||
-            (!item.flashSale?.isFlashSale && !flashSale?.isFlashSale)
-          )
+          ((item.flashSale?.isFlashSale &&
+            flashSale?.isFlashSale &&
+            String(item.flashSale?.flashSaleId) === String(flashSale?.flashSaleId)) ||
+            (!item.flashSale?.isFlashSale && !flashSale?.isFlashSale))
         ) {
           if (type === 'weight') {
             return { ...item, weight: value };
@@ -339,7 +378,14 @@ export const useCartStore = create<CartState>((set, get) => ({
         return item;
       });
       const { totalItems, totalAmount } = calculateTotals(newItems);
-      return { ...state, items: newItems, totalItems, totalAmount, loading: false, error: undefined };
+      return {
+        ...state,
+        items: newItems,
+        totalItems,
+        totalAmount,
+        loading: false,
+        error: undefined,
+      };
     });
 
     // Then sync with server in background
@@ -352,7 +398,7 @@ export const useCartStore = create<CartState>((set, get) => ({
       }
       // Không fetch lại cart sau thao tác
       if ((res as any)?.requireLogin) {
-        // Guest user - sync with localStorage  
+        // Guest user - sync with localStorage
         const currentState = get();
         setGuestCart(currentState.items);
       } else if (!res.success) {
@@ -363,25 +409,37 @@ export const useCartStore = create<CartState>((set, get) => ({
       set({ error: err.message || 'Lỗi cập nhật số lượng' });
     }
   },
-  removeFromCart: async (productId: string | number, unit?: string, type?: 'count' | 'weight', flashSale?: any) => {
-  // ...existing code...
+  removeFromCart: async (
+    productId: string | number,
+    unit?: string,
+    type?: 'count' | 'weight',
+    flashSale?: any
+  ) => {
+    // ...existing code...
     // Find the item to get its flashSale info before removing (include flashSaleId in matching)
-  
+
     // Optimistic update - update UI immediately
-    set((state) => {
+    set(state => {
       const newItems = state.items.filter(item => {
         const match =
           String(item.id) === String(productId) &&
           item.unit === unit &&
           item.type === type &&
-          (
-            (item.flashSale?.isFlashSale && flashSale?.isFlashSale && String(item.flashSale?.flashSaleId) === String(flashSale?.flashSaleId)) ||
-            (!item.flashSale?.isFlashSale && !flashSale?.isFlashSale)
-          );
+          ((item.flashSale?.isFlashSale &&
+            flashSale?.isFlashSale &&
+            String(item.flashSale?.flashSaleId) === String(flashSale?.flashSaleId)) ||
+            (!item.flashSale?.isFlashSale && !flashSale?.isFlashSale));
         return !match;
       });
       const { totalItems, totalAmount } = calculateTotals(newItems);
-      return { ...state, items: newItems, totalItems, totalAmount, loading: false, error: undefined };
+      return {
+        ...state,
+        items: newItems,
+        totalItems,
+        totalAmount,
+        loading: false,
+        error: undefined,
+      };
     });
 
     // Then sync with server in background
@@ -415,11 +473,16 @@ export const useCartStore = create<CartState>((set, get) => ({
       // Gọi API backend để clear cart nếu là user
       let apiResult;
       try {
-        apiResult = await import('../services/cartService').then(m => m.clearCart(userId)).catch(() => null);
+        apiResult = await import('../services/cartService')
+          .then(m => m.clearCart(userId))
+          .catch(() => null);
         if (apiResult && apiResult.success) {
           console.log('[DEBUG][useCartStore] clearCart: Backend clear thành công', apiResult);
         } else {
-          console.warn('[DEBUG][useCartStore] clearCart: Backend clear thất bại hoặc không trả về success', apiResult);
+          console.warn(
+            '[DEBUG][useCartStore] clearCart: Backend clear thất bại hoặc không trả về success',
+            apiResult
+          );
         }
       } catch (apiError) {
         console.error('[DEBUG][useCartStore] clearCart: Lỗi gọi API backend', apiError);
@@ -430,7 +493,13 @@ export const useCartStore = create<CartState>((set, get) => ({
     } catch (err: any) {
       console.error('Clear cart error:', err);
       clearGuestCart();
-      set({ items: [], totalItems: 0, totalAmount: 0, error: err.message || 'Lỗi xóa giỏ hàng', loading: false });
+      set({
+        items: [],
+        totalItems: 0,
+        totalAmount: 0,
+        error: err.message || 'Lỗi xóa giỏ hàng',
+        loading: false,
+      });
     }
   },
 
@@ -449,7 +518,7 @@ export const useCartStore = create<CartState>((set, get) => ({
         const isValidObjectId = /^[a-fA-F0-9]{24}$/.test(idString);
         return hasId && isValidObjectId && item.name && item.quantity > 0 && item.price > 0;
       });
-      
+
       if (validItems.length !== currentItems.length) {
         const { totalItems, totalAmount } = calculateTotals(validItems);
         set({ items: validItems, totalItems, totalAmount, loading: false });
@@ -469,7 +538,7 @@ export const useCartStore = create<CartState>((set, get) => ({
     try {
       const guestItems = getGuestCart();
       if (guestItems.length === 0) return;
-      
+
       // Add each guest item to server cart
       for (const item of guestItems) {
         try {
@@ -482,13 +551,13 @@ export const useCartStore = create<CartState>((set, get) => ({
           console.error('Failed to sync item:', item, itemError);
         }
       }
-      
+
       // Clear guest cart after successful sync
       clearGuestCart();
-      
+
       // Refresh cart from server
       await get().fetchCart();
-      
+
       // Notify success
       useNewToastStore.getState().showSuccess('Đồng bộ giỏ hàng thành công', '', 3000);
     } catch (error) {

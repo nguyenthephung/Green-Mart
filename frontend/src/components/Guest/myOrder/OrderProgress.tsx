@@ -4,10 +4,12 @@ interface OrderProgressProps {
 }
 
 export default function OrderProgress({ status, date }: OrderProgressProps) {
-  if (status === "Đang xử lý") {
+  if (status === 'Đang xử lý') {
     return (
       <div className="bg-white rounded-2xl p-8 mb-8 shadow-[0_4px_24px_rgba(17,17,17,0.10),0_1.5px_8px_rgba(0,0,0,0.08)] border border-gray-100">
-        <div className="text-2xl font-extrabold mb-2 text-gray-900 drop-shadow-[0_2px_2px_rgba(17,17,17,0.10)]">Đang xử lý</div>
+        <div className="text-2xl font-extrabold mb-2 text-gray-900 drop-shadow-[0_2px_2px_rgba(17,17,17,0.10)]">
+          Đang xử lý
+        </div>
         <div className="text-base text-gray-500 font-semibold">Đơn hàng được tạo lúc {date}</div>
         <div className="flex justify-center my-6">
           <div className="bg-green-100 p-5 rounded-full shadow-lg">
@@ -25,14 +27,14 @@ export default function OrderProgress({ status, date }: OrderProgressProps) {
       </div>
     );
   }
-  if (status === "Hoàn thành") {
+  if (status === 'Hoàn thành') {
     return (
       <div className="bg-green-100 text-green-600 p-6 rounded-2xl text-center font-extrabold shadow-lg text-xl">
         ✅ Đơn hàng đã hoàn thành thành công.
       </div>
     );
   }
-  if (status === "Đã hủy") {
+  if (status === 'Đã hủy') {
     return (
       <div className="bg-red-100 text-red-600 p-6 rounded-2xl text-center font-extrabold shadow-lg text-xl">
         ❌ Đơn hàng đã bị hủy.

@@ -4,6 +4,6 @@ import { apiClient } from './api';
 export async function updateUserVouchers(userId: string | number, voucherId: string | number) {
   return apiClient(`/users/${userId}/vouchers`, {
     method: 'PATCH',
-    body: JSON.stringify({ voucherId })
+    body: JSON.stringify({ voucherId }),
   });
 }

@@ -36,13 +36,34 @@ interface CheckoutMainProps {
 }
 
 const paymentOptions = [
-  { label: 'Thanh toán khi nhận hàng (COD)', value: 'cod', icon: '💵', description: 'Thanh toán bằng tiền mặt khi nhận hàng' },
-  { label: 'Chuyển khoản ngân hàng', value: 'bank_transfer', icon: '🏦', description: 'Chuyển khoản thủ công qua ngân hàng' },
-  { label: 'Ví điện tử MoMo', value: 'momo', icon: '🎯', description: 'Thanh toán qua ví điện tử MoMo' },
+  {
+    label: 'Thanh toán khi nhận hàng (COD)',
+    value: 'cod',
+    icon: '💵',
+    description: 'Thanh toán bằng tiền mặt khi nhận hàng',
+  },
+  {
+    label: 'Chuyển khoản ngân hàng',
+    value: 'bank_transfer',
+    icon: '🏦',
+    description: 'Chuyển khoản thủ công qua ngân hàng',
+  },
+  {
+    label: 'Ví điện tử MoMo',
+    value: 'momo',
+    icon: '🎯',
+    description: 'Thanh toán qua ví điện tử MoMo',
+  },
   { label: 'PayPal', value: 'paypal', icon: '💳', description: 'Thanh toán quốc tế qua PayPal' },
 ];
 
-const CheckoutMain: FC<CheckoutMainProps> = ({ items, userInfo, address, payments, onPaymentChange }) => {
+const CheckoutMain: FC<CheckoutMainProps> = ({
+  items,
+  userInfo,
+  address,
+  payments,
+  onPaymentChange,
+}) => {
   // State cục bộ để lưu lựa chọn hiện tại
   const [localSelectedPayment, setLocalSelectedPayment] = useState<string>('');
 
@@ -60,7 +81,9 @@ const CheckoutMain: FC<CheckoutMainProps> = ({ items, userInfo, address, payment
   // Khi chọn payment method, cập nhật local ngay, đồng thời gọi callback để cập nhật context
   const handleSelectPayment = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setLocalSelectedPayment(e.target.value);
-    if (onPaymentChange) { onPaymentChange(e.target.value); }
+    if (onPaymentChange) {
+      onPaymentChange(e.target.value);
+    }
   };
 
   return (
@@ -86,9 +109,13 @@ const CheckoutMain: FC<CheckoutMainProps> = ({ items, userInfo, address, payment
             <p className="text-sm font-bold text-gray-700">Delivery info</p>
             <div className="mt-1 text-sm text-green-700 flex items-center gap-1">
               <MapPin className="w-4 h-4 flex-shrink-0" />
-              <span className="break-words">{userInfo.fullName} - {userInfo.phone}</span>
+              <span className="break-words">
+                {userInfo.fullName} - {userInfo.phone}
+              </span>
             </div>
-            <div className="text-xs text-gray-500 ml-5 break-words">{address ? address.address : 'Chưa chọn địa chỉ'}</div>
+            <div className="text-xs text-gray-500 ml-5 break-words">
+              {address ? address.address : 'Chưa chọn địa chỉ'}
+            </div>
           </div>
           <ChevronRight className="w-5 h-5 text-gray-500 hover:text-green-700 flex-shrink-0" />
         </div>
@@ -102,7 +129,7 @@ const CheckoutMain: FC<CheckoutMainProps> = ({ items, userInfo, address, payment
             Phương thức thanh toán
           </p>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {paymentOptions.map(option => (
             <div
@@ -132,14 +159,20 @@ const CheckoutMain: FC<CheckoutMainProps> = ({ items, userInfo, address, payment
                 {localSelectedPayment === option.value && (
                   <div className="absolute top-2 right-2">
                     <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <svg
+                        className="w-3 h-3 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                      >
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
                   </div>
                 )}
               </div>
-              
+
               {/* Additional info for specific payment methods */}
               {localSelectedPayment === option.value && (
                 <div className="mt-3 pt-3 border-t border-green-200">
@@ -156,7 +189,9 @@ const CheckoutMain: FC<CheckoutMainProps> = ({ items, userInfo, address, payment
                       <p>• BIDV: 1122334455</p>
                     </div>
                   )}
-                  {(option.value === 'momo' || option.value === 'zalopay' || option.value === 'shopeepay') && (
+                  {(option.value === 'momo' ||
+                    option.value === 'zalopay' ||
+                    option.value === 'shopeepay') && (
                     <div className="text-xs text-purple-700">
                       <p>• Thanh toán nhanh chóng và bảo mật</p>
                       <p>• Nhận ưu đãi từ ví điện tử</p>
@@ -191,8 +226,18 @@ const CheckoutMain: FC<CheckoutMainProps> = ({ items, userInfo, address, payment
         <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
           <div className="flex items-start gap-3">
             <div className="flex-shrink-0">
-              <svg className="w-5 h-5 text-green-600 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              <svg
+                className="w-5 h-5 text-green-600 mt-0.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                />
               </svg>
             </div>
             <div>
@@ -213,19 +258,19 @@ const CheckoutMain: FC<CheckoutMainProps> = ({ items, userInfo, address, payment
         </div>
         <div className="bg-green-50 rounded-lg p-2 justify-between flex items-center space-x-2">
           <div className="flex items-center space-x-2">
-          {visibleItems.map((item, index) => (
-            <img
-              key={index}
-              src={item.image}
-              alt={item.name}
-              className="w-15 h-15 rounded object-cover"
-            />
-          ))}
-          {remainingCount > 0 && (
-            <div className="w-10 h-10 flex items-center justify-center bg-green-50 text-green-700 rounded text-sm font-medium">
-              +{remainingCount}
-            </div>
-          )}
+            {visibleItems.map((item, index) => (
+              <img
+                key={index}
+                src={item.image}
+                alt={item.name}
+                className="w-15 h-15 rounded object-cover"
+              />
+            ))}
+            {remainingCount > 0 && (
+              <div className="w-10 h-10 flex items-center justify-center bg-green-50 text-green-700 rounded text-sm font-medium">
+                +{remainingCount}
+              </div>
+            )}
           </div>
           <ChevronRight className="w-5 h-5 text-gray-500 hover:text-green-700" />
         </div>

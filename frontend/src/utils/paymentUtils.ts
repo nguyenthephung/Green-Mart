@@ -3,7 +3,7 @@ export const getPaymentMethodLabel = (method: string): string => {
     case 'cod':
       return 'Thanh toán khi nhận hàng';
     case 'cash':
-      return 'Thanh toán khi nhận hàng'; // Legacy support  
+      return 'Thanh toán khi nhận hàng'; // Legacy support
     case 'momo':
       return 'Ví MoMo';
     case 'bank_transfer':

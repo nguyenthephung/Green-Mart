@@ -26,7 +26,7 @@ const SaleSection: React.FC<SaleSectionProps> = ({ saleProducts, handleAddToCart
         </p>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-        {saleProducts.map((product) => (
+        {saleProducts.map(product => (
           <div key={product.id} className="relative transform-gpu">
             <div className="absolute top-1 left-1 z-20">
               <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-1.5 py-0.5 rounded-md text-xs font-bold shadow-lg">
@@ -44,7 +44,7 @@ const SaleSection: React.FC<SaleSectionProps> = ({ saleProducts, handleAddToCart
                 category: product.category,
                 unit: product.unit || '',
                 averageRating: product.averageRating,
-                totalRatings: product.totalRatings
+                totalRatings: product.totalRatings,
               }}
               onAddToCart={handleAddToCart}
               showSaleBadge={true}
@@ -54,7 +54,7 @@ const SaleSection: React.FC<SaleSectionProps> = ({ saleProducts, handleAddToCart
         ))}
       </div>
       <div className="text-center mt-12">
-        <Link 
+        <Link
           to="/category?sale=true"
           className="inline-flex items-center gap-3 bg-gradient-to-r from-red-500 to-pink-500 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:scale-105 transition-transform duration-300 shadow-xl"
         >

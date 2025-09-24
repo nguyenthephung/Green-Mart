@@ -1,11 +1,11 @@
 import { apiClient } from './api';
-import type { 
-  Notification, 
-  NotificationSettings, 
-  NotificationStats, 
+import type {
+  Notification,
+  NotificationSettings,
+  NotificationStats,
   CreateNotificationPayload,
   NotificationResponse,
-  NotificationFilter 
+  NotificationFilter,
 } from '../types/notification';
 
 // Simple API wrapper
@@ -21,7 +21,7 @@ const api = {
   },
   delete: async (url: string) => {
     return await apiClient(url, { method: 'DELETE' });
-  }
+  },
 };
 
 class NotificationService {
@@ -35,7 +35,7 @@ class NotificationService {
       if (filter.isRead !== undefined) params.append('isRead', filter.isRead.toString());
 
       const response = await api.get(`/notifications?${params.toString()}`);
-      
+
       // Return the full response structure to match NotificationResponse type
       if (response.success && response.data) {
         return response as NotificationResponse;
@@ -111,7 +111,7 @@ class NotificationService {
       const response = await api.get('/notifications/unread-count');
       // Handle different response formats - use type assertion for flexibility
       const data = response as any;
-      
+
       // Try different possible response structures
       if (data.success && data.data && typeof data.data.count === 'number') {
         return data.data.count;

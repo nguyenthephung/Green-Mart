@@ -14,7 +14,7 @@ const AdminProfileModal: React.FC<AdminProfileModalProps> = ({ isOpen, onClose }
     phone: '',
     currentPassword: '',
     newPassword: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -38,7 +38,7 @@ const AdminProfileModal: React.FC<AdminProfileModalProps> = ({ isOpen, onClose }
         phone: user.phone || '',
         currentPassword: '',
         newPassword: '',
-        confirmPassword: ''
+        confirmPassword: '',
       });
     }
   }, [user, isOpen]);
@@ -65,7 +65,7 @@ const AdminProfileModal: React.FC<AdminProfileModalProps> = ({ isOpen, onClose }
       const updateData: any = {
         name: formData.name,
         email: formData.email,
-        phone: formData.phone
+        phone: formData.phone,
       };
 
       if (formData.newPassword) {
@@ -86,15 +86,13 @@ const AdminProfileModal: React.FC<AdminProfileModalProps> = ({ isOpen, onClose }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div 
+      <div
         className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto"
         style={{ backgroundColor: isDarkMode ? '#1f2937' : '#fff' }}
       >
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Chỉnh sửa hồ sơ
-            </h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Chỉnh sửa hồ sơ</h2>
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-2xl"
@@ -117,9 +115,12 @@ const AdminProfileModal: React.FC<AdminProfileModalProps> = ({ isOpen, onClose }
               <input
                 type="text"
                 value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
                 className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
-                style={{ backgroundColor: isDarkMode ? '#374151' : '#fff', color: isDarkMode ? '#fff' : '#000' }}
+                style={{
+                  backgroundColor: isDarkMode ? '#374151' : '#fff',
+                  color: isDarkMode ? '#fff' : '#000',
+                }}
                 required
               />
             </div>
@@ -131,9 +132,12 @@ const AdminProfileModal: React.FC<AdminProfileModalProps> = ({ isOpen, onClose }
               <input
                 type="email"
                 value={formData.email}
-                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
                 className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
-                style={{ backgroundColor: isDarkMode ? '#374151' : '#fff', color: isDarkMode ? '#fff' : '#000' }}
+                style={{
+                  backgroundColor: isDarkMode ? '#374151' : '#fff',
+                  color: isDarkMode ? '#fff' : '#000',
+                }}
                 required
               />
             </div>
@@ -145,9 +149,12 @@ const AdminProfileModal: React.FC<AdminProfileModalProps> = ({ isOpen, onClose }
               <input
                 type="tel"
                 value={formData.phone}
-                onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                onChange={e => setFormData(prev => ({ ...prev, phone: e.target.value }))}
                 className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
-                style={{ backgroundColor: isDarkMode ? '#374151' : '#fff', color: isDarkMode ? '#fff' : '#000' }}
+                style={{
+                  backgroundColor: isDarkMode ? '#374151' : '#fff',
+                  color: isDarkMode ? '#fff' : '#000',
+                }}
               />
             </div>
 
@@ -155,7 +162,7 @@ const AdminProfileModal: React.FC<AdminProfileModalProps> = ({ isOpen, onClose }
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 Đổi mật khẩu (tùy chọn)
               </h3>
-              
+
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -164,9 +171,14 @@ const AdminProfileModal: React.FC<AdminProfileModalProps> = ({ isOpen, onClose }
                   <input
                     type="password"
                     value={formData.currentPassword}
-                    onChange={(e) => setFormData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                    onChange={e =>
+                      setFormData(prev => ({ ...prev, currentPassword: e.target.value }))
+                    }
                     className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
-                    style={{ backgroundColor: isDarkMode ? '#374151' : '#fff', color: isDarkMode ? '#fff' : '#000' }}
+                    style={{
+                      backgroundColor: isDarkMode ? '#374151' : '#fff',
+                      color: isDarkMode ? '#fff' : '#000',
+                    }}
                   />
                 </div>
 
@@ -177,9 +189,12 @@ const AdminProfileModal: React.FC<AdminProfileModalProps> = ({ isOpen, onClose }
                   <input
                     type="password"
                     value={formData.newPassword}
-                    onChange={(e) => setFormData(prev => ({ ...prev, newPassword: e.target.value }))}
+                    onChange={e => setFormData(prev => ({ ...prev, newPassword: e.target.value }))}
                     className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
-                    style={{ backgroundColor: isDarkMode ? '#374151' : '#fff', color: isDarkMode ? '#fff' : '#000' }}
+                    style={{
+                      backgroundColor: isDarkMode ? '#374151' : '#fff',
+                      color: isDarkMode ? '#fff' : '#000',
+                    }}
                   />
                 </div>
 
@@ -190,9 +205,14 @@ const AdminProfileModal: React.FC<AdminProfileModalProps> = ({ isOpen, onClose }
                   <input
                     type="password"
                     value={formData.confirmPassword}
-                    onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                    onChange={e =>
+                      setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))
+                    }
                     className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
-                    style={{ backgroundColor: isDarkMode ? '#374151' : '#fff', color: isDarkMode ? '#fff' : '#000' }}
+                    style={{
+                      backgroundColor: isDarkMode ? '#374151' : '#fff',
+                      color: isDarkMode ? '#fff' : '#000',
+                    }}
                   />
                 </div>
               </div>

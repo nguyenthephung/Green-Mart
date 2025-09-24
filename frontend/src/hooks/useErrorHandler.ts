@@ -11,10 +11,7 @@ interface UseErrorHandlerReturn {
   clearError: () => void;
   clearValidationErrors: () => void;
   clearAllErrors: () => void;
-  withErrorHandling: <T>(
-    operation: () => Promise<T>,
-    context?: string
-  ) => Promise<T | null>;
+  withErrorHandling: <T>(operation: () => Promise<T>, context?: string) => Promise<T | null>;
 }
 
 export const useErrorHandler = (): UseErrorHandlerReturn => {
@@ -24,19 +21,16 @@ export const useErrorHandler = (): UseErrorHandlerReturn => {
   const handleError = useCallback((error: any, context?: string) => {
     const errorInfo = ErrorHandler.formatError(error);
     setError(errorInfo);
-    
+
     // Also show toast notification
     ErrorHandler.handleError(error, context);
   }, []);
 
   const handleValidationErrors = useCallback((errors: ValidationError[]) => {
     setValidationErrors(errors);
-    
+
     if (errors.length > 0) {
-      const validationError = ErrorHandler.createValidationError(
-        'Dữ liệu không hợp lệ',
-        errors
-      );
+      const validationError = ErrorHandler.createValidationError('Dữ liệu không hợp lệ', errors);
       ErrorHandler.handleError(validationError, 'Form Validation');
     }
   }, []);
@@ -54,18 +48,18 @@ export const useErrorHandler = (): UseErrorHandlerReturn => {
     setValidationErrors([]);
   }, []);
 
-  const withErrorHandling = useCallback(async <T,>(
-    operation: () => Promise<T>,
-    context?: string
-  ): Promise<T | null> => {
-    try {
-      clearAllErrors();
-      return await operation();
-    } catch (error) {
-      handleError(error, context);
-      return null;
-    }
-  }, [handleError, clearAllErrors]);
+  const withErrorHandling = useCallback(
+    async <T>(operation: () => Promise<T>, context?: string): Promise<T | null> => {
+      try {
+        clearAllErrors();
+        return await operation();
+      } catch (error) {
+        handleError(error, context);
+        return null;
+      }
+    },
+    [handleError, clearAllErrors]
+  );
 
   return {
     error,
@@ -76,7 +70,7 @@ export const useErrorHandler = (): UseErrorHandlerReturn => {
     clearError,
     clearValidationErrors,
     clearAllErrors,
-    withErrorHandling
+    withErrorHandling,
   };
 };
 

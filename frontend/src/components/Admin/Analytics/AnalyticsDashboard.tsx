@@ -7,7 +7,16 @@ import LoadingSpinner from '../../Loading/LoadingSpinner';
 const AnalyticsDashboard: React.FC = () => {
   const [period, setPeriod] = useState<AnalyticsPeriod>('7days');
   const { data, loading, error } = useAnalytics(period);
-  console.log('[AnalyticsDashboard] period:', period, 'data:', data, 'loading:', loading, 'error:', error);
+  console.log(
+    '[AnalyticsDashboard] period:',
+    period,
+    'data:',
+    data,
+    'loading:',
+    loading,
+    'error:',
+    error
+  );
 
   const formatCurrency = (value: number) => {
     if (value >= 1000000000) {
@@ -21,7 +30,7 @@ const AnalyticsDashboard: React.FC = () => {
       style: 'currency',
       currency: 'VND',
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(value);
   };
 
@@ -38,9 +47,12 @@ const AnalyticsDashboard: React.FC = () => {
 
   const getPeriodLabel = (period: AnalyticsPeriod) => {
     switch (period) {
-      case '7days': return '7 ngày qua';
-      case '30days': return '30 ngày qua';
-      case '3months': return '3 tháng qua';
+      case '7days':
+        return '7 ngày qua';
+      case '30days':
+        return '30 ngày qua';
+      case '3months':
+        return '3 tháng qua';
     }
   };
 
@@ -86,11 +98,11 @@ const AnalyticsDashboard: React.FC = () => {
             Theo dõi hiệu suất kinh doanh của cửa hàng
           </p>
         </div>
-        
+
         {/* Enhanced Period Selector */}
         <div className="w-full lg:w-auto">
           <div className="flex bg-app-card dark:bg-app-card rounded-xl p-1 w-full lg:w-auto">
-            {(['7days', '30days', '3months'] as AnalyticsPeriod[]).map((p) => (
+            {(['7days', '30days', '3months'] as AnalyticsPeriod[]).map(p => (
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
@@ -130,12 +142,15 @@ const AnalyticsDashboard: React.FC = () => {
             ) : (
               <TrendingDown className="w-3 h-3 sm:w-4 sm:h-4 text-red-500 mr-1" />
             )}
-            <span className={`text-xs sm:text-sm font-medium ${
-              data.growthRate >= 0 
-                ? 'text-green-600 dark:text-green-400' 
-                : 'text-red-600 dark:text-red-400'
-            }`}>
-              {data.growthRate >= 0 ? '+' : ''}{data.growthRate.toFixed(1)}%
+            <span
+              className={`text-xs sm:text-sm font-medium ${
+                data.growthRate >= 0
+                  ? 'text-green-600 dark:text-green-400'
+                  : 'text-red-600 dark:text-red-400'
+              }`}
+            >
+              {data.growthRate >= 0 ? '+' : ''}
+              {data.growthRate.toFixed(1)}%
             </span>
             <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 ml-1 sm:ml-2 truncate">
               so với kỳ trước
@@ -160,7 +175,11 @@ const AnalyticsDashboard: React.FC = () => {
           </div>
           <div className="mt-3 sm:mt-4">
             <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-              Trung bình {(data.totalOrders / (period === '7days' ? 7 : period === '30days' ? 30 : 90)).toFixed(1)} đơn/ngày
+              Trung bình{' '}
+              {(
+                data.totalOrders / (period === '7days' ? 7 : period === '30days' ? 30 : 90)
+              ).toFixed(1)}{' '}
+              đơn/ngày
             </span>
           </div>
         </div>
@@ -207,7 +226,7 @@ const AnalyticsDashboard: React.FC = () => {
 
       {/* Enhanced Responsive Charts */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
-        <AnalyticsCharts 
+        <AnalyticsCharts
           salesData={data.salesData}
           topProducts={data.topProducts}
           period={period}

@@ -7,24 +7,24 @@ import GuestInfoModal from '../../components/ui/GuestInfoModal';
 import { Truck, Store, CreditCard, Banknote, Smartphone } from 'lucide-react';
 import type { GuestUser, GuestOrder } from '../../types/GuestOrder';
 
-
 const GuestCheckoutPage: React.FC = () => {
   const navigate = useNavigate();
   const { items, clearCart } = useCartStore();
   const { guestInfo, deliveryType, setDeliveryType } = useGuestStore();
-  
+
   const [showGuestModal, setShowGuestModal] = useState(false);
   const [currentGuestInfo, setCurrentGuestInfo] = useState<GuestUser | null>(guestInfo);
-  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'momo' | 'bank_transfer' | 'paypal'>('cod');
+  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'momo' | 'bank_transfer' | 'paypal'>(
+    'cod'
+  );
   const [notes, setNotes] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Calculate totals
   const subtotal = useMemo(() => {
     return items.reduce((sum, item) => {
-      const itemTotal = item.type === 'weight' 
-        ? item.price * (item.weight || 1)
-        : item.price * item.quantity;
+      const itemTotal =
+        item.type === 'weight' ? item.price * (item.weight || 1) : item.price * item.quantity;
       return sum + itemTotal;
     }, 0);
   }, [items]);
@@ -51,8 +51,8 @@ const GuestCheckoutPage: React.FC = () => {
     setIsProcessing(true);
 
     try {
-  // Luôn gửi totalAmount là VND cho backend, backend sẽ tự xử lý chuyển đổi nếu cần
-  let totalAmount = finalTotal;
+      // Luôn gửi totalAmount là VND cho backend, backend sẽ tự xử lý chuyển đổi nếu cần
+      let totalAmount = finalTotal;
       const orderData: GuestOrder = {
         items: items.map(item => ({
           productId: String(item.id),
@@ -71,14 +71,14 @@ const GuestCheckoutPage: React.FC = () => {
         notes: notes.trim() || undefined,
       };
 
-  // Log chi tiết payload gửi lên backend
-  console.log('Payload gửi lên backend:', orderData);
-  const response = await guestOrderService.createGuestOrder(orderData);
+      // Log chi tiết payload gửi lên backend
+      console.log('Payload gửi lên backend:', orderData);
+      const response = await guestOrderService.createGuestOrder(orderData);
 
       if (response.success) {
         // Clear cart
         clearCart();
-        
+
         // Handle different payment methods
         if ((paymentMethod === 'momo' || paymentMethod === 'paypal') && response.data.paymentUrl) {
           // For MoMo and PayPal, redirect to payment gateway
@@ -96,12 +96,12 @@ const GuestCheckoutPage: React.FC = () => {
               totalAmount: response.data.totalAmount,
               paymentMethod: response.data.paymentMethod,
               paymentUrl: response.data.paymentUrl,
-            }
+            },
           });
         }
       }
     } catch (error) {
-  // ...existing code (đã xóa log)...
+      // ...existing code (đã xóa log)...
       alert('Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.');
     } finally {
       setIsProcessing(false);
@@ -137,13 +137,12 @@ const GuestCheckoutPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            
             {/* Customer Info Section */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                 Thông Tin Khách Hàng
               </h2>
-              
+
               {currentGuestInfo ? (
                 <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
                   <div className="flex justify-between items-start">
@@ -151,16 +150,10 @@ const GuestCheckoutPage: React.FC = () => {
                       <p className="font-medium text-gray-900 dark:text-white">
                         {currentGuestInfo.name}
                       </p>
-                      <p className="text-gray-600 dark:text-gray-400">
-                        {currentGuestInfo.phone}
-                      </p>
-                      <p className="text-gray-600 dark:text-gray-400">
-                        {currentGuestInfo.address}
-                      </p>
+                      <p className="text-gray-600 dark:text-gray-400">{currentGuestInfo.phone}</p>
+                      <p className="text-gray-600 dark:text-gray-400">{currentGuestInfo.address}</p>
                       {currentGuestInfo.email && (
-                        <p className="text-gray-600 dark:text-gray-400">
-                          {currentGuestInfo.email}
-                        </p>
+                        <p className="text-gray-600 dark:text-gray-400">{currentGuestInfo.email}</p>
                       )}
                     </div>
                     <button
@@ -186,7 +179,7 @@ const GuestCheckoutPage: React.FC = () => {
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                 Hình Thức Nhận Hàng
               </h2>
-              
+
               <div className="space-y-3">
                 <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
                   <input
@@ -194,7 +187,7 @@ const GuestCheckoutPage: React.FC = () => {
                     name="deliveryType"
                     value="pickup"
                     checked={deliveryType === 'pickup'}
-                    onChange={(e) => setDeliveryType(e.target.value as 'pickup' | 'delivery')}
+                    onChange={e => setDeliveryType(e.target.value as 'pickup' | 'delivery')}
                     className="mr-3"
                   />
                   <Store className="w-5 h-5 mr-3 text-green-600" />
@@ -214,7 +207,7 @@ const GuestCheckoutPage: React.FC = () => {
                     name="deliveryType"
                     value="delivery"
                     checked={deliveryType === 'delivery'}
-                    onChange={(e) => setDeliveryType(e.target.value as 'pickup' | 'delivery')}
+                    onChange={e => setDeliveryType(e.target.value as 'pickup' | 'delivery')}
                     className="mr-3"
                   />
                   <Truck className="w-5 h-5 mr-3 text-green-600" />
@@ -235,7 +228,7 @@ const GuestCheckoutPage: React.FC = () => {
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                 Phương Thức Thanh Toán
               </h2>
-              
+
               <div className="space-y-3">
                 <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
                   <input
@@ -243,7 +236,7 @@ const GuestCheckoutPage: React.FC = () => {
                     name="paymentMethod"
                     value="cod"
                     checked={paymentMethod === 'cod'}
-                    onChange={(e) => setPaymentMethod(e.target.value as 'cod')}
+                    onChange={e => setPaymentMethod(e.target.value as 'cod')}
                     className="mr-3"
                   />
                   <Banknote className="w-5 h-5 mr-3 text-green-600" />
@@ -263,14 +256,12 @@ const GuestCheckoutPage: React.FC = () => {
                     name="paymentMethod"
                     value="momo"
                     checked={paymentMethod === 'momo'}
-                    onChange={(e) => setPaymentMethod(e.target.value as 'momo')}
+                    onChange={e => setPaymentMethod(e.target.value as 'momo')}
                     className="mr-3"
                   />
                   <Smartphone className="w-5 h-5 mr-3 text-pink-600" />
                   <div>
-                    <div className="font-medium text-gray-900 dark:text-white">
-                      Ví MoMo
-                    </div>
+                    <div className="font-medium text-gray-900 dark:text-white">Ví MoMo</div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">
                       Thanh toán qua ví điện tử MoMo
                     </div>
@@ -283,7 +274,7 @@ const GuestCheckoutPage: React.FC = () => {
                     name="paymentMethod"
                     value="bank_transfer"
                     checked={paymentMethod === 'bank_transfer'}
-                    onChange={(e) => setPaymentMethod(e.target.value as 'bank_transfer')}
+                    onChange={e => setPaymentMethod(e.target.value as 'bank_transfer')}
                     className="mr-3"
                   />
                   <CreditCard className="w-5 h-5 mr-3 text-blue-600" />
@@ -303,16 +294,14 @@ const GuestCheckoutPage: React.FC = () => {
                     name="paymentMethod"
                     value="paypal"
                     checked={paymentMethod === 'paypal'}
-                    onChange={(e) => setPaymentMethod(e.target.value as 'paypal')}
+                    onChange={e => setPaymentMethod(e.target.value as 'paypal')}
                     className="mr-3"
                   />
                   <div className="w-5 h-5 mr-3 bg-blue-600 rounded flex items-center justify-center">
                     <span className="text-white text-xs font-bold">P</span>
                   </div>
                   <div>
-                    <div className="font-medium text-gray-900 dark:text-white">
-                      PayPal
-                    </div>
+                    <div className="font-medium text-gray-900 dark:text-white">PayPal</div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">
                       Thanh toán qua PayPal
                     </div>
@@ -328,7 +317,7 @@ const GuestCheckoutPage: React.FC = () => {
               </h2>
               <textarea
                 value={notes}
-                onChange={(e) => setNotes(e.target.value)}
+                onChange={e => setNotes(e.target.value)}
                 rows={3}
                 className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white resize-none"
                 placeholder="Ghi chú thêm cho đơn hàng (tùy chọn)..."
@@ -342,13 +331,13 @@ const GuestCheckoutPage: React.FC = () => {
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                 Tóm Tắt Đơn Hàng
               </h2>
-              
+
               {/* Items */}
               <div className="space-y-3 mb-4 max-h-60 overflow-y-auto">
-                {items.map((item) => (
+                {items.map(item => (
                   <div key={`${item.id}-${item.unit}`} className="flex items-center space-x-3">
-                    <img 
-                      src={item.image} 
+                    <img
+                      src={item.image}
                       alt={item.name}
                       className="w-12 h-12 object-cover rounded"
                     />
@@ -357,17 +346,16 @@ const GuestCheckoutPage: React.FC = () => {
                         {item.name}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {item.type === 'weight' 
+                        {item.type === 'weight'
                           ? `${item.weight}${item.unit} × ${item.price.toLocaleString('vi-VN')}₫/${item.unit}`
-                          : `${item.quantity} × ${item.price.toLocaleString('vi-VN')}₫`
-                        }
+                          : `${item.quantity} × ${item.price.toLocaleString('vi-VN')}₫`}
                       </p>
                     </div>
                     <div className="text-sm font-medium text-gray-900 dark:text-white">
-                      {item.type === 'weight' 
+                      {item.type === 'weight'
                         ? (item.price * (item.weight || 1)).toLocaleString('vi-VN')
-                        : (item.price * item.quantity).toLocaleString('vi-VN')
-                      }₫
+                        : (item.price * item.quantity).toLocaleString('vi-VN')}
+                      ₫
                     </div>
                   </div>
                 ))}
@@ -381,14 +369,14 @@ const GuestCheckoutPage: React.FC = () => {
                     {subtotal.toLocaleString('vi-VN')}₫
                   </span>
                 </div>
-                
+
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600 dark:text-gray-400">Phí giao hàng</span>
                   <span className="text-gray-900 dark:text-white">
                     {shippingFee.toLocaleString('vi-VN')}₫
                   </span>
                 </div>
-                
+
                 <div className="flex justify-between text-lg font-semibold pt-2 border-t border-gray-200 dark:border-gray-700">
                   <span className="text-gray-900 dark:text-white">Tổng cộng</span>
                   <span className="text-green-600 dark:text-green-400">

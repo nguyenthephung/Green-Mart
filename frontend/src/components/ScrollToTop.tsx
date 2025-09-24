@@ -9,7 +9,7 @@ const ScrollToTop: React.FC = () => {
     window.scrollTo({
       top: 0,
       left: 0,
-      behavior: 'instant' // Sử dụng 'instant' thay vì 'smooth' để tránh delay
+      behavior: 'instant', // Sử dụng 'instant' thay vì 'smooth' để tránh delay
     });
   }, [pathname]);
 

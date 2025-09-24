@@ -18,7 +18,7 @@ export default function FeaturedBanner({ className = '' }: FeaturedBannerProps) 
         const featuredBanners = storeBanners
           .filter((b: any) => b.position === 'featured' && b.isActive)
           .sort((a: any, b: any) => (a.priority || 999) - (b.priority || 999));
-        
+
         setBanners(featuredBanners);
       } catch (error) {
         console.error('Failed to load featured banners:', error);
@@ -31,7 +31,7 @@ export default function FeaturedBanner({ className = '' }: FeaturedBannerProps) 
   useEffect(() => {
     if (banners.length > 1) {
       const interval = setInterval(() => {
-        setCurrentBanner((prev) => (prev + 1) % banners.length);
+        setCurrentBanner(prev => (prev + 1) % banners.length);
       }, 5000);
       return () => clearInterval(interval);
     }
@@ -58,9 +58,12 @@ export default function FeaturedBanner({ className = '' }: FeaturedBannerProps) 
         <div className="relative p-6 md:p-8">
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-10">
-            <div className="absolute inset-0" style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cstar cx='30' cy='30' r='8'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-            }}></div>
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cstar cx='30' cy='30' r='8'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+              }}
+            ></div>
           </div>
 
           <div className="relative flex flex-col md:flex-row items-center gap-6">
@@ -97,7 +100,12 @@ export default function FeaturedBanner({ className = '' }: FeaturedBannerProps) 
               >
                 <span>{banner.buttonText || 'Khám phá'}</span>
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 7l5 5m0 0l-5 5m5-5H6"
+                  />
                 </svg>
               </button>
             </div>
@@ -122,9 +130,7 @@ export default function FeaturedBanner({ className = '' }: FeaturedBannerProps) 
                   key={index}
                   onClick={() => setCurrentBanner(index)}
                   className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    index === currentBanner 
-                      ? 'bg-white scale-125' 
-                      : 'bg-white/50 hover:bg-white/70'
+                    index === currentBanner ? 'bg-white scale-125' : 'bg-white/50 hover:bg-white/70'
                   }`}
                 />
               ))}

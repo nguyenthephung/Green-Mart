@@ -5,7 +5,7 @@ import {
   addCategory,
   editCategory as editCategoryApi,
   deleteCategory,
-  toggleCategoryStatus
+  toggleCategoryStatus,
 } from '../services/categoryService';
 
 interface CategoryStore {
@@ -19,7 +19,7 @@ interface CategoryStore {
   toggleStatus: (id: string) => Promise<void>;
 }
 
-export const useCategoryStore = create<CategoryStore>((set) => ({
+export const useCategoryStore = create<CategoryStore>(set => ({
   categories: [],
   loading: false,
   error: null,
@@ -27,20 +27,20 @@ export const useCategoryStore = create<CategoryStore>((set) => ({
     set({ loading: true, error: null });
     try {
       const data = await getCategories();
-      
+
       // Map _id to id (string)
       const mapped = Array.isArray(data)
         ? data.map((cat: any) => ({
             ...cat,
-            id: cat._id ? String(cat._id) : cat.id
+            id: cat._id ? String(cat._id) : cat.id,
           }))
         : [];
-      
+
       // Remove duplicates based on id
-      const uniqueCategories = mapped.filter((cat, index, self) => 
-        index === self.findIndex(c => c.id === cat.id)
+      const uniqueCategories = mapped.filter(
+        (cat, index, self) => index === self.findIndex(c => c.id === cat.id)
       );
-      
+
       set({ categories: uniqueCategories, loading: false });
     } catch (err: any) {
       console.error('CategoryStore: Error fetching categories:', err);
@@ -54,9 +54,9 @@ export const useCategoryStore = create<CategoryStore>((set) => ({
       // Map _id to id (string) nếu cần
       const added = {
         ...addedRaw,
-        id: addedRaw._id ? String(addedRaw._id) : addedRaw.id
+        id: addedRaw._id ? String(addedRaw._id) : addedRaw.id,
       };
-      set((state) => {
+      set(state => {
         // Check if category already exists
         const existingIndex = state.categories.findIndex(c => c.id === added.id);
         if (existingIndex >= 0) {
@@ -80,11 +80,11 @@ export const useCategoryStore = create<CategoryStore>((set) => ({
       // Map _id to id (string) nếu cần
       const updated = {
         ...updatedRaw,
-        id: updatedRaw._id ? String(updatedRaw._id) : updatedRaw.id
+        id: updatedRaw._id ? String(updatedRaw._id) : updatedRaw.id,
       };
-      set((state) => ({
-        categories: state.categories.map(c => c.id === updated.id ? updated : c),
-        loading: false
+      set(state => ({
+        categories: state.categories.map(c => (c.id === updated.id ? updated : c)),
+        loading: false,
       }));
     } catch (err: any) {
       set({ error: err.message, loading: false });
@@ -94,7 +94,10 @@ export const useCategoryStore = create<CategoryStore>((set) => ({
     set({ loading: true, error: null });
     try {
       await deleteCategory(id);
-      set((state) => ({ categories: state.categories.filter(c => String(c.id) !== String(id)), loading: false }));
+      set(state => ({
+        categories: state.categories.filter(c => String(c.id) !== String(id)),
+        loading: false,
+      }));
     } catch (err: any) {
       set({ error: err.message, loading: false });
     }
@@ -106,14 +109,14 @@ export const useCategoryStore = create<CategoryStore>((set) => ({
       // Map _id to id (string) nếu cần
       const updated = {
         ...updatedRaw,
-        id: updatedRaw._id ? String(updatedRaw._id) : updatedRaw.id
+        id: updatedRaw._id ? String(updatedRaw._id) : updatedRaw.id,
       };
-      set((state) => ({
-        categories: state.categories.map(c => c.id === updated.id ? updated : c),
-        loading: false
+      set(state => ({
+        categories: state.categories.map(c => (c.id === updated.id ? updated : c)),
+        loading: false,
       }));
     } catch (err: any) {
       set({ error: err.message, loading: false });
     }
-  }
+  },
 }));

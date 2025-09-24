@@ -1,17 +1,80 @@
 // Dashboard mock data
 export const stats = [
-  { label: 'Tổng sản phẩm', value: 120, icon: '📦', color: 'bg-gradient-to-br from-green-100 to-green-200 text-green-700 border-green-300', change: '+12%', changeColor: 'text-green-600' },
-  { label: 'Tổng danh mục', value: 8, icon: '🗂️', color: 'bg-gradient-to-br from-blue-100 to-blue-200 text-blue-700 border-blue-300', change: '+2%', changeColor: 'text-blue-600' },
-  { label: 'Tổng người dùng', value: 1200, icon: '👤', color: 'bg-gradient-to-br from-purple-100 to-purple-200 text-purple-700 border-purple-300', change: '+8%', changeColor: 'text-purple-600' },
-  { label: 'Doanh thu tháng', value: '45.2M', icon: '💰', color: 'bg-gradient-to-br from-yellow-100 to-yellow-200 text-yellow-700 border-yellow-300', change: '+15%', changeColor: 'text-yellow-600' },
+  {
+    label: 'Tổng sản phẩm',
+    value: 120,
+    icon: '📦',
+    color: 'bg-gradient-to-br from-green-100 to-green-200 text-green-700 border-green-300',
+    change: '+12%',
+    changeColor: 'text-green-600',
+  },
+  {
+    label: 'Tổng danh mục',
+    value: 8,
+    icon: '🗂️',
+    color: 'bg-gradient-to-br from-blue-100 to-blue-200 text-blue-700 border-blue-300',
+    change: '+2%',
+    changeColor: 'text-blue-600',
+  },
+  {
+    label: 'Tổng người dùng',
+    value: 1200,
+    icon: '👤',
+    color: 'bg-gradient-to-br from-purple-100 to-purple-200 text-purple-700 border-purple-300',
+    change: '+8%',
+    changeColor: 'text-purple-600',
+  },
+  {
+    label: 'Doanh thu tháng',
+    value: '45.2M',
+    icon: '💰',
+    color: 'bg-gradient-to-br from-yellow-100 to-yellow-200 text-yellow-700 border-yellow-300',
+    change: '+15%',
+    changeColor: 'text-yellow-600',
+  },
 ];
 
 export const recentOrders = [
-  { id: 'DH001', user: 'Nguyễn Văn A', total: 1200000, status: 'Đã giao', date: '12/07/2025', time: '14:30' },
-  { id: 'DH002', user: 'Trần Thị B', total: 850000, status: 'Đang xử lý', date: '12/07/2025', time: '13:15' },
-  { id: 'DH003', user: 'Lê Văn C', total: 2000000, status: 'Đã hủy', date: '11/07/2025', time: '10:45' },
-  { id: 'DH004', user: 'Phạm Thị D', total: 650000, status: 'Đã giao', date: '11/07/2025', time: '09:20' },
-  { id: 'DH005', user: 'Hoàng Văn E', total: 1500000, status: 'Đang vận chuyển', date: '11/07/2025', time: '16:00' },
+  {
+    id: 'DH001',
+    user: 'Nguyễn Văn A',
+    total: 1200000,
+    status: 'Đã giao',
+    date: '12/07/2025',
+    time: '14:30',
+  },
+  {
+    id: 'DH002',
+    user: 'Trần Thị B',
+    total: 850000,
+    status: 'Đang xử lý',
+    date: '12/07/2025',
+    time: '13:15',
+  },
+  {
+    id: 'DH003',
+    user: 'Lê Văn C',
+    total: 2000000,
+    status: 'Đã hủy',
+    date: '11/07/2025',
+    time: '10:45',
+  },
+  {
+    id: 'DH004',
+    user: 'Phạm Thị D',
+    total: 650000,
+    status: 'Đã giao',
+    date: '11/07/2025',
+    time: '09:20',
+  },
+  {
+    id: 'DH005',
+    user: 'Hoàng Văn E',
+    total: 1500000,
+    status: 'Đang vận chuyển',
+    date: '11/07/2025',
+    time: '16:00',
+  },
 ];
 
 export const topProducts = [

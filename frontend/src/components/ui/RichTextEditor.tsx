@@ -20,10 +20,10 @@ interface EditorSection {
 const RichTextEditor: React.FC<RichTextEditorProps> = ({
   content,
   onChange,
-  placeholder = "Nhập nội dung...",
-  className = "",
+  placeholder = 'Nhập nội dung...',
+  className = '',
   readOnly = false,
-  maxHeight = "400px"
+  maxHeight = '400px',
 }) => {
   const editorRef = useRef<HTMLDivElement>(null);
   const [isFocused, setIsFocused] = useState(false);
@@ -32,16 +32,19 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const { uploadFile } = useFileUpload();
 
   // Toolbar actions
-  const formatText = useCallback((command: string, value?: string) => {
-    if (readOnly) return;
-    
-    document.execCommand(command, false, value);
-    
-    if (editorRef.current) {
-      const newContent = editorRef.current.innerHTML;
-      onChange(newContent);
-    }
-  }, [onChange, readOnly]);
+  const formatText = useCallback(
+    (command: string, value?: string) => {
+      if (readOnly) return;
+
+      document.execCommand(command, false, value);
+
+      if (editorRef.current) {
+        const newContent = editorRef.current.innerHTML;
+        onChange(newContent);
+      }
+    },
+    [onChange, readOnly]
+  );
 
   // Handle content changes
   const handleContentChange = useCallback(() => {
@@ -55,60 +58,66 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   }, [onChange, content]);
 
   // Handle keydown events for better image deletion
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (readOnly) return;
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (readOnly) return;
 
-    // Handle Delete and Backspace for image deletion
-    if (e.key === 'Delete' || e.key === 'Backspace') {
-      const selection = window.getSelection();
-      if (selection && selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0);
-        const selectedElement = range.commonAncestorContainer;
-        
-        // Check if an image is selected
-        let imgElement: HTMLImageElement | null = null;
-        
-        if (selectedElement.nodeType === Node.ELEMENT_NODE) {
-          const element = selectedElement as Element;
-          if (element.tagName === 'IMG') {
-            imgElement = element as HTMLImageElement;
-          } else {
-            imgElement = element.querySelector('img');
+      // Handle Delete and Backspace for image deletion
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        const selection = window.getSelection();
+        if (selection && selection.rangeCount > 0) {
+          const range = selection.getRangeAt(0);
+          const selectedElement = range.commonAncestorContainer;
+
+          // Check if an image is selected
+          let imgElement: HTMLImageElement | null = null;
+
+          if (selectedElement.nodeType === Node.ELEMENT_NODE) {
+            const element = selectedElement as Element;
+            if (element.tagName === 'IMG') {
+              imgElement = element as HTMLImageElement;
+            } else {
+              imgElement = element.querySelector('img');
+            }
+          } else if (selectedElement.parentElement?.tagName === 'IMG') {
+            imgElement = selectedElement.parentElement as HTMLImageElement;
           }
-        } else if (selectedElement.parentElement?.tagName === 'IMG') {
-          imgElement = selectedElement.parentElement as HTMLImageElement;
-        }
 
-        // If an image is found and selected, delete it
-        if (imgElement) {
-          e.preventDefault();
-          imgElement.remove();
-          handleContentChange();
-          return;
+          // If an image is found and selected, delete it
+          if (imgElement) {
+            e.preventDefault();
+            imgElement.remove();
+            handleContentChange();
+            return;
+          }
         }
       }
-    }
-  }, [readOnly, handleContentChange]);
+    },
+    [readOnly, handleContentChange]
+  );
 
   // Handle click events on images to make them selectable
-  const handleClick = useCallback((e: React.MouseEvent) => {
-    if (readOnly) return;
+  const handleClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (readOnly) return;
 
-    const target = e.target as Element;
-    if (target.tagName === 'IMG') {
-      // Select the image
-      const selection = window.getSelection();
-      const range = document.createRange();
-      range.selectNode(target);
-      selection?.removeAllRanges();
-      selection?.addRange(range);
-    }
-  }, [readOnly]);
+      const target = e.target as Element;
+      if (target.tagName === 'IMG') {
+        // Select the image
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNode(target);
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+      }
+    },
+    [readOnly]
+  );
 
   // Insert link
   const insertLink = useCallback(() => {
     if (readOnly) return;
-    
+
     const url = prompt('Nhập URL:');
     if (url) {
       formatText('createLink', url);
@@ -118,11 +127,11 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   // Insert image with Cloudinary upload
   const insertImage = useCallback(async () => {
     if (readOnly) return;
-    
+
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-    input.onchange = async (e) => {
+    input.onchange = async e => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
         try {
@@ -133,7 +142,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           } else {
             // Fallback to base64 if upload fails
             const reader = new FileReader();
-            reader.onload = (e) => {
+            reader.onload = e => {
               const result = e.target?.result as string;
               if (result) {
                 formatText('insertImage', result);
@@ -145,7 +154,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           console.error('Image upload error:', error);
           // Fallback to base64
           const reader = new FileReader();
-          reader.onload = (e) => {
+          reader.onload = e => {
             const result = e.target?.result as string;
             if (result) {
               formatText('insertImage', result);
@@ -164,16 +173,16 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       id: Date.now().toString(),
       title: '',
       content: '',
-      type
+      type,
     };
     setSections(prev => [...prev, newSection]);
   }, []);
 
   // Update section
   const updateSection = useCallback((id: string, field: keyof EditorSection, value: string) => {
-    setSections(prev => prev.map(section => 
-      section.id === id ? { ...section, [field]: value } : section
-    ));
+    setSections(prev =>
+      prev.map(section => (section.id === id ? { ...section, [field]: value } : section))
+    );
   }, []);
 
   // Remove section
@@ -187,7 +196,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       // Only update if content is different to prevent cursor jumping
       const currentPos = document.getSelection()?.focusOffset;
       editorRef.current.innerHTML = content;
-      
+
       // Restore cursor position if possible
       if (currentPos !== undefined && document.getSelection()) {
         try {
@@ -226,10 +235,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           title="Đậm"
         >
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M15.6 10.79c.97-.67 1.65-1.77 1.65-2.79 0-2.26-1.75-4-4-4H7v14h7.04c2.09 0 3.71-1.7 3.71-3.79 0-1.52-.86-2.82-2.15-3.42zM10 6.5h3c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-3v-3zm3.5 9H10v-3h3.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5z"/>
+            <path d="M15.6 10.79c.97-.67 1.65-1.77 1.65-2.79 0-2.26-1.75-4-4-4H7v14h7.04c2.09 0 3.71-1.7 3.71-3.79 0-1.52-.86-2.82-2.15-3.42zM10 6.5h3c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-3v-3zm3.5 9H10v-3h3.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5z" />
           </svg>
         </button>
-        
+
         <button
           type="button"
           onClick={() => formatText('italic')}
@@ -237,10 +246,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           title="Nghiêng"
         >
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M10 4v3h2.21l-3.42 8H6v3h8v-3h-2.21l3.42-8H18V4z"/>
+            <path d="M10 4v3h2.21l-3.42 8H6v3h8v-3h-2.21l3.42-8H18V4z" />
           </svg>
         </button>
-        
+
         <button
           type="button"
           onClick={() => formatText('underline')}
@@ -248,7 +257,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           title="Gạch chân"
         >
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 17c3.31 0 6-2.69 6-6V3h-2.5v8c0 1.93-1.57 3.5-3.5 3.5S8.5 12.93 8.5 11V3H6v8c0 3.31 2.69 6 6 6zm-7 2v2h14v-2H5z"/>
+            <path d="M12 17c3.31 0 6-2.69 6-6V3h-2.5v8c0 1.93-1.57 3.5-3.5 3.5S8.5 12.93 8.5 11V3H6v8c0 3.31 2.69 6 6 6zm-7 2v2h14v-2H5z" />
           </svg>
         </button>
       </div>
@@ -262,10 +271,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           title="Danh sách"
         >
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5zm0 12c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z"/>
+            <path d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5zm0 12c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z" />
           </svg>
         </button>
-        
+
         <button
           type="button"
           onClick={() => formatText('insertOrderedList')}
@@ -273,7 +282,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           title="Danh sách có số"
         >
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M2 17h2v.5H3v1h1v.5H2v1h3v-4H2v1zm1-9h1V4H2v1h1v3zm-1 3h1.8L2 13.1v.9h3v-1H3.2L5 10.9V10H2v1zm5-6v2h14V5H7zm0 14h14v-2H7v2zm0-6h14v-2H7v2z"/>
+            <path d="M2 17h2v.5H3v1h1v.5H2v1h3v-4H2v1zm1-9h1V4H2v1h1v3zm-1 3h1.8L2 13.1v.9h3v-1H3.2L5 10.9V10H2v1zm5-6v2h14V5H7zm0 14h14v-2H7v2zm0-6h14v-2H7v2z" />
           </svg>
         </button>
       </div>
@@ -287,10 +296,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           title="Chèn liên kết"
         >
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/>
+            <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z" />
           </svg>
         </button>
-        
+
         <button
           type="button"
           onClick={insertImage}
@@ -298,7 +307,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           title="Chèn hình ảnh"
         >
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
           </svg>
         </button>
       </div>
@@ -306,7 +315,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       {/* Sections */}
       <div className="flex items-center gap-1">
         <select
-          onChange={(e) => {
+          onChange={e => {
             if (e.target.value) {
               addSection(e.target.value as EditorSection['type']);
               e.target.value = '';
@@ -329,8 +338,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           type="button"
           onClick={() => setActiveTab('editor')}
           className={`px-3 py-1 text-sm rounded-l ${
-            activeTab === 'editor' 
-              ? 'bg-blue-500 text-white' 
+            activeTab === 'editor'
+              ? 'bg-blue-500 text-white'
               : 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300'
           }`}
         >
@@ -340,8 +349,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           type="button"
           onClick={() => setActiveTab('preview')}
           className={`px-3 py-1 text-sm rounded-r ${
-            activeTab === 'preview' 
-              ? 'bg-blue-500 text-white' 
+            activeTab === 'preview'
+              ? 'bg-blue-500 text-white'
               : 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300'
           }`}
         >
@@ -352,9 +361,11 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   );
 
   return (
-    <div className={`border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden ${className}`}>
+    <div
+      className={`border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden ${className}`}
+    >
       {!readOnly && <Toolbar />}
-      
+
       <style>{`
         [contentEditable] img {
           max-width: 100%;
@@ -373,7 +384,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           outline: none;
         }
       `}</style>
-      
+
       <div className="relative">
         {activeTab === 'editor' ? (
           <div
@@ -396,7 +407,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             dangerouslySetInnerHTML={{ __html: content }}
           />
         )}
-        
+
         {!content && activeTab === 'editor' && (
           <div className="absolute top-4 left-4 text-gray-400 pointer-events-none">
             {placeholder}
@@ -408,13 +419,16 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       {sections.length > 0 && (
         <div className="border-t border-gray-200 dark:border-gray-600 p-4 space-y-4">
           <h3 className="font-semibold text-gray-900 dark:text-white">Các phần bổ sung</h3>
-          {sections.map((section) => (
-            <div key={section.id} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+          {sections.map(section => (
+            <div
+              key={section.id}
+              className="border border-gray-200 dark:border-gray-600 rounded-lg p-4"
+            >
               <div className="flex items-center justify-between mb-3">
                 <input
                   type="text"
                   value={section.title}
-                  onChange={(e) => updateSection(section.id, 'title', e.target.value)}
+                  onChange={e => updateSection(section.id, 'title', e.target.value)}
                   placeholder="Tiêu đề phần"
                   className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded mr-2 bg-white dark:bg-gray-700"
                 />
@@ -426,35 +440,35 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                   className="ml-2 p-1 text-red-600 hover:text-red-800"
                 >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
                   </svg>
                 </button>
               </div>
-              
+
               {section.type === 'text' && (
                 <textarea
                   value={section.content}
-                  onChange={(e) => updateSection(section.id, 'content', e.target.value)}
+                  onChange={e => updateSection(section.id, 'content', e.target.value)}
                   placeholder="Nội dung văn bản"
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
                   rows={3}
                 />
               )}
-              
+
               {(section.type === 'image' || section.type === 'video') && (
                 <input
                   type="url"
                   value={section.content}
-                  onChange={(e) => updateSection(section.id, 'content', e.target.value)}
+                  onChange={e => updateSection(section.id, 'content', e.target.value)}
                   placeholder={`URL ${section.type === 'image' ? 'hình ảnh' : 'video'}`}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
                 />
               )}
-              
+
               {section.type === 'table' && (
                 <textarea
                   value={section.content}
-                  onChange={(e) => updateSection(section.id, 'content', e.target.value)}
+                  onChange={e => updateSection(section.id, 'content', e.target.value)}
                   placeholder="Dữ liệu bảng (JSON hoặc CSV)"
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
                   rows={4}

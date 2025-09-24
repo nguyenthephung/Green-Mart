@@ -18,7 +18,7 @@ export default function SaleBanner({ className = '' }: SaleBannerProps) {
         const saleBanners = storeBanners
           .filter((b: any) => b.position === 'sale' && b.isActive)
           .sort((a: any, b: any) => (a.priority || 999) - (b.priority || 999));
-        
+
         setBanners(saleBanners);
       } catch (error) {
         console.error('Failed to load sale banners:', error);
@@ -31,7 +31,7 @@ export default function SaleBanner({ className = '' }: SaleBannerProps) {
   useEffect(() => {
     if (banners.length > 1) {
       const interval = setInterval(() => {
-        setCurrentBanner((prev) => (prev + 1) % banners.length);
+        setCurrentBanner(prev => (prev + 1) % banners.length);
       }, 3000);
       return () => clearInterval(interval);
     }
@@ -58,9 +58,12 @@ export default function SaleBanner({ className = '' }: SaleBannerProps) {
         {/* Animated Background */}
         <div className="absolute inset-0 opacity-30">
           <div className="absolute inset-0 bg-gradient-to-r from-red-400/50 to-pink-400/50 animate-pulse"></div>
-          <div className="absolute inset-0" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='white' fill-opacity='0.4'%3E%3Cpath d='M20 0l4 16h16l-12 8 4 16-12-8-12 8 4-16-12-8h16z'/%3E%3C/g%3E%3C/svg%3E")`
-          }}></div>
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='white' fill-opacity='0.4'%3E%3Cpath d='M20 0l4 16h16l-12 8 4 16-12-8-12 8 4-16-12-8h16z'/%3E%3C/g%3E%3C/svg%3E")`,
+            }}
+          ></div>
         </div>
 
         <div className="relative p-6 md:p-8">
@@ -97,8 +100,18 @@ export default function SaleBanner({ className = '' }: SaleBannerProps) {
                 className="inline-flex items-center gap-3 bg-white text-red-600 hover:text-red-700 px-8 py-4 rounded-2xl text-lg font-black transition-all duration-300 hover:scale-110 shadow-lg hover:shadow-xl group/btn transform hover:rotate-1"
               >
                 <span>{banner.buttonText || 'MUA NGAY'}</span>
-                <svg className="w-6 h-6 group-hover/btn:translate-x-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                <svg
+                  className="w-6 h-6 group-hover/btn:translate-x-2 transition-transform"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={3}
+                    d="M13 7l5 5m0 0l-5 5m5-5H6"
+                  />
                 </svg>
               </button>
             </div>
@@ -111,10 +124,10 @@ export default function SaleBanner({ className = '' }: SaleBannerProps) {
                   alt={banner.title}
                   className="w-full h-full object-cover"
                 />
-                
+
                 {/* Sale Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-red-600/30 to-transparent"></div>
-                
+
                 {/* Sale Badge on Image */}
                 <div className="absolute -top-3 -right-3 bg-yellow-400 text-red-900 px-4 py-2 rounded-full font-black text-sm shadow-lg rotate-12 animate-pulse">
                   SALE!
@@ -135,9 +148,7 @@ export default function SaleBanner({ className = '' }: SaleBannerProps) {
                   key={index}
                   onClick={() => setCurrentBanner(index)}
                   className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                    index === currentBanner 
-                      ? 'bg-white scale-125' 
-                      : 'bg-white/50 hover:bg-white/70'
+                    index === currentBanner ? 'bg-white scale-125' : 'bg-white/50 hover:bg-white/70'
                   }`}
                 />
               ))}
@@ -147,7 +158,10 @@ export default function SaleBanner({ className = '' }: SaleBannerProps) {
 
         {/* Corner Decorations */}
         <div className="absolute top-4 right-4 w-16 h-16 bg-yellow-400/20 rounded-full blur-xl animate-pulse"></div>
-        <div className="absolute bottom-4 left-4 w-12 h-12 bg-white/20 rounded-full blur-lg animate-pulse" style={{animationDelay: '1s'}}></div>
+        <div
+          className="absolute bottom-4 left-4 w-12 h-12 bg-white/20 rounded-full blur-lg animate-pulse"
+          style={{ animationDelay: '1s' }}
+        ></div>
       </div>
     </div>
   );

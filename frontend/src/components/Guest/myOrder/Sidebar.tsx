@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaUser, FaMapMarkerAlt, FaBell, FaBook, FaSignOutAlt, FaBox, FaStar } from 'react-icons/fa';
+import {
+  FaUser,
+  FaMapMarkerAlt,
+  FaBell,
+  FaBook,
+  FaSignOutAlt,
+  FaBox,
+  FaStar,
+} from 'react-icons/fa';
 import { useUserStore } from '../../../stores/useUserStore';
 import LuckyWheel from '../Account/LuckyWheel';
 

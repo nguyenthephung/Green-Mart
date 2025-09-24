@@ -34,19 +34,19 @@ const NewToast: React.FC<ToastProps> = ({ toast, onClose }) => {
   useEffect(() => {
     // Animate in
     const timer = setTimeout(() => setIsVisible(true), 10);
-    
+
     // Auto close
     if (toast.duration && toast.duration > 0) {
       const autoCloseTimer = setTimeout(() => {
         handleClose();
       }, toast.duration);
-      
+
       return () => {
         clearTimeout(timer);
         clearTimeout(autoCloseTimer);
       };
     }
-    
+
     return () => clearTimeout(timer);
   }, [toast.duration]);
 
@@ -110,29 +110,26 @@ const NewToast: React.FC<ToastProps> = ({ toast, onClose }) => {
         border-l-4 ${getBorderColor()}
         rounded-lg shadow-lg border border-gray-200 dark:border-gray-700
         transform transition-all duration-300 ease-in-out
-        ${isVisible && !isLeaving 
-          ? 'translate-x-0 opacity-100 scale-100' 
-          : 'translate-x-full opacity-0 scale-95'
+        ${
+          isVisible && !isLeaving
+            ? 'translate-x-0 opacity-100 scale-100'
+            : 'translate-x-full opacity-0 scale-95'
         }
       `}
     >
       <div className="p-4">
         <div className="flex items-start">
-          <div className="flex-shrink-0">
-            {getIcon()}
-          </div>
-          
+          <div className="flex-shrink-0">{getIcon()}</div>
+
           <div className="ml-3 flex-1">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
               {toast.title}
             </h3>
-            
+
             {toast.message && (
-              <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-                {toast.message}
-              </p>
+              <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">{toast.message}</p>
             )}
-            
+
             {toast.actions && toast.actions.length > 0 && (
               <div className="mt-3 flex space-x-2">
                 {toast.actions.map((action, index) => (
@@ -145,9 +142,10 @@ const NewToast: React.FC<ToastProps> = ({ toast, onClose }) => {
                     className={`
                       px-3 py-1.5 text-xs font-medium rounded-md
                       transition-colors duration-200
-                      ${action.style === 'primary'
-                        ? 'bg-emerald-600 text-white hover:bg-emerald-700'
-                        : 'bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500'
+                      ${
+                        action.style === 'primary'
+                          ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+                          : 'bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500'
                       }
                     `}
                   >
@@ -157,7 +155,7 @@ const NewToast: React.FC<ToastProps> = ({ toast, onClose }) => {
               </div>
             )}
           </div>
-          
+
           <div className="ml-4 flex-shrink-0">
             <button
               onClick={handleClose}

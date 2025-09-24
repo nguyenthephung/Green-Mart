@@ -11,14 +11,14 @@ export const useInfiniteScroll = ({
   fetchMore,
   hasMore,
   threshold = 1.0,
-  rootMargin = '100px'
+  rootMargin = '100px',
 }: UseInfiniteScrollProps) => {
   const [loading, setLoading] = useState(false);
   const observerRef = useRef<HTMLDivElement>(null);
 
   const loadMore = useCallback(async () => {
     if (loading || !hasMore) return;
-    
+
     setLoading(true);
     try {
       await fetchMore();
@@ -36,7 +36,7 @@ export const useInfiniteScroll = ({
       },
       {
         threshold,
-        rootMargin
+        rootMargin,
       }
     );
 
@@ -58,7 +58,10 @@ export const useInfiniteScroll = ({
 interface UseLazyLoadingProps<T> {
   initialData?: T[];
   pageSize?: number;
-  fetchFunction: (page: number, pageSize: number) => Promise<{
+  fetchFunction: (
+    page: number,
+    pageSize: number
+  ) => Promise<{
     data: T[];
     hasMore: boolean;
     total?: number;
@@ -68,7 +71,7 @@ interface UseLazyLoadingProps<T> {
 export const useLazyLoading = <T,>({
   initialData = [],
   pageSize = 20,
-  fetchFunction
+  fetchFunction,
 }: UseLazyLoadingProps<T>) => {
   const [data, setData] = useState<T[]>(initialData);
   const [loading, setLoading] = useState(false);
@@ -84,7 +87,7 @@ export const useLazyLoading = <T,>({
 
     try {
       const result = await fetchFunction(page, pageSize);
-      
+
       setData(prev => [...prev, ...result.data]);
       setHasMore(result.hasMore);
       setPage(prev => prev + 1);
@@ -104,7 +107,7 @@ export const useLazyLoading = <T,>({
 
   const { observerRef, loading: infiniteLoading } = useInfiniteScroll({
     fetchMore,
-    hasMore
+    hasMore,
   });
 
   return {
@@ -114,6 +117,6 @@ export const useLazyLoading = <T,>({
     error,
     fetchMore,
     reset,
-    observerRef
+    observerRef,
   };
 };

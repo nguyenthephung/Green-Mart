@@ -1,29 +1,29 @@
 // src/pages/Welcome.tsx
-import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 
 export default function Welcome() {
   const [currentFeature, setCurrentFeature] = useState(0);
-  
+
   const features = [
     {
-      title: "Sản phẩm tươi ngon",
-      description: "Thực phẩm hữu cơ chất lượng cao từ các nông trại địa phương",
-      icon: "🥬",
-      color: "from-green-400 to-emerald-500"
+      title: 'Sản phẩm tươi ngon',
+      description: 'Thực phẩm hữu cơ chất lượng cao từ các nông trại địa phương',
+      icon: '🥬',
+      color: 'from-green-400 to-emerald-500',
     },
     {
-      title: "Giao hàng nhanh chóng",
-      description: "Giao hàng trong ngày, đảm bảo độ tươi ngon",
-      icon: "🚚",
-      color: "from-blue-400 to-cyan-500"
+      title: 'Giao hàng nhanh chóng',
+      description: 'Giao hàng trong ngày, đảm bảo độ tươi ngon',
+      icon: '🚚',
+      color: 'from-blue-400 to-cyan-500',
     },
     {
-      title: "Giá cả phải chăng",
-      description: "Những sản phẩm chất lượng với mức giá tốt nhất",
-      icon: "💰",
-      color: "from-yellow-400 to-orange-500"
-    }
+      title: 'Giá cả phải chăng',
+      description: 'Những sản phẩm chất lượng với mức giá tốt nhất',
+      icon: '💰',
+      color: 'from-yellow-400 to-orange-500',
+    },
   ];
 
   useEffect(() => {
@@ -66,12 +66,14 @@ export default function Welcome() {
                 <div
                   key={index}
                   className={`absolute inset-0 transition-all duration-700 transform ${
-                    index === currentFeature 
-                      ? 'opacity-100 translate-y-0 scale-100' 
+                    index === currentFeature
+                      ? 'opacity-100 translate-y-0 scale-100'
                       : 'opacity-0 translate-y-4 scale-95'
                   }`}
                 >
-                  <div className={`bg-gradient-to-r ${feature.color} rounded-2xl p-6 text-white shadow-2xl max-w-md mx-auto`}>
+                  <div
+                    className={`bg-gradient-to-r ${feature.color} rounded-2xl p-6 text-white shadow-2xl max-w-md mx-auto`}
+                  >
                     <div className="text-4xl mb-2">{feature.icon}</div>
                     <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
                     <p className="text-white/90">{feature.description}</p>
@@ -79,7 +81,7 @@ export default function Welcome() {
                 </div>
               ))}
             </div>
-            
+
             {/* Feature Indicators */}
             <div className="flex justify-center gap-2 mt-6">
               {features.map((_, index) => (
@@ -87,8 +89,8 @@ export default function Welcome() {
                   key={index}
                   onClick={() => setCurrentFeature(index)}
                   className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                    index === currentFeature 
-                      ? 'bg-green-500 scale-125' 
+                    index === currentFeature
+                      ? 'bg-green-500 scale-125'
                       : 'bg-gray-300 hover:bg-gray-400'
                   }`}
                 />

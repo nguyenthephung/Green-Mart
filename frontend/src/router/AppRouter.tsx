@@ -69,86 +69,151 @@ const AppRouter = () => (
         <Route path="mycart" element={<CartPage />} />
         <Route path="guest-checkout" element={<GuestCheckoutPage />} />
         <Route path="guest-order-success" element={<GuestOrderSuccessPage />} />
-        
-        {/* Protected routes - cần đăng nhập */}
-        <Route path="welcome" element={<ProtectedRoute requiredRole="user"><Welcome /></ProtectedRoute>} />
-        <Route path="order-success" element={<ProtectedRoute requiredRole="user"><OrderSuccessPage /></ProtectedRoute>} />
-        <Route path="payment-result" element={<ProtectedRoute requiredRole="user"><PaymentResultPage /></ProtectedRoute>} />
-        <Route path="checkout" element={<ProtectedRoute requiredRole="user"><Checkout /></ProtectedRoute>} />
-        <Route path="payment-test" element={<ProtectedRoute requiredRole="user"><PaymentTestPage /></ProtectedRoute>} />
-      </Route>
-          <Route path="accountdetail" element={
-            <ProtectedRoute>
-              <AccountDetails />
-            </ProtectedRoute>
-          } />
-          <Route path="myaddress" element={
-            <ProtectedRoute>
-              <MyAddress />
-            </ProtectedRoute>
-          } />
-          <Route path="mypayment" element={
-            <ProtectedRoute>
-              <MyPayment />
-            </ProtectedRoute>
-          } />
-          <Route path="myvoucher" element={
-            <ProtectedRoute>
-              <MyVoucher />
-            </ProtectedRoute>
-          } />
-          <Route path="myorder" element={
-            <ProtectedRoute>
-              <OrdersPage />
-            </ProtectedRoute>
-          } />
-          <Route path="notification-settings" element={
-            <ProtectedRoute>
-              <NotificationSettingsPage />
-            </ProtectedRoute>
-          } />
-          <Route path="change-password" element={
-            <ProtectedRoute>
-              <ChangePasswordPage />
-            </ProtectedRoute>
-          } />
-          <Route path="notifications" element={
-            <ProtectedRoute>
-              <NotificationPage />
-            </ProtectedRoute>
-          } />
 
-          <Route path="wishlist" element={
-            <ProtectedRoute>
-              <WishlistPage />
+        {/* Protected routes - cần đăng nhập */}
+        <Route
+          path="welcome"
+          element={
+            <ProtectedRoute requiredRole="user">
+              <Welcome />
             </ProtectedRoute>
-          } />
-          
-          <Route path="unauthorized" element={<UnauthorizedPage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/otp-verify" element={<OtpVerify />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/password-changed" element={<PasswordChanged />} />
-          {/* Admin routes */}
-          <Route path="/admin" element={
-            <AdminRoute>
-              <AdminLayout />
-            </AdminRoute>
-          }>
-            <Route path="dashboard" element={<AdminDashboard />} />
-            <Route path="analytics" element={<AnalyticsDashboard />} />
-            <Route path="products" element={<AdminProducts />} />
-            <Route path="categories" element={<AdminCategories />} />
-            <Route path="users" element={<AdminUsers />} />
-            <Route path="orders" element={<AdminOrders />} />
-            <Route path="banners" element={<AdminBanners />} />
-            <Route path="vouchers" element={<AdminVouchersPage />} />
-            <Route path="flash-sales" element={<AdminFlashSalePage />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    );
+          }
+        />
+        <Route
+          path="order-success"
+          element={
+            <ProtectedRoute requiredRole="user">
+              <OrderSuccessPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="payment-result"
+          element={
+            <ProtectedRoute requiredRole="user">
+              <PaymentResultPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="checkout"
+          element={
+            <ProtectedRoute requiredRole="user">
+              <Checkout />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="payment-test"
+          element={
+            <ProtectedRoute requiredRole="user">
+              <PaymentTestPage />
+            </ProtectedRoute>
+          }
+        />
+      </Route>
+      <Route
+        path="accountdetail"
+        element={
+          <ProtectedRoute>
+            <AccountDetails />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="myaddress"
+        element={
+          <ProtectedRoute>
+            <MyAddress />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="mypayment"
+        element={
+          <ProtectedRoute>
+            <MyPayment />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="myvoucher"
+        element={
+          <ProtectedRoute>
+            <MyVoucher />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="myorder"
+        element={
+          <ProtectedRoute>
+            <OrdersPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="notification-settings"
+        element={
+          <ProtectedRoute>
+            <NotificationSettingsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="change-password"
+        element={
+          <ProtectedRoute>
+            <ChangePasswordPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="notifications"
+        element={
+          <ProtectedRoute>
+            <NotificationPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="wishlist"
+        element={
+          <ProtectedRoute>
+            <WishlistPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route path="unauthorized" element={<UnauthorizedPage />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/otp-verify" element={<OtpVerify />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/password-changed" element={<PasswordChanged />} />
+      {/* Admin routes */}
+      <Route
+        path="/admin"
+        element={
+          <AdminRoute>
+            <AdminLayout />
+          </AdminRoute>
+        }
+      >
+        <Route path="dashboard" element={<AdminDashboard />} />
+        <Route path="analytics" element={<AnalyticsDashboard />} />
+        <Route path="products" element={<AdminProducts />} />
+        <Route path="categories" element={<AdminCategories />} />
+        <Route path="users" element={<AdminUsers />} />
+        <Route path="orders" element={<AdminOrders />} />
+        <Route path="banners" element={<AdminBanners />} />
+        <Route path="vouchers" element={<AdminVouchersPage />} />
+        <Route path="flash-sales" element={<AdminFlashSalePage />} />
+      </Route>
+    </Routes>
+  </BrowserRouter>
+);
 
 export default AppRouter;

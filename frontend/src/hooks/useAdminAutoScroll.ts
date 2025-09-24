@@ -12,12 +12,8 @@ export const useAdminAutoScroll = (options?: {
 }) => {
   const location = useLocation();
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
-  const {
-    behavior = 'smooth',
-    delay = 100,
-    enabledRoutes = ['/admin']
-  } = options || {};
+
+  const { behavior = 'smooth', delay = 100, enabledRoutes = ['/admin'] } = options || {};
 
   useEffect(() => {
     // Clear any existing timeout
@@ -26,9 +22,7 @@ export const useAdminAutoScroll = (options?: {
     }
 
     // Check if current route should trigger auto-scroll
-    const shouldAutoScroll = enabledRoutes.some(route => 
-      location.pathname.startsWith(route)
-    );
+    const shouldAutoScroll = enabledRoutes.some(route => location.pathname.startsWith(route));
 
     if (shouldAutoScroll) {
       // Add a small delay to ensure DOM is fully rendered
@@ -36,16 +30,16 @@ export const useAdminAutoScroll = (options?: {
         window.scrollTo({
           top: 0,
           left: 0,
-          behavior
+          behavior,
         });
-        
+
         // Also scroll any main content containers to top
         const mainContent = document.querySelector('[data-main-content]');
         if (mainContent) {
           mainContent.scrollTo({
             top: 0,
             left: 0,
-            behavior
+            behavior,
           });
         }
 
@@ -55,7 +49,7 @@ export const useAdminAutoScroll = (options?: {
           adminContainer.scrollTo({
             top: 0,
             left: 0,
-            behavior
+            behavior,
           });
         }
       }, delay);
@@ -75,31 +69,27 @@ export const useAdminAutoScroll = (options?: {
       window.scrollTo({
         top: 0,
         left: 0,
-        behavior: customBehavior || behavior
+        behavior: customBehavior || behavior,
       });
     },
-    
+
     scrollToElement: (element: Element | string, offset = 0) => {
-      const target = typeof element === 'string' 
-        ? document.querySelector(element)
-        : element;
-        
+      const target = typeof element === 'string' ? document.querySelector(element) : element;
+
       if (target) {
         const rect = target.getBoundingClientRect();
         const scrollTop = window.pageYOffset + rect.top - offset;
-        
+
         window.scrollTo({
           top: scrollTop,
-          behavior
+          behavior,
         });
       }
     },
 
     isAdminRoute: () => {
-      return enabledRoutes.some(route => 
-        location.pathname.startsWith(route)
-      );
-    }
+      return enabledRoutes.some(route => location.pathname.startsWith(route));
+    },
   };
 };
 

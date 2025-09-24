@@ -3,7 +3,7 @@ import { flashSaleService } from '../services/flashSaleService';
 import type { CartItem } from '../types/CartItem';
 
 export function useFlashSaleValidity(cartItems: CartItem[]) {
-  const [invalidFlashSaleIds, setInvalidFlashSaleIds] = useState<(string|number)[]>([]);
+  const [invalidFlashSaleIds, setInvalidFlashSaleIds] = useState<(string | number)[]>([]);
   const [checking, setChecking] = useState(false);
 
   useEffect(() => {
@@ -15,7 +15,10 @@ export function useFlashSaleValidity(cartItems: CartItem[]) {
         if (item.flashSale?.isFlashSale && item.id) {
           try {
             const info = await flashSaleService.checkProductInFlashSale(String(item.id));
-            if (!info.inFlashSale || (info.flashSale && new Date(info.flashSale.endTime) < new Date())) {
+            if (
+              !info.inFlashSale ||
+              (info.flashSale && new Date(info.flashSale.endTime) < new Date())
+            ) {
               invalidIds.push(item.id);
             }
           } catch (e) {
@@ -31,7 +34,9 @@ export function useFlashSaleValidity(cartItems: CartItem[]) {
     } else {
       setInvalidFlashSaleIds([]);
     }
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, [cartItems]);
 
   return { invalidFlashSaleIds, checking };

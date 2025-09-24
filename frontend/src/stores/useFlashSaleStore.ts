@@ -23,7 +23,7 @@ interface FlashSaleStore {
   toggleFlashSaleStatus: (id: string) => Promise<void>;
   clearError: () => void;
   setCurrentFlashSale: (flashSale: FlashSale | null) => void;
-  
+
   // Helper functions
   isProductInActiveFlashSale: (productId: string) => boolean;
   getActiveFlashSaleIds: () => string[];
@@ -47,9 +47,9 @@ export const useFlashSaleStore = create<FlashSaleStore>((set, get) => ({
       const flashSales = await flashSaleService.getActiveFlashSales();
       set({ activeFlashSales: flashSales, loading: false });
     } catch (error) {
-      set({ 
+      set({
         error: error instanceof Error ? error.message : 'Failed to fetch active flash sales',
-        loading: false 
+        loading: false,
       });
     }
   },
@@ -60,9 +60,9 @@ export const useFlashSaleStore = create<FlashSaleStore>((set, get) => ({
       const flashSales = await flashSaleService.getUpcomingFlashSales();
       set({ upcomingFlashSales: flashSales, loading: false });
     } catch (error) {
-      set({ 
+      set({
         error: error instanceof Error ? error.message : 'Failed to fetch upcoming flash sales',
-        loading: false 
+        loading: false,
       });
     }
   },
@@ -71,14 +71,14 @@ export const useFlashSaleStore = create<FlashSaleStore>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const response = await flashSaleService.getAllFlashSales(page, limit);
-      set({ 
-        allFlashSales: Array.isArray(response.data) ? response.data : [], 
-        loading: false 
+      set({
+        allFlashSales: Array.isArray(response.data) ? response.data : [],
+        loading: false,
       });
     } catch (error) {
-      set({ 
+      set({
         error: error instanceof Error ? error.message : 'Failed to fetch flash sales',
-        loading: false 
+        loading: false,
       });
     }
   },
@@ -89,8 +89,8 @@ export const useFlashSaleStore = create<FlashSaleStore>((set, get) => ({
       set(state => ({
         productFlashSaleInfo: {
           ...state.productFlashSaleInfo,
-          [productId]: info
-        }
+          [productId]: info,
+        },
       }));
       return info;
     } catch (error) {
@@ -105,12 +105,12 @@ export const useFlashSaleStore = create<FlashSaleStore>((set, get) => ({
       const newFlashSale = await flashSaleService.createFlashSale(flashSaleData);
       set(state => ({
         allFlashSales: [newFlashSale, ...state.allFlashSales],
-        loading: false
+        loading: false,
       }));
     } catch (error) {
-      set({ 
+      set({
         error: error instanceof Error ? error.message : 'Failed to create flash sale',
-        loading: false 
+        loading: false,
       });
       throw error;
     }
@@ -121,21 +121,17 @@ export const useFlashSaleStore = create<FlashSaleStore>((set, get) => ({
     try {
       const updatedFlashSale = await flashSaleService.updateFlashSale(id, flashSaleData);
       set(state => ({
-        allFlashSales: state.allFlashSales.map(fs => 
+        allFlashSales: state.allFlashSales.map(fs => (fs._id === id ? updatedFlashSale : fs)),
+        activeFlashSales: state.activeFlashSales.map(fs => (fs._id === id ? updatedFlashSale : fs)),
+        upcomingFlashSales: state.upcomingFlashSales.map(fs =>
           fs._id === id ? updatedFlashSale : fs
         ),
-        activeFlashSales: state.activeFlashSales.map(fs => 
-          fs._id === id ? updatedFlashSale : fs
-        ),
-        upcomingFlashSales: state.upcomingFlashSales.map(fs => 
-          fs._id === id ? updatedFlashSale : fs
-        ),
-        loading: false
+        loading: false,
       }));
     } catch (error) {
-      set({ 
+      set({
         error: error instanceof Error ? error.message : 'Failed to update flash sale',
-        loading: false 
+        loading: false,
       });
       throw error;
     }
@@ -149,12 +145,12 @@ export const useFlashSaleStore = create<FlashSaleStore>((set, get) => ({
         allFlashSales: state.allFlashSales.filter(fs => fs._id !== id),
         activeFlashSales: state.activeFlashSales.filter(fs => fs._id !== id),
         upcomingFlashSales: state.upcomingFlashSales.filter(fs => fs._id !== id),
-        loading: false
+        loading: false,
       }));
     } catch (error) {
-      set({ 
+      set({
         error: error instanceof Error ? error.message : 'Failed to delete flash sale',
-        loading: false 
+        loading: false,
       });
       throw error;
     }
@@ -165,21 +161,17 @@ export const useFlashSaleStore = create<FlashSaleStore>((set, get) => ({
     try {
       const updatedFlashSale = await flashSaleService.toggleFlashSaleStatus(id);
       set(state => ({
-        allFlashSales: state.allFlashSales.map(fs => 
+        allFlashSales: state.allFlashSales.map(fs => (fs._id === id ? updatedFlashSale : fs)),
+        activeFlashSales: state.activeFlashSales.map(fs => (fs._id === id ? updatedFlashSale : fs)),
+        upcomingFlashSales: state.upcomingFlashSales.map(fs =>
           fs._id === id ? updatedFlashSale : fs
         ),
-        activeFlashSales: state.activeFlashSales.map(fs => 
-          fs._id === id ? updatedFlashSale : fs
-        ),
-        upcomingFlashSales: state.upcomingFlashSales.map(fs => 
-          fs._id === id ? updatedFlashSale : fs
-        ),
-        loading: false
+        loading: false,
       }));
     } catch (error) {
-      set({ 
+      set({
         error: error instanceof Error ? error.message : 'Failed to toggle flash sale status',
-        loading: false 
+        loading: false,
       });
       throw error;
     }
@@ -187,13 +179,12 @@ export const useFlashSaleStore = create<FlashSaleStore>((set, get) => ({
 
   clearError: () => set({ error: null }),
 
-  setCurrentFlashSale: (flashSale: FlashSale | null) => 
-    set({ currentFlashSale: flashSale }),
+  setCurrentFlashSale: (flashSale: FlashSale | null) => set({ currentFlashSale: flashSale }),
 
   // Helper functions
   isProductInActiveFlashSale: (productId: string): boolean => {
     const { activeFlashSales } = get();
-    return activeFlashSales.some((flashSale: FlashSale) => 
+    return activeFlashSales.some((flashSale: FlashSale) =>
       flashSale.products.some((product: any) => product.productId === productId)
     );
   },
@@ -218,5 +209,5 @@ export const useFlashSaleStore = create<FlashSaleStore>((set, get) => ({
       }
     }
     return null;
-  }
+  },
 }));

@@ -1,19 +1,19 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { useUserStore } from "../../stores/useUserStore";
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useUserStore } from '../../stores/useUserStore';
 // import { useToastStore } from "../../stores/useToastStore";
-import { useToast } from "../../hooks/useNewToast";
+import { useToast } from '../../hooks/useNewToast';
 
 export default function Register() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<any>({});
-  const [message, setMessage] = useState("");
-  
+  const [message, setMessage] = useState('');
+
   const navigate = useNavigate();
   const register = useUserStore(state => state.register);
   // const { showSuccess, showError } = useToastStore();
@@ -21,47 +21,47 @@ export default function Register() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate required fields
     if (!name.trim() || !email.trim() || !password.trim()) {
-      const errorMsg = "Vui lòng điền đầy đủ thông tin bắt buộc";
+      const errorMsg = 'Vui lòng điền đầy đủ thông tin bắt buộc';
       setErrors({ general: errorMsg });
-      toast.error("Thông tin chưa đầy đủ!", errorMsg);
+      toast.error('Thông tin chưa đầy đủ!', errorMsg);
       return;
     }
-    
+
     // Validate password match
     if (password !== confirmPassword) {
-      const errorMsg = "Mật khẩu xác nhận không khớp";
+      const errorMsg = 'Mật khẩu xác nhận không khớp';
       setErrors({ confirmPassword: errorMsg });
-      toast.error("Mật khẩu không khớp!", errorMsg);
+      toast.error('Mật khẩu không khớp!', errorMsg);
       return;
     }
 
     setIsLoading(true);
     setErrors({});
-    setMessage("");
+    setMessage('');
 
     try {
       const result = await register(name, email, password, phone);
-      
+
       if (result.success) {
-        setMessage("Đăng ký thành công! Đang chuyển hướng...");
-        toast.success("Đăng ký thành công!", "Chào mừng bạn đến với GreenMart!");
+        setMessage('Đăng ký thành công! Đang chuyển hướng...');
+        toast.success('Đăng ký thành công!', 'Chào mừng bạn đến với GreenMart!');
         // Navigate immediately on success
-        navigate("/home");
+        navigate('/home');
       } else {
         setMessage(result.message);
-        toast.error("Đăng ký thất bại!", result.message || "Vui lòng kiểm tra lại thông tin");
+        toast.error('Đăng ký thất bại!', result.message || 'Vui lòng kiểm tra lại thông tin');
         if (result.errors) {
           setErrors(result.errors);
         }
       }
     } catch (error) {
-      console.error("Register error:", error);
-      const errorMsg = "Lỗi kết nối. Vui lòng thử lại.";
+      console.error('Register error:', error);
+      const errorMsg = 'Lỗi kết nối. Vui lòng thử lại.';
       setMessage(errorMsg);
-      toast.error("Có lỗi xảy ra!", errorMsg);
+      toast.error('Có lỗi xảy ra!', errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -72,7 +72,7 @@ export default function Register() {
       setIsLoading(true);
       setErrors({});
       setMessage('');
-      
+
       // Open popup window for OAuth
       const popup = window.open(
         `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/auth/${provider}`,
@@ -86,7 +86,10 @@ export default function Register() {
 
       // Listen for messages from popup
       const messageListener = async (event: MessageEvent) => {
-        if (event.origin !== (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace('/api', '')) {
+        if (
+          event.origin !==
+          (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace('/api', '')
+        ) {
           return;
         }
 
@@ -98,15 +101,17 @@ export default function Register() {
             // Save token and user data
             localStorage.setItem('token', event.data.token);
             localStorage.setItem('user', JSON.stringify(event.data.user));
-            
+
             // Update user store
             const { setUser } = useUserStore.getState();
             setUser(event.data.user);
-            
+
             // Sync guest cart if exists
-            const { syncGuestCartToServer } = (await import('../../stores/useCartStore')).useCartStore.getState();
+            const { syncGuestCartToServer } = (
+              await import('../../stores/useCartStore')
+            ).useCartStore.getState();
             await syncGuestCartToServer();
-            
+
             // Navigate to home
             navigate('/');
           } catch (error) {
@@ -130,7 +135,6 @@ export default function Register() {
           setIsLoading(false);
         }
       }, 1000);
-
     } catch (error) {
       console.error('Social login error:', error);
       setMessage(error instanceof Error ? error.message : 'Đăng nhập thất bại');
@@ -151,11 +155,13 @@ export default function Register() {
         </h2>
 
         {message && (
-          <div className={`mb-4 p-3 rounded-lg text-sm ${
-            message.includes('thành công') 
-              ? 'bg-green-100 dark:bg-green-800 text-green-700 dark:text-green-200 border border-green-300 dark:border-green-600' 
-              : 'bg-red-100 dark:bg-red-800 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-600'
-          }`}>
+          <div
+            className={`mb-4 p-3 rounded-lg text-sm ${
+              message.includes('thành công')
+                ? 'bg-green-100 dark:bg-green-800 text-green-700 dark:text-green-200 border border-green-300 dark:border-green-600'
+                : 'bg-red-100 dark:bg-red-800 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-600'
+            }`}
+          >
             {message}
           </div>
         )}
@@ -166,12 +172,12 @@ export default function Register() {
               type="text"
               placeholder="Họ và tên"
               className={`w-full px-4 py-3 rounded-xl border bg-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 focus:outline-none focus:ring-2 ${
-                errors.name 
-                  ? 'border-red-300 focus:ring-red-500 dark:border-red-500' 
+                errors.name
+                  ? 'border-red-300 focus:ring-red-500 dark:border-red-500'
                   : 'border-gray-200 focus:ring-black dark:focus:ring-green-500'
               }`}
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={e => setName(e.target.value)}
               required
             />
             {errors.name && (
@@ -184,17 +190,15 @@ export default function Register() {
               type="email"
               placeholder="Email"
               className={`w-full px-4 py-3 rounded-xl border bg-gray-100 focus:outline-none focus:ring-2 ${
-                errors.email 
-                  ? 'border-red-300 focus:ring-red-500' 
+                errors.email
+                  ? 'border-red-300 focus:ring-red-500'
                   : 'border-gray-200 focus:ring-black'
               }`}
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value)}
               required
             />
-            {errors.email && (
-              <p className="mt-1 text-sm text-red-600">{errors.email}</p>
-            )}
+            {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
           </div>
 
           <div>
@@ -202,17 +206,15 @@ export default function Register() {
               type="tel"
               placeholder="Số điện thoại (VD: 0901234567)"
               className={`w-full px-4 py-3 rounded-xl border bg-gray-100 focus:outline-none focus:ring-2 ${
-                errors.phone 
-                  ? 'border-red-300 focus:ring-red-500' 
+                errors.phone
+                  ? 'border-red-300 focus:ring-red-500'
                   : 'border-gray-200 focus:ring-black'
               }`}
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={e => setPhone(e.target.value)}
               required
             />
-            {errors.phone && (
-              <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
-            )}
+            {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
           </div>
 
           <div>
@@ -220,17 +222,15 @@ export default function Register() {
               type="password"
               placeholder="Mật khẩu (ít nhất 6 ký tự)"
               className={`w-full px-4 py-3 rounded-xl border bg-gray-100 focus:outline-none focus:ring-2 ${
-                errors.password 
-                  ? 'border-red-300 focus:ring-red-500' 
+                errors.password
+                  ? 'border-red-300 focus:ring-red-500'
                   : 'border-gray-200 focus:ring-black'
               }`}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={e => setPassword(e.target.value)}
               required
             />
-            {errors.password && (
-              <p className="mt-1 text-sm text-red-600">{errors.password}</p>
-            )}
+            {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
           </div>
 
           <div>
@@ -238,12 +238,12 @@ export default function Register() {
               type="password"
               placeholder="Xác nhận mật khẩu"
               className={`w-full px-4 py-3 rounded-xl border bg-gray-100 focus:outline-none focus:ring-2 ${
-                errors.confirmPassword 
-                  ? 'border-red-300 focus:ring-red-500' 
+                errors.confirmPassword
+                  ? 'border-red-300 focus:ring-red-500'
                   : 'border-gray-200 focus:ring-black'
               }`}
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              onChange={e => setConfirmPassword(e.target.value)}
               required
             />
             {errors.confirmPassword && (
@@ -263,7 +263,7 @@ export default function Register() {
         <div className="my-6 text-center text-sm text-gray-500">Or Register with</div>
 
         <div className="flex gap-4 mb-6">
-          <button 
+          <button
             type="button"
             onClick={() => handleSocialLogin('facebook')}
             disabled={isLoading}
@@ -272,7 +272,7 @@ export default function Register() {
             <span className="text-xl mr-2">📱</span>
             Facebook
           </button>
-          <button 
+          <button
             type="button"
             onClick={() => handleSocialLogin('google')}
             disabled={isLoading}
@@ -284,7 +284,7 @@ export default function Register() {
         </div>
 
         <div className="text-center text-sm text-gray-600">
-          Already have an account?{" "}
+          Already have an account?{' '}
           <Link to="/login" className="text-green-600 font-semibold">
             Login here
           </Link>

@@ -1,9 +1,9 @@
 // src/pages/ForgotPassword.tsx
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function ForgotPassword() {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -11,7 +11,7 @@ export default function ForgotPassword() {
 
     // Giả lập gửi mã OTP thành công
     if (email) {
-      navigate("/otp-verify");
+      navigate('/otp-verify');
     }
   };
 
@@ -34,7 +34,7 @@ export default function ForgotPassword() {
             placeholder="Enter your email"
             className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={e => setEmail(e.target.value)}
             required
           />
 

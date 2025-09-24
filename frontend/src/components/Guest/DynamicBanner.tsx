@@ -9,18 +9,18 @@ interface DynamicBannerProps {
   className?: string;
 }
 
-const DynamicBanner: React.FC<DynamicBannerProps> = ({ 
-  filterType, 
-  categoryId, 
-  className = '' 
+const DynamicBanner: React.FC<DynamicBannerProps> = ({
+  filterType,
+  categoryId,
+  className = '',
 }) => {
   switch (filterType) {
     case 'sale':
       return <SaleBanner className={className} />;
-    
+
     case 'featured':
       return <FeaturedBanner className={className} />;
-    
+
     case 'all':
     default:
       return <CategoryBanner categoryId={categoryId} className={className} />;

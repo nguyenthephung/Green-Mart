@@ -26,9 +26,9 @@ export class ErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     this.setState({
       error,
-      errorInfo
+      errorInfo,
     });
-    
+
     // Log error to monitoring service
     console.error('ErrorBoundary caught an error:', error, errorInfo);
   }
@@ -49,11 +49,11 @@ export class ErrorBoundary extends Component<Props, State> {
             <div className="flex justify-center mb-4">
               <AlertTriangle className="w-12 h-12 text-red-500" />
             </div>
-            
+
             <h1 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
               Oops! Có lỗi xảy ra
             </h1>
-            
+
             <p className="text-gray-600 dark:text-gray-400 mb-6">
               Ứng dụng gặp lỗi không mong muốn. Vui lòng thử lại hoặc liên hệ hỗ trợ.
             </p>
@@ -66,7 +66,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 <RefreshCw className="w-4 h-4" />
                 Thử lại
               </button>
-              
+
               <button
                 onClick={() => window.location.reload()}
                 className="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
@@ -100,9 +100,7 @@ interface AsyncErrorBoundaryProps {
   onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
 }
 
-export const AsyncErrorBoundary: React.FC<AsyncErrorBoundaryProps> = ({ 
-  children
-}) => {
+export const AsyncErrorBoundary: React.FC<AsyncErrorBoundaryProps> = ({ children }) => {
   return (
     <ErrorBoundary
       fallback={

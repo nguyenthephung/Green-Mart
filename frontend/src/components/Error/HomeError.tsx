@@ -12,7 +12,7 @@ const HomeError: React.FC<HomeErrorProps> = ({
   errorType = 'general',
   message,
   onRetry,
-  onGoHome
+  onGoHome,
 }) => {
   const getErrorConfig = () => {
     switch (errorType) {
@@ -23,7 +23,7 @@ const HomeError: React.FC<HomeErrorProps> = ({
           description: message || 'Vui lòng kiểm tra kết nối internet và thử lại',
           bgGradient: 'from-blue-50 to-cyan-50',
           iconBg: 'bg-blue-100',
-          buttonColor: 'bg-blue-500 hover:bg-blue-600'
+          buttonColor: 'bg-blue-500 hover:bg-blue-600',
         };
       case 'server':
         return {
@@ -32,7 +32,7 @@ const HomeError: React.FC<HomeErrorProps> = ({
           description: message || 'Hệ thống đang bảo trì. Vui lòng thử lại sau ít phút',
           bgGradient: 'from-orange-50 to-amber-50',
           iconBg: 'bg-orange-100',
-          buttonColor: 'bg-orange-500 hover:bg-orange-600'
+          buttonColor: 'bg-orange-500 hover:bg-orange-600',
         };
       default:
         return {
@@ -41,7 +41,7 @@ const HomeError: React.FC<HomeErrorProps> = ({
           description: message || 'Không thể tải dữ liệu trang chủ. Vui lòng thử lại',
           bgGradient: 'from-red-50 to-pink-50',
           iconBg: 'bg-red-100',
-          buttonColor: 'bg-red-500 hover:bg-red-600'
+          buttonColor: 'bg-red-500 hover:bg-red-600',
         };
     }
   };
@@ -50,21 +50,21 @@ const HomeError: React.FC<HomeErrorProps> = ({
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className={`max-w-md w-full bg-gradient-to-br ${config.bgGradient} rounded-3xl shadow-xl p-8 text-center transform transition-all duration-300 hover:scale-105`}>
+      <div
+        className={`max-w-md w-full bg-gradient-to-br ${config.bgGradient} rounded-3xl shadow-xl p-8 text-center transform transition-all duration-300 hover:scale-105`}
+      >
         {/* Animated Icon */}
-        <div className={`${config.iconBg} rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6 animate-bounce`}>
+        <div
+          className={`${config.iconBg} rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6 animate-bounce`}
+        >
           {config.icon}
         </div>
 
         {/* Error Title */}
-        <h1 className="text-2xl font-bold text-gray-800 mb-4">
-          {config.title}
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-800 mb-4">{config.title}</h1>
 
         {/* Error Description */}
-        <p className="text-gray-600 mb-8 leading-relaxed">
-          {config.description}
-        </p>
+        <p className="text-gray-600 mb-8 leading-relaxed">{config.description}</p>
 
         {/* Action Buttons */}
         <div className="space-y-3">
@@ -77,7 +77,7 @@ const HomeError: React.FC<HomeErrorProps> = ({
               Thử lại
             </button>
           )}
-          
+
           {onGoHome && (
             <button
               onClick={onGoHome}
@@ -91,7 +91,7 @@ const HomeError: React.FC<HomeErrorProps> = ({
 
         {/* Decorative Elements */}
         <div className="mt-8 flex justify-center space-x-2">
-          {[0, 1, 2].map((i) => (
+          {[0, 1, 2].map(i => (
             <div
               key={i}
               className="w-2 h-2 bg-gray-300 rounded-full animate-pulse"

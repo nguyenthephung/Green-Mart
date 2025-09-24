@@ -17,11 +17,7 @@ export const useAuthSync = () => {
       if (user?.id) {
         // User đã đăng nhập - sync wishlist và cart
         try {
-          await Promise.all([
-            initializeWishlist(),
-            syncGuestCartToServer(),
-            fetchCart()
-          ]);
+          await Promise.all([initializeWishlist(), syncGuestCartToServer(), fetchCart()]);
         } catch (error) {
           console.error('Error syncing user data:', error);
         }

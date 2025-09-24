@@ -32,7 +32,7 @@ const AdminOrders: React.FC = () => {
     error,
     lastRefresh,
     handleStatusChange,
-    refreshData
+    refreshData,
   } = useOrderManagement();
 
   // UI state
@@ -40,17 +40,17 @@ const AdminOrders: React.FC = () => {
   const [showView, setShowView] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('table');
   const [showFilters, setShowFilters] = useState(false);
-  const [selectedOrders, setSelectedOrders] = useState<(string|number)[]>([]);
+  const [selectedOrders, setSelectedOrders] = useState<(string | number)[]>([]);
   const [showExportModal, setShowExportModal] = useState(false);
-  
+
   // Dark mode state
   const [isDarkMode, setIsDarkMode] = useState(document.documentElement.classList.contains('dark'));
-  
+
   // Use pagination hook
   const pagination = usePagination({
     data: filteredAndSortedOrders,
     itemsPerPage: 10,
-    initialPage: 1
+    initialPage: 1,
   });
 
   // Dark mode observer
@@ -90,11 +90,13 @@ const AdminOrders: React.FC = () => {
 
   const handleBulkStatusUpdate = async (newStatus: Order['status']) => {
     if (selectedOrders.length === 0) return;
-    
+
     try {
-      await Promise.all(selectedOrders.map(async (orderId) => {
-        await handleStatusChange(orderId.toString(), newStatus);
-      }));
+      await Promise.all(
+        selectedOrders.map(async orderId => {
+          await handleStatusChange(orderId.toString(), newStatus);
+        })
+      );
       setSelectedOrders([]);
     } catch (err: any) {
       console.error('Bulk status update failed:', err);
@@ -103,27 +105,41 @@ const AdminOrders: React.FC = () => {
 
   const exportToCSV = () => {
     const csvContent = [
-      ['Mã đơn hàng', 'Khách hàng', 'Email', 'Điện thoại', 'Địa chỉ', 'Tổng tiền', 'Trạng thái', 'Phương thức thanh toán', 'Trạng thái thanh toán', 'Ngày đặt', 'Ghi chú'].join(','),
-      ...orders.map((order: Order) => [
-        order.id,
-        `"${order.customerName}"`,
-        order.customerEmail,
-        order.customerPhone,
-        `"${order.customerAddress}"`,
-        order.totalAmount,
-        order.status,
-        order.paymentMethod,
-        order.paymentStatus,
-        new Date(order.orderDate).toLocaleDateString('vi-VN'),
-        `"${order.notes || ''}"`
-      ].join(','))
+      [
+        'Mã đơn hàng',
+        'Khách hàng',
+        'Email',
+        'Điện thoại',
+        'Địa chỉ',
+        'Tổng tiền',
+        'Trạng thái',
+        'Phương thức thanh toán',
+        'Trạng thái thanh toán',
+        'Ngày đặt',
+        'Ghi chú',
+      ].join(','),
+      ...orders.map((order: Order) =>
+        [
+          order.id,
+          `"${order.customerName}"`,
+          order.customerEmail,
+          order.customerPhone,
+          `"${order.customerAddress}"`,
+          order.totalAmount,
+          order.status,
+          order.paymentMethod,
+          order.paymentStatus,
+          new Date(order.orderDate).toLocaleDateString('vi-VN'),
+          `"${order.notes || ''}"`,
+        ].join(',')
+      ),
     ].join('\n');
 
     const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', `orders_${new Date().toISOString().slice(0,10)}.csv`);
+    link.setAttribute('download', `orders_${new Date().toISOString().slice(0, 10)}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -132,7 +148,7 @@ const AdminOrders: React.FC = () => {
   };
 
   const exportOrderDetails = () => {
-    const detailedData = orders.flatMap((order: Order) => 
+    const detailedData = orders.flatMap((order: Order) =>
       order.items.map((item: any) => ({
         'Mã đơn hàng': order.id,
         'Khách hàng': order.customerName,
@@ -141,20 +157,24 @@ const AdminOrders: React.FC = () => {
         'Đơn giá': item.price,
         'Thành tiền': item.quantity * item.price,
         'Trạng thái đơn hàng': order.status,
-        'Ngày đặt': new Date(order.orderDate).toLocaleDateString('vi-VN')
+        'Ngày đặt': new Date(order.orderDate).toLocaleDateString('vi-VN'),
       }))
     );
 
     const csvContent = [
       Object.keys(detailedData[0] || {}).join(','),
-      ...detailedData.map((row: any) => Object.values(row).map(value => `"${value}"`).join(','))
+      ...detailedData.map((row: any) =>
+        Object.values(row)
+          .map(value => `"${value}"`)
+          .join(',')
+      ),
     ].join('\n');
 
     const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', `order_details_${new Date().toISOString().slice(0,10)}.csv`);
+    link.setAttribute('download', `order_details_${new Date().toISOString().slice(0, 10)}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -175,55 +195,84 @@ const AdminOrders: React.FC = () => {
   // Helper functions
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'pending': return 'Chờ xác nhận';
-      case 'confirmed': return 'Đã xác nhận';
-      case 'shipping': return 'Đang giao';
-      case 'delivered': return 'Đã giao';
-      case 'cancelled': return 'Đã hủy';
-      default: return status;
+      case 'pending':
+        return 'Chờ xác nhận';
+      case 'confirmed':
+        return 'Đã xác nhận';
+      case 'shipping':
+        return 'Đang giao';
+      case 'delivered':
+        return 'Đã giao';
+      case 'cancelled':
+        return 'Đã hủy';
+      default:
+        return status;
     }
   };
 
   const getPaymentText = (status: string) => {
     switch (status) {
-      case 'paid': return 'Đã thanh toán';
-      case 'pending': return 'Chờ thanh toán';
-      case 'failed': return 'Thanh toán thất bại';
-      case 'unpaid': return 'Chưa thanh toán';
-      default: return status;
+      case 'paid':
+        return 'Đã thanh toán';
+      case 'pending':
+        return 'Chờ thanh toán';
+      case 'failed':
+        return 'Thanh toán thất bại';
+      case 'unpaid':
+        return 'Chưa thanh toán';
+      default:
+        return status;
     }
   };
 
   const getPaymentMethodText = (method: Order['paymentMethod']) => {
     switch (method) {
-      case 'cod': return 'Thanh toán khi nhận hàng';
-      case 'momo': return 'Ví MoMo';
-      case 'bank_transfer': return 'Chuyển khoản ngân hàng';
-      case 'credit_card': return 'Thẻ tín dụng';
-      case 'paypal': return 'PayPal';
-      default: return method;
+      case 'cod':
+        return 'Thanh toán khi nhận hàng';
+      case 'momo':
+        return 'Ví MoMo';
+      case 'bank_transfer':
+        return 'Chuyển khoản ngân hàng';
+      case 'credit_card':
+        return 'Thẻ tín dụng';
+      case 'paypal':
+        return 'PayPal';
+      default:
+        return method;
     }
   };
 
   const getPaymentMethodIcon = (method: Order['paymentMethod']) => {
     switch (method) {
-      case 'cod': return '💰';
-      case 'momo': return '🔶';
-      case 'bank_transfer': return '🏦';
-      case 'credit_card': return '💳';
-      case 'paypal': return '🅿️';
-      default: return '💳';
+      case 'cod':
+        return '💰';
+      case 'momo':
+        return '🔶';
+      case 'bank_transfer':
+        return '🏦';
+      case 'credit_card':
+        return '💳';
+      case 'paypal':
+        return '🅿️';
+      default:
+        return '💳';
     }
   };
 
   const getPaymentMethodColor = (method: Order['paymentMethod']) => {
     switch (method) {
-      case 'cod': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'momo': return 'bg-pink-100 text-pink-800 border-pink-200';
-      case 'bank_transfer': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'credit_card': return 'bg-green-100 text-green-800 border-green-200';
-      case 'paypal': return 'bg-blue-100 text-blue-800 border-blue-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'cod':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'momo':
+        return 'bg-pink-100 text-pink-800 border-pink-200';
+      case 'bank_transfer':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'credit_card':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'paypal':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
@@ -238,7 +287,7 @@ const AdminOrders: React.FC = () => {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
-      currency: 'VND'
+      currency: 'VND',
     }).format(price);
   };
 
@@ -246,18 +295,26 @@ const AdminOrders: React.FC = () => {
   const totalOrders = orders.length;
   const pendingOrders = orders.filter((o: Order) => o.status === 'pending').length;
   const shippingOrders = orders.filter((o: Order) => o.status === 'shipping').length;
-  const totalRevenue = orders.filter((o: Order) => o.status === 'delivered').reduce((sum: number, o: Order) => sum + o.totalAmount, 0);
-  const todayOrders = orders.filter((o: Order) => 
-    new Date(o.orderDate).toDateString() === new Date().toDateString()
+  const totalRevenue = orders
+    .filter((o: Order) => o.status === 'delivered')
+    .reduce((sum: number, o: Order) => sum + o.totalAmount, 0);
+  const todayOrders = orders.filter(
+    (o: Order) => new Date(o.orderDate).toDateString() === new Date().toDateString()
   ).length;
-  const todayRevenue = orders.filter((o: Order) => 
-    new Date(o.orderDate).toDateString() === new Date().toDateString() && o.status === 'delivered'
-  ).reduce((sum: number, o: Order) => sum + o.totalAmount, 0);
+  const todayRevenue = orders
+    .filter(
+      (o: Order) =>
+        new Date(o.orderDate).toDateString() === new Date().toDateString() &&
+        o.status === 'delivered'
+    )
+    .reduce((sum: number, o: Order) => sum + o.totalAmount, 0);
 
   return (
     <div
       className="min-h-screen"
-      style={isDarkMode ? { backgroundColor: '#111827', color: '#fff' } : { backgroundColor: '#f9fafb' }}
+      style={
+        isDarkMode ? { backgroundColor: '#111827', color: '#fff' } : { backgroundColor: '#f9fafb' }
+      }
     >
       {/* Header */}
       <OrderHeader
@@ -318,7 +375,10 @@ const AdminOrders: React.FC = () => {
 
       {/* Orders Display */}
       {isLoading ? (
-        <div className="rounded-xl shadow-sm border border-gray-200 p-8 text-center" style={isDarkMode ? { backgroundColor: '#18181b' } : { backgroundColor: '#fff' }}>
+        <div
+          className="rounded-xl shadow-sm border border-gray-200 p-8 text-center"
+          style={isDarkMode ? { backgroundColor: '#18181b' } : { backgroundColor: '#fff' }}
+        >
           <div className="flex flex-col items-center gap-4">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             <p style={isDarkMode ? { color: '#e5e7eb' } : { color: '#6b7280' }}>

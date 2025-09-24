@@ -52,7 +52,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isVisible = true }) => {
 
   return (
     <>
-      <div className={`fixed right-4 top-1/2 transform -translate-y-1/2 z-40 transition-all duration-300 ${isMinimized ? 'translate-x-16' : 'translate-x-0'}`}>
+      <div
+        className={`fixed right-4 top-1/2 transform -translate-y-1/2 z-40 transition-all duration-300 ${isMinimized ? 'translate-x-16' : 'translate-x-0'}`}
+      >
         <div className="flex flex-col gap-3">
           {/* Minimize/Maximize Button */}
           <button
@@ -60,21 +62,31 @@ const Sidebar: React.FC<SidebarProps> = ({ isVisible = true }) => {
             className="w-12 h-12 bg-gray-800 hover:bg-gray-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-200 group hover:scale-110"
             title={isMinimized ? 'Mở rộng' : 'Thu gọn'}
           >
-            <svg 
-              className={`w-5 h-5 transition-transform duration-300 ${isMinimized ? 'rotate-180' : ''}`} 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2" 
+            <svg
+              className={`w-5 h-5 transition-transform duration-300 ${isMinimized ? 'rotate-180' : ''}`}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
               viewBox="0 0 24 24"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d={isMinimized ? "M13 7l5 5m0 0l-5 5m5-5H6" : "M11 17l-5-5m0 0l5-5m-5 5h12"} />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d={isMinimized ? 'M13 7l5 5m0 0l-5 5m5-5H6' : 'M11 17l-5-5m0 0l5-5m-5 5h12'}
+              />
             </svg>
           </button>
 
           {/* Action Buttons */}
-          <div className={`flex flex-col gap-3 transition-all duration-500 ${isMinimized ? 'opacity-0 scale-75 translate-x-8 pointer-events-none' : 'opacity-100 scale-100 translate-x-0'}`}>
+          <div
+            className={`flex flex-col gap-3 transition-all duration-500 ${isMinimized ? 'opacity-0 scale-75 translate-x-8 pointer-events-none' : 'opacity-100 scale-100 translate-x-0'}`}
+          >
             {sidebarActions.map((action, index) => (
-              <div key={action.id} className="group relative" style={{ animationDelay: `${index * 0.1}s` }}>
+              <div
+                key={action.id}
+                className="group relative"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
                 <button
                   onClick={action.action}
                   className={`w-12 h-12 bg-gradient-to-r ${action.color} hover:${action.hoverColor} text-white rounded-full shadow-lg hover:shadow-xl flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95`}
@@ -82,7 +94,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isVisible = true }) => {
                 >
                   <span className="text-xl animate-pulse">{action.icon}</span>
                 </button>
-                
+
                 {/* Tooltip */}
                 <div className="absolute right-14 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none scale-90 group-hover:scale-100">
                   <div className="bg-gray-900 text-white px-3 py-2 rounded-lg shadow-xl whitespace-nowrap backdrop-blur-sm">
@@ -104,7 +116,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isVisible = true }) => {
             className={`w-12 h-12 bg-gray-600 hover:bg-gray-500 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 ${isMinimized ? 'opacity-50' : 'opacity-100'}`}
             title="Lên đầu trang"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
             </svg>
           </button>
@@ -112,9 +130,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isVisible = true }) => {
       </div>
 
       {/* Lucky Wheel Modal */}
-      {showLuckyWheel && (
-        <LuckyWheel onClose={() => setShowLuckyWheel(false)} />
-      )}
+      {showLuckyWheel && <LuckyWheel onClose={() => setShowLuckyWheel(false)} />}
     </>
   );
 };

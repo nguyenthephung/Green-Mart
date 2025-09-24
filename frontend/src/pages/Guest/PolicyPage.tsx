@@ -1,7 +1,13 @@
 import React from 'react';
 import { useParams, Navigate } from 'react-router-dom';
-import { FaShieldAlt, FaTruck, FaQuestionCircle, FaUndo, FaFileContract, FaLock } from 'react-icons/fa';
-
+import {
+  FaShieldAlt,
+  FaTruck,
+  FaQuestionCircle,
+  FaUndo,
+  FaFileContract,
+  FaLock,
+} from 'react-icons/fa';
 
 const PolicyPage: React.FC = () => {
   const { section } = useParams<{ section: string }>();
@@ -13,17 +19,19 @@ const PolicyPage: React.FC = () => {
       content: [
         {
           question: 'Làm thế nào để đặt hàng?',
-          answer: 'Bạn có thể đặt hàng qua website, ứng dụng di động hoặc gọi điện trực tiếp đến hotline của chúng tôi.'
+          answer:
+            'Bạn có thể đặt hàng qua website, ứng dụng di động hoặc gọi điện trực tiếp đến hotline của chúng tôi.',
         },
         {
           question: 'Thời gian giao hàng là bao lâu?',
-          answer: 'Thông thường từ 1-3 ngày làm việc tùy thuộc vào khu vực giao hàng.'
+          answer: 'Thông thường từ 1-3 ngày làm việc tùy thuộc vào khu vực giao hàng.',
         },
         {
           question: 'Tôi có thể thanh toán bằng cách nào?',
-          answer: 'Chúng tôi hỗ trợ thanh toán bằng tiền mặt, chuyển khoản, thẻ tín dụng và ví điện tử.'
-        }
-      ]
+          answer:
+            'Chúng tôi hỗ trợ thanh toán bằng tiền mặt, chuyển khoản, thẻ tín dụng và ví điện tử.',
+        },
+      ],
     },
     shipping: {
       title: 'Chính sách giao hàng',
@@ -31,17 +39,19 @@ const PolicyPage: React.FC = () => {
       content: [
         {
           question: 'Phí giao hàng',
-          answer: 'Miễn phí giao hàng cho đơn hàng từ 300.000đ. Phí giao hàng 30.000đ cho đơn hàng dưới 300.000đ.'
+          answer:
+            'Miễn phí giao hàng cho đơn hàng từ 300.000đ. Phí giao hàng 30.000đ cho đơn hàng dưới 300.000đ.',
         },
         {
           question: 'Thời gian giao hàng',
-          answer: 'Nội thành Hà Nội và TP.HCM: 1-2 ngày. Các tỉnh thành khác: 2-5 ngày làm việc.'
+          answer: 'Nội thành Hà Nội và TP.HCM: 1-2 ngày. Các tỉnh thành khác: 2-5 ngày làm việc.',
         },
         {
           question: 'Kiểm tra hàng hóa',
-          answer: 'Khách hàng được kiểm tra hàng hóa trước khi thanh toán và có quyền từ chối nếu không đúng yêu cầu.'
-        }
-      ]
+          answer:
+            'Khách hàng được kiểm tra hàng hóa trước khi thanh toán và có quyền từ chối nếu không đúng yêu cầu.',
+        },
+      ],
     },
     return: {
       title: 'Chính sách đổi trả & Hoàn tiền',
@@ -49,17 +59,18 @@ const PolicyPage: React.FC = () => {
       content: [
         {
           question: 'Điều kiện đổi trả',
-          answer: 'Sản phẩm còn nguyên vẹn, chưa sử dụng, trong vòng 7 ngày kể từ ngày nhận hàng.'
+          answer: 'Sản phẩm còn nguyên vẹn, chưa sử dụng, trong vòng 7 ngày kể từ ngày nhận hàng.',
         },
         {
           question: 'Quy trình đổi trả',
-          answer: 'Liên hệ hotline → Gửi hàng về → Kiểm tra → Đổi/Trả tiền trong 3-5 ngày làm việc.'
+          answer:
+            'Liên hệ hotline → Gửi hàng về → Kiểm tra → Đổi/Trả tiền trong 3-5 ngày làm việc.',
         },
         {
           question: 'Chi phí đổi trả',
-          answer: 'Miễn phí đổi trả nếu lỗi từ phía GreenMart. Khách hàng chịu phí ship nếu đổi ý.'
-        }
-      ]
+          answer: 'Miễn phí đổi trả nếu lỗi từ phía GreenMart. Khách hàng chịu phí ship nếu đổi ý.',
+        },
+      ],
     },
     terms: {
       title: 'Điều khoản sử dụng',
@@ -67,17 +78,19 @@ const PolicyPage: React.FC = () => {
       content: [
         {
           question: 'Quyền và nghĩa vụ của khách hàng',
-          answer: 'Khách hàng có quyền được cung cấp thông tin chính xác về sản phẩm và phải thanh toán đầy đủ theo thỏa thuận.'
+          answer:
+            'Khách hàng có quyền được cung cấp thông tin chính xác về sản phẩm và phải thanh toán đầy đủ theo thỏa thuận.',
         },
         {
           question: 'Quy định về tài khoản',
-          answer: 'Mỗi khách hàng chỉ được tạo một tài khoản và chịu trách nhiệm bảo mật thông tin đăng nhập.'
+          answer:
+            'Mỗi khách hàng chỉ được tạo một tài khoản và chịu trách nhiệm bảo mật thông tin đăng nhập.',
         },
         {
           question: 'Chính sách hủy đơn hàng',
-          answer: 'Khách hàng có thể hủy đơn hàng trước khi hàng được giao đi mà không mất phí.'
-        }
-      ]
+          answer: 'Khách hàng có thể hủy đơn hàng trước khi hàng được giao đi mà không mất phí.',
+        },
+      ],
     },
     privacy: {
       title: 'Chính sách bảo mật',
@@ -85,17 +98,20 @@ const PolicyPage: React.FC = () => {
       content: [
         {
           question: 'Thu thập thông tin',
-          answer: 'Chúng tôi chỉ thu thập thông tin cần thiết để xử lý đơn hàng và cải thiện dịch vụ.'
+          answer:
+            'Chúng tôi chỉ thu thập thông tin cần thiết để xử lý đơn hàng và cải thiện dịch vụ.',
         },
         {
           question: 'Sử dụng thông tin',
-          answer: 'Thông tin được sử dụng để xử lý đơn hàng, giao hàng và liên lạc với khách hàng khi cần thiết.'
+          answer:
+            'Thông tin được sử dụng để xử lý đơn hàng, giao hàng và liên lạc với khách hàng khi cần thiết.',
         },
         {
           question: 'Bảo vệ thông tin',
-          answer: 'Chúng tôi áp dụng các biện pháp bảo mật cao nhất để bảo vệ thông tin cá nhân của khách hàng.'
-        }
-      ]
+          answer:
+            'Chúng tôi áp dụng các biện pháp bảo mật cao nhất để bảo vệ thông tin cá nhân của khách hàng.',
+        },
+      ],
     },
     security: {
       title: 'Bảo mật thông tin',
@@ -103,18 +119,19 @@ const PolicyPage: React.FC = () => {
       content: [
         {
           question: 'Mã hóa dữ liệu',
-          answer: 'Tất cả dữ liệu nhạy cảm được mã hóa bằng SSL 256-bit để đảm bảo an toàn tuyệt đối.'
+          answer:
+            'Tất cả dữ liệu nhạy cảm được mã hóa bằng SSL 256-bit để đảm bảo an toàn tuyệt đối.',
         },
         {
           question: 'Xác thực 2 lớp',
-          answer: 'Chúng tôi khuyến khích sử dụng xác thực 2 lớp để tăng cường bảo mật tài khoản.'
+          answer: 'Chúng tôi khuyến khích sử dụng xác thực 2 lớp để tăng cường bảo mật tài khoản.',
         },
         {
           question: 'Giám sát an ninh',
-          answer: 'Hệ thống được giám sát 24/7 để phát hiện và ngăn chặn các hoạt động bất thường.'
-        }
-      ]
-    }
+          answer: 'Hệ thống được giám sát 24/7 để phát hiện và ngăn chặn các hoạt động bất thường.',
+        },
+      ],
+    },
   };
 
   if (!section || !policies[section as keyof typeof policies]) {
@@ -133,9 +150,7 @@ const PolicyPage: React.FC = () => {
               {policy.icon}
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            {policy.title}
-          </h1>
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">{policy.title}</h1>
           <p className="text-gray-600 dark:text-gray-400 text-lg">
             Thông tin chi tiết về {policy.title.toLowerCase()}
           </p>
@@ -146,13 +161,14 @@ const PolicyPage: React.FC = () => {
           <div className="p-8">
             <div className="space-y-8">
               {policy.content.map((item, index) => (
-                <div key={index} className="border-b border-gray-200 dark:border-gray-700 last:border-b-0 pb-6 last:pb-0">
+                <div
+                  key={index}
+                  className="border-b border-gray-200 dark:border-gray-700 last:border-b-0 pb-6 last:pb-0"
+                >
                   <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
                     {item.question}
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                    {item.answer}
-                  </p>
+                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed">{item.answer}</p>
                 </div>
               ))}
             </div>

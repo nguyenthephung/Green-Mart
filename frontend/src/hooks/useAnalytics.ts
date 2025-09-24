@@ -33,10 +33,14 @@ export const useAnalytics = (period: AnalyticsPeriod = '7days') => {
 
   const getDaysCount = (period: AnalyticsPeriod): number => {
     switch (period) {
-      case '7days': return 7;
-      case '30days': return 30;
-      case '3months': return 90;
-      default: return 7;
+      case '7days':
+        return 7;
+      case '30days':
+        return 30;
+      case '3months':
+        return 90;
+      default:
+        return 7;
     }
   };
 
@@ -64,11 +68,11 @@ export const useAnalytics = (period: AnalyticsPeriod = '7days') => {
       // Chuẩn hóa startDate về 00:00:00 và endDate về 23:59:59
       const startDateISO = dateRange[0] + 'T00:00:00.000Z';
       const endDateISO = dateRange[dateRange.length - 1] + 'T23:59:59.999Z';
-      const ordersResponse = await orderService.getAllOrders({ 
-        page: 1, 
+      const ordersResponse = await orderService.getAllOrders({
+        page: 1,
         limit: 1000,
         startDate: startDateISO,
-        endDate: endDateISO
+        endDate: endDateISO,
       });
       // Debug toàn bộ đơn hàng trả về từ backend
       console.log('[Analytics] ordersResponse:', ordersResponse);
@@ -81,25 +85,33 @@ export const useAnalytics = (period: AnalyticsPeriod = '7days') => {
           status: order.status,
           createdAt: order.createdAt,
           orderDate: order.orderDate,
-          deliveryDate: order.deliveryDate
+          deliveryDate: order.deliveryDate,
         });
       });
       // Chỉ lấy đơn hàng giao thành công
-      const orders = (ordersResponse?.orders || []).filter((order: any) => order.status === 'delivered');
+      const orders = (ordersResponse?.orders || []).filter(
+        (order: any) => order.status === 'delivered'
+      );
       console.log('[Analytics] orders after delivered filter:', orders);
 
       // Process sales data by date
-      const salesByDate = dateRange.reduce((acc, date) => {
-        acc[date] = { revenue: 0, orders: 0 };
-        return acc;
-      }, {} as Record<string, { revenue: number; orders: number }>);
+      const salesByDate = dateRange.reduce(
+        (acc, date) => {
+          acc[date] = { revenue: 0, orders: 0 };
+          return acc;
+        },
+        {} as Record<string, { revenue: number; orders: number }>
+      );
 
       // Aggregate product sales
-      const productSales = {} as Record<string, { sales: number; revenue: number; name: string; category: string }>;
+      const productSales = {} as Record<
+        string,
+        { sales: number; revenue: number; name: string; category: string }
+      >;
 
       orders.forEach((order: any) => {
         const orderDate = new Date(order.createdAt || order.orderDate).toISOString().split('T')[0];
-        
+
         if (salesByDate[orderDate]) {
           salesByDate[orderDate].revenue += order.totalAmount || 0;
           salesByDate[orderDate].orders += 1;
@@ -110,14 +122,14 @@ export const useAnalytics = (period: AnalyticsPeriod = '7days') => {
           const productId = item.productId?._id || item.productId;
           const productName = item.productName || item.name || 'Unknown Product';
           const category = item.productId?.category || 'Unknown';
-          
+
           if (productId) {
             if (!productSales[productId]) {
               productSales[productId] = {
                 sales: 0,
                 revenue: 0,
                 name: productName,
-                category: category
+                category: category,
               };
             }
             productSales[productId].sales += item.quantity || 0;
@@ -130,7 +142,7 @@ export const useAnalytics = (period: AnalyticsPeriod = '7days') => {
       const salesData: SalesData[] = dateRange.map(date => ({
         date,
         revenue: salesByDate[date].revenue,
-        orders: salesByDate[date].orders
+        orders: salesByDate[date].orders,
       }));
 
       const topProducts: TopProduct[] = Object.entries(productSales)
@@ -139,7 +151,7 @@ export const useAnalytics = (period: AnalyticsPeriod = '7days') => {
           name: data.name,
           sales: data.sales,
           revenue: data.revenue,
-          category: data.category
+          category: data.category,
         }))
         .sort((a, b) => b.sales - a.sales)
         .slice(0, 10);
@@ -159,16 +171,17 @@ export const useAnalytics = (period: AnalyticsPeriod = '7days') => {
         page: 1,
         limit: 1000,
         startDate: previousPeriodStart.toISOString().split('T')[0],
-        endDate: previousPeriodEnd.toISOString().split('T')[0]
+        endDate: previousPeriodEnd.toISOString().split('T')[0],
       });
 
-      const previousRevenue = previousOrdersResponse?.orders?.reduce(
-        (sum: number, order: any) => sum + (order.totalAmount || 0), 0
-      ) || 0;
+      const previousRevenue =
+        previousOrdersResponse?.orders?.reduce(
+          (sum: number, order: any) => sum + (order.totalAmount || 0),
+          0
+        ) || 0;
 
-      const growthRate = previousRevenue > 0 
-        ? ((totalRevenue - previousRevenue) / previousRevenue) * 100 
-        : 0;
+      const growthRate =
+        previousRevenue > 0 ? ((totalRevenue - previousRevenue) / previousRevenue) * 100 : 0;
 
       setData({
         salesData,
@@ -176,9 +189,8 @@ export const useAnalytics = (period: AnalyticsPeriod = '7days') => {
         totalRevenue,
         totalOrders,
         averageOrderValue,
-        growthRate
+        growthRate,
       });
-
     } catch (err: any) {
       console.error('Failed to fetch analytics:', err);
       setError(`Không thể tải dữ liệu thống kê: ${err.message}`);
@@ -195,6 +207,6 @@ export const useAnalytics = (period: AnalyticsPeriod = '7days') => {
     data,
     loading,
     error,
-    refetch: fetchAnalytics
+    refetch: fetchAnalytics,
   };
 };

@@ -16,7 +16,13 @@ export interface Banner {
 }
 
 // Filter and sorting types
-export type SortField = 'title' | 'position' | 'priority' | 'clickCount' | 'createdAt' | 'startDate';
+export type SortField =
+  | 'title'
+  | 'position'
+  | 'priority'
+  | 'clickCount'
+  | 'createdAt'
+  | 'startDate';
 export type SortOrder = 'asc' | 'desc';
 export type ViewMode = 'table' | 'grid';
 export type FilterPosition = 'all' | 'hero' | 'sidebar' | 'footer' | 'category';

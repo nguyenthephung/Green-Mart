@@ -11,11 +11,14 @@ const CloudinaryTestComponent: React.FC = () => {
     setResults(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${message}`]);
   };
 
-  const testDirectUpload = async (file: File, type: 'products' | 'banners' | 'avatars' | 'ratings') => {
+  const testDirectUpload = async (
+    file: File,
+    type: 'products' | 'banners' | 'avatars' | 'ratings'
+  ) => {
     try {
       setIsLoading(true);
       addResult(`🔄 Testing direct upload to ${type}...`);
-      
+
       let response;
       switch (type) {
         case 'products':
@@ -46,12 +49,15 @@ const CloudinaryTestComponent: React.FC = () => {
     }
   };
 
-  const testHookUpload = async (file: File, type: 'products' | 'banners' | 'avatars' | 'ratings') => {
+  const testHookUpload = async (
+    file: File,
+    type: 'products' | 'banners' | 'avatars' | 'ratings'
+  ) => {
     try {
       addResult(`🔄 Testing hook upload to ${type}...`);
-      
+
       const result = await uploadFile(file, type);
-      
+
       if (result.success && result.url) {
         addResult(`✅ Hook upload success: ${result.url}`);
         return result.url;
@@ -68,15 +74,20 @@ const CloudinaryTestComponent: React.FC = () => {
     if (!file) return;
 
     addResult(`📁 Selected file: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
-    
+
     // Test all upload types
-    const types: ('products' | 'banners' | 'avatars' | 'ratings')[] = ['products', 'banners', 'avatars', 'ratings'];
-    
+    const types: ('products' | 'banners' | 'avatars' | 'ratings')[] = [
+      'products',
+      'banners',
+      'avatars',
+      'ratings',
+    ];
+
     for (const type of types) {
       // Test direct service
       await testDirectUpload(file, type);
       await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s between tests
-      
+
       // Test hook
       await testHookUpload(file, type);
       await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s between tests
@@ -90,7 +101,7 @@ const CloudinaryTestComponent: React.FC = () => {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">🌿 Cloudinary Upload System Test</h1>
-      
+
       <div className="bg-blue-50 p-4 rounded-lg mb-6">
         <h2 className="text-lg font-semibold mb-2">📋 Test Configuration</h2>
         <ul className="text-sm space-y-1">
@@ -110,7 +121,9 @@ const CloudinaryTestComponent: React.FC = () => {
           disabled={isLoading || isUploading}
         />
         <p className="text-gray-600">
-          {isLoading || isUploading ? '🔄 Testing uploads...' : 'Select an image to test all upload types'}
+          {isLoading || isUploading
+            ? '🔄 Testing uploads...'
+            : 'Select an image to test all upload types'}
         </p>
       </div>
 
@@ -134,10 +147,13 @@ const CloudinaryTestComponent: React.FC = () => {
               <div
                 key={index}
                 className={`p-2 rounded text-sm ${
-                  result.includes('✅') ? 'bg-green-100 text-green-800' :
-                  result.includes('❌') ? 'bg-red-100 text-red-800' :
-                  result.includes('🔄') ? 'bg-blue-100 text-blue-800' :
-                  'bg-gray-100 text-gray-800'
+                  result.includes('✅')
+                    ? 'bg-green-100 text-green-800'
+                    : result.includes('❌')
+                      ? 'bg-red-100 text-red-800'
+                      : result.includes('🔄')
+                        ? 'bg-blue-100 text-blue-800'
+                        : 'bg-gray-100 text-gray-800'
                 }`}
               >
                 {result}

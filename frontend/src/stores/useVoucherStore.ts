@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { voucherService } from '../services/voucherService';
 
-
 export interface Voucher {
   _id: string;
   id: string;
@@ -49,32 +48,32 @@ export const useVoucherStore = create<VoucherStoreState>((set, get) => ({
       set({ error: error.message || 'Không thể tải voucher', loading: false });
     }
   },
-  addVoucher: (voucher) => set(state => ({ vouchers: [voucher, ...state.vouchers] })),
-  setVouchers: (vouchers) => set({ vouchers }),
+  addVoucher: voucher => set(state => ({ vouchers: [voucher, ...state.vouchers] })),
+  setVouchers: vouchers => set({ vouchers }),
   getRandomVoucher: () => {
     const vouchers = get().vouchers;
     console.log('getRandomVoucher: All vouchers:', vouchers);
-    
+
     // Filter valid vouchers: active and not fully used
     const validVouchers = vouchers.filter(v => {
       const isActive = v.isActive === true;
       const notFullyUsed = !v.maxUsage || v.currentUsage < v.maxUsage;
       const notExpired = new Date(v.expired) >= new Date();
-      
+
       console.log(`Voucher ${v.code}:`, {
         isActive,
         notFullyUsed,
         notExpired,
         currentUsage: v.currentUsage,
         maxUsage: v.maxUsage,
-        expired: v.expired
+        expired: v.expired,
       });
-      
+
       return isActive && notFullyUsed && notExpired;
     });
-    
+
     console.log('getRandomVoucher: Valid vouchers:', validVouchers);
-    
+
     if (validVouchers.length === 0) return null;
     return validVouchers[Math.floor(Math.random() * validVouchers.length)];
   },

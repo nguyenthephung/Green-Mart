@@ -17,23 +17,24 @@ type FilterStatus = 'all' | 'active' | 'inactive' | 'suspended';
 type FilterRole = 'all' | 'user' | 'admin';
 
 const AdminUsersPage: React.FC = () => {
-  const { users, loading, error, fetchUsers, createUser, updateUser, deleteUser } = useAdminUserStore();
+  const { users, loading, error, fetchUsers, createUser, updateUser, deleteUser } =
+    useAdminUserStore();
   // const { showSuccess, showError } = useToastStore();
   const toast = useToast();
-  
+
   const [sortField, setSortField] = useState<SortField>('createdAt');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('table');
-  
+
   // Filters
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
   const [filterRole, setFilterRole] = useState<FilterRole>('all');
-  
+
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  
+
   // Modals
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -55,10 +56,11 @@ const AdminUsersPage: React.FC = () => {
     // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(user => 
-        (user.name && user.name.toLowerCase().includes(query)) ||
-        (user.email && user.email.toLowerCase().includes(query)) ||
-        (user.phone && user.phone.toLowerCase().includes(query))
+      filtered = filtered.filter(
+        user =>
+          (user.name && user.name.toLowerCase().includes(query)) ||
+          (user.email && user.email.toLowerCase().includes(query)) ||
+          (user.phone && user.phone.toLowerCase().includes(query))
       );
     }
 
@@ -106,7 +108,7 @@ const AdminUsersPage: React.FC = () => {
   const stats = useMemo(() => {
     // Filter out invalid users for statistics
     const validUsers = users.filter(u => u && typeof u === 'object' && u.status && u.role);
-    
+
     const total = validUsers.length;
     const active = validUsers.filter(u => u.status === 'active').length;
     const admins = validUsers.filter(u => u.role === 'admin').length;
@@ -144,7 +146,7 @@ const AdminUsersPage: React.FC = () => {
 
   const handleSaveUser = async (userData: Partial<User>) => {
     if (!selectedUser) return;
-    
+
     try {
       await updateUser(selectedUser._id, userData);
       setShowEditModal(false);
@@ -163,7 +165,7 @@ const AdminUsersPage: React.FC = () => {
 
   const handleDeleteUser = async () => {
     if (!deleteId) return;
-    
+
     try {
       await deleteUser(deleteId);
       setDeleteId(null);
@@ -177,7 +179,7 @@ const AdminUsersPage: React.FC = () => {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
-      currency: 'VND'
+      currency: 'VND',
     }).format(price);
   };
 
@@ -207,8 +209,12 @@ const AdminUsersPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Quản lý người dùng</h1>
-          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Quản lý tài khoản người dùng trong hệ thống</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+            Quản lý người dùng
+          </h1>
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+            Quản lý tài khoản người dùng trong hệ thống
+          </p>
         </div>
         <button
           onClick={() => setShowAddModal(true)}
@@ -231,7 +237,7 @@ const AdminUsersPage: React.FC = () => {
             <div className="text-blue-600 text-2xl">👥</div>
           </div>
         </div>
-        
+
         <div className="bg-white dark:bg-gray-800 p-3 sm:p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
@@ -241,7 +247,7 @@ const AdminUsersPage: React.FC = () => {
             <div className="text-green-600 text-lg sm:text-2xl">✅</div>
           </div>
         </div>
-        
+
         <div className="bg-white dark:bg-gray-800 p-3 sm:p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
@@ -251,7 +257,7 @@ const AdminUsersPage: React.FC = () => {
             <div className="text-purple-600 text-lg sm:text-2xl">👑</div>
           </div>
         </div>
-        
+
         <div className="bg-white dark:bg-gray-800 p-3 sm:p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
@@ -261,12 +267,14 @@ const AdminUsersPage: React.FC = () => {
             <div className="text-orange-600 text-lg sm:text-2xl">📦</div>
           </div>
         </div>
-        
+
         <div className="bg-white dark:bg-gray-800 p-3 sm:p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Doanh thu</p>
-              <p className="text-sm sm:text-lg font-bold text-green-600">{formatPrice(stats.totalSpent)}</p>
+              <p className="text-sm sm:text-lg font-bold text-green-600">
+                {formatPrice(stats.totalSpent)}
+              </p>
             </div>
             <div className="text-green-600 text-lg sm:text-2xl">💰</div>
           </div>
@@ -282,7 +290,7 @@ const AdminUsersPage: React.FC = () => {
               type="text"
               placeholder="Tìm kiếm theo tên, email, số điện thoại..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={e => setSearchQuery(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
             />
           </div>
@@ -290,7 +298,7 @@ const AdminUsersPage: React.FC = () => {
           {/* Status Filter */}
           <select
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value as FilterStatus)}
+            onChange={e => setFilterStatus(e.target.value as FilterStatus)}
             className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           >
             <option value="all">Tất cả trạng thái</option>
@@ -302,7 +310,7 @@ const AdminUsersPage: React.FC = () => {
           {/* Role Filter */}
           <select
             value={filterRole}
-            onChange={(e) => setFilterRole(e.target.value as FilterRole)}
+            onChange={e => setFilterRole(e.target.value as FilterRole)}
             className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           >
             <option value="all">Tất cả vai trò</option>
@@ -313,7 +321,7 @@ const AdminUsersPage: React.FC = () => {
           {/* Items per page */}
           <select
             value={itemsPerPage}
-            onChange={(e) => setItemsPerPage(Number(e.target.value))}
+            onChange={e => setItemsPerPage(Number(e.target.value))}
             className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           >
             <option value={10}>10 / trang</option>
@@ -343,7 +351,8 @@ const AdminUsersPage: React.FC = () => {
       {/* Results Info */}
       <div className="mb-4">
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          Hiển thị {Math.min((currentPage - 1) * itemsPerPage + 1, filteredAndSortedUsers.length)} - {Math.min(currentPage * itemsPerPage, filteredAndSortedUsers.length)} 
+          Hiển thị {Math.min((currentPage - 1) * itemsPerPage + 1, filteredAndSortedUsers.length)} -{' '}
+          {Math.min(currentPage * itemsPerPage, filteredAndSortedUsers.length)}
           trên tổng số {filteredAndSortedUsers.length} người dùng
         </p>
       </div>
@@ -356,76 +365,129 @@ const AdminUsersPage: React.FC = () => {
               <thead className="bg-gray-50 dark:bg-gray-900">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    <button onClick={() => handleSort('name')} className="flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-300">
+                    <button
+                      onClick={() => handleSort('name')}
+                      className="flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-300"
+                    >
                       Người dùng <SortIcon field="name" />
                     </button>
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    <button onClick={() => handleSort('email')} className="flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-300">
+                    <button
+                      onClick={() => handleSort('email')}
+                      className="flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-300"
+                    >
                       Email <SortIcon field="email" />
                     </button>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vai trò</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Trạng thái</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    <button onClick={() => handleSort('totalOrders')} className="flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-300">
+                    Vai trò
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Trạng thái
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <button
+                      onClick={() => handleSort('totalOrders')}
+                      className="flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-300"
+                    >
                       Đơn hàng <SortIcon field="totalOrders" />
                     </button>
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    <button onClick={() => handleSort('totalSpent')} className="flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-300">
+                    <button
+                      onClick={() => handleSort('totalSpent')}
+                      className="flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-300"
+                    >
                       Chi tiêu <SortIcon field="totalSpent" />
                     </button>
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    <button onClick={() => handleSort('createdAt')} className="flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-300">
+                    <button
+                      onClick={() => handleSort('createdAt')}
+                      className="flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-300"
+                    >
                       Tham gia <SortIcon field="createdAt" />
                     </button>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Thao tác</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Thao tác
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {paginatedUsers.map((user) => (
+                {paginatedUsers.map(user => (
                   <tr key={user._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="w-10 h-10 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center overflow-hidden">
                           {user.avatar ? (
-                            <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                            <img
+                              src={user.avatar}
+                              alt={user.name}
+                              className="w-full h-full object-cover"
+                            />
                           ) : (
-                            <span className="text-gray-600 dark:text-gray-300 font-bold">{user.name.charAt(0)}</span>
+                            <span className="text-gray-600 dark:text-gray-300 font-bold">
+                              {user.name.charAt(0)}
+                            </span>
                           )}
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900 dark:text-white flex items-center gap-2">
                             {user.name}
-                            {user.isVerified && <span className="text-blue-500 dark:text-blue-400" title="Đã xác thực">✓</span>}
+                            {user.isVerified && (
+                              <span
+                                className="text-blue-500 dark:text-blue-400"
+                                title="Đã xác thực"
+                              >
+                                ✓
+                              </span>
+                            )}
                           </div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400">{user.phone}</div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                            {user.phone}
+                          </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{user.email}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      {user.email}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        user.role === 'admin' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300' :
-                        'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300'
-                      }`}>
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          user.role === 'admin'
+                            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300'
+                            : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300'
+                        }`}
+                      >
                         {user.role === 'admin' ? '👑 Admin' : '👤 User'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        user.status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
-                        user.status === 'suspended' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' :
-                        'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
-                      }`}>
-                        {user.status === 'active' ? 'Hoạt động' : user.status === 'suspended' ? 'Tạm khóa' : 'Không hoạt động'}
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          user.status === 'active'
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                            : user.status === 'suspended'
+                              ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+                              : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
+                        }`}
+                      >
+                        {user.status === 'active'
+                          ? 'Hoạt động'
+                          : user.status === 'suspended'
+                            ? 'Tạm khóa'
+                            : 'Không hoạt động'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{user.totalOrders || 0}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{formatPrice(user.totalSpent || 0)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      {user.totalOrders || 0}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      {formatPrice(user.totalSpent || 0)}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                       {new Date(user.createdAt).toLocaleDateString('vi-VN')}
                     </td>
@@ -462,63 +524,89 @@ const AdminUsersPage: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {paginatedUsers.map((user) => (
-            <div key={user._id} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+          {paginatedUsers.map(user => (
+            <div
+              key={user._id}
+              className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4"
+            >
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-12 h-12 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center overflow-hidden">
                   {user.avatar ? (
                     <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                   ) : (
-                    <span className="text-gray-600 dark:text-gray-300 font-bold">{user.name.charAt(0)}</span>
+                    <span className="text-gray-600 dark:text-gray-300 font-bold">
+                      {user.name.charAt(0)}
+                    </span>
                   )}
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                     {user.name}
-                    {user.isVerified && <span className="text-blue-500 dark:text-blue-400" title="Đã xác thực">✓</span>}
+                    {user.isVerified && (
+                      <span className="text-blue-500 dark:text-blue-400" title="Đã xác thực">
+                        ✓
+                      </span>
+                    )}
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">{user.email}</p>
                 </div>
               </div>
-              
+
               <div className="space-y-2 mb-4">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600 dark:text-gray-400">Vai trò:</span>
-                  <span className={`font-medium ${
-                    user.role === 'admin' ? 'text-purple-600 dark:text-purple-400' :
-                    'text-gray-600 dark:text-gray-400'
-                  }`}>
+                  <span
+                    className={`font-medium ${
+                      user.role === 'admin'
+                        ? 'text-purple-600 dark:text-purple-400'
+                        : 'text-gray-600 dark:text-gray-400'
+                    }`}
+                  >
                     {user.role === 'admin' ? '👑 Admin' : '👤 User'}
                   </span>
                 </div>
-                
+
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600 dark:text-gray-400">Trạng thái:</span>
-                  <span className={`font-medium ${
-                    user.status === 'active' ? 'text-green-600 dark:text-green-400' :
-                    user.status === 'suspended' ? 'text-red-600 dark:text-red-400' :
-                    'text-yellow-600 dark:text-yellow-400'
-                  }`}>
-                    {user.status === 'active' ? 'Hoạt động' : user.status === 'suspended' ? 'Tạm khóa' : 'Không hoạt động'}
+                  <span
+                    className={`font-medium ${
+                      user.status === 'active'
+                        ? 'text-green-600 dark:text-green-400'
+                        : user.status === 'suspended'
+                          ? 'text-red-600 dark:text-red-400'
+                          : 'text-yellow-600 dark:text-yellow-400'
+                    }`}
+                  >
+                    {user.status === 'active'
+                      ? 'Hoạt động'
+                      : user.status === 'suspended'
+                        ? 'Tạm khóa'
+                        : 'Không hoạt động'}
                   </span>
                 </div>
-                
+
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600 dark:text-gray-400">Đơn hàng:</span>
-                  <span className="font-medium text-gray-900 dark:text-white">{user.totalOrders || 0}</span>
+                  <span className="font-medium text-gray-900 dark:text-white">
+                    {user.totalOrders || 0}
+                  </span>
                 </div>
-                
+
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600 dark:text-gray-400">Chi tiêu:</span>
-                  <span className="font-medium text-green-600 dark:text-green-400">{formatPrice(user.totalSpent || 0)}</span>
+                  <span className="font-medium text-green-600 dark:text-green-400">
+                    {formatPrice(user.totalSpent || 0)}
+                  </span>
                 </div>
-                
+
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600 dark:text-gray-400">Tham gia:</span>
-                  <span className="font-medium text-gray-900 dark:text-white">{new Date(user.createdAt).toLocaleDateString('vi-VN')}</span>
+                  <span className="font-medium text-gray-900 dark:text-white">
+                    {new Date(user.createdAt).toLocaleDateString('vi-VN')}
+                  </span>
                 </div>
               </div>
-              
+
               <div className="flex gap-2 pt-3 border-t border-gray-200 dark:border-gray-700">
                 <button
                   onClick={() => handleViewUser(user)}

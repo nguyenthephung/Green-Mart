@@ -9,23 +9,17 @@ interface ProtectedRouteProps {
   redirectTo?: string;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
-  children, 
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
   requiredRole = 'user',
-  redirectTo = '/login' 
+  redirectTo = '/login',
 }) => {
   const { user, isLoading } = useUserStore();
   const location = useLocation();
 
   // Hiển thị loading khi đang check auth
   if (isLoading) {
-    return (
-      <LoadingSpinner
-        size="lg"
-        text="Đang kiểm tra quyền truy cập..."
-        fullScreen={true}
-      />
-    );
+    return <LoadingSpinner size="lg" text="Đang kiểm tra quyền truy cập..." fullScreen={true} />;
   }
 
   // Chưa đăng nhập -> chuyển về login

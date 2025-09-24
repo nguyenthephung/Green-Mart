@@ -12,38 +12,48 @@ interface ProductDescriptionEditorProps {
 const ProductDescriptionEditor: React.FC<ProductDescriptionEditorProps> = ({
   product,
   onChange,
-  readOnly = false
+  readOnly = false,
 }) => {
   const [activeTab, setActiveTab] = useState<'basic' | 'rich'>('basic');
   const [showRichTextModal, setShowRichTextModal] = useState(false);
   const [modalContent, setModalContent] = useState('');
 
   // Handle basic description change
-  const handleBasicDescriptionChange = useCallback((content: string) => {
-    onChange('description', content);
-  }, [onChange]);
+  const handleBasicDescriptionChange = useCallback(
+    (content: string) => {
+      onChange('description', content);
+    },
+    [onChange]
+  );
 
   // Handle rich description change (from regular editor)
-  const handleRichDescriptionChange = useCallback((content: string) => {
-    if (!showRichTextModal) { // Only update if modal is not open
+  const handleRichDescriptionChange = useCallback(
+    (content: string) => {
+      if (!showRichTextModal) {
+        // Only update if modal is not open
+        onChange('richDescription', {
+          ...product.richDescription,
+          content,
+          format: 'html' as const,
+        });
+      }
+    },
+    [onChange, product.richDescription, showRichTextModal]
+  );
+
+  // Handle rich text modal save
+  const handleRichTextSave = useCallback(
+    (content: string) => {
       onChange('richDescription', {
         ...product.richDescription,
         content,
-        format: 'html' as const
+        format: 'html' as const,
       });
-    }
-  }, [onChange, product.richDescription, showRichTextModal]);
-
-  // Handle rich text modal save
-  const handleRichTextSave = useCallback((content: string) => {
-    onChange('richDescription', {
-      ...product.richDescription,
-      content,
-      format: 'html' as const
-    });
-    setShowRichTextModal(false);
-    return Promise.resolve();
-  }, [onChange, product.richDescription]);
+      setShowRichTextModal(false);
+      return Promise.resolve();
+    },
+    [onChange, product.richDescription]
+  );
 
   // Handle modal open
   const handleOpenModal = useCallback(() => {
@@ -88,7 +98,7 @@ const ProductDescriptionEditor: React.FC<ProductDescriptionEditorProps> = ({
             </label>
             <textarea
               value={product.description || ''}
-              onChange={(e) => handleBasicDescriptionChange(e.target.value)}
+              onChange={e => handleBasicDescriptionChange(e.target.value)}
               placeholder="Nhập mô tả ngắn gọn về sản phẩm..."
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               rows={6}
@@ -112,18 +122,25 @@ const ProductDescriptionEditor: React.FC<ProductDescriptionEditorProps> = ({
                   className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
+                    />
                   </svg>
                   Mở editor toàn màn hình
                 </button>
               )}
             </div>
-            
+
             {/* Current content preview */}
             <div className="mb-4 p-4 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
-              <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">Nội dung hiện tại:</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                Nội dung hiện tại:
+              </div>
               {product.richDescription?.content ? (
-                <div 
+                <div
                   className="text-sm text-gray-800 dark:text-gray-200 max-h-32 overflow-y-auto"
                   dangerouslySetInnerHTML={{ __html: product.richDescription.content }}
                 />

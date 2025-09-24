@@ -11,15 +11,60 @@ import AdminSettingsModal from '../components/Admin/Profile/AdminSettingsModal';
 import { useAdminAutoScroll } from '../hooks/useAdminAutoScroll';
 
 const adminMenu = [
-  { label: 'Thống kê trong ngày', path: '/admin/dashboard', icon: '📊', color: 'from-blue-500 to-blue-600' },
-  { label: 'Phân tích & Báo cáo', path: '/admin/analytics', icon: '📈', color: 'from-cyan-500 to-cyan-600' },
-  { label: 'Quản lý sản phẩm', path: '/admin/products', icon: '📦', color: 'from-green-500 to-green-600' },
-  { label: 'Quản lý danh mục', path: '/admin/categories', icon: '🗂️', color: 'from-purple-500 to-purple-600' },
-  { label: 'Quản lý người dùng', path: '/admin/users', icon: '👥', color: 'from-orange-500 to-orange-600' },
-  { label: 'Quản lý đơn hàng', path: '/admin/orders', icon: '🧾', color: 'from-pink-500 to-pink-600' },
-  { label: 'Quản lý voucher', path: '/admin/vouchers', icon: '🎁', color: 'from-yellow-500 to-yellow-600' },
-  { label: 'Quản lý banner', path: '/admin/banners', icon: '🖼️', color: 'from-indigo-500 to-indigo-600' },
-  { label: 'Quản lý Flash Sale', path: '/admin/flash-sales', icon: '⚡', color: 'from-red-500 to-red-600' },
+  {
+    label: 'Thống kê trong ngày',
+    path: '/admin/dashboard',
+    icon: '📊',
+    color: 'from-blue-500 to-blue-600',
+  },
+  {
+    label: 'Phân tích & Báo cáo',
+    path: '/admin/analytics',
+    icon: '📈',
+    color: 'from-cyan-500 to-cyan-600',
+  },
+  {
+    label: 'Quản lý sản phẩm',
+    path: '/admin/products',
+    icon: '📦',
+    color: 'from-green-500 to-green-600',
+  },
+  {
+    label: 'Quản lý danh mục',
+    path: '/admin/categories',
+    icon: '🗂️',
+    color: 'from-purple-500 to-purple-600',
+  },
+  {
+    label: 'Quản lý người dùng',
+    path: '/admin/users',
+    icon: '👥',
+    color: 'from-orange-500 to-orange-600',
+  },
+  {
+    label: 'Quản lý đơn hàng',
+    path: '/admin/orders',
+    icon: '🧾',
+    color: 'from-pink-500 to-pink-600',
+  },
+  {
+    label: 'Quản lý voucher',
+    path: '/admin/vouchers',
+    icon: '🎁',
+    color: 'from-yellow-500 to-yellow-600',
+  },
+  {
+    label: 'Quản lý banner',
+    path: '/admin/banners',
+    icon: '🖼️',
+    color: 'from-indigo-500 to-indigo-600',
+  },
+  {
+    label: 'Quản lý Flash Sale',
+    path: '/admin/flash-sales',
+    icon: '⚡',
+    color: 'from-red-500 to-red-600',
+  },
 ];
 
 const AdminLayout: React.FC = () => {
@@ -52,14 +97,13 @@ const AdminLayout: React.FC = () => {
   useAdminAutoScroll({
     behavior: 'smooth',
     delay: 150,
-    enabledRoutes: ['/admin']
+    enabledRoutes: ['/admin'],
   });
 
   const handleLogout = () => {
     logout();
     navigate('/');
   };
-
 
   // Fetch unread notifications count
   useEffect(() => {
@@ -87,7 +131,7 @@ const AdminLayout: React.FC = () => {
     >
       {/* Mobile Sidebar Backdrop */}
       {isMobile && showMobileSidebar && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40"
           onClick={() => setShowMobileSidebar(false)}
         />
@@ -101,7 +145,9 @@ const AdminLayout: React.FC = () => {
         style={{ backgroundColor: isDarkMode ? '#111827' : '#fff' }}
       >
         {/* Header */}
-        <div className={`h-16 sm:h-20 flex items-center justify-between px-4 sm:px-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-green-600 to-green-700 dark:from-green-700 dark:to-green-800`}>
+        <div
+          className={`h-16 sm:h-20 flex items-center justify-between px-4 sm:px-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-green-600 to-green-700 dark:from-green-700 dark:to-green-800`}
+        >
           <div className={`flex items-center ${isCollapsed && !isMobile ? 'justify-center' : ''}`}>
             <div
               className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-lg flex items-center justify-center shadow-lg"
@@ -130,7 +176,7 @@ const AdminLayout: React.FC = () => {
         {/* Navigation */}
         <nav className="flex-1 p-2 sm:p-4 overflow-y-auto overflow-x-visible">
           <div className="space-y-1 sm:space-y-2">
-            {adminMenu.map((item) => {
+            {adminMenu.map(item => {
               const isActive = location.pathname === item.path;
               return (
                 <div key={item.path} className="relative group">
@@ -138,9 +184,10 @@ const AdminLayout: React.FC = () => {
                     to={item.path}
                     onClick={() => isMobile && setShowMobileSidebar(false)}
                     className={`flex items-center ${isCollapsed && !isMobile ? 'justify-center' : 'gap-3 sm:gap-4'} px-2 sm:px-4 py-2 sm:py-3 rounded-xl font-medium transition-all duration-200 relative overflow-hidden
-                      ${isActive 
-                        ? `bg-gradient-to-r ${item.color} text-white shadow-lg transform scale-105` 
-                        : 'text-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900 dark:hover:text-white hover:text-gray-900 hover:scale-102'
+                      ${
+                        isActive
+                          ? `bg-gradient-to-r ${item.color} text-white shadow-lg transform scale-105`
+                          : 'text-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900 dark:hover:text-white hover:text-gray-900 hover:scale-102'
                       }`}
                   >
                     {isActive && (
@@ -150,12 +197,16 @@ const AdminLayout: React.FC = () => {
                     {isCollapsed && !isMobile && isActive && (
                       <div className="absolute -right-1 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-white rounded-l-full"></div>
                     )}
-                    <span className={`text-xl sm:text-2xl transition-transform duration-200 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`}>
+                    <span
+                      className={`text-xl sm:text-2xl transition-transform duration-200 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`}
+                    >
                       {item.icon}
                     </span>
                     {(!isCollapsed || isMobile) && (
                       <>
-                        <span className="font-semibold relative z-10 flex-1 text-sm sm:text-base">{item.label}</span>
+                        <span className="font-semibold relative z-10 flex-1 text-sm sm:text-base">
+                          {item.label}
+                        </span>
                         {isActive && (
                           <div className="ml-auto">
                             <div className="w-2 h-2 bg-white rounded-full"></div>
@@ -164,7 +215,7 @@ const AdminLayout: React.FC = () => {
                       </>
                     )}
                   </Link>
-                  
+
                   {/* Tooltip for collapsed state - only on desktop */}
                   {isCollapsed && !isMobile && (
                     <div className="absolute left-full top-1/2 transform -translate-y-1/2 ml-3 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap z-50 pointer-events-none shadow-lg">
@@ -176,14 +227,16 @@ const AdminLayout: React.FC = () => {
               );
             })}
           </div>
-          
+
           {/* Utility buttons */}
           <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600 space-y-2">
             <button
               onClick={handleLogout}
               className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'gap-4'} px-4 py-3 rounded-xl font-medium transition-all duration-200 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 dark:hover:text-red-400 group`}
             >
-              <span className="text-2xl transition-transform duration-200 group-hover:scale-110">🚪</span>
+              <span className="text-2xl transition-transform duration-200 group-hover:scale-110">
+                🚪
+              </span>
               {!isCollapsed && <span className="font-semibold">Đăng xuất</span>}
             </button>
           </div>
@@ -201,13 +254,15 @@ const AdminLayout: React.FC = () => {
             {(!isCollapsed || isMobile) && (
               <>
                 <div className="flex-1 text-left">
-                  <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm sm:text-base">Admin User</p>
+                  <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm sm:text-base">
+                    Admin User
+                  </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">admin@greenmart.com</p>
                 </div>
                 <span className="text-gray-400">⚙️</span>
               </>
             )}
-            
+
             {/* Tooltip for collapsed profile - desktop only */}
             {isCollapsed && !isMobile && (
               <div className="absolute left-full top-1/2 transform -translate-y-1/2 ml-3 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap z-50 pointer-events-none shadow-lg">
@@ -219,8 +274,11 @@ const AdminLayout: React.FC = () => {
 
           {/* Profile Dropdown */}
           {showProfile && (!isCollapsed || isMobile) && (
-            <div className="absolute bottom-full left-2 sm:left-4 right-2 sm:right-4 mb-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg p-2 z-50" style={{ backgroundColor: isDarkMode ? '#111827' : '#fff' }}>
-              <button 
+            <div
+              className="absolute bottom-full left-2 sm:left-4 right-2 sm:right-4 mb-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg p-2 z-50"
+              style={{ backgroundColor: isDarkMode ? '#111827' : '#fff' }}
+            >
+              <button
                 onClick={() => {
                   setShowProfile(false);
                   setShowProfileModal(true);
@@ -230,7 +288,7 @@ const AdminLayout: React.FC = () => {
                 <span>👤</span>
                 Hồ sơ cá nhân
               </button>
-              <button 
+              <button
                 onClick={() => {
                   setShowProfile(false);
                   setShowSettingsModal(true);
@@ -241,7 +299,7 @@ const AdminLayout: React.FC = () => {
                 Cài đặt
               </button>
               <div className="border-t border-gray-200 my-2"></div>
-              <button 
+              <button
                 onClick={() => {
                   setShowProfile(false);
                   handleLogout();
@@ -258,7 +316,9 @@ const AdminLayout: React.FC = () => {
         {/* Footer */}
         {(!isCollapsed || isMobile) && (
           <div className="p-2 sm:p-4 text-center">
-            <div className="text-xs text-gray-400 mb-2 hidden sm:block">GreenMart Admin © 2025</div>
+            <div className="text-xs text-gray-400 mb-2 hidden sm:block">
+              GreenMart Admin © 2025
+            </div>
             <div className="flex justify-center gap-2">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
               <span className="text-xs text-green-600 font-medium">Đang hoạt động</span>
@@ -289,26 +349,32 @@ const AdminLayout: React.FC = () => {
                   {showMobileSidebar ? <X size={20} /> : <Menu size={20} />}
                 </button>
               )}
-              
-              <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-r ${currentPage?.color || 'from-gray-500 to-gray-600'} flex items-center justify-center`}>
+
+              <div
+                className={`w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-r ${currentPage?.color || 'from-gray-500 to-gray-600'} flex items-center justify-center`}
+              >
                 <span className="text-white text-sm sm:text-lg">{currentPage?.icon || '📄'}</span>
               </div>
               <div>
-                <h1 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100">{currentPage?.label || 'Trang Admin'}</h1>
+                <h1 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  {currentPage?.label || 'Trang Admin'}
+                </h1>
                 <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                   <span>🏠</span>
                   <span className="hidden sm:inline">Admin</span>
                   <span className="hidden sm:inline">/</span>
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">{currentPage?.label || 'Trang'}</span>
+                  <span className="text-gray-700 dark:text-gray-300 font-medium">
+                    {currentPage?.label || 'Trang'}
+                  </span>
                 </div>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-2 sm:gap-4">
               {/* Quick Actions */}
               <div className="flex items-center gap-1 sm:gap-2">
                 <ThemeToggle size="sm" />
-                
+
                 {/* Notification Bell */}
                 <div className="relative">
                   <button
@@ -332,14 +398,14 @@ const AdminLayout: React.FC = () => {
 
                   {/* Backdrop to close dropdown */}
                   {showNotifications && (
-                    <div 
+                    <div
                       className="fixed inset-0 z-40"
                       onClick={() => setShowNotifications(false)}
                     />
                   )}
                 </div>
               </div>
-              
+
               {/* Current Time - Hide on mobile */}
               <div className="text-sm text-gray-500 dark:text-gray-400 hidden sm:block">
                 {new Date().toLocaleString('vi-VN')}
@@ -349,8 +415,8 @@ const AdminLayout: React.FC = () => {
         </header>
 
         {/* Page Content with Auto-scroll Support */}
-        <div 
-          className="flex-1 p-4 sm:p-6 lg:p-8 bg-gray-50 dark:bg-gray-900 admin-layout-container overflow-y-auto" 
+        <div
+          className="flex-1 p-4 sm:p-6 lg:p-8 bg-gray-50 dark:bg-gray-900 admin-layout-container overflow-y-auto"
           data-main-content
           style={{ backgroundColor: isDarkMode ? '#111827' : '#f9fafb' }}
         >
@@ -359,18 +425,10 @@ const AdminLayout: React.FC = () => {
       </main>
 
       {/* Profile and Settings Modals */}
-      <AdminProfileModal 
-        isOpen={showProfileModal}
-        onClose={() => setShowProfileModal(false)}
-      />
-      <AdminSettingsModal 
-        isOpen={showSettingsModal}
-        onClose={() => setShowSettingsModal(false)}
-      />
+      <AdminProfileModal isOpen={showProfileModal} onClose={() => setShowProfileModal(false)} />
+      <AdminSettingsModal isOpen={showSettingsModal} onClose={() => setShowSettingsModal(false)} />
     </div>
   );
 };
 
 export default AdminLayout;
-
-
