@@ -130,31 +130,35 @@ npm run dev
 ## 📸 Screenshots
 
 ### Desktop Interface
-![Homepage Desktop](./sreenshot/home_desktop.png)
-*Trang chủ desktop với giao diện hiện đại*
+<div align="center">
+  <img src="./sreenshot/home_desktop.png" alt="Homepage Desktop" width="400" style="margin: 10px;"/>
+  <img src="./sreenshot/product_desktop.png" alt="Product Desktop" width="400" style="margin: 10px;"/>
+</div>
 
-![Product Desktop](./sreenshot/product_desktop.png) 
-*Chi tiết sản phẩm trên desktop*
+*Giao diện desktop: Trang chủ - Chi tiết sản phẩm*
 
-![Cart Desktop](./sreenshot/cart_desktop.png)
+<div align="center">
+  <img src="./sreenshot/cart_desktop.png" alt="Cart Desktop" width="400" style="margin: 10px;"/>
+</div>
+
 *Giỏ hàng desktop*
 
 ### Mobile Interface  
-![Homepage Mobile](./sreenshot/home_moblie.jpg)
-*Trang chủ mobile responsive*
+<div align="center">
+  <img src="./sreenshot/home_moblie.jpg" alt="Homepage Mobile" width="250" style="margin: 10px;"/>
+  <img src="./sreenshot/product_moblie.jpg" alt="Product Mobile" width="250" style="margin: 10px;"/>
+  <img src="./sreenshot/cart_moblie.jpg" alt="Cart Mobile" width="250" style="margin: 10px;"/>
+</div>
 
-![Product Mobile](./sreenshot/product_moblie.jpg)
-*Chi tiết sản phẩm mobile*
-
-![Cart Mobile](./sreenshot/cart_moblie.jpg) 
-*Giỏ hàng mobile*
+*Giao diện mobile: Trang chủ - Chi tiết sản phẩm - Giỏ hàng*
 
 ### Admin Dashboard
-![Admin Dashboard](./sreenshot/admin_dashboard.png)
-*Bảng điều khiển admin*
+<div align="center">
+  <img src="./sreenshot/admin_dashboard.png" alt="Admin Dashboard" width="400" style="margin: 10px;"/>
+  <img src="./sreenshot/admin_revenue.png" alt="Admin Revenue" width="400" style="margin: 10px;"/>
+</div>
 
-![Admin Revenue](./sreenshot/admin_revenue.png)
-*Thống kê doanh thu admin*
+*Bảng điều khiển admin: Dashboard - Thống kê doanh thu*
 
 ## 🤝 Contributing
 1. Fork → Create feature branch → Commit → Push → Pull Request
