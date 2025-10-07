@@ -1,0 +1,29 @@
+User-agent: *
+Allow: /
+
+# Specific directives for search engines
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Block admin and private areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /private/
+Disallow: /*.json$
+Disallow: /*?*sort=
+Disallow: /*?*filter=
+
+# Allow important pages
+Allow: /home
+Allow: /products
+Allow: /categories
+Allow: /about
+Allow: /contact
+
+# Sitemap location
+Sitemap: https://greenmart.vn/sitemap.xml

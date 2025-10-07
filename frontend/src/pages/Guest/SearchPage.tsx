@@ -4,6 +4,7 @@ import ProductCard from '../../components/Guest/home/ProductCard';
 import { useCartStore } from '../../stores/useCartStore';
 import { useProductStore } from '../../stores/useProductStore';
 import { useResponsive } from '../../hooks/useResponsive';
+import { useSEO } from '../../hooks/useSEO';
 import BannerManager from '../../components/Guest/BannerManager';
 import LazySection from '../../components/LazySection';
 
@@ -15,6 +16,12 @@ const SearchPage: React.FC = () => {
   const location = useLocation();
   const query = useQuery();
   const searchTerm = query.get('search')?.toLowerCase().trim() || '';
+
+  // SEO optimization
+  useSEO({ 
+    page: 'search', 
+    data: { searchTerm } 
+  });
 
   // Responsive hook
   const { isMobile } = useResponsive();

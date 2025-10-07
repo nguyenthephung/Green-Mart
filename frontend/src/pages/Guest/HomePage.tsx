@@ -5,6 +5,7 @@ import { useProductStore } from '../../stores/useProductStore';
 import { useCategoryStore } from '../../stores/useCategoryStore';
 import { useFlashSaleStore } from '../../stores/useFlashSaleStore';
 import { useResponsive } from '../../hooks/useResponsive';
+import { useSEO } from '../../hooks/useSEO';
 import HeroSection from '../../components/Guest/home/sections/HeroSection';
 import SectionBanner from '../../components/Guest/home/sections/SectionBanner';
 import SidebarBanner from '../../components/Guest/home/sections/SidebarBanner';
@@ -24,6 +25,9 @@ import { LoadingSpinner } from '../../components/Loading';
 import { testimonials } from '../../data/Guest/Home';
 
 const Home: React.FC = memo(() => {
+  // SEO optimization
+  useSEO({ page: 'home' });
+  
   const fetchAllProducts = useProductStore(state => state.fetchAll);
   const location = useLocation();
   const { isMobile } = useResponsive();

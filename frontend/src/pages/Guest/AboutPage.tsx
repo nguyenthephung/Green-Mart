@@ -1,6 +1,10 @@
 import React from 'react';
+import { useSEO } from '../../hooks/useSEO';
 
 const AboutPage: React.FC = () => {
+  // SEO optimization
+  useSEO({ page: 'about' });
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
