@@ -6,6 +6,14 @@
   [![Demo](https://img.shields.io/badge/🌐_Live_Demo-Visit_GreenMart-green?style=for-the-badge)](https://greenmart-web-4385e.web.app/)
 </div>
 
+<!-- Lighthouse report preview -->
+<div align="center" style="margin-top:16px;">
+  <a href="./frontend/public/sreenshot/lighthouse.png" target="_blank">
+    <img src="./frontend/public/sreenshot/lighthouse.png" alt="Lighthouse Report - GreenMart" width="860" style="border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,0.12)" />
+  </a>
+  <p style="font-size:0.95rem; color:#555; margin-top:8px;">Lighthouse audit snapshot — click to open full-size</p>
+</div>
+
 ## 👨‍💻 Author
 **Nguyễn Thể Phụng** - [nguyenthephung61@gmail.com](mailto:nguyenthephung61@gmail.com)
 
@@ -131,31 +139,31 @@ npm run dev
 
 ### Desktop Interface
 <div align="center">
-  <img src="./sreenshot/home_desktop.png" alt="Homepage Desktop" width="400" style="margin: 10px;"/>
-  <img src="./sreenshot/product_desktop.png" alt="Product Desktop" width="400" style="margin: 10px;"/>
+  <img src="./frontend/public/sreenshot/home_desktop.png" alt="Homepage Desktop" width="400" style="margin: 10px;"/>
+  <img src="./frontend/public/sreenshot/product_desktop.png" alt="Product Desktop" width="400" style="margin: 10px;"/>
 </div>
 
 *Giao diện desktop: Trang chủ - Chi tiết sản phẩm*
 
 <div align="center">
-  <img src="./sreenshot/cart_desktop.png" alt="Cart Desktop" width="400" style="margin: 10px;"/>
+  <img src="./frontend/public/sreenshot/cart_desktop.png" alt="Cart Desktop" width="400" style="margin: 10px;"/>
 </div>
 
 *Giỏ hàng desktop*
 
 ### Mobile Interface  
 <div align="center">
-  <img src="./sreenshot/home_moblie.jpg" alt="Homepage Mobile" width="250" style="margin: 10px;"/>
-  <img src="./sreenshot/product_moblie.jpg" alt="Product Mobile" width="250" style="margin: 10px;"/>
-  <img src="./sreenshot/cart_moblie.jpg" alt="Cart Mobile" width="250" style="margin: 10px;"/>
+  <img src="./frontend/public/sreenshot/home_moblie.jpg" alt="Homepage Mobile" width="250" style="margin: 10px;"/>
+  <img src="./frontend/public/sreenshot/product_moblie.jpg" alt="Product Mobile" width="250" style="margin: 10px;"/>
+  <img src="./frontend/public/sreenshot/cart_moblie.jpg" alt="Cart Mobile" width="250" style="margin: 10px;"/>
 </div>
 
 *Giao diện mobile: Trang chủ - Chi tiết sản phẩm - Giỏ hàng*
 
 ### Admin Dashboard
 <div align="center">
-  <img src="./sreenshot/admin_dashboard.png" alt="Admin Dashboard" width="400" style="margin: 10px;"/>
-  <img src="./sreenshot/admin_revenue.png" alt="Admin Revenue" width="400" style="margin: 10px;"/>
+  <img src="./frontend/public/sreenshot/admin_dashboard.png" alt="Admin Dashboard" width="400" style="margin: 10px;"/>
+  <img src="./frontend/public/sreenshot/admin_revenue.png" alt="Admin Revenue" width="400" style="margin: 10px;"/>
 </div>
 
 *Bảng điều khiển admin: Dashboard - Thống kê doanh thu*
