@@ -29,8 +29,13 @@ export class ErrorBoundary extends Component<Props, State> {
       errorInfo,
     });
 
-    // Log error to monitoring service
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    // Only log errors in development, send to monitoring in production
+    if (import.meta.env.DEV) {
+      console.error('ErrorBoundary caught an error:', error, errorInfo);
+    } else {
+      // In production, send to error monitoring service
+      // Example: Sentry.captureException(error, { extra: errorInfo });
+    }
   }
 
   handleRetry = () => {

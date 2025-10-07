@@ -1,4 +1,5 @@
 import { Profiler, type ProfilerOnRenderCallback } from 'react';
+import { Logger } from '../utils/logger';
 
 interface ProfilerWrapperProps {
   id: string;
@@ -25,11 +26,11 @@ const ProfilerWrapper: React.FC<ProfilerWrapperProps> = ({
 }) => {
   const onRender: ProfilerOnRenderCallback = (
     id: string,
-    phase: 'mount' | 'update' | 'nested-update',
+    _phase: 'mount' | 'update' | 'nested-update',
     actualDuration: number,
-    baseDuration: number,
-    startTime: number,
-    commitTime: number
+    _baseDuration: number,
+    _startTime: number,
+    _commitTime: number
   ) => {
     // Initialize tracking data if not exists
     if (!performanceData[id]) {
@@ -52,16 +53,7 @@ const ProfilerWrapper: React.FC<ProfilerWrapperProps> = ({
     // Log to console if enabled and render is slow
     if (logToConsole && actualDuration > 16) {
       // 16ms = 60fps threshold
-      console.warn(`⚡ Slow Render Detected:`, {
-        component: id,
-        phase,
-        actualDuration: `${actualDuration.toFixed(2)}ms`,
-        baseDuration: `${baseDuration.toFixed(2)}ms`,
-        renderCount: data.renderCount,
-        averageTime: `${data.averageTime.toFixed(2)}ms`,
-        startTime,
-        commitTime,
-      });
+      Logger.performance(`${id} render`, actualDuration);
     }
 
     // Store in global for debugging

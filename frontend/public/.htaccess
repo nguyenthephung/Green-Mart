@@ -43,12 +43,28 @@
     RewriteRule . /index.html [L]
 </IfModule>
 
-# Security headers for SEO
+# Security headers for SEO and Best Practices
 <IfModule mod_headers.c>
+    # Prevent clickjacking
     Header always set X-Frame-Options DENY
+    
+    # Prevent MIME type sniffing
     Header always set X-Content-Type-Options nosniff
+    
+    # XSS Protection
+    Header always set X-XSS-Protection "1; mode=block"
+    
+    # Referrer Policy
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
-    Header always set Permissions-Policy "geolocation=(self), microphone=(), camera=()"
+    
+    # Permissions Policy (Feature Policy)
+    Header always set Permissions-Policy "geolocation=(self), microphone=(), camera=(), payment=(self), usb=(), magnetometer=(), accelerometer=(), gyroscope=()"
+    
+    # Strict Transport Security (if HTTPS)
+    # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    
+    # Content Security Policy
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.greenmart.vn https://green-mart-api.onrender.com; media-src 'self'; object-src 'none'; child-src 'none'; worker-src 'self'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests;"
 </IfModule>
 
 # Custom error pages
