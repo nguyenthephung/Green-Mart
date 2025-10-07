@@ -11,7 +11,7 @@
   <a href="./frontend/public/sreenshot/lighthouse.png" target="_blank">
     <img src="./frontend/public/sreenshot/lighthouse.png" alt="Lighthouse Report - GreenMart" width="860" style="border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,0.12)" />
   </a>
-  <p style="font-size:0.95rem; color:#555; margin-top:8px;">Lighthouse audit snapshot — click to open full-size</p>
+  <p style="font-size:0.95rem; color:#555; margin-top:8px;">Lighthouse audit</p>
 </div>
 
 ## 👨‍💻 Author
@@ -137,36 +137,55 @@ npm run dev
 
 ## 📸 Screenshots
 
-### Desktop Interface
-<div align="center">
-  <img src="./frontend/public/sreenshot/home_desktop.png" alt="Homepage Desktop" width="400" style="margin: 10px;"/>
-  <img src="./frontend/public/sreenshot/product_desktop.png" alt="Product Desktop" width="400" style="margin: 10px;"/>
+### Homepage (Desktop)
+<div align="center" style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;">
+  <figure style="margin:0;">
+    <img src="./frontend/public/sreenshot/home_desktop.png" alt="GreenMart - Homepage (Desktop)" width="520" style="border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.08);" />
+    <figcaption style="text-align:center;font-size:0.95rem;margin-top:6px;color:#444;">Homepage — Desktop view</figcaption>
+  </figure>
+  <figure style="margin:0;">
+    <img src="./frontend/public/sreenshot/product_desktop.png" alt="GreenMart - Product Page (Desktop)" width="520" style="border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.08);" />
+    <figcaption style="text-align:center;font-size:0.95rem;margin-top:6px;color:#444;">Product detail — Desktop view</figcaption>
+  </figure>
 </div>
 
-*Giao diện desktop: Trang chủ - Chi tiết sản phẩm*
-
-<div align="center">
-  <img src="./frontend/public/sreenshot/cart_desktop.png" alt="Cart Desktop" width="400" style="margin: 10px;"/>
+### Cart (Desktop)
+<div align="center" style="margin-top:14px;">
+  <figure style="display:inline-block;margin:0;">
+    <img src="./frontend/public/sreenshot/cart_desktop.png" alt="GreenMart - Cart (Desktop)" width="720" style="border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.08);" />
+    <figcaption style="text-align:center;font-size:0.95rem;margin-top:6px;color:#444;">Shopping cart — Desktop view</figcaption>
+  </figure>
 </div>
 
-*Giỏ hàng desktop*
-
-### Mobile Interface  
-<div align="center">
-  <img src="./frontend/public/sreenshot/home_moblie.jpg" alt="Homepage Mobile" width="250" style="margin: 10px;"/>
-  <img src="./frontend/public/sreenshot/product_moblie.jpg" alt="Product Mobile" width="250" style="margin: 10px;"/>
-  <img src="./frontend/public/sreenshot/cart_moblie.jpg" alt="Cart Mobile" width="250" style="margin: 10px;"/>
+### Mobile Views
+<div align="center" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:12px;">
+  <figure style="margin:0;">
+    <img src="./frontend/public/sreenshot/home_moblie.jpg" alt="GreenMart - Homepage (Mobile)" width="300" style="border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.06);" />
+    <figcaption style="text-align:center;font-size:0.9rem;margin-top:6px;color:#444;">Homepage — Mobile</figcaption>
+  </figure>
+  <figure style="margin:0;">
+    <img src="./frontend/public/sreenshot/product_moblie.jpg" alt="GreenMart - Product (Mobile)" width="300" style="border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.06);" />
+    <figcaption style="text-align:center;font-size:0.9rem;margin-top:6px;color:#444;">Product — Mobile</figcaption>
+  </figure>
+  <figure style="margin:0;">
+    <img src="./frontend/public/sreenshot/cart_moblie.jpg" alt="GreenMart - Cart (Mobile)" width="300" style="border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.06);" />
+    <figcaption style="text-align:center;font-size:0.9rem;margin-top:6px;color:#444;">Cart — Mobile</figcaption>
+  </figure>
 </div>
-
-*Giao diện mobile: Trang chủ - Chi tiết sản phẩm - Giỏ hàng*
 
 ### Admin Dashboard
-<div align="center">
-  <img src="./frontend/public/sreenshot/admin_dashboard.png" alt="Admin Dashboard" width="400" style="margin: 10px;"/>
-  <img src="./frontend/public/sreenshot/admin_revenue.png" alt="Admin Revenue" width="400" style="margin: 10px;"/>
+<div align="center" style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:12px;">
+  <figure style="margin:0;">
+    <img src="./frontend/public/sreenshot/admin_dashboard.png" alt="GreenMart - Admin Dashboard" width="520" style="border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.08);" />
+    <figcaption style="text-align:center;font-size:0.95rem;margin-top:6px;color:#444;">Admin dashboard — analytics overview</figcaption>
+  </figure>
+  <figure style="margin:0;">
+    <img src="./frontend/public/sreenshot/admin_revenue.png" alt="GreenMart - Admin Revenue" width="520" style="border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.08);" />
+    <figcaption style="text-align:center;font-size:0.95rem;margin-top:6px;color:#444;">Revenue & sales — Admin view</figcaption>
+  </figure>
 </div>
 
-*Bảng điều khiển admin: Dashboard - Thống kê doanh thu*
+<p style="color:#666;margin-top:12px;">All screenshots are stored in <code>frontend/public/sreenshot/</code>. Click an image to open the full-size version.</p>
 
 ## 🤝 Contributing
 1. Fork → Create feature branch → Commit → Push → Pull Request
