@@ -137,55 +137,29 @@ npm run dev
 
 ## 📸 Screenshots
 
-### Homepage (Desktop)
-<div align="center" style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;">
-  <figure style="margin:0;">
-    <img src="./frontend/public/sreenshot/home_desktop.png" alt="GreenMart - Homepage (Desktop)" width="520" style="border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.08);" />
-    <figcaption style="text-align:center;font-size:0.95rem;margin-top:6px;color:#444;">Homepage — Desktop view</figcaption>
-  </figure>
-  <figure style="margin:0;">
-    <img src="./frontend/public/sreenshot/product_desktop.png" alt="GreenMart - Product Page (Desktop)" width="520" style="border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.08);" />
-    <figcaption style="text-align:center;font-size:0.95rem;margin-top:6px;color:#444;">Product detail — Desktop view</figcaption>
-  </figure>
-</div>
+### Screenshots overview
 
-### Cart (Desktop)
-<div align="center" style="margin-top:14px;">
-  <figure style="display:inline-block;margin:0;">
-    <img src="./frontend/public/sreenshot/cart_desktop.png" alt="GreenMart - Cart (Desktop)" width="720" style="border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.08);" />
-    <figcaption style="text-align:center;font-size:0.95rem;margin-top:6px;color:#444;">Shopping cart — Desktop view</figcaption>
-  </figure>
-</div>
+| Homepage (Desktop) | Product (Desktop) |
+|---:|:---|
+| ![Homepage Desktop](./frontend/public/sreenshot/home_desktop.png) <br/> *Homepage — Desktop view* | ![Product Desktop](./frontend/public/sreenshot/product_desktop.png) <br/> *Product detail — Desktop view* |
 
-### Mobile Views
-<div align="center" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:12px;">
-  <figure style="margin:0;">
-    <img src="./frontend/public/sreenshot/home_moblie.jpg" alt="GreenMart - Homepage (Mobile)" width="300" style="border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.06);" />
-    <figcaption style="text-align:center;font-size:0.9rem;margin-top:6px;color:#444;">Homepage — Mobile</figcaption>
-  </figure>
-  <figure style="margin:0;">
-    <img src="./frontend/public/sreenshot/product_moblie.jpg" alt="GreenMart - Product (Mobile)" width="300" style="border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.06);" />
-    <figcaption style="text-align:center;font-size:0.9rem;margin-top:6px;color:#444;">Product — Mobile</figcaption>
-  </figure>
-  <figure style="margin:0;">
-    <img src="./frontend/public/sreenshot/cart_moblie.jpg" alt="GreenMart - Cart (Mobile)" width="300" style="border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.06);" />
-    <figcaption style="text-align:center;font-size:0.9rem;margin-top:6px;color:#444;">Cart — Mobile</figcaption>
-  </figure>
-</div>
+| Cart (Desktop) |  |
+|---:|:---|
+| ![Cart Desktop](./frontend/public/sreenshot/cart_desktop.png) <br/> *Shopping cart — Desktop view* | |
 
-### Admin Dashboard
-<div align="center" style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:12px;">
-  <figure style="margin:0;">
-    <img src="./frontend/public/sreenshot/admin_dashboard.png" alt="GreenMart - Admin Dashboard" width="520" style="border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.08);" />
-    <figcaption style="text-align:center;font-size:0.95rem;margin-top:6px;color:#444;">Admin dashboard — analytics overview</figcaption>
-  </figure>
-  <figure style="margin:0;">
-    <img src="./frontend/public/sreenshot/admin_revenue.png" alt="GreenMart - Admin Revenue" width="520" style="border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.08);" />
-    <figcaption style="text-align:center;font-size:0.95rem;margin-top:6px;color:#444;">Revenue & sales — Admin view</figcaption>
-  </figure>
-</div>
+| Mobile — Homepage | Mobile — Product |
+|:---:|:---:|
+| ![Homepage Mobile](./frontend/public/sreenshot/home_moblie.jpg) <br/> *Homepage — Mobile* | ![Product Mobile](./frontend/public/sreenshot/product_moblie.jpg) <br/> *Product — Mobile* |
 
-<p style="color:#666;margin-top:12px;">All screenshots are stored in <code>frontend/public/sreenshot/</code>. Click an image to open the full-size version.</p>
+| Mobile — Cart |  |
+|:---:|:---:|
+| ![Cart Mobile](./frontend/public/sreenshot/cart_moblie.jpg) <br/> *Cart — Mobile* | |
+
+| Admin Dashboard | Admin Revenue |
+|:---:|:---:|
+| ![Admin Dashboard](./frontend/public/sreenshot/admin_dashboard.png) <br/> *Admin dashboard — analytics overview* | ![Admin Revenue](./frontend/public/sreenshot/admin_revenue.png) <br/> *Revenue & sales — Admin view* |
+
+All screenshots are stored in `frontend/public/sreenshot/`. Click an image to open full-size.
 
 ## 🤝 Contributing
 1. Fork → Create feature branch → Commit → Push → Pull Request
