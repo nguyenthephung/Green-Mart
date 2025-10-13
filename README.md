@@ -141,23 +141,23 @@ npm run dev
 
 | Homepage (Desktop) | Product (Desktop) |
 |---:|:---|
-| ![Homepage Desktop](./frontend/public/sreenshot/home_desktop.png) <br/> *Homepage — Desktop view* | ![Product Desktop](./frontend/public/sreenshot/product_desktop.png) <br/> *Product detail — Desktop view* |
+| <img src="./frontend/public/sreenshot/home_desktop.png" width="520" alt="Homepage Desktop" /> <br/> *Homepage — Desktop view* | <img src="./frontend/public/sreenshot/product_desktop.png" width="520" alt="Product Desktop" /> <br/> *Product detail — Desktop view* |
 
 | Cart (Desktop) |  |
 |---:|:---|
-| ![Cart Desktop](./frontend/public/sreenshot/cart_desktop.png) <br/> *Shopping cart — Desktop view* | |
+| <img src="./frontend/public/sreenshot/cart_desktop.png" width="520" alt="Cart Desktop" /> <br/> *Shopping cart — Desktop view* | |
 
 | Mobile — Homepage | Mobile — Product |
 |:---:|:---:|
-| ![Homepage Mobile](./frontend/public/sreenshot/home_moblie.jpg) <br/> *Homepage — Mobile* | ![Product Mobile](./frontend/public/sreenshot/product_moblie.jpg) <br/> *Product — Mobile* |
+| <img src="./frontend/public/sreenshot/home_moblie.jpg" width="300" alt="Homepage Mobile" /> | <img src="./frontend/public/sreenshot/product_moblie.jpg" width="300" alt="Product Mobile" /> |
 
 | Mobile — Cart |  |
 |:---:|:---:|
-| ![Cart Mobile](./frontend/public/sreenshot/cart_moblie.jpg) <br/> *Cart — Mobile* | |
+| <img src="./frontend/public/sreenshot/cart_moblie.jpg" width="300" alt="Cart Mobile" /> | |
 
 | Admin Dashboard | Admin Revenue |
 |:---:|:---:|
-| ![Admin Dashboard](./frontend/public/sreenshot/admin_dashboard.png) <br/> *Admin dashboard — analytics overview* | ![Admin Revenue](./frontend/public/sreenshot/admin_revenue.png) <br/> *Revenue & sales — Admin view* |
+| <img src="./frontend/public/sreenshot/admin_dashboard.png" width="520" alt="Admin Dashboard" /> <br/> *Admin dashboard — analytics overview* | <img src="./frontend/public/sreenshot/admin_revenue.png" width="520" alt="Admin Revenue" /> <br/> *Revenue & sales — Admin view* |
 
 All screenshots are stored in `frontend/public/sreenshot/`. Click an image to open full-size.
 
