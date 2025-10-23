@@ -234,7 +234,7 @@ const LuckyWheelMobile: React.FC<{ userId: string | number; isOpen: boolean; onC
       />
       
       {/* Modal Container - Mobile Optimized */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 pointer-events-none overflow-y-auto">
+      <div className="fixed inset-0 z-[51] flex items-center justify-center p-3 pointer-events-none overflow-y-auto">
         {(isUpdating || voucherLoading) && (
           <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-[60] pointer-events-none">
             <div className="flex flex-col items-center gap-2">
