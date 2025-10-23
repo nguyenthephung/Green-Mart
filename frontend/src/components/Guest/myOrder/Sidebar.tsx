@@ -8,6 +8,7 @@ import {
   FaSignOutAlt,
   FaBox,
   FaStar,
+  FaHeart,
 } from 'react-icons/fa';
 import { useUserStore } from '../../../stores/useUserStore';
 import LuckyWheel from '../Account/LuckyWheel';
@@ -24,6 +25,7 @@ const Sidebar: React.FC = () => {
     { icon: <FaMapMarkerAlt />, label: 'Địa chỉ của tôi', path: '/myaddress' },
     { icon: <FaBell />, label: 'Cài đặt thông báo', path: '/notification-settings' },
     { icon: <FaBook />, label: 'Mã giảm giá', path: '/myvoucher' },
+    { icon: <FaHeart />, label: 'Danh sách yêu thích', path: '/wishlist' }
   ];
 
   const handleLogout = async () => {

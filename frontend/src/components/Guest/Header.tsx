@@ -365,18 +365,6 @@ const Header: React.FC = memo(() => {
                           )}
                         </button>
 
-                        <button
-                          onClick={() => {
-                            setShowLuckyWheel(true);
-                            setShowUserMenu(false);
-                          }}
-                          className="dropdown-item text-app-primary"
-                        >
-                          <div className="icon-wrapper">
-                            <Zap size={16} className="group-hover:text-yellow-600" />
-                          </div>
-                          <span className="font-medium">Vòng xoay may mắn</span>
-                        </button>
                       </div>
 
                       <div className="border-t border-app-border pt-2">
