@@ -233,8 +233,8 @@ const LuckyWheelMobile: React.FC<{ userId: string | number; isOpen: boolean; onC
         onClick={onClose}
       />
       
-      {/* Modal Container - Mobile Optimized */}
-      <div className="fixed inset-0 z-[51] flex items-center justify-center p-3 pointer-events-none overflow-y-auto">
+      {/* Modal Container - Mobile Optimized - Fixed at top */}
+      <div className="fixed inset-0 z-[51] flex justify-center pointer-events-none overflow-y-auto" style={{ marginTop: '10vh' }}>
         {(isUpdating || voucherLoading) && (
           <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-[60] pointer-events-none">
             <div className="flex flex-col items-center gap-2">

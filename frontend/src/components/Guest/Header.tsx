@@ -26,7 +26,6 @@ import { useResponsive } from '../../hooks/useResponsive';
 import NotificationDropdownContent from './Notification/NotificationDropdownContent';
 import ThemeToggle from '../ui/ThemeToggle';
 import CategoryBar from './CategoryBar';
-import LuckyWheel from './Account/LuckyWheel';
 import LuckyWheelMobile from './Account/LuckyWheelMobile';
 
 const Header: React.FC = memo(() => {
@@ -598,7 +597,6 @@ const Header: React.FC = memo(() => {
                     setShowLuckyWheel(true);
                     setShowMobileMenu(false);
                   } else {
-                    // If user is not logged in, redirect to login
                     navigate('/login');
                     setShowMobileMenu(false);
                   }
@@ -686,15 +684,9 @@ const Header: React.FC = memo(() => {
         {/* CategoryBar: Only show on desktop when toggled and not on order success pages */}
         {!isMobile && showCategoryBar && !shouldHideCategoryBar && <CategoryBar />}
 
-        {/* Lucky Wheel Modal - Conditional based on device */}
-        {isMobile ? (
+        {/* Lucky Wheel Modal - Mobile Only */}
+        {isMobile && (
           <LuckyWheelMobile
-            userId={user?.id || ''}
-            isOpen={showLuckyWheel}
-            onClose={() => setShowLuckyWheel(false)}
-          />
-        ) : (
-          <LuckyWheel
             userId={user?.id || ''}
             isOpen={showLuckyWheel}
             onClose={() => setShowLuckyWheel(false)}
