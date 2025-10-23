@@ -26,13 +26,12 @@ const ShopeeVoucherModal: React.FC<ShopeeVoucherModalProps> = ({
         onClick={onClose}
       />
 
-      {/* Modal Container - scrollable và follows viewport */}
-      <div className="fixed inset-0 z-[120] overflow-y-auto pointer-events-none">
-        <div className="flex min-h-full justify-center items-center p-4 py-8">
-          <div
-            className="bg-white rounded-3xl shadow-2xl relative flex flex-col max-h-[90vh] animate-slideInFromBottom pointer-events-auto"
-            style={{ minWidth: '320px', maxWidth: '500px', width: '100%' }}
-          >
+      {/* Modal Container - centered horizontally, positioned at ~65vh */}
+      <div className="fixed inset-0 z-[120] flex justify-center pointer-events-none overflow-y-auto">
+        <div
+          className="bg-white rounded-3xl shadow-2xl relative flex flex-col max-h-[90vh] overflow-y-auto animate-slideInFromBottom pointer-events-auto"
+          style={{ minWidth: '320px', maxWidth: '500px', width: '100%', marginTop: '15vh' }}
+        >
           {/* Header */}
           <div className="flex items-center justify-between p-6 pb-4 border-b border-gray-100">
             <div className="flex items-center gap-3">
@@ -182,7 +181,6 @@ const ShopeeVoucherModal: React.FC<ShopeeVoucherModalProps> = ({
                 ))}
               </div>
             )}
-          </div>
           </div>
         </div>
       </div>

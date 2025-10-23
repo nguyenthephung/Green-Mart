@@ -27,6 +27,7 @@ import NotificationDropdownContent from './Notification/NotificationDropdownCont
 import ThemeToggle from '../ui/ThemeToggle';
 import CategoryBar from './CategoryBar';
 import LuckyWheel from './Account/LuckyWheel';
+import LuckyWheelMobile from './Account/LuckyWheelMobile';
 
 const Header: React.FC = memo(() => {
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -685,12 +686,20 @@ const Header: React.FC = memo(() => {
         {/* CategoryBar: Only show on desktop when toggled and not on order success pages */}
         {!isMobile && showCategoryBar && !shouldHideCategoryBar && <CategoryBar />}
 
-        {/* Lucky Wheel Modal */}
-        <LuckyWheel
-          userId={user?.id || ''}
-          isOpen={showLuckyWheel}
-          onClose={() => setShowLuckyWheel(false)}
-        />
+        {/* Lucky Wheel Modal - Conditional based on device */}
+        {isMobile ? (
+          <LuckyWheelMobile
+            userId={user?.id || ''}
+            isOpen={showLuckyWheel}
+            onClose={() => setShowLuckyWheel(false)}
+          />
+        ) : (
+          <LuckyWheel
+            userId={user?.id || ''}
+            isOpen={showLuckyWheel}
+            onClose={() => setShowLuckyWheel(false)}
+          />
+        )}
       </div>
     </header>
   );
